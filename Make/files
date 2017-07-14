@@ -1,0 +1,3 @@
+preciceAdapter.C
+
+LIB = $(FOAM_USER_LIBBIN)/libpreciceAdapterFunctionObject
