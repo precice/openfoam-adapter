@@ -89,6 +89,9 @@ public:
 
         //- Write the preciceAdapter
         virtual bool write();
+
+        //- Called at the end of Time::adjustDeltaT() if adjustTime is true
+        virtual bool adjustTimeStep();
 };
 
 

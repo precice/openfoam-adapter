@@ -26,6 +26,8 @@ which is part of the `libpreciceAdapterFunctionObject.so` shared library
 (which you built as shown above).
 The name `preCICE_Adapter` can be different.
 
+You also need to set `adjustTimeStep` to `yes` in the same file.
+
 ## Setup an example
 The adapter currently only prints information about the calls to the
 functionObject's methods and does not add any useful functionality.
@@ -50,6 +52,8 @@ functions
     }
 }
 ```
+
+and change the value of `adjustTimeStep` to `yes`.
 
 3. Run the case:
 ```

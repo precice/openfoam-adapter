@@ -93,5 +93,10 @@ bool Foam::functionObjects::preciceAdapter::write()
     return true;
 }
 
+bool Foam::functionObjects::preciceAdapter::adjustTimeStep()
+{
+    Info << "---[preciceAdapter] ADJUSTTIMESTEP -----" << nl;
+    return true;
+}
 
 // ************************************************************************* //
