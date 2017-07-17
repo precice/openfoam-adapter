@@ -66,6 +66,11 @@ Foam::functionObjects::preciceAdapter::~preciceAdapter()
 bool Foam::functionObjects::preciceAdapter::read(const dictionary& dict)
 {
     Info << "---[preciceAdapter] READ ---------------" << nl;
+    Info << "---[preciceAdapter] Read the YAML file (one per solver)." << nl;
+    Info << "---[preciceAdapter] Set the subcyclingEnabled." << nl;
+    Info << "---[preciceAdapter] Set the checkpointingEnabled." << nl;
+    Info << "---[preciceAdapter] Add checkpoint fields (decide which)." << nl;
+    Info << "---[preciceAdapter] Initialize preCICE." << nl;
     return true;
 }
 
@@ -73,6 +78,11 @@ bool Foam::functionObjects::preciceAdapter::read(const dictionary& dict)
 bool Foam::functionObjects::preciceAdapter::execute()
 {
     Info << "---[preciceAdapter] EXECUTE ------------" << nl;
+    Info << "---[preciceAdapter] Write coupling data." << nl;
+    Info << "---[preciceAdapter] Advance preCICE." << nl;
+    Info << "---[preciceAdapter] Read checkpoint." << nl;
+    Info << "---[preciceAdapter] Write if coupling timestep complete." << nl;
+    Info << "---[preciceAdapter] Read coupling data." << nl;
     return true;
 }
 
@@ -93,6 +103,8 @@ bool Foam::functionObjects::preciceAdapter::write()
 bool Foam::functionObjects::preciceAdapter::adjustTimeStep()
 {
     Info << "---[preciceAdapter] ADJUSTTIMESTEP -----" << nl;
+    Info << "---[preciceAdapter] Adjust the solver's timestep." << nl;
+    Info << "---[preciceAdapter] Write checkpoint." << nl;
     return true;
 }
 
