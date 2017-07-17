@@ -30,3 +30,7 @@
 *.exe
 *.out
 *.app
+
+# OpenFOAM / WMake
+lnInclude/
+Make/linux64GccDPInt32Opt/

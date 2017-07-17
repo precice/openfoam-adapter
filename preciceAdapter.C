@@ -49,11 +49,9 @@ Foam::functionObjects::preciceAdapter::preciceAdapter
     const dictionary& dict
 )
 :
-    fvMeshFunctionObject(name, runTime, dict),
-    wordData_(dict.lookupOrDefault<word>("wordData", "defaultWord")),
-    scalarData_(readScalar(dict.lookup("scalarData"))),
-    labelData_(readLabel(dict.lookup("labelData")))
+    fvMeshFunctionObject(name, runTime, dict)
 {
+    Info << "---[preciceAdapter] CONSTRUCTOR --------" << nl;
     read(dict);
 }
 
@@ -61,35 +59,37 @@ Foam::functionObjects::preciceAdapter::preciceAdapter
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
 Foam::functionObjects::preciceAdapter::~preciceAdapter()
-{}
+{
+    Info << "---[preciceAdapter] DESTRUCTOR ---------" << nl;
+}
 
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
 bool Foam::functionObjects::preciceAdapter::read(const dictionary& dict)
 {
-    dict.readIfPresent("wordData", wordData_);
-    dict.lookup("scalarData") >> scalarData_;
-    dict.lookup("labelData") >> labelData_;
-
+    Info << "---[preciceAdapter] READ ---------------" << nl;
     return true;
 }
 
 
 bool Foam::functionObjects::preciceAdapter::execute()
 {
+    Info << "---[preciceAdapter] EXECUTE ------------" << nl;
     return true;
 }
 
 
 bool Foam::functionObjects::preciceAdapter::end()
 {
+    Info << "---[preciceAdapter] END ----------------" << nl;
     return true;
 }
 
 
 bool Foam::functionObjects::preciceAdapter::write()
 {
+    Info << "---[preciceAdapter] WRITE --------------" << nl;
     return true;
 }
 
