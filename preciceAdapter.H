@@ -73,6 +73,9 @@ class preciceAdapter
         //- Type of timestep (fixed, adjustable)
         bool adjustableTimestep_;
 
+        //- Switch for checkpointing
+        bool checkpointingEnabled_;
+
     // Private Member Functions
 
         //- Disallow default bitwise copy construct

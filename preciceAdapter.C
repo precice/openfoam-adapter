@@ -69,8 +69,15 @@ bool Foam::functionObjects::preciceAdapter::read(const dictionary& dict)
     Info << "---[preciceAdapter] READ ---------------" << nl;
     Info << "---[preciceAdapter] Read the YAML file (one per solver)." << nl;
     Info << "---[preciceAdapter] Set the subcyclingEnabled." << nl;
+
+    // Set the checkpointingEnabled_ switch (TODO: read from the config file)
     Info << "---[preciceAdapter] Set the checkpointingEnabled." << nl;
-    Info << "---[preciceAdapter] Add checkpoint fields (decide which)." << nl;
+    checkpointingEnabled_ = true;
+
+    // Add fields in the checkpointing list
+    if (checkpointingEnabled_) {
+        Info << "---[preciceAdapter] Add checkpoint fields (decide which)." << nl;
+    }
 
     // Check the timestep type (fixed vs adjustable)
     Info << "---[preciceAdapter] Check the timestep type (fixed vs adjustable)." << nl;
@@ -87,7 +94,11 @@ bool Foam::functionObjects::preciceAdapter::read(const dictionary& dict)
     Info << "---[preciceAdapter] Initialize preCICE data." << nl;
     Info << "---[preciceAdapter] ---" << nl;
     Info << "---[preciceAdapter] Read coupling data (for the first iteration)" << nl;
-    Info << "---[preciceAdapter] Write checkpoint (for the first iteration)" << nl;
+
+    // Write checkpoint (for the first iteration)
+    if (checkpointingEnabled_) {
+        Info << "---[preciceAdapter] Write checkpoint (for the first iteration)" << nl;
+    }
 
     // Adjust the timestep for the first iteration, if it is fixed
     if (!adjustableTimestep_) {
@@ -111,8 +122,16 @@ bool Foam::functionObjects::preciceAdapter::execute()
         Info << "---[preciceAdapter]   Adjust the solver's timestep (if fixed timestep, from the previous iteration)." << nl;
     }
 
-    Info << "---[preciceAdapter]   Read checkpoint (from the previous iteration)." << nl;
-    Info << "---[preciceAdapter]   Write checkpoint (from the previous iteration)." << nl;
+    // Read checkpoint (from the previous iteration)
+    if (checkpointingEnabled_) {
+        Info << "---[preciceAdapter]   Read checkpoint (from the previous iteration)." << nl;
+    }
+
+    // Write checkpoint (from the previous iteration)
+    if (checkpointingEnabled_) {
+        Info << "---[preciceAdapter]   Write checkpoint (from the previous iteration)." << nl;
+    }
+
     Info << "---[preciceAdapter]   Write if coupling timestep complete (?)." << nl;
     Info << "---[preciceAdapter] } else {" << nl;
     Info << "---[preciceAdapter]   Exit the loop." << nl;
