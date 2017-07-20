@@ -71,9 +71,12 @@ bool Foam::functionObjects::preciceAdapter::read(const dictionary& dict)
     Info << "---[preciceAdapter] Set the checkpointingEnabled." << nl;
     Info << "---[preciceAdapter] Add checkpoint fields (decide which)." << nl;
     Info << "---[preciceAdapter] Initialize preCICE." << nl;
+    Info << "---[preciceAdapter] Write coupling data (for the first iteration)" << nl;
+    Info << "---[preciceAdapter] Initialize preCICE data." << nl;
     Info << "---[preciceAdapter] ---" << nl;
     Info << "---[preciceAdapter] Read coupling data (for the first iteration)" << nl;
-    Info << "---[preciceAdapter] Adjust the solver's timestep (for the first iteration)" << nl;
+    Info << "---[preciceAdapter] Write checkpoint (for the first iteration)" << nl;
+    Info << "---[preciceAdapter] Adjust the solver's timestep (if fixed timestep, for the first iteration)" << nl;
     return true;
 }
 
@@ -83,12 +86,12 @@ bool Foam::functionObjects::preciceAdapter::execute()
     Info << "---[preciceAdapter] EXECUTE (i > 1)------" << nl;
     Info << "---[preciceAdapter] if (coupling ongoing) {" << nl;
     Info << "---[preciceAdapter]   Write coupling data (from the previous iteration)." << nl;
-    Info << "---[preciceAdapter]   Write checkpoint (from the previous iteration)." << nl;
-    Info << "---[preciceAdapter]   Read coupling data (from the previous iteration)." << nl;
-    Info << "---[preciceAdapter]   Adjust the solver's timestep (from the previous iteration)." << nl;
     Info << "---[preciceAdapter]   Advance preCICE (from the previous iteration)." << nl;
+    Info << "---[preciceAdapter]   Read coupling data (from the previous iteration)." << nl;
+    Info << "---[preciceAdapter]   Adjust the solver's timestep (if fixed timestep, from the previous iteration)." << nl;
     Info << "---[preciceAdapter]   Read checkpoint (from the previous iteration)." << nl;
-    Info << "---[preciceAdapter]   Write if coupling timestep complete." << nl;
+    Info << "---[preciceAdapter]   Write checkpoint (from the previous iteration)." << nl;
+    Info << "---[preciceAdapter]   Write if coupling timestep complete (?)." << nl;
     Info << "---[preciceAdapter] } else {" << nl;
     Info << "---[preciceAdapter]   Exit the loop." << nl;
     Info << "---[preciceAdapter] }" << nl;
