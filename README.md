@@ -5,7 +5,7 @@ any functionality.
 
 ## Build
 In order to build this adapter, simply run `wmake`
-inside the `openfoam-adapter` directory. Please notice the "w" in the begining.
+inside the `openfoam-adapter` directory. Please notice the "w" in the beginning.
 
 ## Run
 To run this adapter, you must include the following in
@@ -25,8 +25,6 @@ This directs the solver to use the `preciceAdapter` function object,
 which is part of the `libpreciceAdapterFunctionObject.so` shared library
 (which you built as shown above).
 The name `preCICE_Adapter` can be different.
-
-You also need to set `adjustTimeStep` to `yes` in the same file.
 
 ## Setup an example
 The adapter currently only prints information about the calls to the
@@ -52,8 +50,6 @@ functions
     }
 }
 ```
-
-and change the value of `adjustTimeStep` to `yes`.
 
 3. Run the case:
 ```

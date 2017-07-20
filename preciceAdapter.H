@@ -65,6 +65,14 @@ class preciceAdapter
 :
     public fvMeshFunctionObject
 {
+    // Private data
+
+        //- runTime object
+        const Time& runTime_;
+
+        //- Type of timestep (fixed, adjustable)
+        bool adjustableTimestep_;
+
     // Private Member Functions
 
         //- Disallow default bitwise copy construct

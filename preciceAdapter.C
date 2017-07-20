@@ -46,7 +46,8 @@ Foam::functionObjects::preciceAdapter::preciceAdapter
     const dictionary& dict
 )
 :
-    fvMeshFunctionObject(name, runTime, dict)
+    fvMeshFunctionObject(name, runTime, dict),
+    runTime_(runTime)
 {
     Info << "---[preciceAdapter] CONSTRUCTOR --------" << nl;
     read(dict);
@@ -70,13 +71,29 @@ bool Foam::functionObjects::preciceAdapter::read(const dictionary& dict)
     Info << "---[preciceAdapter] Set the subcyclingEnabled." << nl;
     Info << "---[preciceAdapter] Set the checkpointingEnabled." << nl;
     Info << "---[preciceAdapter] Add checkpoint fields (decide which)." << nl;
+
+    // Check the timestep type (fixed vs adjustable)
+    Info << "---[preciceAdapter] Check the timestep type (fixed vs adjustable)." << nl;
+    adjustableTimestep_ = runTime_.controlDict().lookupOrDefault("adjustTimeStep", false);
+
+    if (adjustableTimestep_) {
+        Info << "---[preciceAdapter] Timestep type: adjustable." << nl;
+    } else {
+        Info << "---[preciceAdapter] Timestep type: fixed." << nl;
+    }
+
     Info << "---[preciceAdapter] Initialize preCICE." << nl;
     Info << "---[preciceAdapter] Write coupling data (for the first iteration)" << nl;
     Info << "---[preciceAdapter] Initialize preCICE data." << nl;
     Info << "---[preciceAdapter] ---" << nl;
     Info << "---[preciceAdapter] Read coupling data (for the first iteration)" << nl;
     Info << "---[preciceAdapter] Write checkpoint (for the first iteration)" << nl;
-    Info << "---[preciceAdapter] Adjust the solver's timestep (if fixed timestep, for the first iteration)" << nl;
+
+    // Adjust the timestep for the first iteration, if it is fixed
+    if (!adjustableTimestep_) {
+        Info << "---[preciceAdapter] Adjust the solver's timestep (if fixed timestep, for the first iteration)" << nl;
+    }
+
     return true;
 }
 
@@ -88,7 +105,12 @@ bool Foam::functionObjects::preciceAdapter::execute()
     Info << "---[preciceAdapter]   Write coupling data (from the previous iteration)." << nl;
     Info << "---[preciceAdapter]   Advance preCICE (from the previous iteration)." << nl;
     Info << "---[preciceAdapter]   Read coupling data (from the previous iteration)." << nl;
-    Info << "---[preciceAdapter]   Adjust the solver's timestep (if fixed timestep, from the previous iteration)." << nl;
+
+    // Adjust the timestep, if it is fixed
+    if (!adjustableTimestep_) {
+        Info << "---[preciceAdapter]   Adjust the solver's timestep (if fixed timestep, from the previous iteration)." << nl;
+    }
+
     Info << "---[preciceAdapter]   Read checkpoint (from the previous iteration)." << nl;
     Info << "---[preciceAdapter]   Write checkpoint (from the previous iteration)." << nl;
     Info << "---[preciceAdapter]   Write if coupling timestep complete (?)." << nl;
