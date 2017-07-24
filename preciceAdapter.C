@@ -21,6 +21,8 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "preciceAdapter.H"
+
+// OpenFOAM header files
 #include "Time.H"
 #include "fvMesh.H"
 #include "addToRunTimeSelectionTable.H"
@@ -67,12 +69,10 @@ Foam::functionObjects::preciceAdapter::~preciceAdapter()
 bool Foam::functionObjects::preciceAdapter::read(const dictionary& dict)
 {
     Info << "---[preciceAdapter] READ ---------------" << nl;
-    Info << "---[preciceAdapter] Read the YAML file (one per solver)." << nl;
-    Info << "---[preciceAdapter] Set the subcyclingEnabled." << nl;
 
-    // Set the checkpointingEnabled_ switch (TODO: read from the config file)
-    Info << "---[preciceAdapter] Set the checkpointingEnabled." << nl;
-    checkpointingEnabled_ = true;
+    // Read the adapter's YAML configuration file
+    configFileRead();
+
 
     // Add fields in the checkpointing list
     if (checkpointingEnabled_) {
@@ -84,9 +84,9 @@ bool Foam::functionObjects::preciceAdapter::read(const dictionary& dict)
     adjustableTimestep_ = runTime_.controlDict().lookupOrDefault("adjustTimeStep", false);
 
     if (adjustableTimestep_) {
-        Info << "---[preciceAdapter] Timestep type: adjustable." << nl;
+        Info << "---[preciceAdapter]   Timestep type: adjustable." << nl;
     } else {
-        Info << "---[preciceAdapter] Timestep type: fixed." << nl;
+        Info << "---[preciceAdapter]   Timestep type: fixed." << nl;
     }
 
     Info << "---[preciceAdapter] Initialize preCICE." << nl;
@@ -158,6 +158,125 @@ bool Foam::functionObjects::preciceAdapter::adjustTimeStep()
     Info << "---[preciceAdapter] ADJUSTTIMESTEP -----" << nl;
     Info << "---[preciceAdapter] Adjust the solver's timestep (only if dynamic timestep is used)." << nl;
     return true;
+}
+
+void Foam::functionObjects::preciceAdapter::errorAndExit(const std::string message, const std::string function)
+{
+    // TODO not exiting: stops the function object, but not the simulation.
+    // Using the stopAt() it stops at the end of the timestep, but without an error.
+    runTime_.stopAt(Time::saNoWriteNow);
+    FatalErrorIn(function) << "Error in preciceAdapter:" << nl << message << nl << exit(FatalError);
+}
+
+void Foam::functionObjects::preciceAdapter::configFileCheck(const std::string adapterConfigFileName)
+{
+    Info << "---[preciceAdapter] Check the adapter's YAML configuration file." << nl;
+
+    bool configErrors = false;
+
+    YAML::Node adapterConfig = YAML::LoadFile(adapterConfigFileName);
+
+    // TODO Consider simplifying
+    // Check if the "participant" node exists
+    if ( !adapterConfig["participant"] )
+    {
+        Info << "---[preciceAdapter] Error: Adapter's configuration file: participant node is missing." << nl;
+        configErrors = true;
+    }
+
+    // Check if the "precice-config-file" node exists
+    if ( !adapterConfig["precice-config-file"] )
+    {
+        Info << "---[preciceAdapter] Error: Adapter's configuration file: 'precice-config-file' node is missing." << nl;
+        configErrors = true;
+        // TODO Check if the specified file exists
+    }
+
+    // Check if the "interfaces" node exists
+    if ( !adapterConfig["interfaces"] )
+    {
+        Info << "---[preciceAdapter] Error: Adapter's configuration file: 'interfaces' node is missing." << nl;
+        configErrors = true;
+    } else {
+        for ( int i = 0; i < adapterConfig["interfaces"].size(); i++ )
+        {
+            if ( !adapterConfig["interfaces"][i]["mesh"] )
+            {
+                Info << "---[preciceAdapter] Error: Adapter's configuration file: the 'mesh' node is missing for the interface " << i+1 << "." << nl;
+                configErrors = true;
+            }
+            if ( !adapterConfig["interfaces"][i]["patches"] )
+            {
+                Info << "---[preciceAdapter] Error: Adapter's configuration file: the 'patches' node is missing for the interface " << i+1 << "." << nl;
+                configErrors = true;
+            }
+            if ( !adapterConfig["interfaces"][i]["write-data"] )
+            {
+                Info << "---[preciceAdapter] Error: Adapter's configuration file: the 'write-data' node is missing for the interface " << i+1 << "." << nl;
+                configErrors = true;
+                // TODO Add check for allowed values.
+            }
+            if ( !adapterConfig["interfaces"][i]["read-data"] )
+            {
+                Info << "---[preciceAdapter] Error: Adapter's configuration file: the 'read-data' node is missing for the interface " << i+1 << "." << nl;
+                configErrors = true;
+                // TODO Add check for allowed values.
+            }
+        }
+    }
+
+    // Check if the "subcycling" node exists
+    if ( !adapterConfig["subcycling"] )
+    {
+        Info << "---[preciceAdapter] Error: Adapter's configuration file: 'subcycling' node is missing." << nl;
+        configErrors = true;
+    }
+
+    // Check if the "checkpointing" node exists
+    if ( !adapterConfig["checkpointing"] )
+    {
+        Info << "---[preciceAdapter] Error: Adapter's configuration file: 'checkpointing' node is missing." << nl;
+        configErrors = true;
+    }
+
+    if ( configErrors )
+    {
+        errorAndExit("The adapter's configuration file " + adapterConfigFileName + " is incomplete or wrong. See the log for details.", "preciceAdapter::configFileCheck()");
+    }
+
+    Info << "---[preciceAdapter]   The adapter's YAML configuration file " << adapterConfigFileName << " is complete." << nl;
+}
+
+void Foam::functionObjects::preciceAdapter::configFileRead()
+{
+    Info << "---[preciceAdapter] Read the adapter's YAML configuration file (one per solver)." << nl;
+
+    // Check the configuration file
+    const std::string adapterConfigFileName = "precice-adapter-config.yml";
+    configFileCheck(adapterConfigFileName);
+
+    // Load the YAML file
+    adapterConfig_ = YAML::LoadFile(adapterConfigFileName);
+
+    // Read the preCICE participant name
+    participantName_ = adapterConfig_["participant"].as<std::string>();
+    Info << "---[preciceAdapter]   participant : " << participantName_ << nl;
+
+    // Read the preCICE configuration file name
+    preciceConfigFilename_ = adapterConfig_["precice-config-file"].as<std::string>();
+    Info << "---[preciceAdapter]   precice-config-file : " << preciceConfigFilename_ << nl;
+
+    // TODO Read the coupling interfaces
+    YAML::Node adapterConfigInterfaces = adapterConfig_["interfaces"];
+    Info << "---[preciceAdapter]   interfaces : TODO " << nl;
+
+    // Set the subcyclingAllowed_ switch
+    subcyclingAllowed_ = adapterConfig_["subcycling"].as<bool>();
+    Info << "---[preciceAdapter]   subcycling : " << subcyclingAllowed_ << nl;
+
+    // Set the checkpointingEnabled_ switch
+    checkpointingEnabled_ = adapterConfig_["checkpointing"].as<bool>();
+    Info << "---[preciceAdapter]   checkpointing : " << checkpointingEnabled_ << nl;
 }
 
 // ************************************************************************* //

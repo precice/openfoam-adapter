@@ -45,10 +45,15 @@ SourceFiles
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef preciceAdapter_H
-#define preciceAdapter_H
+#ifndef PRECICEADAPTER_H
+#define PRECICEADAPTER_H
 
+// OpenFOAM header files
 #include "fvMeshFunctionObject.H"
+
+// Other header files
+// YAML reader
+#include "yaml-cpp/yaml.h"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -58,7 +63,7 @@ namespace functionObjects
 {
 
 /*---------------------------------------------------------------------------*\
-                   Class preciceAdapter Declaration
+                       Class preciceAdapter Declaration
 \*---------------------------------------------------------------------------*/
 
 class preciceAdapter
@@ -70,13 +75,34 @@ class preciceAdapter
         //- runTime object
         const Time& runTime_;
 
+        //- YAML Node object for the configuration file
+        YAML::Node adapterConfig_;
+
+        //- preCICE participant name
+        std::string participantName_;
+
+        //- preCICE configuration file name
+        std::string preciceConfigFilename_;
+
         //- Type of timestep (fixed, adjustable)
         bool adjustableTimestep_;
+
+        //- Switch for checkpointing
+        bool subcyclingAllowed_;
 
         //- Switch for checkpointing
         bool checkpointingEnabled_;
 
     // Private Member Functions
+
+        //- Produce an error and exit
+        void errorAndExit(const std::string message, const std::string function);
+
+        //- Read the adapter's configuration file
+        void configFileRead();
+
+        //- Check the adapter's configuration file
+        void configFileCheck(const std::string adapterConfigFileName);
 
         //- Disallow default bitwise copy construct
         preciceAdapter(const preciceAdapter&);
