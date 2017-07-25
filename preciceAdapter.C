@@ -61,6 +61,10 @@ Foam::functionObjects::preciceAdapter::preciceAdapter
 Foam::functionObjects::preciceAdapter::~preciceAdapter()
 {
     Info << "---[preciceAdapter] DESTRUCTOR ---------" << nl;
+
+    Info << "---[preciceAdapter] Destroy the preCICE Solver Interface." << nl;
+    delete precice_;
+
 }
 
 
@@ -90,21 +94,28 @@ bool Foam::functionObjects::preciceAdapter::read(const dictionary& dict)
     }
 
     // Initialize preCICE
-    Info << "---[preciceAdapter] Initialize preCICE." << nl;
+    Info << "---[preciceAdapter] Create the preCICE solver interface." << nl;
     int MPIEnabled = 0;
+    int MPIRank = 0;
+    int MPISize = 1;
+
     MPI_Initialized( &MPIEnabled );
     Info << "---[preciceAdapter]   MPI used: " << MPIEnabled << nl;
 
     if ( MPIEnabled )
     {
-        int MPIRank = 0;
         MPI_Comm_rank( MPI_COMM_WORLD, &MPIRank );
         Info << "---[preciceAdapter]   MPI rank: " << MPIRank << nl;
 
-        int MPISize = 1;
         MPI_Comm_size( MPI_COMM_WORLD, &MPISize );
         Info << "---[preciceAdapter]   MPI size: " << MPISize << nl;
     }
+
+    precice_ = new precice::SolverInterface( participantName_, MPIRank, MPISize );
+    Info << "---[preciceAdapter]   preCICE solver interface was created." << nl;
+
+    Info << "---[preciceAdapter] Configure preCICE." << nl;
+    precice_->configure( preciceConfigFilename_ );
 
     Info << "---[preciceAdapter] Write coupling data (for the first iteration)" << nl;
     Info << "---[preciceAdapter] Initialize preCICE data." << nl;

@@ -1,9 +1,24 @@
 EXE_INC = \
     -I$(LIB_SRC)/finiteVolume/lnInclude \
     -I$(LIB_SRC)/meshTools/lnInclude \
-    -I/usr/local/yaml-cpp/include
+    -I$(PRECICE_ROOT)/src \
+    -I/usr/local/yaml-cpp/include \
+    -DBOOST_LOG_DYN_LINK
 
 LIB_LIBS = \
     -lfiniteVolume \
     -lmeshTools \
+    -L${PRECICE_ROOT}/build/last \
+    -L${PETSC_DIR}/${PETSC_ARCH}/lib \
+    -lprecice \
+    -lpetsc \
+    -lboost_system \
+    -lboost_filesystem \
+    -lboost_log \
+    -lboost_log_setup \
+    -lboost_thread \
+    -lboost_program_options \
+    -lpthread \
+    -lpython2.7 \
+    -L/usr/local/yaml-cpp/build \
     -lyaml-cpp

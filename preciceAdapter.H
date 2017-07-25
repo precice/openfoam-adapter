@@ -56,6 +56,8 @@ SourceFiles
 #include "yaml-cpp/yaml.h"
 // MPI - Used to extract the MPI configuration for the preCICE initialization.
 #include "mpi.h"
+// preCICE Solver Interface
+#include "precice/SolverInterface.hpp"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -94,6 +96,9 @@ class preciceAdapter
 
         //- Switch for checkpointing
         bool checkpointingEnabled_;
+
+        //- preCICE solver interface
+        precice::SolverInterface * precice_;
 
     // Private Member Functions
 
