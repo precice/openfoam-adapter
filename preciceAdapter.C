@@ -89,7 +89,23 @@ bool Foam::functionObjects::preciceAdapter::read(const dictionary& dict)
         Info << "---[preciceAdapter]   Timestep type: fixed." << nl;
     }
 
+    // Initialize preCICE
     Info << "---[preciceAdapter] Initialize preCICE." << nl;
+    int MPIEnabled = 0;
+    MPI_Initialized( &MPIEnabled );
+    Info << "---[preciceAdapter]   MPI used: " << MPIEnabled << nl;
+
+    if ( MPIEnabled )
+    {
+        int MPIRank = 0;
+        MPI_Comm_rank( MPI_COMM_WORLD, &MPIRank );
+        Info << "---[preciceAdapter]   MPI rank: " << MPIRank << nl;
+
+        int MPISize = 1;
+        MPI_Comm_size( MPI_COMM_WORLD, &MPISize );
+        Info << "---[preciceAdapter]   MPI size: " << MPISize << nl;
+    }
+
     Info << "---[preciceAdapter] Write coupling data (for the first iteration)" << nl;
     Info << "---[preciceAdapter] Initialize preCICE data." << nl;
     Info << "---[preciceAdapter] ---" << nl;
