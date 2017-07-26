@@ -4,6 +4,9 @@ _**Note:** This adapter is under development and currently does not add
 any functionality. This README file also corresponds to the current
 development of the adapter and is therefore incomplete._
 
+This adapter is developed as part of Gerasimos Chourdakis' master's thesis.
+It is based on [previous work](https://github.com/ludcila/CHT-preCICE) by Lucia Cheung ([master's thesis](https://www5.in.tum.de/pub/Cheung2016_Thesis.pdf), in cooperation with [SimScale](https://www.simscale.com/)).
+
 ## Build
 In order to build this adapter, we need to use an MPI C++ compiler.
 To do so, let's create a new target for WMake (build tool used by OpenFOAM):
@@ -139,6 +142,11 @@ The following OpenFOAM versions and solvers have been tested to work with this a
 
 * OpenFOAM 5.0 - openfoam.org
 * OpenFOAM 4.1 - openfoam.org
+
+The following versions are known to be currently _incompatible_:
+
+* OpenFOAM 3.0.1 - openfoam.org (differences in the `functionObject`)
+* OpenFOAM 2.3.1 - openfoam.org (differences in the `functionObject`)
 
 ### Compatible OpenFOAM solvers
 
