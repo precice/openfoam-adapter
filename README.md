@@ -1,11 +1,37 @@
 # preCICE-adapter for the CFD code OpenFOAM
 
-This adapter is under development and currently does not add
-any functionality.
+_**Note:** This adapter is under development and currently does not add
+any functionality. This README file also corresponds to the current
+development of the adapter and is therefore incomplete._
 
 ## Build
-In order to build this adapter, simply run `wmake`
-inside the `openfoam-adapter` directory. Please notice the "w" in the beginning.
+In order to build this adapter, we need to use an MPI C++ compiler.
+To do so, let's create a new target for WMake (build tool used by OpenFOAM):
+
+```bash
+cd $WM_DIR/rules
+sudo cp -r ${WM_ARCH}${WM_COMPILER} ${WM_ARCH}Mpicc
+cd ${WM_ARCH}Mpicc
+```
+
+Edit the file `c++` and change the compiler to `mpic++`. For example:
+
+```make
+CC          = mpic++ -std=c++11 -m64
+```
+
+Note: If your MPI library triggers many "old style cast" warnings, you may
+want to change the `-Wold-style-cast` flag to the `-Wno-old-style-cast`.
+
+Now that we have the new target, we have to specify that we want to use it.
+For this, run (or put in your `~/.bashrc`) the following:
+
+```bash
+export WM_COMPILER=Mpicc
+```
+
+Next, simply run `wmake` inside the `openfoam-adapter` directory.
+The respective command to clean is `wclean`.
 
 ## Run
 To run this adapter, you must include the following in
@@ -25,6 +51,43 @@ This directs the solver to use the `preciceAdapter` function object,
 which is part of the `libpreciceAdapterFunctionObject.so` shared library
 (which you built as shown above).
 The name `preCICE_Adapter` can be different.
+
+You must also provide a configuration file (see below).
+
+## Configuration
+The adapter is configured via the file `precice-adapter-config.yml`, which
+needs to be present in the case directory. This file is a YAML file with the
+following form:
+
+```yaml
+participant: Fluid
+
+precice-config-file: ../precice-config.xml
+
+interfaces:
+- mesh: Fluid-Mesh
+  patches: [interface]
+  write-data: Temperature
+  read-data: Heat-Flux
+
+subcycling: Yes
+
+checkpointing: Yes
+```
+
+The `participant` needs to be the same as the one specified in the `precice-config-file`,
+which is the main preCICE configuration file.
+
+In the `interfaces`, a list with the coupled interfaces is provided.
+The `mesh` needs to be the same as the one specified in the `precice-config-file`.
+The `patches` specifies a list of the names of the OpenFOAM boundary patches that are
+participating in the coupled simulation. These need to be defined in the files
+included in the `0/` directory. The values for `write-data` and `read-data` are
+currently placeholders.
+
+The parameters `subcycling` and `checkpointing` expect a `Yes` or a `No`.
+The first one allows the solver to subcycle, while the second enables the
+checkpointing. See the preCICE documentation for more information on this.
 
 ## Setup an example
 The adapter currently only prints information about the calls to the
@@ -51,7 +114,13 @@ functions
 }
 ```
 
-3. Run the case:
+3. Add the configuration file `precice-adapter-config.yml` in the case directory.
+
+4. Set the boundary patches that are participating in the coupled simulation.
+This needs to be done both in the files in the `0/` directory and in the adapter's
+configuration file.
+
+5. Run the case:
 ```
 $ ./Allrun
 ```
@@ -64,6 +133,15 @@ If everything went well, you should be able to find lines like the following in 
 
 ## Compatibility
 
-The following OpenFOAM versions have been tested to work with this adapter:
+### Compatible OpenFOAM versions
 
+The following OpenFOAM versions and solvers have been tested to work with this adapter:
+
+* OpenFOAM 5.0 - openfoam.org
 * OpenFOAM 4.1 - openfoam.org
+
+### Compatible OpenFOAM solvers
+
+#### Heat Transfer
+
+* buoyantPimpleFoam (OF4, OF5)
