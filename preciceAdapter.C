@@ -225,7 +225,7 @@ void Foam::functionObjects::preciceAdapter::configFileCheck(const std::string ad
         Info << "---[preciceAdapter] Error: Adapter's configuration file: 'interfaces' node is missing." << nl;
         configErrors = true;
     } else {
-        for ( int i = 0; i < adapterConfig["interfaces"].size(); i++ )
+        for ( uint i = 0; i < adapterConfig["interfaces"].size(); i++ )
         {
             if ( !adapterConfig["interfaces"][i]["mesh"] )
             {
