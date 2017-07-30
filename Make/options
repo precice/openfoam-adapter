@@ -3,7 +3,8 @@ EXE_INC = \
     -I$(LIB_SRC)/meshTools/lnInclude \
     -I$(PRECICE_ROOT)/src \
     -I/usr/local/yaml-cpp/include \
-    -DBOOST_LOG_DYN_LINK
+    -DBOOST_LOG_DYN_LINK \
+    -I../
 
 LIB_LIBS = \
     -lfiniteVolume \

@@ -51,13 +51,8 @@ SourceFiles
 // OpenFOAM header files
 #include "fvMeshFunctionObject.H"
 
-// Other header files
-// YAML reader - Used to read the adapter's configuration file.
-#include "yaml-cpp/yaml.h"
-// MPI - Used to extract the MPI configuration for the preCICE initialization.
-#include "mpi.h"
-// preCICE Solver Interface
-#include "precice/SolverInterface.hpp"
+// Main adapter header file
+#include "Adapter.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -76,40 +71,10 @@ class preciceAdapterFunctionObject
 {
     // Private data
 
-        //- runTime object
-        const Time& runTime_;
-
-        //- YAML Node object for the configuration file
-        YAML::Node adapterConfig_;
-
-        //- preCICE participant name
-        std::string participantName_;
-
-        //- preCICE configuration file name
-        std::string preciceConfigFilename_;
-
-        //- Type of timestep (fixed, adjustable)
-        bool adjustableTimestep_;
-
-        //- Switch for checkpointing
-        bool subcyclingAllowed_;
-
-        //- Switch for checkpointing
-        bool checkpointingEnabled_;
-
-        //- preCICE solver interface
-        precice::SolverInterface * precice_;
+        //- Adapter's main class instance
+        preciceAdapter::Adapter adapter_;
 
     // Private Member Functions
-
-        //- Produce an error and exit
-        void errorAndExit(const std::string message, const std::string function);
-
-        //- Read the adapter's configuration file
-        void configFileRead();
-
-        //- Check the adapter's configuration file
-        void configFileCheck(const std::string adapterConfigFileName);
 
         //- Disallow default bitwise copy construct
         preciceAdapterFunctionObject(const preciceAdapterFunctionObject&);
@@ -144,10 +109,10 @@ public:
         //- Read the preciceAdapterFunctionObject data
         virtual bool read(const dictionary&);
 
-        //- Execute, currently does nothing
+        //- Execute
         virtual bool execute();
 
-        //- Execute at the final time-loop, currently does nothing
+        //- Execute at the final time-loop
         virtual bool end();
 
         //- Write the preciceAdapterFunctionObject
