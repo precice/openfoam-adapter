@@ -20,7 +20,7 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "preciceAdapter.H"
+#include "preciceAdapterFunctionObject.H"
 
 // OpenFOAM header files
 #include "Time.H"
@@ -33,15 +33,15 @@ namespace Foam
 {
 namespace functionObjects
 {
-    defineTypeNameAndDebug(preciceAdapter, 0);
-    addToRunTimeSelectionTable(functionObject, preciceAdapter, dictionary);
+    defineTypeNameAndDebug(preciceAdapterFunctionObject, 0);
+    addToRunTimeSelectionTable(functionObject, preciceAdapterFunctionObject, dictionary);
 }
 }
 
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-Foam::functionObjects::preciceAdapter::preciceAdapter
+Foam::functionObjects::preciceAdapterFunctionObject::preciceAdapterFunctionObject
 (
     const word& name,
     const Time& runTime,
@@ -58,7 +58,7 @@ Foam::functionObjects::preciceAdapter::preciceAdapter
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
-Foam::functionObjects::preciceAdapter::~preciceAdapter()
+Foam::functionObjects::preciceAdapterFunctionObject::~preciceAdapterFunctionObject()
 {
     Info << "---[preciceAdapter] DESTRUCTOR ---------" << nl;
 
@@ -70,7 +70,7 @@ Foam::functionObjects::preciceAdapter::~preciceAdapter()
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-bool Foam::functionObjects::preciceAdapter::read(const dictionary& dict)
+bool Foam::functionObjects::preciceAdapterFunctionObject::read(const dictionary& dict)
 {
     Info << "---[preciceAdapter] READ ---------------" << nl;
 
@@ -136,7 +136,7 @@ bool Foam::functionObjects::preciceAdapter::read(const dictionary& dict)
 }
 
 
-bool Foam::functionObjects::preciceAdapter::execute()
+bool Foam::functionObjects::preciceAdapterFunctionObject::execute()
 {
     Info << "---[preciceAdapter] EXECUTE (i > 1)------" << nl;
     Info << "---[preciceAdapter] if (coupling ongoing) {" << nl;
@@ -167,27 +167,27 @@ bool Foam::functionObjects::preciceAdapter::execute()
 }
 
 
-bool Foam::functionObjects::preciceAdapter::end()
+bool Foam::functionObjects::preciceAdapterFunctionObject::end()
 {
     Info << "---[preciceAdapter] END ----------------" << nl;
     return true;
 }
 
 
-bool Foam::functionObjects::preciceAdapter::write()
+bool Foam::functionObjects::preciceAdapterFunctionObject::write()
 {
     Info << "---[preciceAdapter] WRITE --------------" << nl;
     return true;
 }
 
-bool Foam::functionObjects::preciceAdapter::adjustTimeStep()
+bool Foam::functionObjects::preciceAdapterFunctionObject::adjustTimeStep()
 {
     Info << "---[preciceAdapter] ADJUSTTIMESTEP -----" << nl;
     Info << "---[preciceAdapter] Adjust the solver's timestep (only if dynamic timestep is used)." << nl;
     return true;
 }
 
-void Foam::functionObjects::preciceAdapter::errorAndExit(const std::string message, const std::string function)
+void Foam::functionObjects::preciceAdapterFunctionObject::errorAndExit(const std::string message, const std::string function)
 {
     // TODO not exiting: stops the function object, but not the simulation.
     // Using the stopAt() it stops at the end of the timestep, but without an error.
@@ -195,7 +195,7 @@ void Foam::functionObjects::preciceAdapter::errorAndExit(const std::string messa
     FatalErrorIn(function) << "Error in preciceAdapter:" << nl << message << nl << exit(FatalError);
 }
 
-void Foam::functionObjects::preciceAdapter::configFileCheck(const std::string adapterConfigFileName)
+void Foam::functionObjects::preciceAdapterFunctionObject::configFileCheck(const std::string adapterConfigFileName)
 {
     Info << "---[preciceAdapter] Check the adapter's YAML configuration file." << nl;
 
@@ -268,13 +268,13 @@ void Foam::functionObjects::preciceAdapter::configFileCheck(const std::string ad
 
     if ( configErrors )
     {
-        errorAndExit("The adapter's configuration file " + adapterConfigFileName + " is incomplete or wrong. See the log for details.", "preciceAdapter::configFileCheck()");
+        errorAndExit("The adapter's configuration file " + adapterConfigFileName + " is incomplete or wrong. See the log for details.", "preciceAdapterFunctionObject::configFileCheck()");
     }
 
     Info << "---[preciceAdapter]   The adapter's YAML configuration file " << adapterConfigFileName << " is complete." << nl;
 }
 
-void Foam::functionObjects::preciceAdapter::configFileRead()
+void Foam::functionObjects::preciceAdapterFunctionObject::configFileRead()
 {
     Info << "---[preciceAdapter] Read the adapter's YAML configuration file (one per solver)." << nl;
 

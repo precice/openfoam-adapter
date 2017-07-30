@@ -33,7 +33,7 @@ For this, run (or put in your `~/.bashrc`) the following:
 export WM_COMPILER=Mpicc
 ```
 
-Next, simply run `wmake` inside the `openfoam-adapter` directory.
+Next, simply run `wmake libso` inside the `openfoam-adapter` directory.
 The respective command to clean is `wclean`.
 
 ## Run
@@ -45,12 +45,12 @@ functions
 {
     preCICE_Adapter
     {
-        type preciceAdapter;
+        type preciceAdapterFunctionObject;
         libs ("libpreciceAdapterFunctionObject.so");
     }
 }
 ```
-This directs the solver to use the `preciceAdapter` function object,
+This directs the solver to use the `preciceAdapterFunctionObject` function object,
 which is part of the `libpreciceAdapterFunctionObject.so` shared library
 (which you built as shown above).
 The name `preCICE_Adapter` can be different.
@@ -97,7 +97,7 @@ The adapter currently only prints information about the calls to the
 functionObject's methods and does not add any useful functionality.
 
 For now, you may use it e.g. with the solver buoyantPimpleFoam.
-An easy way to test it is by adding the call to the preciceAdapter
+An easy way to test it is by adding the call to the preciceAdapterFunctionObject
 in the "Hot Room" tutorial, provided with OpenFOAM.
 
 1. Copy the tutorial to your case directory:
@@ -111,7 +111,7 @@ functions
 {
     preCICE_Adapter
     {
-        type preciceAdapter;
+        type preciceAdapterFunctionObject;
         libs ("libpreciceAdapterFunctionObject.so");
     }
 }
@@ -150,6 +150,17 @@ The following versions are known to be currently _incompatible_:
 
 ### Compatible OpenFOAM solvers
 
+The following OpenFOAM solvers (in the respective OpenFOAM versions) are known to work with the adapter. However, more solvers may be compatible.
+
 #### Heat Transfer
 
 * buoyantPimpleFoam (OF4, OF5)
+
+### Compatible preCICE versions
+
+Please note that currently the OpenFOAM adapter can only link against
+preCICE built as a static library (`libprecice.a`). For this, the file
+`libprecice.so` should not exist in the build directory of preCICE.
+We are working on fixing this.
+
+The preCICE version corresponding to the commit [284c466](https://github.com/precice/precice/commit/284c466e93ac5a63ebf3a13ecf04a6e8b325a794) (July 25, 2017) is known to work with the adapter.

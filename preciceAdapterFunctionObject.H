@@ -19,7 +19,7 @@ License
     along with the adapter.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::functionObjects::preciceAdapter
+    Foam::functionObjects::preciceAdapterFunctionObject
 
 Description
     This function object prepares an OpenFOAM solver for preCICE (precice.org).
@@ -29,24 +29,24 @@ Description
     \verbatim
     preCICE_Adapter
     {
-        type preciceAdapter;
+        type preciceAdapterFunctionObject;
         libs ("libpreciceAdapterFunctionObject.so");
     }
     \endverbatim
 
 Usage
     \table
-        Property     | Description               | Required | Default value
-        type         | type name: preciceAdapter | yes      |
+        Property     | Description                             | Required | Default value
+        type         | type name: preciceAdapterFunctionObject | yes      |
     \endtable
 
 SourceFiles
-    preciceAdapter.C
+    preciceAdapterFunctionObject.C
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef PRECICEADAPTER_H
-#define PRECICEADAPTER_H
+#ifndef PRECICEADAPTERFUNCTIONOBJECT_H
+#define PRECICEADAPTERFUNCTIONOBJECT_H
 
 // OpenFOAM header files
 #include "fvMeshFunctionObject.H"
@@ -67,10 +67,10 @@ namespace functionObjects
 {
 
 /*---------------------------------------------------------------------------*\
-                       Class preciceAdapter Declaration
+                Class preciceAdapterFunctionObject Declaration
 \*---------------------------------------------------------------------------*/
 
-class preciceAdapter
+class preciceAdapterFunctionObject
 :
     public fvMeshFunctionObject
 {
@@ -112,22 +112,22 @@ class preciceAdapter
         void configFileCheck(const std::string adapterConfigFileName);
 
         //- Disallow default bitwise copy construct
-        preciceAdapter(const preciceAdapter&);
+        preciceAdapterFunctionObject(const preciceAdapterFunctionObject&);
 
         //- Disallow default bitwise assignment
-        void operator=(const preciceAdapter&);
+        void operator=(const preciceAdapterFunctionObject&);
 
 
 public:
 
     //- Runtime type information
-    TypeName("preciceAdapter");
+    TypeName("preciceAdapterFunctionObject");
 
 
     // Constructors
 
         //- Construct from Time and dictionary
-        preciceAdapter
+        preciceAdapterFunctionObject
         (
             const word& name,
             const Time& runTime,
@@ -136,12 +136,12 @@ public:
 
 
     //- Destructor
-    virtual ~preciceAdapter();
+    virtual ~preciceAdapterFunctionObject();
 
 
     // Member Functions
 
-        //- Read the preciceAdapter data
+        //- Read the preciceAdapterFunctionObject data
         virtual bool read(const dictionary&);
 
         //- Execute, currently does nothing
@@ -150,7 +150,7 @@ public:
         //- Execute at the final time-loop, currently does nothing
         virtual bool end();
 
-        //- Write the preciceAdapter
+        //- Write the preciceAdapterFunctionObject
         virtual bool write();
 
         //- Called at the end of Time::adjustDeltaT() if adjustTime is true
