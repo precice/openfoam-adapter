@@ -110,7 +110,63 @@ bool preciceAdapter::Config::configFileRead()
 
     // TODO Read the coupling interfaces
     YAML::Node adapterConfigInterfaces = adapterConfig_["interfaces"];
-    Foam::Info << "---[preciceAdapter]   interfaces : TODO " << Foam::nl;
+    Foam::Info << "---[preciceAdapter]   interfaces : " << Foam::nl;
+    for (uint i = 0; i < adapterConfigInterfaces.size(); i++)
+    {
+        struct Interface interface;
+        interface.meshName = adapterConfigInterfaces[i]["mesh"].as<std::string>();
+        Foam::Info << "---[preciceAdapter]     - mesh      : " << interface.meshName << Foam::nl;
+
+        Foam::Info << "---[preciceAdapter]       patches   : ";
+        for ( uint j = 0; j < adapterConfigInterfaces[i]["patches"].size(); j++)
+        {
+            interface.patchNames.push_back( adapterConfigInterfaces[i]["patches"][j].as<std::string>() );
+            Foam::Info << adapterConfigInterfaces[i]["patches"][j].as<std::string>() << " ";
+        }
+         Foam::Info << Foam::nl;
+
+        // TODO: Consider simplification
+        if ( adapterConfigInterfaces[i]["write-data"] )
+        {
+            Foam::Info << "---[preciceAdapter]       writeData : ";
+            if ( adapterConfigInterfaces[i]["write-data"].size() > 0 )
+            {
+                for ( uint j = 0; j < adapterConfigInterfaces[i]["read-data"].size(); j++)
+                {
+                    interface.writeData.push_back( adapterConfigInterfaces[i]["write-data"][j].as<std::string>() );
+                    Foam::Info << adapterConfigInterfaces[i]["write-data"][j].as<std::string>() << " ";
+                }
+            }
+            else
+            {
+                interface.writeData.push_back( adapterConfigInterfaces[i]["write-data"].as<std::string>() );
+                Foam::Info << adapterConfigInterfaces[i]["write-data"].as<std::string>() << " ";
+            }
+            Foam::Info << Foam::nl;
+        }
+
+        // TODO: Consider simplification
+        if ( adapterConfigInterfaces[i]["read-data"] )
+        {
+            Foam::Info << "---[preciceAdapter]       readData  : ";
+            if ( adapterConfigInterfaces[i]["read-data"].size() > 0 )
+            {
+                for ( uint j = 0; j < adapterConfigInterfaces[i]["read-data"].size(); j++)
+                {
+                    interface.readData.push_back( adapterConfigInterfaces[i]["read-data"][j].as<std::string>() );
+                    Foam::Info << adapterConfigInterfaces[i]["read-data"][j].as<std::string>() << " ";
+                }
+            }
+            else
+            {
+                interface.readData.push_back( adapterConfigInterfaces[i]["read-data"].as<std::string>() );
+                Foam::Info << adapterConfigInterfaces[i]["read-data"].as<std::string>() << " ";
+            }
+            Foam::Info << Foam::nl;
+        }
+
+        interfaces_.push_back( interface );
+    }
 
     // Set the subcyclingAllowed_ switch
     subcyclingAllowed_ = adapterConfig_["subcycling"].as<bool>();
@@ -133,10 +189,17 @@ std::string preciceAdapter::Config::preciceConfigFilename()
     return preciceConfigFilename_;
 }
 
-bool preciceAdapter::Config::subcyclingAllowed(){
+bool preciceAdapter::Config::subcyclingAllowed()
+{
     return subcyclingAllowed_;
 }
 
-bool preciceAdapter::Config::checkpointingEnabled(){
+bool preciceAdapter::Config::checkpointingEnabled()
+{
     return checkpointingEnabled_;
+}
+
+std::vector<struct preciceAdapter::Config::Interface> preciceAdapter::Config::interfaces()
+{
+    return interfaces_;
 }

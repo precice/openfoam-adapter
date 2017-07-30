@@ -12,6 +12,24 @@ class Config
 
 private:
 
+    // TODO Comments
+    struct Data {
+        std::string direction;
+        std::string name;
+    };
+
+    // TODO Comments
+    struct Interface {
+        std::string meshName;
+        std::vector<std::string> patchNames;
+        std::vector<std::string> writeData;
+        std::vector<std::string> readData;
+        std::vector<struct Data> data;
+    };
+
+    // Interfaces
+    std::vector<struct Interface> interfaces_;
+
     //- YAML Node object for the configuration file
     YAML::Node adapterConfig_;
 
@@ -51,6 +69,9 @@ public:
 
         //- Returns the checkpointingEnabled_
         bool checkpointingEnabled();
+
+        //- Returns the interfaces_
+        std::vector<struct Interface> interfaces();
 };
 
 }
