@@ -1,10 +1,25 @@
+// TODO Ensure that the namespaces are full, i.e. that `Foam::` is used everywhere that is appropriate, for easier understanding.
+
 #include "Adapter.H"
+#include "Interface.H"
 
 #include "IOstreams.H"
 
-preciceAdapter::Adapter::Adapter(const Foam::Time& runTime)
+#include "CouplingDataUser/CouplingDataReader/TemperatureBoundaryCondition.h"
+#include "CouplingDataUser/CouplingDataReader/HeatFluxBoundaryCondition.h"
+#include "CouplingDataUser/CouplingDataReader/BuoyantPimpleHeatFluxBoundaryCondition.h"
+
+#include "CouplingDataUser/CouplingDataWriter/TemperatureBoundaryValues.h"
+#include "CouplingDataUser/CouplingDataWriter/HeatFluxBoundaryValues.h"
+#include "CouplingDataUser/CouplingDataWriter/BuoyantPimpleHeatFluxBoundaryValues.h"
+
+
+preciceAdapter::Adapter::Adapter(const Foam::Time& runTime, const Foam::fvMesh& mesh)
 :
-runTime_(runTime)
+runTime_(runTime),
+mesh_(mesh),
+thermo_(const_cast<rhoThermo&>(mesh_.lookupObject<rhoThermo>("thermophysicalProperties"))), // TODO check types, why const_cast?
+turbulence_(const_cast<Foam::compressible::turbulenceModel &>(mesh_.lookupObject<compressible::turbulenceModel>("turbulenceProperties"))) // TODO check types, why const_cast?
 {
     Foam::Info << "Entered the Adapter() constructor." << Foam::nl;
     return;
@@ -36,6 +51,10 @@ bool preciceAdapter::Adapter::configure()
     subcyclingAllowed_ = config_.subcyclingAllowed();
     checkpointingEnabled_ = config_.checkpointingEnabled();
 
+    // Get the solver name
+    runTime_.controlDict().readIfPresent("application", applicationName_);
+    Foam::Info << "---[preciceAdapter] Application: " << applicationName_ << Foam::nl;
+
     // Check the timestep type (fixed vs adjustable)
     Foam::Info << "---[preciceAdapter] Check the timestep type (fixed vs adjustable)." << Foam::nl;
     adjustableTimestep_ = runTime_.controlDict().lookupOrDefault("adjustTimeStep", false);
@@ -48,7 +67,7 @@ bool preciceAdapter::Adapter::configure()
 
     // Add fields in the checkpointing list
     if ( checkpointingEnabled_ ) {
-        Foam::Info << "---[preciceAdapter] Add checkpoint fields (decide which)." << Foam::nl;
+        Foam::Info << "---[preciceAdapter] [TODO] Add checkpoint fields (decide which)." << Foam::nl;
     }
 
     // Initialize preCICE
@@ -75,20 +94,95 @@ bool preciceAdapter::Adapter::configure()
     Foam::Info << "---[preciceAdapter] Configure preCICE." << Foam::nl;
     precice_->configure( preciceConfigFilename_ );
 
-    Foam::Info << "---[preciceAdapter] Write coupling data (for the first iteration)" << Foam::nl;
-    Foam::Info << "---[preciceAdapter] Initialize preCICE data." << Foam::nl;
+    // Create interfaces
+    Foam::Info << "---[preciceAdapter] Creating interfaces..." << Foam::nl;
+    for ( uint i = 0; i < config_.interfaces().size(); i++ )
+    {
+        Foam::Info << "---[preciceAdapter]   new interface" << Foam::nl;
+        Interface * interface = new Interface( *precice_, mesh_, config_.interfaces().at( i ).meshName, config_.interfaces().at( i ).patchNames );
+        Foam::Info << "---[preciceAdapter]   push back" << Foam::nl;
+        interfaces_.push_back( interface );
+        Foam::Info << "---[preciceAdapter] Interface created on mesh "
+                   << config_.interfaces().at( i ).meshName
+                   << Foam::nl;
+
+        // TODO: Add coupling data users
+        Foam::Info << "---[preciceAdapter] Add coupling data writers" << Foam::nl;
+        for ( uint j = 0; j < config_.interfaces().at( i ).writeData.size(); j++ )
+        {
+            std::string dataName = config_.interfaces().at( i ).writeData.at( j );
+
+            if ( dataName.compare( "Temperature" ) == 0 )
+            {
+                TemperatureBoundaryValues * bw = new TemperatureBoundaryValues( thermo_.T() );
+                interface->addCouplingDataWriter( dataName, bw );
+                Foam::Info << "---[preciceAdapter]   Added Temperature." << Foam::nl;
+            }
+
+            if ( dataName.compare( "Heat-Flux" ) == 0 )
+            {
+            	if ( applicationName_.compare( "buoyantPimpleFoam" ) == 0 )
+            	{
+            		BuoyantPimpleHeatFluxBoundaryValues * bw = new BuoyantPimpleHeatFluxBoundaryValues( thermo_.T(), thermo_, turbulence_ );
+            		interface->addCouplingDataWriter( dataName, bw );
+            		Foam::Info << "---[preciceAdapter]    Added Heat Flux for buoyantPimpleFoam." << Foam::nl;
+            	}
+            	else
+            	{
+            		double k = 100; // TODO: IMPORTANT specify k properly (conductivity for solids-laplacianFoam)
+            		HeatFluxBoundaryValues * bw = new HeatFluxBoundaryValues( thermo_.T(), k);
+            		interface->addCouplingDataWriter( dataName, bw );
+            		Foam::Info << "---[preciceAdapter]    Added Heat Flux." << Foam::nl;
+            	}
+            }
+
+        }
+
+        Foam::Info << "---[preciceAdapter] Add coupling data readers" << Foam::nl;
+        for ( uint j = 0; j < config_.interfaces().at( i ).readData.size(); j++ )
+        {
+            std::string dataName = config_.interfaces().at( i ).readData.at( j );
+
+            if ( dataName.compare( "Temperature" ) == 0 )
+            {
+                TemperatureBoundaryCondition * br = new TemperatureBoundaryCondition( thermo_.T() );
+                interface->addCouplingDataReader( dataName, br );
+                Foam::Info << "---[preciceAdapter]   Added Temperature." << Foam::nl;
+            }
+
+            if ( dataName.compare( "Heat-Flux" ) == 0 )
+            {
+            	if ( applicationName_.compare( "buoyantPimpleFoam" ) == 0 )
+            	{
+            		BuoyantPimpleHeatFluxBoundaryCondition * br = new BuoyantPimpleHeatFluxBoundaryCondition( thermo_.T(), thermo_, turbulence_ );
+            		interface->addCouplingDataReader( dataName, br );
+            		Foam::Info << "---[preciceAdapter]    Added Heat Flux for buoyantPimpleFoam." << Foam::nl;
+            	}
+            	else
+            	{
+            		double k = 100; // TODO: IMPORTANT specify k properly (conductivity for solids-laplacianFoam)
+            		HeatFluxBoundaryCondition * br = new HeatFluxBoundaryCondition( thermo_.T(), k);
+            		interface->addCouplingDataReader( dataName, br );
+            		Foam::Info << "---[preciceAdapter]    Added Heat Flux." << Foam::nl;
+            	}
+            }
+        }
+    }
+
+    Foam::Info << "---[preciceAdapter] [TODO] Write coupling data (for the first iteration)" << Foam::nl;
+    Foam::Info << "---[preciceAdapter] [TODO] Initialize preCICE data." << Foam::nl;
     Foam::Info << "---[preciceAdapter] ---" << Foam::nl;
 
-    Foam::Info << "---[preciceAdapter] Read coupling data (for the first iteration)" << Foam::nl;
+    Foam::Info << "---[preciceAdapter] [TODO] Read coupling data (for the first iteration)" << Foam::nl;
 
     // Write checkpoint (for the first iteration)
     if (checkpointingEnabled_) {
-        Foam::Info << "---[preciceAdapter] Write checkpoint (for the first iteration)" << Foam::nl;
+        Foam::Info << "---[preciceAdapter] [TODO] Write checkpoint (for the first iteration)" << Foam::nl;
     }
 
     // Adjust the timestep for the first iteration, if it is fixed
     if (!adjustableTimestep_) {
-        Foam::Info << "---[preciceAdapter] Adjust the solver's timestep (if fixed timestep, for the first iteration)" << Foam::nl;
+        Foam::Info << "---[preciceAdapter] [TODO] Adjust the solver's timestep (if fixed timestep, for the first iteration)" << Foam::nl;
     }
 
     return true;
@@ -97,28 +191,28 @@ bool preciceAdapter::Adapter::configure()
 void preciceAdapter::Adapter::execute()
 {
     Foam::Info << "---[preciceAdapter] if (coupling ongoing) {" << Foam::nl;
-    Foam::Info << "---[preciceAdapter]   Write coupling data (from the previous iteration)." << Foam::nl;
-    Foam::Info << "---[preciceAdapter]   Advance preCICE (from the previous iteration)." << Foam::nl;
-    Foam::Info << "---[preciceAdapter]   Read coupling data (from the previous iteration)." << Foam::nl;
+    Foam::Info << "---[preciceAdapter]   [TODO] Write coupling data (from the previous iteration)." << Foam::nl;
+    Foam::Info << "---[preciceAdapter]   [TODO] Advance preCICE (from the previous iteration)." << Foam::nl;
+    Foam::Info << "---[preciceAdapter]   [TODO] Read coupling data (from the previous iteration)." << Foam::nl;
 
     // Adjust the timestep, if it is fixed
     if (!adjustableTimestep_) {
-        Foam::Info << "---[preciceAdapter]   Adjust the solver's timestep (if fixed timestep, from the previous iteration)." << Foam::nl;
+        Foam::Info << "---[preciceAdapter]   [TODO] Adjust the solver's timestep (if fixed timestep, from the previous iteration)." << Foam::nl;
     }
 
     // Read checkpoint (from the previous iteration)
     if (checkpointingEnabled_) {
-        Foam::Info << "---[preciceAdapter]   Read checkpoint (from the previous iteration)." << Foam::nl;
+        Foam::Info << "---[preciceAdapter]   [TODO] Read checkpoint (from the previous iteration)." << Foam::nl;
     }
 
     // Write checkpoint (from the previous iteration)
     if (checkpointingEnabled_) {
-        Foam::Info << "---[preciceAdapter]   Write checkpoint (from the previous iteration)." << Foam::nl;
+        Foam::Info << "---[preciceAdapter]   [TODO] Write checkpoint (from the previous iteration)." << Foam::nl;
     }
 
-    Foam::Info << "---[preciceAdapter]   Write if coupling timestep complete (?)." << Foam::nl;
+    Foam::Info << "---[preciceAdapter]   [TODO] Write if coupling timestep complete (?)." << Foam::nl;
     Foam::Info << "---[preciceAdapter] } else {" << Foam::nl;
-    Foam::Info << "---[preciceAdapter]   Exit the loop." << Foam::nl;
+    Foam::Info << "---[preciceAdapter]   [TODO] Exit the loop." << Foam::nl;
     Foam::Info << "---[preciceAdapter] }" << Foam::nl;
 
     return;
@@ -126,13 +220,13 @@ void preciceAdapter::Adapter::execute()
 
 void preciceAdapter::Adapter::adjustTimeStep()
 {
-    Foam::Info << "---[preciceAdapter] Adjust the solver's timestep (only if dynamic timestep is used)." << Foam::nl;
+    Foam::Info << "---[preciceAdapter] [TODO] Adjust the solver's timestep (only if dynamic timestep is used)." << Foam::nl;
     return;
 }
 
 preciceAdapter::Adapter::~Adapter()
 {
-    Foam::Info << "---[preciceAdapter] Destroy the preCICE Solver Interface." << Foam::nl;
+    Foam::Info << "---[preciceAdapter] [TODO] Destroy the preCICE Solver Interface." << Foam::nl;
 
     // TODO: throws segmentation fault if it has not been initialized at premature exit.
     // delete precice_;

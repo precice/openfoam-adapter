@@ -158,9 +158,7 @@ The following OpenFOAM solvers (in the respective OpenFOAM versions) are known t
 
 ### Compatible preCICE versions
 
-Please note that currently the OpenFOAM adapter can only link against
-preCICE built as a static library (`libprecice.a`). For this, the file
-`libprecice.so` should not exist in the build directory of preCICE.
-We are working on fixing this.
-
 The preCICE version corresponding to the commit [284c466](https://github.com/precice/precice/commit/284c466e93ac5a63ebf3a13ecf04a6e8b325a794) (July 25, 2017) is known to work with the adapter.
+
+Please note that, if you are using preCICE as a shared library, you need
+to have it added in your `LD_LIBRARY_PATH`.

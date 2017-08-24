@@ -2,9 +2,14 @@
 #define PRECICEADAPTER_H
 
 #include "Config.H"
+#include "Interface.H"
 
 // OpenFOAM header files
 #include "Time.H"
+#include "fvMesh.H"
+#include "rhoThermo.H"
+#include "turbulenceModel.H"
+#include "turbulentFluidThermoModel.H"
 
 // Other header files
 // MPI - Used to extract the MPI configuration for the preCICE initialization.
@@ -18,8 +23,19 @@ class Adapter {
 
 private:
 
-    //- runTime object
+    //- OpenFOAM runTime object
     const Foam::Time& runTime_;
+
+    //- OpenFOAM fvMesh object
+    const Foam::fvMesh& mesh_;
+
+    //- OpenFOAM thermophysical model
+    // TODO Check the thermophysical model type
+    Foam::rhoThermo& thermo_;
+
+    //- OpenFOAM turbulence model
+    // TODO Check the turbulence model type
+    Foam::compressible::turbulenceModel & turbulence_;
 
     //- Adapter's configuration
     Config config_;
@@ -41,13 +57,19 @@ private:
         //- Type of timestep (fixed, adjustable)
         bool adjustableTimestep_;
 
+        //- OpenFOAM Application/Solver name
+        Foam::word applicationName_;
+
+    //- Interfaces
+    std::vector<Interface*> interfaces_;
+
     //- preCICE solver interface
     precice::SolverInterface * precice_;
 
 public:
 
     //- Constructor
-    Adapter(const Foam::Time& runTime);
+    Adapter(const Foam::Time& runTime, const Foam::fvMesh& mesh);
 
     //- Setup the adapter's configuration
     bool configure();

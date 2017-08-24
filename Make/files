@@ -1,4 +1,15 @@
 Config.C
+Interface.C
+
+CouplingDataUser/CouplingDataUser.C
+CouplingDataUser/CouplingDataReader/TemperatureBoundaryCondition.C
+CouplingDataUser/CouplingDataReader/HeatFluxBoundaryCondition.C
+CouplingDataUser/CouplingDataReader/BuoyantPimpleHeatFluxBoundaryCondition.C
+
+CouplingDataUser/CouplingDataWriter/TemperatureBoundaryValues.C
+CouplingDataUser/CouplingDataWriter/HeatFluxBoundaryValues.C
+CouplingDataUser/CouplingDataWriter/BuoyantPimpleHeatFluxBoundaryValues.C
+
 Adapter.C
 
 preciceAdapterFunctionObject.C

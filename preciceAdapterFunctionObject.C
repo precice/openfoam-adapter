@@ -49,7 +49,7 @@ Foam::functionObjects::preciceAdapterFunctionObject::preciceAdapterFunctionObjec
 )
 :
     fvMeshFunctionObject(name, runTime, dict),
-    adapter_(runTime)
+    adapter_(runTime, mesh_)
 {
     Info << "---[preciceAdapter] functionObject: CONSTRUCTOR --------" << nl;
     read(dict);
@@ -79,6 +79,7 @@ bool Foam::functionObjects::preciceAdapterFunctionObject::execute()
 {
     Info << "---[preciceAdapter] functionObject: EXECUTE (i > 1)------" << nl;
 
+    // TODO Convert to bool and add check
     adapter_.execute();
 
     return true;
@@ -102,6 +103,7 @@ bool Foam::functionObjects::preciceAdapterFunctionObject::adjustTimeStep()
 {
     Info << "---[preciceAdapter] functionObject: ADJUSTTIMESTEP -----" << nl;
 
+    // TODO Convert to bool and add check
     adapter_.adjustTimeStep();
 
     return true;

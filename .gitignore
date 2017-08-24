@@ -34,3 +34,8 @@
 # OpenFOAM / WMake
 lnInclude/
 Make/linux64GccDPInt32Opt/
+
+# Eclipse
+.cproject
+.project
+.settings/
