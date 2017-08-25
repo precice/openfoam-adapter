@@ -13,11 +13,11 @@ class TemperatureBoundaryValues : public CouplingDataWriter
 
 protected:
 
-	Foam::volScalarField & _T;
+	Foam::volScalarField * _T;
 
 public:
 
-	TemperatureBoundaryValues( Foam::volScalarField & T );
+	TemperatureBoundaryValues( Foam::volScalarField * T );
 	void write( double * dataBuffer );
 
 };

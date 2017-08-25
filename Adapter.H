@@ -7,7 +7,7 @@
 // OpenFOAM header files
 #include "Time.H"
 #include "fvMesh.H"
-#include "rhoThermo.H"
+#include "basicThermo.H"
 #include "turbulenceModel.H"
 #include "turbulentFluidThermoModel.H"
 
@@ -31,11 +31,11 @@ private:
 
     //- OpenFOAM thermophysical model
     // TODO Check the thermophysical model type
-    Foam::rhoThermo& thermo_;
+    Foam::basicThermo * thermo_ = NULL;
 
     //- OpenFOAM turbulence model
     // TODO Check the turbulence model type
-    Foam::compressible::turbulenceModel & turbulence_;
+    Foam::compressible::turbulenceModel * turbulence_ = NULL;
 
     //- Adapter's configuration
     Config config_;

@@ -12,11 +12,11 @@ class TemperatureBoundaryCondition : public CouplingDataReader
 
 protected:
 
-	Foam::volScalarField & _T;
+	Foam::volScalarField * _T;
 
 public:
 
-	TemperatureBoundaryCondition( Foam::volScalarField & T );
+	TemperatureBoundaryCondition( Foam::volScalarField * T );
 	void read( double * dataBuffer );
 
 };

@@ -2,7 +2,7 @@
 #include <boost/log/trivial.hpp>
 
 
-preciceAdapter::BuoyantPimpleHeatFluxBoundaryCondition::BuoyantPimpleHeatFluxBoundaryCondition( Foam::volScalarField & T, Foam::rhoThermo & thermo, Foam::compressible::turbulenceModel & turbulence ) :
+preciceAdapter::BuoyantPimpleHeatFluxBoundaryCondition::BuoyantPimpleHeatFluxBoundaryCondition( Foam::volScalarField * T, Foam::basicThermo * thermo, Foam::compressible::turbulenceModel * turbulence ) :
 	_T( T ),
 	_thermo( thermo ),
 	_turbulence( turbulence )
@@ -22,10 +22,10 @@ void preciceAdapter::BuoyantPimpleHeatFluxBoundaryCondition::read( double * data
 
 		int patchID = _patchIDs.at( k );
 
-		Foam::scalarField kappaEff = _turbulence.kappaEff() ().boundaryField()[patchID];
+		Foam::scalarField kappaEff = _turbulence->kappaEff() ().boundaryField()[patchID];
 
 		Foam::fixedGradientFvPatchScalarField & gradientPatch =
-			Foam::refCast<Foam::fixedGradientFvPatchScalarField>( _T.boundaryFieldRef()[patchID] );
+			Foam::refCast<Foam::fixedGradientFvPatchScalarField>( _T->boundaryFieldRef()[patchID] );
 
 		Foam::scalarField & gradient = gradientPatch.gradient();
 

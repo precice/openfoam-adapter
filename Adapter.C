@@ -1,4 +1,4 @@
-// TODO Ensure that the namespaces are full, i.e. that `Foam::` is used everywhere that is appropriate, for easier understanding.
+// TODO Ensure that the namespaces are full, i.e. that `Foam::` is used everywhere that is appropriate, for easier understanding. Or just drop it.
 
 #include "Adapter.H"
 #include "Interface.H"
@@ -17,9 +17,7 @@
 preciceAdapter::Adapter::Adapter(const Foam::Time& runTime, const Foam::fvMesh& mesh)
 :
 runTime_(runTime),
-mesh_(mesh),
-thermo_(const_cast<rhoThermo&>(mesh_.lookupObject<rhoThermo>("thermophysicalProperties"))), // TODO check types, why const_cast?
-turbulence_(const_cast<Foam::compressible::turbulenceModel &>(mesh_.lookupObject<compressible::turbulenceModel>("turbulenceProperties"))) // TODO check types, why const_cast?
+mesh_(mesh)
 {
     Foam::Info << "Entered the Adapter() constructor." << Foam::nl;
     return;
@@ -106,6 +104,25 @@ bool preciceAdapter::Adapter::configure()
                    << config_.interfaces().at( i ).meshName
                    << Foam::nl;
 
+        Foam::Info << "---[preciceAdapter] Specifying thermoModel..." << Foam::nl;
+        if (mesh_.foundObject<Foam::basicThermo>("thermophysicalProperties")) {
+            Foam::Info << "---[preciceAdapter]   - Found 'thermophysicalProperties', refering to 'basicThermo'." << Foam::nl;
+            thermo_ = const_cast<Foam::basicThermo*>(&mesh_.lookupObject<Foam::basicThermo>("thermophysicalProperties"));
+        } else {
+            Foam::Info << "---[preciceAdapter]   - Did not find 'thermophysicalProperties', no thermoModel specified." << Foam::nl;
+            if (mesh_.foundObject<Foam::volScalarField>("T")) {
+                Foam::Info << "---[preciceAdapter]   - Found T, however." << Foam::nl;
+            }
+        }
+
+        Foam::Info << "---[preciceAdapter] Specifying turbulenceModel...." << Foam::nl;
+        if (mesh_.foundObject<Foam::compressible::turbulenceModel>("turbulenceProperties")) {
+            Foam::Info << "---[preciceAdapter]   - Found 'turbulenceProperties', refering to 'compressible::turbulenceModel'." << Foam::nl;
+            turbulence_ = const_cast<Foam::compressible::turbulenceModel*>(&mesh_.lookupObject<Foam::compressible::turbulenceModel>("turbulenceProperties"));
+        } else {
+            Foam::Info << "---[preciceAdapter]   - Did not find 'turbulenceProperties', no turbulenceModel specified." << Foam::nl;
+        }
+
         // TODO: Add coupling data users
         Foam::Info << "---[preciceAdapter] Add coupling data writers" << Foam::nl;
         for ( uint j = 0; j < config_.interfaces().at( i ).writeData.size(); j++ )
@@ -114,25 +131,43 @@ bool preciceAdapter::Adapter::configure()
 
             if ( dataName.compare( "Temperature" ) == 0 )
             {
-                TemperatureBoundaryValues * bw = new TemperatureBoundaryValues( thermo_.T() );
-                interface->addCouplingDataWriter( dataName, bw );
-                Foam::Info << "---[preciceAdapter]   Added Temperature." << Foam::nl;
+                if (thermo_) {
+                    TemperatureBoundaryValues * bw = new TemperatureBoundaryValues( &thermo_->T() );
+                    interface->addCouplingDataWriter( dataName, bw );
+                    Foam::Info << "---[preciceAdapter]   Added Temperature from thermoModel." << Foam::nl;
+                } else {
+                    TemperatureBoundaryValues * bw = new TemperatureBoundaryValues( const_cast<Foam::volScalarField*>(&mesh_.lookupObject<volScalarField>("T")) ); // TODO Mesh does not have T()
+                    interface->addCouplingDataWriter( dataName, bw );
+                    Foam::Info << "---[preciceAdapter]   Added Temperature from T." << Foam::nl;
+                }
+
             }
 
             if ( dataName.compare( "Heat-Flux" ) == 0 )
             {
             	if ( applicationName_.compare( "buoyantPimpleFoam" ) == 0 )
             	{
-            		BuoyantPimpleHeatFluxBoundaryValues * bw = new BuoyantPimpleHeatFluxBoundaryValues( thermo_.T(), thermo_, turbulence_ );
-            		interface->addCouplingDataWriter( dataName, bw );
-            		Foam::Info << "---[preciceAdapter]    Added Heat Flux for buoyantPimpleFoam." << Foam::nl;
+                    if ( thermo_ && turbulence_ ) {
+                        BuoyantPimpleHeatFluxBoundaryValues * bw = new BuoyantPimpleHeatFluxBoundaryValues( &thermo_->T(), thermo_, turbulence_ );
+                        interface->addCouplingDataWriter( dataName, bw );
+                        Foam::Info << "---[preciceAdapter]    Added Heat Flux for buoyantPimpleFoam." << Foam::nl;
+                    } else {
+                        Foam::Info << "---[preciceAdapter]   Problem: no thermo or no turbulence model specified." << Foam::nl;
+                    }
             	}
             	else
             	{
-            		double k = 100; // TODO: IMPORTANT specify k properly (conductivity for solids-laplacianFoam)
-            		HeatFluxBoundaryValues * bw = new HeatFluxBoundaryValues( thermo_.T(), k);
-            		interface->addCouplingDataWriter( dataName, bw );
-            		Foam::Info << "---[preciceAdapter]    Added Heat Flux." << Foam::nl;
+                    if ( thermo_ ) {
+                        double k = 100; // TODO: IMPORTANT specify k properly (conductivity for solids-laplacianFoam)
+                        HeatFluxBoundaryValues * bw = new HeatFluxBoundaryValues( &thermo_->T(), k);
+                        interface->addCouplingDataWriter( dataName, bw );
+                        Foam::Info << "---[preciceAdapter]    Added Heat Flux with temperature from thermoModel." << Foam::nl;
+                    } else {
+                        double k = 100; // TODO: IMPORTANT specify k properly (conductivity for solids-laplacianFoam)
+                        HeatFluxBoundaryValues * bw = new HeatFluxBoundaryValues( const_cast<Foam::volScalarField*>(&mesh_.lookupObject<volScalarField>("T")), k);
+                        interface->addCouplingDataWriter( dataName, bw );
+                        Foam::Info << "---[preciceAdapter]    Added Heat Flux with temperature from T." << Foam::nl;
+                    }
             	}
             }
 
@@ -145,25 +180,42 @@ bool preciceAdapter::Adapter::configure()
 
             if ( dataName.compare( "Temperature" ) == 0 )
             {
-                TemperatureBoundaryCondition * br = new TemperatureBoundaryCondition( thermo_.T() );
-                interface->addCouplingDataReader( dataName, br );
-                Foam::Info << "---[preciceAdapter]   Added Temperature." << Foam::nl;
+                if ( thermo_ ) {
+                    TemperatureBoundaryCondition * br = new TemperatureBoundaryCondition( &thermo_->T() );
+                    interface->addCouplingDataReader( dataName, br );
+                    Foam::Info << "---[preciceAdapter]   Added Temperature from thermoModel." << Foam::nl;
+                } else {
+                    TemperatureBoundaryCondition * br = new TemperatureBoundaryCondition( const_cast<Foam::volScalarField*>(&mesh_.lookupObject<volScalarField>("T")) );
+                    interface->addCouplingDataReader( dataName, br );
+                    Foam::Info << "---[preciceAdapter]   Added Temperature from T." << Foam::nl;
+                }
             }
 
             if ( dataName.compare( "Heat-Flux" ) == 0 )
             {
             	if ( applicationName_.compare( "buoyantPimpleFoam" ) == 0 )
             	{
-            		BuoyantPimpleHeatFluxBoundaryCondition * br = new BuoyantPimpleHeatFluxBoundaryCondition( thermo_.T(), thermo_, turbulence_ );
-            		interface->addCouplingDataReader( dataName, br );
-            		Foam::Info << "---[preciceAdapter]    Added Heat Flux for buoyantPimpleFoam." << Foam::nl;
+                    if ( thermo_ && turbulence_ ) {
+                        BuoyantPimpleHeatFluxBoundaryCondition * br = new BuoyantPimpleHeatFluxBoundaryCondition( &thermo_->T(), thermo_, turbulence_ );
+                        interface->addCouplingDataReader( dataName, br );
+                        Foam::Info << "---[preciceAdapter]    Added Heat Flux for buoyantPimpleFoam." << Foam::nl;
+                    } else {
+                        Foam::Info << "---[preciceAdapter]   Problem: no thermo or no turbulence model specified." << Foam::nl;
+                    }
             	}
             	else
             	{
-            		double k = 100; // TODO: IMPORTANT specify k properly (conductivity for solids-laplacianFoam)
-            		HeatFluxBoundaryCondition * br = new HeatFluxBoundaryCondition( thermo_.T(), k);
-            		interface->addCouplingDataReader( dataName, br );
-            		Foam::Info << "---[preciceAdapter]    Added Heat Flux." << Foam::nl;
+                    if ( thermo_ ) {
+                        double k = 100; // TODO: IMPORTANT specify k properly (conductivity for solids-laplacianFoam)
+                        HeatFluxBoundaryCondition * br = new HeatFluxBoundaryCondition( &thermo_->T(), k);
+                        interface->addCouplingDataReader( dataName, br );
+                        Foam::Info << "---[preciceAdapter]    Added Heat Flux with temperature from thermoModel." << Foam::nl;
+                    } else {
+                        double k = 100; // TODO: IMPORTANT specify k properly (conductivity for solids-laplacianFoam)
+                        HeatFluxBoundaryCondition * br = new HeatFluxBoundaryCondition( const_cast<Foam::volScalarField*>(&mesh_.lookupObject<volScalarField>("T")), k);
+                        interface->addCouplingDataReader( dataName, br );
+                        Foam::Info << "---[preciceAdapter]    Added Heat Flux with temperature from T." << Foam::nl;
+                    }
             	}
             }
         }

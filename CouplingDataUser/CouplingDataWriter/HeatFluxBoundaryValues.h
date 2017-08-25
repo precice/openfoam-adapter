@@ -12,12 +12,12 @@ class HeatFluxBoundaryValues : public CouplingDataWriter
 
 protected:
 
-	Foam::volScalarField & _T;
+	Foam::volScalarField * _T;
 	double _k;
 
 public:
 
-	HeatFluxBoundaryValues( Foam::volScalarField & T, double k );
+	HeatFluxBoundaryValues( Foam::volScalarField * T, double k );
 	void write( double * dataBuffer );
 
 };

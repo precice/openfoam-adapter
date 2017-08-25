@@ -2,7 +2,7 @@
 #define BUOYANTPIMPLEHEATFLUXBOUNDARYCONDITION_H
 
 #include "fvCFD.H"
-#include "rhoThermo.H"
+#include "basicThermo.H"
 #include "turbulentFluidThermoModel.H"
 #include "CouplingDataReader.h"
 #include "fixedGradientFvPatchFields.H"
@@ -15,15 +15,15 @@ class BuoyantPimpleHeatFluxBoundaryCondition : public CouplingDataReader
 
 protected:
 
-	Foam::volScalarField & _T;
-	Foam::rhoThermo & _thermo;
-	Foam::compressible::turbulenceModel & _turbulence;
+	Foam::volScalarField * _T;
+	Foam::basicThermo * _thermo;
+	Foam::compressible::turbulenceModel * _turbulence;
 
 public:
 
-	BuoyantPimpleHeatFluxBoundaryCondition( Foam::volScalarField & T,
-											Foam::rhoThermo & thermo,
-											Foam::compressible::turbulenceModel & turbulence );
+	BuoyantPimpleHeatFluxBoundaryCondition( Foam::volScalarField * T,
+											Foam::basicThermo * thermo,
+											Foam::compressible::turbulenceModel * turbulence );
 
 	void read( double * dataBuffer );
 

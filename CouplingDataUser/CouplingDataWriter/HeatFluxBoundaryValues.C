@@ -1,7 +1,7 @@
 #include "HeatFluxBoundaryValues.h"
 
 
-preciceAdapter::HeatFluxBoundaryValues::HeatFluxBoundaryValues( Foam::volScalarField & T, double k ) :
+preciceAdapter::HeatFluxBoundaryValues::HeatFluxBoundaryValues( Foam::volScalarField * T, double k ) :
 	_T( T ),
 	_k( k )
 {
@@ -18,7 +18,7 @@ void preciceAdapter::HeatFluxBoundaryValues::write( double * dataBuffer )
 
 		int patchID = _patchIDs.at( k );
 
-		Foam::scalarField flux = -_k* Foam::refCast<Foam::fixedValueFvPatchScalarField>( _T.boundaryFieldRef()[patchID] ).snGrad();
+		Foam::scalarField flux = -_k* Foam::refCast<Foam::fixedValueFvPatchScalarField>( _T->boundaryFieldRef()[patchID] ).snGrad();
 		forAll( flux, i )
 		{
 			dataBuffer[bufferIndex++] = flux[i];

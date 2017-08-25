@@ -13,12 +13,12 @@ class HeatFluxBoundaryCondition : public CouplingDataReader
 
 protected:
 
-	volScalarField & _T;
+	volScalarField * _T;
 	double _k;
 
 public:
 
-	HeatFluxBoundaryCondition( Foam::volScalarField & T, double k );
+	HeatFluxBoundaryCondition( Foam::volScalarField * T, double k );
 	void read( double * dataBuffer );
 
 };
