@@ -66,6 +66,54 @@ private:
     //- preCICE solver interface
     precice::SolverInterface * precice_;
 
+    //- Timestep dictated by preCICE
+    double timestepPrecice_;
+
+    //- Timestep used by the solver
+    double timestepSolver_;
+
+    //- Initialize preCICE
+    void initialize();
+
+    //- Read the coupling data at each interface
+    void readCouplingData();
+
+    //- Write the coupling data at each interface
+    void writeCouplingData();
+
+    //- Advance preCICE
+    void advance();
+
+    //- Adjust the timestep of the solver according to preCICE
+    void adjustSolverTimeStep();
+
+    //- Determine if the coupling is still happening
+    bool isCouplingOngoing();
+
+    //- Determine if the coupling timestep has been completed
+    bool isCouplingTimestepComplete();
+
+    //- Determine if a checkpoint must be read
+    bool isReadCheckpointRequired();
+
+    //- Determine if a checkpoint must be written
+    bool isWriteCheckpointRequired();
+
+    //- Tell preCICE that the checkpoint has been read
+    void fulfilledReadCheckpoint();
+
+    //- Tell preCICE that the checkpoint has been written
+    void fulfilledWriteCheckpoint();
+
+    //- TODO Set checkpointing on/off
+    // void setCheckpointingEnabled( bool enabled );
+
+    //- TODO Determine if the checkpointing is enabled
+    // bool isCheckpointingEnabled();
+
+    // TODO Methods for adding checkpointed fields
+    // TODO Methods for reading/writing checkpoints
+
 public:
 
     //- Constructor

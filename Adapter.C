@@ -16,7 +16,8 @@ using namespace Foam;
 preciceAdapter::Adapter::Adapter(const Time& runTime, const fvMesh& mesh)
 :
 runTime_(runTime),
-mesh_(mesh)
+mesh_(mesh),
+timestepSolver_(-1)
 {
     Info << "Entered the Adapter() constructor." << nl;
     return;
@@ -116,13 +117,11 @@ bool preciceAdapter::Adapter::configure()
     Info << "---[preciceAdapter] Creating interfaces..." << nl;
     for ( uint i = 0; i < config_.interfaces().size(); i++ )
     {
-        Info << "---[preciceAdapter]   new interface" << nl;
         Interface * interface = new Interface( *precice_, mesh_, config_.interfaces().at( i ).meshName, config_.interfaces().at( i ).patchNames );
-        Info << "---[preciceAdapter]   push back" << nl;
         interfaces_.push_back( interface );
         Info << "---[preciceAdapter] Interface created on mesh "
-                   << config_.interfaces().at( i ).meshName
-                   << nl;
+             << config_.interfaces().at( i ).meshName
+             << nl;
 
         // TODO: Add coupling data users for 'sink temperature' and for 'heat transfer coefficient'
         Info << "---[preciceAdapter] Add coupling data writers" << nl;
@@ -145,8 +144,8 @@ bool preciceAdapter::Adapter::configure()
 
             if ( dataName.compare( "Heat-Flux" ) == 0 )
             {
-            	if ( applicationName_.compare( "buoyantPimpleFoam" ) == 0 )
-            	{
+                if ( applicationName_.compare( "buoyantPimpleFoam" ) == 0 )
+                {
                     if ( thermo_ && turbulence_ ) {
                         BuoyantPimpleHeatFluxBoundaryValues * bw = new BuoyantPimpleHeatFluxBoundaryValues( &thermo_->T(), thermo_, turbulence_ );
                         interface->addCouplingDataWriter( dataName, bw );
@@ -154,9 +153,9 @@ bool preciceAdapter::Adapter::configure()
                     } else {
                         Info << "---[preciceAdapter]   Problem: no thermo or no turbulence model specified." << nl;
                     }
-            	}
-            	else
-            	{
+                }
+                else
+                {
                     if ( thermo_ ) {
                         double k = 100; // TODO: IMPORTANT specify k properly (conductivity for solids-laplacianFoam_preCICE)
                         HeatFluxBoundaryValues * bw = new HeatFluxBoundaryValues( &thermo_->T(), k);
@@ -168,10 +167,22 @@ bool preciceAdapter::Adapter::configure()
                         interface->addCouplingDataWriter( dataName, bw );
                         Info << "---[preciceAdapter]    Added Heat Flux with temperature from T." << nl;
                     }
-            	}
+                }
             }
 
-        }
+            if ( dataName.compare( "Heat-Transfer-Coefficient" ) == 0 )
+            {
+                // TODO Implement Heat Transfer Coefficient
+                Info << "---[preciceAdapter]    [TODO] Heat Transfer Coefficient not implemented yet." << nl;
+            }
+
+            if ( dataName.compare( "Sink-Temperature" ) == 0 )
+            {
+                // TODO Implement Sink Temperature
+                Info << "---[preciceAdapter]    [TODO] Sink Temperature not implemented yet." << nl;
+            }
+
+        } // end add coupling data writers
 
         Info << "---[preciceAdapter] Add coupling data readers" << nl;
         for ( uint j = 0; j < config_.interfaces().at( i ).readData.size(); j++ )
@@ -202,9 +213,9 @@ bool preciceAdapter::Adapter::configure()
                     } else {
                         Info << "---[preciceAdapter]   Problem: no thermo or no turbulence model specified." << nl;
                     }
-            	}
-            	else
-            	{
+                }
+                else
+                {
                     if ( thermo_ ) {
                         double k = 100; // TODO: IMPORTANT specify k properly (conductivity for solids-laplacianFoam_preCICE)
                         HeatFluxBoundaryCondition * br = new HeatFluxBoundaryCondition( &thermo_->T(), k);
@@ -218,7 +229,20 @@ bool preciceAdapter::Adapter::configure()
                     }
             	}
             }
-        }
+
+            if ( dataName.compare( "Heat-Transfer-Coefficient" ) == 0 )
+            {
+                // TODO Implement Heat Transfer Coefficient
+                Info << "---[preciceAdapter]    [TODO] Heat Transfer Coefficient not implemented yet." << nl;
+            }
+
+            if ( dataName.compare( "Sink-Temperature" ) == 0 )
+            {
+                // TODO Implement Sink Temperature
+                Info << "---[preciceAdapter]    [TODO] Sink Temperature not implemented yet." << nl;
+            }
+
+        } // end add coupling data readers
     }
 
     Info << "---[preciceAdapter] [TODO] Write coupling data (for the first iteration)" << nl;
@@ -282,4 +306,116 @@ preciceAdapter::Adapter::~Adapter()
 
     // TODO: throws segmentation fault if it has not been initialized at premature exit.
     // delete precice_;
+}
+
+void preciceAdapter::Adapter::readCouplingData()
+{
+    for ( uint i = 0; i < interfaces_.size(); i++ )
+    {
+        interfaces_.at( i )->readCouplingData();
+    }
+}
+
+void preciceAdapter::Adapter::writeCouplingData()
+{
+    for ( uint i = 0; i < interfaces_.size(); i++ )
+    {
+        interfaces_.at( i )->writeCouplingData();
+    }
+}
+
+void preciceAdapter::Adapter::initialize()
+{
+    timestepPrecice_ = precice_->initialize();
+
+    if ( precice_->isActionRequired( precice::constants::actionWriteInitialData() ) )
+    {
+        writeCouplingData();
+        precice_->fulfilledAction( precice::constants::actionWriteInitialData() );
+    }
+
+    precice_->initializeData();
+}
+
+void preciceAdapter::Adapter::advance()
+{
+    if ( timestepSolver_ == -1 )
+    {
+        timestepPrecice_ = precice_->advance( timestepPrecice_ );
+    }
+    else
+    {
+        timestepPrecice_ = precice_->advance( timestepSolver_ );
+    }
+}
+
+void preciceAdapter::Adapter::adjustSolverTimeStep()
+{
+    double timestepSolverDetermined = runTime_.deltaT().value();
+
+    if ( timestepSolverDetermined < timestepPrecice_ )
+    {
+        if ( !subcyclingAllowed_ )
+        {
+            Info << "The solver's timestep cannot be smaller than the "
+                 << "coupling timestep, because subcycling has not been activated. "
+                 << "Forcing the solver to use the coupling timestep."
+                 << nl;
+                 timestepSolver_ = timestepPrecice_;
+        }
+        else
+        {
+            Info << "The solver's timestep is smaller than the "
+                 << "coupling timestep. Subcycling..."
+                 << nl;
+            timestepSolver_ = timestepSolverDetermined;
+        }
+    }
+    else if ( timestepSolverDetermined > timestepPrecice_ )
+    {
+        Info << "The solver's timestep cannot be larger than the coupling timestep. "
+             << "Adjusting from "
+             << timestepSolverDetermined
+             << "to"
+             << timestepPrecice_
+             << nl;
+        timestepSolver_ = timestepPrecice_;
+    }
+    else
+    {
+        timestepSolver_ = timestepPrecice_;
+    }
+
+    // Update the solver's timestep
+    const_cast<Time&>(runTime_).setDeltaT( timestepSolver_ );
+}
+
+bool preciceAdapter::Adapter::isCouplingOngoing()
+{
+    return precice_->isCouplingOngoing();
+}
+
+bool preciceAdapter::Adapter::isCouplingTimestepComplete()
+{
+    return precice_->isTimestepComplete();
+}
+
+bool preciceAdapter::Adapter::isReadCheckpointRequired()
+{
+    return precice_->isActionRequired( precice::constants::actionReadIterationCheckpoint() );
+}
+
+bool preciceAdapter::Adapter::isWriteCheckpointRequired()
+{
+    return precice_->isActionRequired( precice::constants::actionWriteIterationCheckpoint() );
+}
+
+void preciceAdapter::Adapter::fulfilledReadCheckpoint()
+{
+    precice_->fulfilledAction( precice::constants::actionReadIterationCheckpoint() );
+}
+
+void preciceAdapter::Adapter::fulfilledWriteCheckpoint()
+{
+    precice_->fulfilledAction( precice::constants::actionWriteIterationCheckpoint() );
 }
