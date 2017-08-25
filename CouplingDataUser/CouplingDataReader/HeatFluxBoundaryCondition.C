@@ -1,6 +1,8 @@
 #include "HeatFluxBoundaryCondition.h"
 
-preciceAdapter::HeatFluxBoundaryCondition::HeatFluxBoundaryCondition( Foam::volScalarField * T, double k ) :
+using namespace Foam;
+
+preciceAdapter::HeatFluxBoundaryCondition::HeatFluxBoundaryCondition( volScalarField * T, double k ) :
 	_T( T ),
 	_k( k )
 {
@@ -16,8 +18,8 @@ void preciceAdapter::HeatFluxBoundaryCondition::read( double * dataBuffer )
 
 		int patchID = _patchIDs.at( k );
 
-		Foam::fixedGradientFvPatchScalarField & gradientPatch =
-			Foam::refCast<Foam::fixedGradientFvPatchScalarField>( _T->boundaryFieldRef()[patchID] );
+		fixedGradientFvPatchScalarField & gradientPatch =
+			refCast<fixedGradientFvPatchScalarField>( _T->boundaryFieldRef()[patchID] );
 
 		forAll( gradientPatch, i )
 		{

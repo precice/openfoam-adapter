@@ -2,7 +2,7 @@
 
 using namespace Foam;
 
-preciceAdapter::Interface::Interface( precice::SolverInterface & precice, const Foam::fvMesh& mesh, std::string meshName, std::vector<std::string> patchNames ) :
+preciceAdapter::Interface::Interface( precice::SolverInterface & precice, const fvMesh& mesh, std::string meshName, std::vector<std::string> patchNames ) :
 	_precice( precice ),
 	_meshName( meshName ),
 	_patchNames( patchNames ),
@@ -34,7 +34,7 @@ preciceAdapter::Interface::Interface( precice::SolverInterface & precice, const 
 	Info << "---[preciceAdapter]   interface constructor end" << nl;
 }
 
-void preciceAdapter::Interface::_configureMesh( const Foam::fvMesh& mesh )
+void preciceAdapter::Interface::_configureMesh( const fvMesh& mesh )
 {
 	Info << "---[preciceAdapter]   interface configure mesh begin" << nl;
 	for( uint k = 0 ; k < _patchIDs.size() ; k++ )

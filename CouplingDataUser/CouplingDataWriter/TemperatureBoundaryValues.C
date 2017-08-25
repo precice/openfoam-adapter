@@ -1,6 +1,8 @@
 #include "TemperatureBoundaryValues.h"
 
-preciceAdapter::TemperatureBoundaryValues::TemperatureBoundaryValues( Foam::volScalarField * T ) :
+using namespace Foam;
+
+preciceAdapter::TemperatureBoundaryValues::TemperatureBoundaryValues( volScalarField * T ) :
 	_T( T )
 {
     _dataType = scalar;

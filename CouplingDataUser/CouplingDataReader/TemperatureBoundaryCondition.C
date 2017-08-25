@@ -1,6 +1,8 @@
 #include "TemperatureBoundaryCondition.h"
 
-preciceAdapter::TemperatureBoundaryCondition::TemperatureBoundaryCondition( Foam::volScalarField * T ) :
+using namespace Foam;
+
+preciceAdapter::TemperatureBoundaryCondition::TemperatureBoundaryCondition( volScalarField * T ) :
 	_T( T )
 {
     _dataType = scalar;
