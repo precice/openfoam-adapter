@@ -2,6 +2,8 @@
 preCICE-adapter for OpenFOAM
 
 Copyright (c) 2017 Gerasimos Chourdakis
+
+Based on previous work by Lucia Cheung Yau. See also the README.md.
 -------------------------------------------------------------------------------
 
 License
