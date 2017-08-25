@@ -92,6 +92,27 @@ bool preciceAdapter::Adapter::configure()
     Foam::Info << "---[preciceAdapter] Configure preCICE." << Foam::nl;
     precice_->configure( preciceConfigFilename_ );
 
+    // Get the thermophysical model
+    Foam::Info << "---[preciceAdapter] Specifying thermoModel..." << Foam::nl;
+    if (mesh_.foundObject<Foam::basicThermo>("thermophysicalProperties")) {
+        Foam::Info << "---[preciceAdapter]   - Found 'thermophysicalProperties', refering to 'basicThermo'." << Foam::nl;
+        thermo_ = const_cast<Foam::basicThermo*>(&mesh_.lookupObject<Foam::basicThermo>("thermophysicalProperties"));
+    } else {
+        Foam::Info << "---[preciceAdapter]   - Did not find 'thermophysicalProperties', no thermoModel specified." << Foam::nl;
+        if (mesh_.foundObject<Foam::volScalarField>("T")) {
+            Foam::Info << "---[preciceAdapter]   - Found T, however." << Foam::nl;
+        }
+    }
+
+    // Get the turbulence model
+    Foam::Info << "---[preciceAdapter] Specifying turbulenceModel...." << Foam::nl;
+    if (mesh_.foundObject<Foam::compressible::turbulenceModel>("turbulenceProperties")) {
+        Foam::Info << "---[preciceAdapter]   - Found 'turbulenceProperties', refering to 'compressible::turbulenceModel'." << Foam::nl;
+        turbulence_ = const_cast<Foam::compressible::turbulenceModel*>(&mesh_.lookupObject<Foam::compressible::turbulenceModel>("turbulenceProperties"));
+    } else {
+        Foam::Info << "---[preciceAdapter]   - Did not find 'turbulenceProperties', no turbulenceModel specified." << Foam::nl;
+    }
+
     // Create interfaces
     Foam::Info << "---[preciceAdapter] Creating interfaces..." << Foam::nl;
     for ( uint i = 0; i < config_.interfaces().size(); i++ )
@@ -104,26 +125,7 @@ bool preciceAdapter::Adapter::configure()
                    << config_.interfaces().at( i ).meshName
                    << Foam::nl;
 
-        Foam::Info << "---[preciceAdapter] Specifying thermoModel..." << Foam::nl;
-        if (mesh_.foundObject<Foam::basicThermo>("thermophysicalProperties")) {
-            Foam::Info << "---[preciceAdapter]   - Found 'thermophysicalProperties', refering to 'basicThermo'." << Foam::nl;
-            thermo_ = const_cast<Foam::basicThermo*>(&mesh_.lookupObject<Foam::basicThermo>("thermophysicalProperties"));
-        } else {
-            Foam::Info << "---[preciceAdapter]   - Did not find 'thermophysicalProperties', no thermoModel specified." << Foam::nl;
-            if (mesh_.foundObject<Foam::volScalarField>("T")) {
-                Foam::Info << "---[preciceAdapter]   - Found T, however." << Foam::nl;
-            }
-        }
-
-        Foam::Info << "---[preciceAdapter] Specifying turbulenceModel...." << Foam::nl;
-        if (mesh_.foundObject<Foam::compressible::turbulenceModel>("turbulenceProperties")) {
-            Foam::Info << "---[preciceAdapter]   - Found 'turbulenceProperties', refering to 'compressible::turbulenceModel'." << Foam::nl;
-            turbulence_ = const_cast<Foam::compressible::turbulenceModel*>(&mesh_.lookupObject<Foam::compressible::turbulenceModel>("turbulenceProperties"));
-        } else {
-            Foam::Info << "---[preciceAdapter]   - Did not find 'turbulenceProperties', no turbulenceModel specified." << Foam::nl;
-        }
-
-        // TODO: Add coupling data users
+        // TODO: Add coupling data users for 'sink temperature' and for 'heat transfer coefficient'
         Foam::Info << "---[preciceAdapter] Add coupling data writers" << Foam::nl;
         for ( uint j = 0; j < config_.interfaces().at( i ).writeData.size(); j++ )
         {
@@ -140,7 +142,6 @@ bool preciceAdapter::Adapter::configure()
                     interface->addCouplingDataWriter( dataName, bw );
                     Foam::Info << "---[preciceAdapter]   Added Temperature from T." << Foam::nl;
                 }
-
             }
 
             if ( dataName.compare( "Heat-Flux" ) == 0 )
@@ -158,12 +159,12 @@ bool preciceAdapter::Adapter::configure()
             	else
             	{
                     if ( thermo_ ) {
-                        double k = 100; // TODO: IMPORTANT specify k properly (conductivity for solids-laplacianFoam)
+                        double k = 100; // TODO: IMPORTANT specify k properly (conductivity for solids-laplacianFoam_preCICE)
                         HeatFluxBoundaryValues * bw = new HeatFluxBoundaryValues( &thermo_->T(), k);
                         interface->addCouplingDataWriter( dataName, bw );
                         Foam::Info << "---[preciceAdapter]    Added Heat Flux with temperature from thermoModel." << Foam::nl;
                     } else {
-                        double k = 100; // TODO: IMPORTANT specify k properly (conductivity for solids-laplacianFoam)
+                        double k = 100; // TODO: IMPORTANT specify k properly (conductivity for solids-laplacianFoam_preCICE)
                         HeatFluxBoundaryValues * bw = new HeatFluxBoundaryValues( const_cast<Foam::volScalarField*>(&mesh_.lookupObject<volScalarField>("T")), k);
                         interface->addCouplingDataWriter( dataName, bw );
                         Foam::Info << "---[preciceAdapter]    Added Heat Flux with temperature from T." << Foam::nl;
@@ -206,12 +207,12 @@ bool preciceAdapter::Adapter::configure()
             	else
             	{
                     if ( thermo_ ) {
-                        double k = 100; // TODO: IMPORTANT specify k properly (conductivity for solids-laplacianFoam)
+                        double k = 100; // TODO: IMPORTANT specify k properly (conductivity for solids-laplacianFoam_preCICE)
                         HeatFluxBoundaryCondition * br = new HeatFluxBoundaryCondition( &thermo_->T(), k);
                         interface->addCouplingDataReader( dataName, br );
                         Foam::Info << "---[preciceAdapter]    Added Heat Flux with temperature from thermoModel." << Foam::nl;
                     } else {
-                        double k = 100; // TODO: IMPORTANT specify k properly (conductivity for solids-laplacianFoam)
+                        double k = 100; // TODO: IMPORTANT specify k properly (conductivity for solids-laplacianFoam_preCICE)
                         HeatFluxBoundaryCondition * br = new HeatFluxBoundaryCondition( const_cast<Foam::volScalarField*>(&mesh_.lookupObject<volScalarField>("T")), k);
                         interface->addCouplingDataReader( dataName, br );
                         Foam::Info << "---[preciceAdapter]    Added Heat Flux with temperature from T." << Foam::nl;
