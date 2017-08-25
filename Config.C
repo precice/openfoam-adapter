@@ -2,16 +2,18 @@
 
 #include "IOstreams.H"
 
+using namespace Foam;
+
 preciceAdapter::Config::Config()
 {
-    Foam::Info << "Entered the Config() constructor." << Foam::nl;
+    Info << "Entered the Config() constructor." << nl;
     return;
 }
 
 
 bool preciceAdapter::Config::configFileCheck(const std::string adapterConfigFileName)
 {
-    Foam::Info << "---[preciceAdapter] Check the adapter's YAML configuration file." << Foam::nl;
+    Info << "---[preciceAdapter] Check the adapter's YAML configuration file." << nl;
 
     bool configErrors = false;
 
@@ -21,14 +23,14 @@ bool preciceAdapter::Config::configFileCheck(const std::string adapterConfigFile
     // Check if the "participant" node exists
     if ( !adapterConfig["participant"] )
     {
-        Foam::Info << "---[preciceAdapter] Error: Adapter's configuration file: participant node is missing." << Foam::nl;
+        Info << "---[preciceAdapter] Error: Adapter's configuration file: participant node is missing." << nl;
         configErrors = true;
     }
 
     // Check if the "precice-config-file" node exists
     if ( !adapterConfig["precice-config-file"] )
     {
-        Foam::Info << "---[preciceAdapter] Error: Adapter's configuration file: 'precice-config-file' node is missing." << Foam::nl;
+        Info << "---[preciceAdapter] Error: Adapter's configuration file: 'precice-config-file' node is missing." << nl;
         configErrors = true;
         // TODO Check if the specified file exists
     }
@@ -36,30 +38,30 @@ bool preciceAdapter::Config::configFileCheck(const std::string adapterConfigFile
     // Check if the "interfaces" node exists
     if ( !adapterConfig["interfaces"] )
     {
-        Foam::Info << "---[preciceAdapter] Error: Adapter's configuration file: 'interfaces' node is missing." << Foam::nl;
+        Info << "---[preciceAdapter] Error: Adapter's configuration file: 'interfaces' node is missing." << nl;
         configErrors = true;
     } else {
         for ( uint i = 0; i < adapterConfig["interfaces"].size(); i++ )
         {
             if ( !adapterConfig["interfaces"][i]["mesh"] )
             {
-                Foam::Info << "---[preciceAdapter] Error: Adapter's configuration file: the 'mesh' node is missing for the interface " << i+1 << "." << Foam::nl;
+                Info << "---[preciceAdapter] Error: Adapter's configuration file: the 'mesh' node is missing for the interface " << i+1 << "." << nl;
                 configErrors = true;
             }
             if ( !adapterConfig["interfaces"][i]["patches"] )
             {
-                Foam::Info << "---[preciceAdapter] Error: Adapter's configuration file: the 'patches' node is missing for the interface " << i+1 << "." << Foam::nl;
+                Info << "---[preciceAdapter] Error: Adapter's configuration file: the 'patches' node is missing for the interface " << i+1 << "." << nl;
                 configErrors = true;
             }
             if ( !adapterConfig["interfaces"][i]["write-data"] )
             {
-                Foam::Info << "---[preciceAdapter] Error: Adapter's configuration file: the 'write-data' node is missing for the interface " << i+1 << "." << Foam::nl;
+                Info << "---[preciceAdapter] Error: Adapter's configuration file: the 'write-data' node is missing for the interface " << i+1 << "." << nl;
                 configErrors = true;
                 // TODO Add check for allowed values.
             }
             if ( !adapterConfig["interfaces"][i]["read-data"] )
             {
-                Foam::Info << "---[preciceAdapter] Error: Adapter's configuration file: the 'read-data' node is missing for the interface " << i+1 << "." << Foam::nl;
+                Info << "---[preciceAdapter] Error: Adapter's configuration file: the 'read-data' node is missing for the interface " << i+1 << "." << nl;
                 configErrors = true;
                 // TODO Add check for allowed values.
             }
@@ -69,20 +71,20 @@ bool preciceAdapter::Config::configFileCheck(const std::string adapterConfigFile
     // Check if the "subcycling" node exists
     if ( !adapterConfig["subcycling"] )
     {
-        Foam::Info << "---[preciceAdapter] Error: Adapter's configuration file: 'subcycling' node is missing." << Foam::nl;
+        Info << "---[preciceAdapter] Error: Adapter's configuration file: 'subcycling' node is missing." << nl;
         configErrors = true;
     }
 
     // Check if the "checkpointing" node exists
     if ( !adapterConfig["checkpointing"] )
     {
-        Foam::Info << "---[preciceAdapter] Error: Adapter's configuration file: 'checkpointing' node is missing." << Foam::nl;
+        Info << "---[preciceAdapter] Error: Adapter's configuration file: 'checkpointing' node is missing." << nl;
         configErrors = true;
     }
 
     if ( !configErrors )
     {
-        Foam::Info << "---[preciceAdapter]   The adapter's YAML configuration file " << adapterConfigFileName << " is complete." << Foam::nl;
+        Info << "---[preciceAdapter]   The adapter's YAML configuration file " << adapterConfigFileName << " is complete." << nl;
     }
 
     return !configErrors;
@@ -91,7 +93,7 @@ bool preciceAdapter::Config::configFileCheck(const std::string adapterConfigFile
 
 bool preciceAdapter::Config::configFileRead()
 {
-    Foam::Info << "---[preciceAdapter] Read the adapter's YAML configuration file (one per solver)." << Foam::nl;
+    Info << "---[preciceAdapter] Read the adapter's YAML configuration file (one per solver)." << nl;
 
     // Check the configuration file
     const std::string adapterConfigFileName = "precice-adapter-config.yml";
@@ -102,67 +104,67 @@ bool preciceAdapter::Config::configFileRead()
 
     // Read the preCICE participant name
     participantName_ = adapterConfig_["participant"].as<std::string>();
-    Foam::Info << "---[preciceAdapter]   participant : " << participantName_ << Foam::nl;
+    Info << "---[preciceAdapter]   participant : " << participantName_ << nl;
 
     // Read the preCICE configuration file name
     preciceConfigFilename_ = adapterConfig_["precice-config-file"].as<std::string>();
-    Foam::Info << "---[preciceAdapter]   precice-config-file : " << preciceConfigFilename_ << Foam::nl;
+    Info << "---[preciceAdapter]   precice-config-file : " << preciceConfigFilename_ << nl;
 
     // TODO Read the coupling interfaces
     YAML::Node adapterConfigInterfaces = adapterConfig_["interfaces"];
-    Foam::Info << "---[preciceAdapter]   interfaces : " << Foam::nl;
+    Info << "---[preciceAdapter]   interfaces : " << nl;
     for (uint i = 0; i < adapterConfigInterfaces.size(); i++)
     {
         struct Interface interface;
         interface.meshName = adapterConfigInterfaces[i]["mesh"].as<std::string>();
-        Foam::Info << "---[preciceAdapter]     - mesh      : " << interface.meshName << Foam::nl;
+        Info << "---[preciceAdapter]     - mesh      : " << interface.meshName << nl;
 
-        Foam::Info << "---[preciceAdapter]       patches   : ";
+        Info << "---[preciceAdapter]       patches   : ";
         for ( uint j = 0; j < adapterConfigInterfaces[i]["patches"].size(); j++)
         {
             interface.patchNames.push_back( adapterConfigInterfaces[i]["patches"][j].as<std::string>() );
-            Foam::Info << adapterConfigInterfaces[i]["patches"][j].as<std::string>() << " ";
+            Info << adapterConfigInterfaces[i]["patches"][j].as<std::string>() << " ";
         }
-         Foam::Info << Foam::nl;
+         Info << nl;
 
         // TODO: Consider simplification
         if ( adapterConfigInterfaces[i]["write-data"] )
         {
-            Foam::Info << "---[preciceAdapter]       writeData : ";
+            Info << "---[preciceAdapter]       writeData : ";
             if ( adapterConfigInterfaces[i]["write-data"].size() > 0 )
             {
                 for ( uint j = 0; j < adapterConfigInterfaces[i]["read-data"].size(); j++)
                 {
                     interface.writeData.push_back( adapterConfigInterfaces[i]["write-data"][j].as<std::string>() );
-                    Foam::Info << adapterConfigInterfaces[i]["write-data"][j].as<std::string>() << " ";
+                    Info << adapterConfigInterfaces[i]["write-data"][j].as<std::string>() << " ";
                 }
             }
             else
             {
                 interface.writeData.push_back( adapterConfigInterfaces[i]["write-data"].as<std::string>() );
-                Foam::Info << adapterConfigInterfaces[i]["write-data"].as<std::string>() << " ";
+                Info << adapterConfigInterfaces[i]["write-data"].as<std::string>() << " ";
             }
-            Foam::Info << Foam::nl;
+            Info << nl;
         }
 
         // TODO: Consider simplification
         if ( adapterConfigInterfaces[i]["read-data"] )
         {
-            Foam::Info << "---[preciceAdapter]       readData  : ";
+            Info << "---[preciceAdapter]       readData  : ";
             if ( adapterConfigInterfaces[i]["read-data"].size() > 0 )
             {
                 for ( uint j = 0; j < adapterConfigInterfaces[i]["read-data"].size(); j++)
                 {
                     interface.readData.push_back( adapterConfigInterfaces[i]["read-data"][j].as<std::string>() );
-                    Foam::Info << adapterConfigInterfaces[i]["read-data"][j].as<std::string>() << " ";
+                    Info << adapterConfigInterfaces[i]["read-data"][j].as<std::string>() << " ";
                 }
             }
             else
             {
                 interface.readData.push_back( adapterConfigInterfaces[i]["read-data"].as<std::string>() );
-                Foam::Info << adapterConfigInterfaces[i]["read-data"].as<std::string>() << " ";
+                Info << adapterConfigInterfaces[i]["read-data"].as<std::string>() << " ";
             }
-            Foam::Info << Foam::nl;
+            Info << nl;
         }
 
         interfaces_.push_back( interface );
@@ -170,11 +172,11 @@ bool preciceAdapter::Config::configFileRead()
 
     // Set the subcyclingAllowed_ switch
     subcyclingAllowed_ = adapterConfig_["subcycling"].as<bool>();
-    Foam::Info << "---[preciceAdapter]   subcycling : " << subcyclingAllowed_ << Foam::nl;
+    Info << "---[preciceAdapter]   subcycling : " << subcyclingAllowed_ << nl;
 
     // Set the checkpointingEnabled_ switch
     checkpointingEnabled_ = adapterConfig_["checkpointing"].as<bool>();
-    Foam::Info << "---[preciceAdapter]   checkpointing : " << checkpointingEnabled_ << Foam::nl;
+    Info << "---[preciceAdapter]   checkpointing : " << checkpointingEnabled_ << nl;
 
     return true;
 }

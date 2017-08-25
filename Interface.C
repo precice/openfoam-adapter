@@ -1,5 +1,7 @@
 #include "Interface.H"
 
+using namespace Foam;
+
 preciceAdapter::Interface::Interface( precice::SolverInterface & precice, const Foam::fvMesh& mesh, std::string meshName, std::vector<std::string> patchNames ) :
 	_precice( precice ),
 	_meshName( meshName ),
@@ -7,9 +9,9 @@ preciceAdapter::Interface::Interface( precice::SolverInterface & precice, const 
 	_numDataLocations( 0 ),
 	_numDims( 3 )
 {
-	Foam::Info << "---[preciceAdapter]   interface constructor begin" << Foam::nl;
+	Info << "---[preciceAdapter]   interface constructor begin" << nl;
 	_meshID = _precice.getMeshID( _meshName );
-	Foam::Info << "---[preciceAdapter]   interface constructor getMeshID complete" << Foam::nl;
+	Info << "---[preciceAdapter]   interface constructor getMeshID complete" << nl;
 
 	for( uint i = 0 ; i < patchNames.size() ; i++ )
 	{
@@ -19,22 +21,22 @@ preciceAdapter::Interface::Interface( precice::SolverInterface & precice, const 
 			// BOOST_LOG_TRIVIAL( error ) << "ERROR: Patch '" << patchNames.at( i ) << "' does not exist.";
 			exit( 1 );
 		}
-		Foam::Info << "---[preciceAdapter]   interface found patch" << Foam::nl;
+		Info << "---[preciceAdapter]   interface found patch" << nl;
 
 		_patchIDs.push_back( patchID );
 	}
 	_configureMesh( mesh );
-	Foam::Info << "---[preciceAdapter]   interface constructor configured mesh" << Foam::nl;
+	Info << "---[preciceAdapter]   interface constructor configured mesh" << nl;
 
 	/* An interface has only one data buffer, which is shared between several CouplingDataReaders and CouplingDataWriters
 	   The initial allocation assumes scalar data, if CouplingDataReaders or -Writers have vector data, it is resized (TODO) */
 	_dataBuffer = new double[_numDataLocations]();
-	Foam::Info << "---[preciceAdapter]   interface constructor end" << Foam::nl;
+	Info << "---[preciceAdapter]   interface constructor end" << nl;
 }
 
 void preciceAdapter::Interface::_configureMesh( const Foam::fvMesh& mesh )
 {
-	Foam::Info << "---[preciceAdapter]   interface configure mesh begin" << Foam::nl;
+	Info << "---[preciceAdapter]   interface configure mesh begin" << nl;
 	for( uint k = 0 ; k < _patchIDs.size() ; k++ )
 	{
 		_numDataLocations += mesh.boundaryMesh()[_patchIDs.at( k )].faceCentres().size();
@@ -55,7 +57,7 @@ void preciceAdapter::Interface::_configureMesh( const Foam::fvMesh& mesh )
 		}
 	}
 	_precice.setMeshVertices( _meshID, _numDataLocations, vertices, _vertexIDs );
-	Foam::Info << "---[preciceAdapter]   interface configure mesh end" << Foam::nl;
+	Info << "---[preciceAdapter]   interface configure mesh end" << nl;
 
 }
 
