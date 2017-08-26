@@ -245,11 +245,13 @@ bool preciceAdapter::Adapter::configure()
         } // end add coupling data readers
     }
 
-    Info << "---[preciceAdapter] [TODO] Write coupling data (for the first iteration)" << nl;
-    Info << "---[preciceAdapter] [TODO] Initialize preCICE data." << nl;
+    Info << "---[preciceAdapter] [In Progress] Write coupling data (for the first iteration) & initialize preCICE data." << nl;
+    this->initialize();
+
     Info << "---[preciceAdapter] ---" << nl;
 
-    Info << "---[preciceAdapter] [TODO] Read coupling data (for the first iteration)" << nl;
+    Info << "---[preciceAdapter] [In Progress] Read coupling data (for the first iteration)" << nl;
+    this->readCouplingData();
 
     // Write checkpoint (for the first iteration)
     if (checkpointingEnabled_) {
@@ -258,7 +260,8 @@ bool preciceAdapter::Adapter::configure()
 
     // Adjust the timestep for the first iteration, if it is fixed
     if (!adjustableTimestep_) {
-        Info << "---[preciceAdapter] [TODO] Adjust the solver's timestep (if fixed timestep, for the first iteration)" << nl;
+        Info << "---[preciceAdapter] [In Progress] Adjust the solver's timestep (if fixed timestep, for the first iteration)" << nl;
+        this->adjustSolverTimeStep();
     }
 
     return true;
@@ -267,29 +270,41 @@ bool preciceAdapter::Adapter::configure()
 void preciceAdapter::Adapter::execute()
 {
     Info << "---[preciceAdapter] if (coupling ongoing) {" << nl;
-    Info << "---[preciceAdapter]   [TODO] Write coupling data (from the previous iteration)." << nl;
-    Info << "---[preciceAdapter]   [TODO] Advance preCICE (from the previous iteration)." << nl;
-    Info << "---[preciceAdapter]   [TODO] Read coupling data (from the previous iteration)." << nl;
+    if ( this->isCouplingOngoing() ) {
+        Info << "---[preciceAdapter]   [In Progress] Write coupling data (from the previous iteration)." << nl;
+        this->writeCouplingData();
 
-    // Adjust the timestep, if it is fixed
-    if (!adjustableTimestep_) {
-        Info << "---[preciceAdapter]   [TODO] Adjust the solver's timestep (if fixed timestep, from the previous iteration)." << nl;
+        Info << "---[preciceAdapter]   [In Progress] Advance preCICE (from the previous iteration)." << nl;
+        this->advance();
+
+        Info << "---[preciceAdapter]   [In Progress] Read coupling data (from the previous iteration)." << nl;
+        this->readCouplingData();
+
+        // Adjust the timestep, if it is fixed
+        if (!adjustableTimestep_) {
+            Info << "---[preciceAdapter]   [In Progress] Adjust the solver's timestep (if fixed timestep, from the previous iteration)." << nl;
+            this->adjustSolverTimeStep();
+        }
+
+        // Read checkpoint (from the previous iteration)
+        if (checkpointingEnabled_) {
+            Info << "---[preciceAdapter]   [TODO] Read checkpoint (from the previous iteration)." << nl;
+        }
+
+        // Write checkpoint (from the previous iteration)
+        if (checkpointingEnabled_) {
+            Info << "---[preciceAdapter]   [TODO] Write checkpoint (from the previous iteration)." << nl;
+        }
+
+        Info << "---[preciceAdapter]   [In Progress] Write if coupling timestep complete (?)." << nl;
+        if (this->isCouplingTimestepComplete()) {
+            runTime_.write();
+        }
+        else
+        {
+            Info << "---[preciceAdapter]   [TODO] Exit the loop." << nl;
+        }
     }
-
-    // Read checkpoint (from the previous iteration)
-    if (checkpointingEnabled_) {
-        Info << "---[preciceAdapter]   [TODO] Read checkpoint (from the previous iteration)." << nl;
-    }
-
-    // Write checkpoint (from the previous iteration)
-    if (checkpointingEnabled_) {
-        Info << "---[preciceAdapter]   [TODO] Write checkpoint (from the previous iteration)." << nl;
-    }
-
-    Info << "---[preciceAdapter]   [TODO] Write if coupling timestep complete (?)." << nl;
-    Info << "---[preciceAdapter] } else {" << nl;
-    Info << "---[preciceAdapter]   [TODO] Exit the loop." << nl;
-    Info << "---[preciceAdapter] }" << nl;
 
     return;
 }
