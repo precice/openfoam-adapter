@@ -434,3 +434,87 @@ void preciceAdapter::Adapter::fulfilledWriteCheckpoint()
 {
     precice_->fulfilledAction( precice::constants::actionWriteIterationCheckpoint() );
 }
+
+void preciceAdapter::Adapter::storeCheckpointTime()
+{
+    couplingIterationTimeIndex_ = runTime_.timeIndex();
+    couplingIterationTimeValue_ = runTime_.value();
+}
+
+void preciceAdapter::Adapter::reloadCheckpointTime()
+{
+    const_cast<Time&>(runTime_).setTime( couplingIterationTimeValue_, couplingIterationTimeIndex_ );
+}
+
+void preciceAdapter::Adapter::addCheckpointField( volScalarField & field )
+{
+    volScalarField * copy = new volScalarField( field );
+    volScalarFields_.push_back( &field );
+    volScalarFieldCopies_.push_back( copy );
+}
+
+void preciceAdapter::Adapter::addCheckpointField( volVectorField & field )
+{
+    volVectorField * copy = new volVectorField( field );
+    volVectorFields_.push_back( &field );
+    volVectorFieldCopies_.push_back( copy );
+}
+
+void preciceAdapter::Adapter::addCheckpointField( surfaceScalarField & field )
+{
+    surfaceScalarField * copy = new surfaceScalarField( field );
+    surfaceScalarFields_.push_back( &field );
+    surfaceScalarFieldCopies_.push_back( copy );
+}
+
+void preciceAdapter::Adapter::readCheckpoint()
+{
+    // Reload the runTime
+    reloadCheckpointTime();
+
+    // Reload all the fields of type volScalarField
+    for ( uint i = 0 ; i < volScalarFields_.size() ; i++ )
+    {
+        *( volScalarFields_.at( i ) ) == *( volScalarFieldCopies_.at( i ) );
+    }
+
+    // Reload all the fields of type volVectorField
+    for ( uint i = 0 ; i < volVectorFields_.size() ; i++ )
+    {
+        *( volVectorFields_.at( i ) ) == *( volVectorFieldCopies_.at( i ) );
+    }
+
+    // Reload all the fields of type surfaceScalarField
+    for ( uint i = 0 ; i < surfaceScalarFields_.size() ; i++ )
+    {
+        *( surfaceScalarFields_.at( i ) ) == *( surfaceScalarFieldCopies_.at( i ) );
+    }
+
+    // TODO Reload all the fields of type surfaceVectorField
+}
+
+void preciceAdapter::Adapter::writeCheckpoint()
+{
+    // Store the runTime
+    storeCheckpointTime();
+
+    // Store all the fields of type volScalarField
+    for ( uint i = 0 ; i < volScalarFields_.size() ; i++ )
+    {
+        *( volScalarFieldCopies_.at( i ) ) == *( volScalarFields_.at( i ) );
+    }
+
+    // Store all the fields of type volVectorField
+    for ( uint i = 0 ; i < volVectorFields_.size() ; i++ )
+    {
+        *( volVectorFieldCopies_.at( i ) ) == *( volVectorFields_.at( i ) );
+    }
+
+    // Store all the fields of type surfaceScalarField
+    for ( uint i = 0 ; i < surfaceScalarFields_.size() ; i++ )
+    {
+        *( surfaceScalarFieldCopies_.at( i ) ) == *( surfaceScalarFields_.at( i ) );
+    }
+
+    // TODO Store all the fields of type surfaceVectorField
+}

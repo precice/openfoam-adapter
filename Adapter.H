@@ -66,70 +66,123 @@ private:
     //- preCICE solver interface
     precice::SolverInterface * precice_;
 
-    //- Timestep dictated by preCICE
-    double timestepPrecice_;
+    // Timesteps
 
-    //- Timestep used by the solver
-    double timestepSolver_;
+        //- Timestep dictated by preCICE
+        double timestepPrecice_;
 
-    //- Initialize preCICE
-    void initialize();
+        //- Timestep used by the solver
+        double timestepSolver_;
 
-    //- Read the coupling data at each interface
-    void readCouplingData();
+    // Checkpointing
 
-    //- Write the coupling data at each interface
-    void writeCouplingData();
+        //- Checkpointed time (value)
+        Foam::scalar couplingIterationTimeValue_;
 
-    //- Advance preCICE
-    void advance();
+        //- Checkpointed time (index)
+        Foam::label couplingIterationTimeIndex_;
 
-    //- Adjust the timestep of the solver according to preCICE
-    void adjustSolverTimeStep();
+        // Vectors of pointers to the checkpointed fields and their copies
 
-    //- Determine if the coupling is still happening
-    bool isCouplingOngoing();
+            //- Checkpointed volScalarField fields
+            std::vector<Foam::volScalarField*> volScalarFields_;
 
-    //- Determine if the coupling timestep has been completed
-    bool isCouplingTimestepComplete();
+            //- Checkpointed volScalarField fields (copies)
+            std::vector<Foam::volScalarField*> volScalarFieldCopies_;
 
-    //- Determine if a checkpoint must be read
-    bool isReadCheckpointRequired();
+            //- Checkpointed volVectorField fields
+            std::vector<Foam::volVectorField*> volVectorFields_;
 
-    //- Determine if a checkpoint must be written
-    bool isWriteCheckpointRequired();
+            //- Checkpointed volVectorField fields (copies)
+            std::vector<Foam::volVectorField*> volVectorFieldCopies_;
 
-    //- Tell preCICE that the checkpoint has been read
-    void fulfilledReadCheckpoint();
+            //- Checkpointed surfaceScalarField fields
+            std::vector<Foam::surfaceScalarField*> surfaceScalarFields_;
 
-    //- Tell preCICE that the checkpoint has been written
-    void fulfilledWriteCheckpoint();
+            //- Checkpointed surfaceScalarField fields (copies)
+            std::vector<Foam::surfaceScalarField*> surfaceScalarFieldCopies_;
 
-    //- TODO Set checkpointing on/off
-    // void setCheckpointingEnabled( bool enabled );
+    // Methods communicating with preCICE
 
-    //- TODO Determine if the checkpointing is enabled
-    // bool isCheckpointingEnabled();
+        //- Initialize preCICE
+        void initialize();
 
-    // TODO Methods for adding checkpointed fields
-    // TODO Methods for reading/writing checkpoints
+        //- Advance preCICE
+        void advance();
+
+        //- Read the coupling data at each interface
+        void readCouplingData();
+
+        //- Write the coupling data at each interface
+        void writeCouplingData();
+
+        //- Adjust the timestep of the solver according to preCICE
+        void adjustSolverTimeStep();
+
+        //- Determine if the coupling is still happening
+        bool isCouplingOngoing();
+
+        //- Determine if the coupling timestep has been completed
+        bool isCouplingTimestepComplete();
+
+        //- Determine if a checkpoint must be read
+        bool isReadCheckpointRequired();
+
+        //- Determine if a checkpoint must be written
+        bool isWriteCheckpointRequired();
+
+        //- Tell preCICE that the checkpoint has been read
+        void fulfilledReadCheckpoint();
+
+        //- Tell preCICE that the checkpoint has been written
+        void fulfilledWriteCheckpoint();
+
+    // Methods for checkpointing
+
+        //- Make a copy of the runTime object
+        void storeCheckpointTime();
+
+        //- Restore the copy of the runTime object
+        void reloadCheckpointTime();
+
+        // Add checkpoint fields, depending on the type
+
+            //- Add a volScalarField to checkpoint
+            void addCheckpointField( volScalarField & field );
+
+            //- Add a volVectorField to checkpoint
+            void addCheckpointField( volVectorField & field );
+
+            //- Add a surfaceScalarField to checkpoint
+            void addCheckpointField( surfaceScalarField & field );
+
+            //- TODO Add a surfaceVectorField to checkpoint
+            // TODO Make all these a template?
+
+        //- Read the checkpoint - restore the fields and time
+        void readCheckpoint();
+
+        //- Write the checkpoint - store the fields and time
+        void writeCheckpoint();
 
 public:
 
-    //- Constructor
-    Adapter(const Foam::Time& runTime, const Foam::fvMesh& mesh);
+    // Methods called by the functionObject
 
-    //- Setup the adapter's configuration
-    bool configure();
+        //- Constructor
+        Adapter(const Foam::Time& runTime, const Foam::fvMesh& mesh);
 
-    //- Called by the functionObject's execute()
-    void execute();
+        //- Setup the adapter's configuration
+        bool configure();
 
-    //- Called by the functionObject's adjustTimeStep()
-    void adjustTimeStep();
+        //- Called by the functionObject's execute()
+        void execute();
 
-    //- Destructor
-    ~Adapter();
+        //- Called by the functionObject's adjustTimeStep()
+        void adjustTimeStep();
+
+        //- Destructor
+        ~Adapter();
 
 };
 
