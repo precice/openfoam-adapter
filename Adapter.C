@@ -30,7 +30,7 @@ bool preciceAdapter::Adapter::configure()
     config_ = preciceAdapter::Config();
 
     // Read the adapter's configuration file
-    if ( !config_.configFileRead() )
+    if ( !config_.configFileRead( runTime_.path() ) )
     {
         runTime_.stopAt(Time::saNoWriteNow);
         FatalErrorIn("configFileCheck()")

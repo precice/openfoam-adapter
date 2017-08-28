@@ -51,7 +51,7 @@ public:
     Config();
 
     //- Read the adapter's configuration file
-    bool configFileRead();
+    bool configFileRead(const std::string casePath);
 
     //- Check the adapter's configuration file
     bool configFileCheck(const std::string adapterConfigFileName);

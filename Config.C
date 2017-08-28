@@ -87,16 +87,19 @@ bool preciceAdapter::Config::configFileCheck(const std::string adapterConfigFile
         Info << "---[preciceAdapter]   The adapter's YAML configuration file " << adapterConfigFileName << " is complete." << nl;
     }
 
+    Info << "---[preciceAdapter] The adapter's YAML configuration file looks good." << nl;
+
     return !configErrors;
 }
 
 
-bool preciceAdapter::Config::configFileRead()
+bool preciceAdapter::Config::configFileRead(const std::string casePath)
 {
-    Info << "---[preciceAdapter] Read the adapter's YAML configuration file (one per solver)." << nl;
 
     // Check the configuration file
-    const std::string adapterConfigFileName = "precice-adapter-config.yml";
+    const std::string adapterConfigFileName = casePath + "/precice-adapter-config.yml";
+    Info << "---[preciceAdapter] Read the adapter's YAML configuration file " + adapterConfigFileName + "." << nl;
+
     if ( !configFileCheck(adapterConfigFileName) ) return false;
 
     // Load the YAML file
