@@ -255,11 +255,19 @@ bool preciceAdapter::Adapter::configure()
     this->readCouplingData();
 
     // Write checkpoint (for the first iteration)
-    if ( checkpointingEnabled_ && this->isWriteCheckpointRequired() )
+    if ( this->isWriteCheckpointRequired() )
     {
-        Info << "---[preciceAdapter] [In Progress] Write checkpoint (for the first iteration)" << nl;
-        this->writeCheckpoint();
-        this->fulfilledWriteCheckpoint();
+        if ( checkpointingEnabled_ )
+        {
+            Info << "---[preciceAdapter] [In Progress] Write checkpoint (for the first iteration)" << nl;
+            this->writeCheckpoint();
+            this->fulfilledWriteCheckpoint();
+        }
+        else
+        {
+            Info << "---[preciceAdapter] [TODO] preCICE expects a checkpoint to be written: please activate checkpointing." << nl;
+            // TODO error and exit
+        }
     }
 
     // Adjust the timestep for the first iteration, if it is fixed
@@ -291,19 +299,35 @@ void preciceAdapter::Adapter::execute()
         }
 
         // Read checkpoint (from the previous iteration)
-        if (checkpointingEnabled_ && this->isReadCheckpointRequired())
+        if ( this->isReadCheckpointRequired() )
         {
-            Info << "---[preciceAdapter]   [In Progress] Read checkpoint (from the previous iteration)." << nl;
-            this->readCheckpoint();
-            this->fulfilledReadCheckpoint();
+            if ( checkpointingEnabled_ )
+            {
+                Info << "---[preciceAdapter]   [In Progress] Read checkpoint (from the previous iteration)." << nl;
+                this->readCheckpoint();
+                this->fulfilledReadCheckpoint();
+            }
+            else
+            {
+                Info << "---[preciceAdapter] [TODO] preCICE expects a checkpoint to be read: please activate checkpointing." << nl;
+                // TODO error and exit
+            }
         }
 
         // Write checkpoint (from the previous iteration)
-        if ( checkpointingEnabled_ && this->isWriteCheckpointRequired() )
+        if ( this->isWriteCheckpointRequired() )
         {
-            Info << "---[preciceAdapter]   [In Progress] Write checkpoint (from the previous iteration)." << nl;
-            this->writeCheckpoint();
-            this->fulfilledWriteCheckpoint();
+            if ( checkpointingEnabled_ )
+            {
+                Info << "---[preciceAdapter] [In Progress] Write checkpoint (from the previous iteration)" << nl;
+                this->writeCheckpoint();
+                this->fulfilledWriteCheckpoint();
+            }
+            else
+            {
+                Info << "---[preciceAdapter] [TODO] preCICE expects a checkpoint to be written: please activate checkpointing." << nl;
+                // TODO error and exit
+            }
         }
 
         Info << "---[preciceAdapter]   [In Progress] Write if coupling timestep complete (?)." << nl;
