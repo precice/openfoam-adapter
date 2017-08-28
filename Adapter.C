@@ -400,7 +400,8 @@ void preciceAdapter::Adapter::adjustSolverTimeStep()
     {
         if ( !subcyclingAllowed_ )
         {
-            Info << "The solver's timestep cannot be smaller than the "
+            Info << "---[preciceAdapter] "
+                 << "The solver's timestep cannot be smaller than the "
                  << "coupling timestep, because subcycling has not been activated. "
                  << "Forcing the solver to use the coupling timestep."
                  << nl;
@@ -408,7 +409,8 @@ void preciceAdapter::Adapter::adjustSolverTimeStep()
         }
         else
         {
-            Info << "The solver's timestep is smaller than the "
+            Info << "---[preciceAdapter] "
+                 << "The solver's timestep is smaller than the "
                  << "coupling timestep. Subcycling..."
                  << nl;
             timestepSolver_ = timestepSolverDetermined;
@@ -416,7 +418,8 @@ void preciceAdapter::Adapter::adjustSolverTimeStep()
     }
     else if ( timestepSolverDetermined > timestepPrecice_ )
     {
-        Info << "The solver's timestep cannot be larger than the coupling timestep. "
+        Info << "---[preciceAdapter] "
+             << "The solver's timestep cannot be larger than the coupling timestep. "
              << "Adjusting from "
              << timestepSolverDetermined
              << " to "
@@ -426,6 +429,9 @@ void preciceAdapter::Adapter::adjustSolverTimeStep()
     }
     else
     {
+        Info << "---[preciceAdapter] "
+             << "The solver's timestep is the same as the coupling timestep."
+             << nl;
         timestepSolver_ = timestepPrecice_;
     }
 
