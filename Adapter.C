@@ -391,7 +391,7 @@ void preciceAdapter::Adapter::adjustSolverTimeStep()
         Info << "The solver's timestep cannot be larger than the coupling timestep. "
              << "Adjusting from "
              << timestepSolverDetermined
-             << "to"
+             << " to "
              << timestepPrecice_
              << nl;
         timestepSolver_ = timestepPrecice_;
@@ -401,8 +401,9 @@ void preciceAdapter::Adapter::adjustSolverTimeStep()
         timestepSolver_ = timestepPrecice_;
     }
 
-    // Update the solver's timestep
-    const_cast<Time&>(runTime_).setDeltaT( timestepSolver_ );
+    // Update the solver's timestep (but don't trigger the adjustDeltaT(),
+    // which also triggers the functionObject's adjustTimeStep()) (TODO)
+    const_cast<Time&>(runTime_).setDeltaT( timestepSolver_, false );
 }
 
 bool preciceAdapter::Adapter::isCouplingOngoing()
