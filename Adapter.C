@@ -332,12 +332,12 @@ void preciceAdapter::Adapter::execute()
 
         Info << "---[preciceAdapter]   [In Progress] Write if coupling timestep complete (?)." << nl;
         if (this->isCouplingTimestepComplete()) {
-            runTime_.write();
+            const_cast<Time&>(runTime_).writeNow(); // TODO write() or writeNow()?
         }
-        else
-        {
-            Info << "---[preciceAdapter]   [TODO] Exit the loop." << nl;
-        }
+    }
+    else
+    {
+        Info << "---[preciceAdapter]   [TODO] Coupling completed - Exit the loop." << nl;
     }
 
     return;
