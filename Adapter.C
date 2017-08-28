@@ -64,7 +64,8 @@ bool preciceAdapter::Adapter::configure()
     }
 
     // Add fields in the checkpointing list
-    if ( checkpointingEnabled_ ) {
+    if ( checkpointingEnabled_ )
+    {
         Info << "---[preciceAdapter] [TODO] Add checkpoint fields (decide which)." << nl;
     }
 
@@ -254,8 +255,11 @@ bool preciceAdapter::Adapter::configure()
     this->readCouplingData();
 
     // Write checkpoint (for the first iteration)
-    if (checkpointingEnabled_) {
-        Info << "---[preciceAdapter] [TODO] Write checkpoint (for the first iteration)" << nl;
+    if ( checkpointingEnabled_ && this->isWriteCheckpointRequired() )
+    {
+        Info << "---[preciceAdapter] [In Progress] Write checkpoint (for the first iteration)" << nl;
+        this->writeCheckpoint();
+        this->fulfilledWriteCheckpoint();
     }
 
     // Adjust the timestep for the first iteration, if it is fixed
@@ -287,13 +291,19 @@ void preciceAdapter::Adapter::execute()
         }
 
         // Read checkpoint (from the previous iteration)
-        if (checkpointingEnabled_) {
-            Info << "---[preciceAdapter]   [TODO] Read checkpoint (from the previous iteration)." << nl;
+        if (checkpointingEnabled_ && this->isReadCheckpointRequired())
+        {
+            Info << "---[preciceAdapter]   [In Progress] Read checkpoint (from the previous iteration)." << nl;
+            this->readCheckpoint();
+            this->fulfilledReadCheckpoint();
         }
 
         // Write checkpoint (from the previous iteration)
-        if (checkpointingEnabled_) {
-            Info << "---[preciceAdapter]   [TODO] Write checkpoint (from the previous iteration)." << nl;
+        if ( checkpointingEnabled_ && this->isWriteCheckpointRequired() )
+        {
+            Info << "---[preciceAdapter]   [In Progress] Write checkpoint (from the previous iteration)." << nl;
+            this->writeCheckpoint();
+            this->fulfilledWriteCheckpoint();
         }
 
         Info << "---[preciceAdapter]   [In Progress] Write if coupling timestep complete (?)." << nl;
@@ -312,15 +322,9 @@ void preciceAdapter::Adapter::execute()
 void preciceAdapter::Adapter::adjustTimeStep()
 {
     Info << "---[preciceAdapter] [TODO] Adjust the solver's timestep (only if dynamic timestep is used)." << nl;
+    this->adjustSolverTimeStep();
+
     return;
-}
-
-preciceAdapter::Adapter::~Adapter()
-{
-    Info << "---[preciceAdapter] [TODO] Destroy the preCICE Solver Interface." << nl;
-
-    // TODO: throws segmentation fault if it has not been initialized at premature exit.
-    // delete precice_;
 }
 
 void preciceAdapter::Adapter::readCouplingData()
@@ -518,4 +522,48 @@ void preciceAdapter::Adapter::writeCheckpoint()
     }
 
     // TODO Store all the fields of type surfaceVectorField
+}
+
+preciceAdapter::Adapter::~Adapter()
+{
+
+    // Delete the copied fields for checkpointing
+    if ( checkpointingEnabled_ )
+    {
+        Info << "---[preciceAdapter] [In Progress] Delete the checkpoints." << nl;
+        for ( uint i = 0; i < volScalarFieldCopies_.size(); i++ )
+        {
+            delete volScalarFieldCopies_.at( i );
+        }
+        volScalarFieldCopies_.clear();
+
+        for ( uint i = 0; i < volVectorFieldCopies_.size(); i++ )
+        {
+            delete volVectorFieldCopies_.at( i );
+        }
+        volVectorFieldCopies_.clear();
+
+        for ( uint i = 0; i < surfaceScalarFieldCopies_.size(); i++ )
+        {
+            delete surfaceScalarFieldCopies_.at( i );
+        }
+        surfaceScalarFieldCopies_.clear();
+
+        // TODO Add delete for other types (if any)
+    }
+
+    Info << "---[preciceAdapter] [In Progress] Delete the interfaces." << nl;
+    for ( uint i = 0; i < interfaces_.size(); i++ )
+    {
+        delete interfaces_.at( i );
+    }
+    interfaces_.clear();
+
+    Info << "---[preciceAdapter] [In Progress] Finalize the preCICE Solver Interface." << nl;
+    precice_->finalize();
+
+    Info << "---[preciceAdapter] [In Progress] Destroy the preCICE Solver Interface." << nl;
+
+    // TODO: throws segmentation fault if it has not been initialized at premature exit.
+    delete precice_;
 }
