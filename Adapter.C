@@ -164,13 +164,6 @@ bool preciceAdapter::Adapter::configFileCheck(const std::string adapterConfigFil
         configErrors = true;
     }
 
-    // Check if the "checkpointing" node exists
-    if ( !adapterConfig["checkpointing"] )
-    {
-        adapterInfo( "The 'checkpointing' node is missing in " + adapterConfigFileName + ".", "warning" );
-        configErrors = true;
-    }
-
     if ( !configErrors )
     {
         adapterInfo( "The adapter's YAML configuration file " + adapterConfigFileName + " is complete." , "debug");
@@ -262,10 +255,6 @@ bool preciceAdapter::Adapter::configFileRead()
     subcyclingAllowed_ = adapterConfig_["subcycling"].as<bool>();
     adapterInfo( "    subcycling : " + std::to_string(subcyclingAllowed_), "debug" );
 
-    // Set the checkpointingEnabled_ switch
-    checkpointingEnabled_ = adapterConfig_["checkpointing"].as<bool>();
-    adapterInfo( "    checkpointing : " + std::to_string(checkpointingEnabled_), "debug" );
-
     return true;
 }
 
@@ -293,12 +282,6 @@ bool preciceAdapter::Adapter::configure()
         adapterInfo( "  Timestep type: adjustable.", "debug" );
     } else {
         adapterInfo( "  Timestep type: fixed.", "debug" );
-    }
-
-    // Add fields in the checkpointing list
-    if ( checkpointingEnabled_ )
-    {
-        adapterInfo( "Add checkpoint fields", "dev" );
     }
 
     // Initialize preCICE
@@ -489,20 +472,20 @@ bool preciceAdapter::Adapter::configure()
     adapterInfo( "Reading coupling data (for the first iteration)...", "debug" );
     readCouplingData();
 
-    // Write checkpoint (for the first iteration)
+    // If checkpointing is required, specify the checkpointed fields
+    // and write the first checkpoint
     if ( isWriteCheckpointRequired() )
     {
-        if ( checkpointingEnabled_ )
-        {
-            adapterInfo( "Writing a checkpoint (for the first iteration)...", "debug" );
-            writeCheckpoint();
-            fulfilledWriteCheckpoint();
-            adapterInfo( "  Checkpoint was written.", "debug" );
-        }
-        else
-        {
-            adapterInfo("Checkpointing is not enabled.", "error-critical");
-        }
+        checkpointing_ = true;
+
+        // Add fields in the checkpointing list
+        adapterInfo( "Add checkpoint fields", "dev" );
+
+        // Write checkpoint (for the first iteration)
+        adapterInfo( "Writing a checkpoint (for the first iteration)...", "debug" );
+        writeCheckpoint();
+        fulfilledWriteCheckpoint();
+        adapterInfo( "  Checkpoint was written.", "debug" );
     }
 
     // Adjust the timestep for the first iteration, if it is fixed
@@ -537,33 +520,19 @@ void preciceAdapter::Adapter::execute()
         // Read checkpoint (from the previous iteration)
         if ( isReadCheckpointRequired() )
         {
-            if ( checkpointingEnabled_ )
-            {
-                adapterInfo( "Reading a checkpoint... (from the previous iteration)", "debug" );
-                readCheckpoint();
-                fulfilledReadCheckpoint();
-                adapterInfo( "  Checkpoint was read.", "debug" );
-            }
-            else
-            {
-                adapterInfo( "Checkpointing is not enabled.", "critical-error" );
-            }
+            adapterInfo( "Reading a checkpoint... (from the previous iteration)", "debug" );
+            readCheckpoint();
+            fulfilledReadCheckpoint();
+            adapterInfo( "  Checkpoint was read.", "debug" );
         }
 
         // Write checkpoint (from the previous iteration)
         if ( isWriteCheckpointRequired() )
         {
-            if ( checkpointingEnabled_ )
-            {
-                adapterInfo( "Writing a checkpoint... (from the previous iteration)", "debug" );
-                writeCheckpoint();
-                fulfilledWriteCheckpoint();
-                adapterInfo( "  Checkpoint was written", "debug" );
-            }
-            else
-            {
-                adapterInfo( "Checkpointing is not enabled.", "critical-error" );
-            }
+            adapterInfo( "Writing a checkpoint... (from the previous iteration)", "debug" );
+            writeCheckpoint();
+            fulfilledWriteCheckpoint();
+            adapterInfo( "  Checkpoint was written", "debug" );
         }
 
         if (isCouplingTimestepComplete()) {
@@ -805,7 +774,7 @@ preciceAdapter::Adapter::~Adapter()
 {
 
     // Delete the copied fields for checkpointing
-    if ( checkpointingEnabled_ )
+    if ( checkpointing_ )
     {
         adapterInfo( "Deleting the checkpoints... ", "debug" );
         for ( uint i = 0; i < volScalarFieldCopies_.size(); i++ )

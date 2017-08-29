@@ -61,7 +61,7 @@ private:
         bool subcyclingAllowed_;
 
         //- Switch for checkpointing
-        bool checkpointingEnabled_;
+        bool checkpointing_ = false;
 
         //- Type of timestep (fixed, adjustable)
         bool adjustableTimestep_;
