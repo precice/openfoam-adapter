@@ -73,7 +73,7 @@ private:
     std::vector<Interface*> interfaces_;
 
     //- preCICE solver interface
-    precice::SolverInterface * precice_;
+    precice::SolverInterface * precice_ = NULL;
 
     // Timesteps
 

@@ -812,5 +812,9 @@ preciceAdapter::Adapter::~Adapter()
 
     adapterInfo( "Destroying the preCICE solver interface...", "debug" );
     // TODO: throws segmentation fault if it has not been initialized at premature exit.
-    delete precice_;
+    if ( NULL != precice_ )
+    {
+        delete precice_;
+        precice_ = NULL;
+    }
 }
