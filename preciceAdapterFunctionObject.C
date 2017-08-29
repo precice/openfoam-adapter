@@ -53,7 +53,6 @@ Foam::functionObjects::preciceAdapterFunctionObject::preciceAdapterFunctionObjec
     fvMeshFunctionObject(name, runTime, dict),
     adapter_(runTime, mesh_)
 {
-    Info << "---[preciceAdapter] functionObject: CONSTRUCTOR --------" << nl;
     read(dict);
 }
 
@@ -62,7 +61,6 @@ Foam::functionObjects::preciceAdapterFunctionObject::preciceAdapterFunctionObjec
 
 Foam::functionObjects::preciceAdapterFunctionObject::~preciceAdapterFunctionObject()
 {
-    Info << "---[preciceAdapter] functionObject: DESTRUCTOR ---------" << nl;
 }
 
 
@@ -70,8 +68,6 @@ Foam::functionObjects::preciceAdapterFunctionObject::~preciceAdapterFunctionObje
 
 bool Foam::functionObjects::preciceAdapterFunctionObject::read(const dictionary& dict)
 {
-    Info << "---[preciceAdapter] functionObject: READ ---------------" << nl;
-
     // Configure the adapter
     return adapter_.configure();
 }
@@ -79,8 +75,6 @@ bool Foam::functionObjects::preciceAdapterFunctionObject::read(const dictionary&
 
 bool Foam::functionObjects::preciceAdapterFunctionObject::execute()
 {
-    Info << "---[preciceAdapter] functionObject: EXECUTE (i > 1)------" << nl;
-
     // TODO Convert to bool and add check
     adapter_.execute();
 
@@ -90,21 +84,19 @@ bool Foam::functionObjects::preciceAdapterFunctionObject::execute()
 
 bool Foam::functionObjects::preciceAdapterFunctionObject::end()
 {
-    Info << "---[preciceAdapter] functionObject: END ----------------" << nl;
+    // TODO drop if not needed
     return true;
 }
 
 
 bool Foam::functionObjects::preciceAdapterFunctionObject::write()
 {
-    Info << "---[preciceAdapter] functionObject: WRITE --------------" << nl;
+    // TODO drop if not needed
     return true;
 }
 
 bool Foam::functionObjects::preciceAdapterFunctionObject::adjustTimeStep()
 {
-    Info << "---[preciceAdapter] functionObject: ADJUSTTIMESTEP -----" << nl;
-
     // TODO Convert to bool and add check
     adapter_.adjustTimeStep();
 

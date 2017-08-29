@@ -6,14 +6,13 @@ using namespace Foam;
 
 preciceAdapter::Config::Config()
 {
-    Info << "Entered the Config() constructor." << nl;
     return;
 }
 
 
 bool preciceAdapter::Config::configFileCheck(const std::string adapterConfigFileName)
 {
-    Info << "---[preciceAdapter] Check the adapter's YAML configuration file." << nl;
+    Info << "---[CONFIG] Check the adapter's YAML configuration file." << nl;
 
     bool configErrors = false;
 
@@ -23,14 +22,14 @@ bool preciceAdapter::Config::configFileCheck(const std::string adapterConfigFile
     // Check if the "participant" node exists
     if ( !adapterConfig["participant"] )
     {
-        Info << "---[preciceAdapter] Error: Adapter's configuration file: participant node is missing." << nl;
+        Info << "---[CONFIG] Error: Adapter's configuration file: participant node is missing." << nl;
         configErrors = true;
     }
 
     // Check if the "precice-config-file" node exists
     if ( !adapterConfig["precice-config-file"] )
     {
-        Info << "---[preciceAdapter] Error: Adapter's configuration file: 'precice-config-file' node is missing." << nl;
+        Info << "---[CONFIG] Error: Adapter's configuration file: 'precice-config-file' node is missing." << nl;
         configErrors = true;
         // TODO Check if the specified file exists
     }
@@ -38,30 +37,30 @@ bool preciceAdapter::Config::configFileCheck(const std::string adapterConfigFile
     // Check if the "interfaces" node exists
     if ( !adapterConfig["interfaces"] )
     {
-        Info << "---[preciceAdapter] Error: Adapter's configuration file: 'interfaces' node is missing." << nl;
+        Info << "---[CONFIG] Error: Adapter's configuration file: 'interfaces' node is missing." << nl;
         configErrors = true;
     } else {
         for ( uint i = 0; i < adapterConfig["interfaces"].size(); i++ )
         {
             if ( !adapterConfig["interfaces"][i]["mesh"] )
             {
-                Info << "---[preciceAdapter] Error: Adapter's configuration file: the 'mesh' node is missing for the interface " << i+1 << "." << nl;
+                Info << "---[CONFIG] Error: Adapter's configuration file: the 'mesh' node is missing for the interface " << i+1 << "." << nl;
                 configErrors = true;
             }
             if ( !adapterConfig["interfaces"][i]["patches"] )
             {
-                Info << "---[preciceAdapter] Error: Adapter's configuration file: the 'patches' node is missing for the interface " << i+1 << "." << nl;
+                Info << "---[CONFIG] Error: Adapter's configuration file: the 'patches' node is missing for the interface " << i+1 << "." << nl;
                 configErrors = true;
             }
             if ( !adapterConfig["interfaces"][i]["write-data"] )
             {
-                Info << "---[preciceAdapter] Error: Adapter's configuration file: the 'write-data' node is missing for the interface " << i+1 << "." << nl;
+                Info << "---[CONFIG] Error: Adapter's configuration file: the 'write-data' node is missing for the interface " << i+1 << "." << nl;
                 configErrors = true;
                 // TODO Add check for allowed values.
             }
             if ( !adapterConfig["interfaces"][i]["read-data"] )
             {
-                Info << "---[preciceAdapter] Error: Adapter's configuration file: the 'read-data' node is missing for the interface " << i+1 << "." << nl;
+                Info << "---[CONFIG] Error: Adapter's configuration file: the 'read-data' node is missing for the interface " << i+1 << "." << nl;
                 configErrors = true;
                 // TODO Add check for allowed values.
             }
@@ -71,23 +70,21 @@ bool preciceAdapter::Config::configFileCheck(const std::string adapterConfigFile
     // Check if the "subcycling" node exists
     if ( !adapterConfig["subcycling"] )
     {
-        Info << "---[preciceAdapter] Error: Adapter's configuration file: 'subcycling' node is missing." << nl;
+        Info << "---[CONFIG] Error: Adapter's configuration file: 'subcycling' node is missing." << nl;
         configErrors = true;
     }
 
     // Check if the "checkpointing" node exists
     if ( !adapterConfig["checkpointing"] )
     {
-        Info << "---[preciceAdapter] Error: Adapter's configuration file: 'checkpointing' node is missing." << nl;
+        Info << "---[CONFIG] Error: Adapter's configuration file: 'checkpointing' node is missing." << nl;
         configErrors = true;
     }
 
     if ( !configErrors )
     {
-        Info << "---[preciceAdapter]   The adapter's YAML configuration file " << adapterConfigFileName << " is complete." << nl;
+        Info << "---[CONFIG]   The adapter's YAML configuration file " << adapterConfigFileName << " is complete." << nl;
     }
-
-    Info << "---[preciceAdapter] The adapter's YAML configuration file looks good." << nl;
 
     return !configErrors;
 }
@@ -98,7 +95,7 @@ bool preciceAdapter::Config::configFileRead(const std::string casePath)
 
     // Check the configuration file
     const std::string adapterConfigFileName = casePath + "/precice-adapter-config.yml";
-    Info << "---[preciceAdapter] Read the adapter's YAML configuration file " + adapterConfigFileName + "." << nl;
+    Info << "---[CONFIG] Read the adapter's YAML configuration file " << adapterConfigFileName << "." << nl;
 
     if ( !configFileCheck(adapterConfigFileName) ) return false;
 
@@ -107,22 +104,22 @@ bool preciceAdapter::Config::configFileRead(const std::string casePath)
 
     // Read the preCICE participant name
     participantName_ = adapterConfig_["participant"].as<std::string>();
-    Info << "---[preciceAdapter]   participant : " << participantName_ << nl;
+    Info << "---[CONFIG]   participant : " << participantName_ << nl;
 
     // Read the preCICE configuration file name
     preciceConfigFilename_ = adapterConfig_["precice-config-file"].as<std::string>();
-    Info << "---[preciceAdapter]   precice-config-file : " << preciceConfigFilename_ << nl;
+    Info << "---[CONFIG]   precice-config-file : " << preciceConfigFilename_ << nl;
 
     // TODO Read the coupling interfaces
     YAML::Node adapterConfigInterfaces = adapterConfig_["interfaces"];
-    Info << "---[preciceAdapter]   interfaces : " << nl;
+    Info << "---[CONFIG]   interfaces : " << nl;
     for (uint i = 0; i < adapterConfigInterfaces.size(); i++)
     {
         struct Interface interface;
         interface.meshName = adapterConfigInterfaces[i]["mesh"].as<std::string>();
-        Info << "---[preciceAdapter]     - mesh      : " << interface.meshName << nl;
+        Info << "---[CONFIG]     - mesh      : " << interface.meshName << nl;
 
-        Info << "---[preciceAdapter]       patches   : ";
+        Info << "---[CONFIG]       patches   : ";
         for ( uint j = 0; j < adapterConfigInterfaces[i]["patches"].size(); j++)
         {
             interface.patchNames.push_back( adapterConfigInterfaces[i]["patches"][j].as<std::string>() );
@@ -133,7 +130,7 @@ bool preciceAdapter::Config::configFileRead(const std::string casePath)
         // TODO: Consider simplification
         if ( adapterConfigInterfaces[i]["write-data"] )
         {
-            Info << "---[preciceAdapter]       writeData : ";
+            Info << "---[CONFIG]       writeData : ";
             if ( adapterConfigInterfaces[i]["write-data"].size() > 0 )
             {
                 for ( uint j = 0; j < adapterConfigInterfaces[i]["read-data"].size(); j++)
@@ -153,7 +150,7 @@ bool preciceAdapter::Config::configFileRead(const std::string casePath)
         // TODO: Consider simplification
         if ( adapterConfigInterfaces[i]["read-data"] )
         {
-            Info << "---[preciceAdapter]       readData  : ";
+            Info << "---[CONFIG]       readData  : ";
             if ( adapterConfigInterfaces[i]["read-data"].size() > 0 )
             {
                 for ( uint j = 0; j < adapterConfigInterfaces[i]["read-data"].size(); j++)
@@ -175,11 +172,11 @@ bool preciceAdapter::Config::configFileRead(const std::string casePath)
 
     // Set the subcyclingAllowed_ switch
     subcyclingAllowed_ = adapterConfig_["subcycling"].as<bool>();
-    Info << "---[preciceAdapter]   subcycling : " << subcyclingAllowed_ << nl;
+    Info << "---[CONFIG]   subcycling : " << subcyclingAllowed_ << nl;
 
     // Set the checkpointingEnabled_ switch
     checkpointingEnabled_ = adapterConfig_["checkpointing"].as<bool>();
-    Info << "---[preciceAdapter]   checkpointing : " << checkpointingEnabled_ << nl;
+    Info << "---[CONFIG]   checkpointing : " << checkpointingEnabled_ << nl;
 
     return true;
 }

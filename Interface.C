@@ -9,9 +9,7 @@ preciceAdapter::Interface::Interface( precice::SolverInterface & precice, const 
 	_numDataLocations( 0 ),
 	_numDims( 3 )
 {
-	Info << "---[preciceAdapter]   interface constructor begin" << nl;
 	_meshID = _precice.getMeshID( _meshName );
-	Info << "---[preciceAdapter]   interface constructor getMeshID complete" << nl;
 
 	for( uint i = 0 ; i < patchNames.size() ; i++ )
 	{
@@ -21,22 +19,18 @@ preciceAdapter::Interface::Interface( precice::SolverInterface & precice, const 
 			// BOOST_LOG_TRIVIAL( error ) << "ERROR: Patch '" << patchNames.at( i ) << "' does not exist.";
 			exit( 1 );
 		}
-		Info << "---[preciceAdapter]   interface found patch" << nl;
 
 		_patchIDs.push_back( patchID );
 	}
 	_configureMesh( mesh );
-	Info << "---[preciceAdapter]   interface constructor configured mesh" << nl;
 
 	/* An interface has only one data buffer, which is shared between several CouplingDataReaders and CouplingDataWriters
 	   The initial allocation assumes scalar data, if CouplingDataReaders or -Writers have vector data, it is resized (TODO) */
 	_dataBuffer = new double[_numDataLocations]();
-	Info << "---[preciceAdapter]   interface constructor end" << nl;
 }
 
 void preciceAdapter::Interface::_configureMesh( const fvMesh& mesh )
 {
-	Info << "---[preciceAdapter]   interface configure mesh begin" << nl;
 	for( uint k = 0 ; k < _patchIDs.size() ; k++ )
 	{
 		_numDataLocations += mesh.boundaryMesh()[_patchIDs.at( k )].faceCentres().size();
@@ -57,7 +51,6 @@ void preciceAdapter::Interface::_configureMesh( const fvMesh& mesh )
 		}
 	}
 	_precice.setMeshVertices( _meshID, _numDataLocations, vertices, _vertexIDs );
-	Info << "---[preciceAdapter]   interface configure mesh end" << nl;
 
 }
 

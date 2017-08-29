@@ -102,6 +102,9 @@ private:
             //- Checkpointed surfaceScalarField fields (copies)
             std::vector<Foam::surfaceScalarField*> surfaceScalarFieldCopies_;
 
+    //- Printed output and error handling
+    void adapterInfo(const std::string message, const std::string level);
+
     // Methods communicating with preCICE
 
         //- Initialize preCICE
