@@ -499,55 +499,60 @@ bool preciceAdapter::Adapter::configure()
 
 void preciceAdapter::Adapter::execute()
 {
-    if ( isCouplingOngoing() ) {
-        adapterInfo( "The coupling is ongoing.", "info" );
+    adapterInfo( "Writing coupling data (from the previous iteration)...", "debug" );
+    writeCouplingData();
 
-        adapterInfo( "Writing coupling data (from the previous iteration)...", "debug" );
-        writeCouplingData();
+    adapterInfo( "Advancing preCICE...", "info" );
+    advance();
 
-        adapterInfo( "Advancing preCICE...", "info" );
-        advance();
+    adapterInfo( "Reading coupling data (from the previous iteration)...", "debug" );
+    readCouplingData();
 
-        adapterInfo( "Reading coupling data (from the previous iteration)...", "debug" );
-        readCouplingData();
-
-        // Adjust the timestep, if it is fixed
-        if (!adjustableTimestep_) {
-            adapterInfo( "Adjusting the solver's timestep... (if fixed timestep, from the previous iteration)", "dev" );
-            adjustSolverTimeStep();
-        }
-
-        // Read checkpoint (from the previous iteration)
-        if ( isReadCheckpointRequired() )
-        {
-            adapterInfo( "Reading a checkpoint... (from the previous iteration)", "debug" );
-            readCheckpoint();
-            fulfilledReadCheckpoint();
-            adapterInfo( "  Checkpoint was read.", "debug" );
-        }
-
-        // Write checkpoint (from the previous iteration)
-        if ( isWriteCheckpointRequired() )
-        {
-            adapterInfo( "Writing a checkpoint... (from the previous iteration)", "debug" );
-            writeCheckpoint();
-            fulfilledWriteCheckpoint();
-            adapterInfo( "  Checkpoint was written", "debug" );
-        }
-
-        if (isCouplingTimestepComplete()) {
-            adapterInfo( "The coupling timestep is complete.", "info" );
-            adapterInfo( "  Writing the results...", "dev" );
-            // TODO write() or writeNow()?
-            // TODO Check if results are written at the last timestep.
-            // TODO Check for implicit coupling to avoid multiple writes.
-            const_cast<Time&>(runTime_).writeNow();
-        }
+    // Adjust the timestep, if it is fixed
+    if (!adjustableTimestep_) {
+        adapterInfo( "Adjusting the solver's timestep... (if fixed timestep, from the previous iteration)", "dev" );
+        adjustSolverTimeStep();
     }
-    else
+
+    // Read checkpoint (from the previous iteration)
+    if ( isReadCheckpointRequired() )
+    {
+        adapterInfo( "Reading a checkpoint... (from the previous iteration)", "debug" );
+        readCheckpoint();
+        fulfilledReadCheckpoint();
+        adapterInfo( "  Checkpoint was read.", "debug" );
+    }
+
+    // Write checkpoint (from the previous iteration)
+    if ( isWriteCheckpointRequired() )
+    {
+        adapterInfo( "Writing a checkpoint... (from the previous iteration)", "debug" );
+        writeCheckpoint();
+        fulfilledWriteCheckpoint();
+        adapterInfo( "  Checkpoint was written", "debug" );
+    }
+
+    if (isCouplingTimestepComplete()) {
+        adapterInfo( "The coupling timestep is complete.", "info" );
+        adapterInfo( "  Writing the results...", "dev" );
+        // TODO write() or writeNow()?
+        // TODO Check if results are written at the last timestep.
+        // TODO Check for implicit coupling to avoid multiple writes.
+        const_cast<Time&>(runTime_).writeNow();
+    }
+
+    // If the coupling is not going to continue, tear down everything
+    // and stop the simulation
+    if ( !isCouplingOngoing() )
     {
         adapterInfo( "The coupling completed.", "info" );
-        // TODO finalize preCICE and remove from destructor
+
+        adapterInfo( "Finalizing the preCICE solver interface...", "debug" );
+        precice_->finalize();
+
+        // Tell OpenFOAM to stop the simulation
+        // TODO Check if the results are written at the last time
+        runTime_.stopAt(Time::saNoWriteNow);
     }
 
     return;
@@ -804,9 +809,6 @@ preciceAdapter::Adapter::~Adapter()
         delete interfaces_.at( i );
     }
     interfaces_.clear();
-
-    adapterInfo( "Finalizing the preCICE solver interface...", "debug" );
-    precice_->finalize(); // TODO move
 
     adapterInfo( "Destroying the preCICE solver interface...", "debug" );
     // TODO: throws segmentation fault if it has not been initialized at premature exit.
