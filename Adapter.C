@@ -21,7 +21,7 @@ runTime_(runTime),
 mesh_(mesh),
 timestepSolver_(-1)
 {
-    adapterInfo( "Entered the Adapter() constructor.", "debug" );
+    adapterInfo( "The preciceAdapter was loaded.", "info" );
     return;
 }
 
@@ -37,11 +37,10 @@ void preciceAdapter::Adapter::adapterInfo(const std::string message, const std::
     else if ( level.compare("warning") == 0 )
     {
         // Produce a warning message with cyan header
-        FatalErrorInFunction
-             << "\033[36m" // cyan color
-             << "Error in the preCICE adapter: "
-             << nl
+        Info << "\033[36m" // cyan color
+             << "Warning in the preCICE adapter: "
              << "\033[0m" // restore color
+             << nl
              << message.c_str()
              << nl;
     }
@@ -52,8 +51,8 @@ void preciceAdapter::Adapter::adapterInfo(const std::string message, const std::
         FatalErrorInFunction
              << "\033[31m" // red color
              << "Error in the preCICE adapter: "
-             << nl
              << "\033[0m" // restore color
+             << nl
              << message.c_str()
              << exit(FatalError);
     }
@@ -69,8 +68,8 @@ void preciceAdapter::Adapter::adapterInfo(const std::string message, const std::
         FatalErrorInFunction
              << "\033[31m" // red color
              << "Critical Error in the preCICE adapter: "
-             << nl
              << "\033[0m" // restore color
+             << nl
              << message.c_str()
              << exit(FatalError);
     }
@@ -85,7 +84,7 @@ void preciceAdapter::Adapter::adapterInfo(const std::string message, const std::
     }
     else if ( level.compare("dev") == 0 )
     {
-        Info << "\033[36m" // cyan color
+        Info << "\033[35m" // cyan color
              << "---[preciceAdapter] [under development] "
              << "\033[0m" // restore color
              << message.c_str()
@@ -101,24 +100,186 @@ void preciceAdapter::Adapter::adapterInfo(const std::string message, const std::
     return;
 }
 
+bool preciceAdapter::Adapter::configFileCheck(const std::string adapterConfigFileName)
+{
+    adapterInfo( "Checking the adapter's YAML configuration file...", "debug" );
+
+    bool configErrors = false;
+
+    YAML::Node adapterConfig = YAML::LoadFile(adapterConfigFileName);
+
+    // TODO Consider simplifying
+    // Check if the "participant" node exists
+    if ( !adapterConfig["participant"] )
+    {
+        adapterInfo( "The 'participant' node is missing in " + adapterConfigFileName + ".", "warning" );
+        configErrors = true;
+    }
+
+    // Check if the "precice-config-file" node exists
+    if ( !adapterConfig["precice-config-file"] )
+    {
+        adapterInfo( "The 'precice-config-file' node is missing in " + adapterConfigFileName + ".", "warning" );
+        configErrors = true;
+        // TODO Check if the specified file exists
+    }
+
+    // Check if the "interfaces" node exists
+    if ( !adapterConfig["interfaces"] )
+    {
+        adapterInfo( "The 'interfaces' node is missing in " + adapterConfigFileName + ".", "warning" );
+        configErrors = true;
+    } else {
+        for ( uint i = 0; i < adapterConfig["interfaces"].size(); i++ )
+        {
+            if ( !adapterConfig["interfaces"][i]["mesh"] )
+            {
+                adapterInfo( "The 'mesh' node is missing for the interface #" + std::to_string(i+1) + " in " + adapterConfigFileName + ".", "warning" );
+                configErrors = true;
+            }
+            if ( !adapterConfig["interfaces"][i]["patches"] )
+            {
+                adapterInfo( "The 'patches' node is missing for the interface #" + std::to_string(i+1) + " in " + adapterConfigFileName + ".", "warning" );
+                configErrors = true;
+            }
+            if ( !adapterConfig["interfaces"][i]["write-data"] )
+            {
+                adapterInfo( "The 'write-data' node is missing for the interface #" + std::to_string(i+1) + " in " + adapterConfigFileName + ".", "warning" );
+                configErrors = true;
+                // TODO Add check for allowed values.
+            }
+            if ( !adapterConfig["interfaces"][i]["read-data"] )
+            {
+                adapterInfo( "The 'read-data' node is missing for the interface #" + std::to_string(i+1) + " in " + adapterConfigFileName + ".", "warning" );
+                configErrors = true;
+                // TODO Add check for allowed values.
+            }
+        }
+    }
+
+    // Check if the "subcycling" node exists
+    if ( !adapterConfig["subcycling"] )
+    {
+        adapterInfo( "The 'subcycling' node is missing in " + adapterConfigFileName + ".", "warning" );
+        configErrors = true;
+    }
+
+    // Check if the "checkpointing" node exists
+    if ( !adapterConfig["checkpointing"] )
+    {
+        adapterInfo( "The 'checkpointing' node is missing in " + adapterConfigFileName + ".", "warning" );
+        configErrors = true;
+    }
+
+    if ( !configErrors )
+    {
+        adapterInfo( "The adapter's YAML configuration file " + adapterConfigFileName + " is complete." , "debug");
+    }
+
+    return !configErrors;
+}
+
+
+bool preciceAdapter::Adapter::configFileRead()
+{
+
+    // Check the configuration file
+    const std::string adapterConfigFileName = runTime_.path() + "/precice-adapter-config.yml";
+    adapterInfo( "Reading the adapter's YAML configuration file " + adapterConfigFileName + "...", "debug" );
+
+    if ( !configFileCheck(adapterConfigFileName) ) return false;
+
+    // Load the YAML file
+    YAML::Node adapterConfig_ = YAML::LoadFile(adapterConfigFileName);
+
+    // Read the preCICE participant name
+    participantName_ = adapterConfig_["participant"].as<std::string>();
+    adapterInfo( "  participant : " + participantName_, "debug" );
+
+    // Read the preCICE configuration file name
+    preciceConfigFilename_ = adapterConfig_["precice-config-file"].as<std::string>();
+    adapterInfo( "  precice-config-file : " + preciceConfigFilename_, "debug" );
+
+    // TODO Read the coupling interfaces configuration
+    YAML::Node adapterConfigInterfaces = adapterConfig_["interfaces"];
+    adapterInfo( "  interfaces : ", "debug" );
+    for (uint i = 0; i < adapterConfigInterfaces.size(); i++)
+    {
+        struct InterfaceConfig interfaceConfig;
+        interfaceConfig.meshName = adapterConfigInterfaces[i]["mesh"].as<std::string>();
+        adapterInfo( "  - mesh      : " + interfaceConfig.meshName, "debug" );
+
+        adapterInfo( "    patches   : ", "debug");
+        for ( uint j = 0; j < adapterConfigInterfaces[i]["patches"].size(); j++)
+        {
+            interfaceConfig.patchNames.push_back( adapterConfigInterfaces[i]["patches"][j].as<std::string>() );
+            adapterInfo( "      " + adapterConfigInterfaces[i]["patches"][j].as<std::string>(), "debug" );
+        }
+
+        // TODO: Consider simplification
+        if ( adapterConfigInterfaces[i]["write-data"] )
+        {
+            adapterInfo( "    write-data : ", "debug" );
+            if ( adapterConfigInterfaces[i]["write-data"].size() > 0 )
+            {
+                // TODO Check: before it was adapterConfigInterfaces[i]["read-data"].size()
+                for ( uint j = 0; j < adapterConfigInterfaces[i]["write-data"].size(); j++)
+                {
+                    interfaceConfig.writeData.push_back( adapterConfigInterfaces[i]["write-data"][j].as<std::string>() );
+                    adapterInfo( "      " + adapterConfigInterfaces[i]["write-data"][j].as<std::string>(), "debug" );
+                }
+            }
+            else
+            {
+                interfaceConfig.writeData.push_back( adapterConfigInterfaces[i]["write-data"].as<std::string>() );
+                adapterInfo( "      " + adapterConfigInterfaces[i]["write-data"].as<std::string>(), "debug" );
+            }
+        }
+
+        // TODO: Consider simplification
+        if ( adapterConfigInterfaces[i]["read-data"] )
+        {
+            adapterInfo( "    read-data : ", "debug" );
+            if ( adapterConfigInterfaces[i]["read-data"].size() > 0 )
+            {
+                for ( uint j = 0; j < adapterConfigInterfaces[i]["read-data"].size(); j++)
+                {
+                    interfaceConfig.readData.push_back( adapterConfigInterfaces[i]["read-data"][j].as<std::string>() );
+                    adapterInfo( "      " + adapterConfigInterfaces[i]["read-data"][j].as<std::string>(), "debug" );
+                }
+            }
+            else
+            {
+                interfaceConfig.readData.push_back( adapterConfigInterfaces[i]["read-data"].as<std::string>() );
+                adapterInfo( "      " + adapterConfigInterfaces[i]["read-data"].as<std::string>(), "debug" );
+            }
+        }
+
+        interfacesConfig_.push_back( interfaceConfig );
+    }
+
+    // Set the subcyclingAllowed_ switch
+    subcyclingAllowed_ = adapterConfig_["subcycling"].as<bool>();
+    adapterInfo( "    subcycling : " + std::to_string(subcyclingAllowed_), "debug" );
+
+    // Set the checkpointingEnabled_ switch
+    checkpointingEnabled_ = adapterConfig_["checkpointing"].as<bool>();
+    adapterInfo( "    checkpointing : " + std::to_string(checkpointingEnabled_), "debug" );
+
+    return true;
+}
+
+
 bool preciceAdapter::Adapter::configure()
 {
     adapterInfo( "Entered Adapter::configure().", "debug" );
 
-    config_ = preciceAdapter::Config();
-
     // Read the adapter's configuration file
-    if ( !config_.configFileRead( runTime_.path() ) )
+    if ( !configFileRead() )
     {
-        adapterInfo( "There was a problem reading the adapter's configuration file. See the log for details", "error-critical" );
+        adapterInfo( "There was a problem reading the adapter's configuration file. See the log for details.", "error-critical" );
         return false;
     }
-
-    // Copy the variables from the config_
-    participantName_ = config_.participantName();
-    preciceConfigFilename_ = config_.preciceConfigFilename();
-    subcyclingAllowed_ = config_.subcyclingAllowed();
-    checkpointingEnabled_ = config_.checkpointingEnabled();
 
     // Get the solver name
     runTime_.controlDict().readIfPresent("application", applicationName_);
@@ -147,15 +308,15 @@ bool preciceAdapter::Adapter::configure()
     int MPISize = 1;
 
     MPI_Initialized( &MPIEnabled );
-    adapterInfo( "  MPI used: " + MPIEnabled, "debug" );
+    adapterInfo( "  MPI used: " + std::to_string(MPIEnabled), "debug" );
 
     if ( MPIEnabled )
     {
         MPI_Comm_rank( MPI_COMM_WORLD, &MPIRank );
-        adapterInfo( "  MPI rank: " + MPIRank, "debug" );
+        adapterInfo( "  MPI rank: " + std::to_string(MPIRank), "debug" );
 
         MPI_Comm_size( MPI_COMM_WORLD, &MPISize );
-        adapterInfo( "  MPI size: " + MPISize, "debug" );
+        adapterInfo( "  MPI size: " + std::to_string(MPISize), "debug" );
     }
 
     precice_ = new precice::SolverInterface( participantName_, MPIRank, MPISize );
@@ -168,37 +329,37 @@ bool preciceAdapter::Adapter::configure()
     // Get the thermophysical model
     adapterInfo( "Specifying the thermophysical model...", "debug" );
     if (mesh_.foundObject<basicThermo>("thermophysicalProperties")) {
-        adapterInfo( "  - Found 'thermophysicalProperties', refering to 'basicThermo'.", "debug" );
+        adapterInfo( "  Found 'thermophysicalProperties', refering to 'basicThermo'.", "debug" );
         thermo_ = const_cast<basicThermo*>(&mesh_.lookupObject<basicThermo>("thermophysicalProperties"));
     } else {
-        adapterInfo( "  - Did not find 'thermophysicalProperties', no thermoModel specified.", "debug" );
+        adapterInfo( "  Did not find 'thermophysicalProperties', no thermoModel specified.", "debug" );
         if (mesh_.foundObject<volScalarField>("T")) {
-            adapterInfo( "  - Found the T object.", "debug" );
+            adapterInfo( "  Found the T object.", "debug" );
         }
     }
 
     // Get the turbulence model
     adapterInfo( "Specifying the turbulence model...", "debug" );
     if (mesh_.foundObject<compressible::turbulenceModel>("turbulenceProperties")) {
-        adapterInfo( "  - Found 'turbulenceProperties', refering to 'compressible::turbulenceModel'.", "debug" );
+        adapterInfo( "  Found 'turbulenceProperties', refering to 'compressible::turbulenceModel'.", "debug" );
         turbulence_ = const_cast<compressible::turbulenceModel*>(&mesh_.lookupObject<compressible::turbulenceModel>("turbulenceProperties"));
     } else {
-        adapterInfo( "  - Did not find 'turbulenceProperties', no turbulenceModel specified.", "debug" );
+        adapterInfo( "  Did not find 'turbulenceProperties', no turbulenceModel specified.", "debug" );
     }
 
     // Create interfaces
     adapterInfo( "Creating interfaces...", "debug" );
-    for ( uint i = 0; i < config_.interfaces().size(); i++ )
+    for ( uint i = 0; i < interfacesConfig_.size(); i++ )
     {
-        Interface * interface = new Interface( *precice_, mesh_, config_.interfaces().at( i ).meshName, config_.interfaces().at( i ).patchNames );
+        Interface * interface = new Interface( *precice_, mesh_, interfacesConfig_.at( i ).meshName, interfacesConfig_.at( i ).patchNames );
         interfaces_.push_back( interface );
-        adapterInfo( "Interface created on mesh" + config_.interfaces().at( i ).meshName, "debug" );
+        adapterInfo( "Interface created on mesh" + interfacesConfig_.at( i ).meshName, "debug" );
 
         // TODO: Add coupling data users for 'sink temperature' and for 'heat transfer coefficient'
         adapterInfo( "Adding coupling data writers...", "dev" );
-        for ( uint j = 0; j < config_.interfaces().at( i ).writeData.size(); j++ )
+        for ( uint j = 0; j < interfacesConfig_.at( i ).writeData.size(); j++ )
         {
-            std::string dataName = config_.interfaces().at( i ).writeData.at( j );
+            std::string dataName = interfacesConfig_.at( i ).writeData.at( j );
 
             if ( dataName.compare( "Temperature" ) == 0 )
             {
@@ -258,9 +419,9 @@ bool preciceAdapter::Adapter::configure()
         } // end add coupling data writers
 
         adapterInfo( "Adding coupling data readers...", "dev" );
-        for ( uint j = 0; j < config_.interfaces().at( i ).readData.size(); j++ )
+        for ( uint j = 0; j < interfacesConfig_.at( i ).readData.size(); j++ )
         {
-            std::string dataName = config_.interfaces().at( i ).readData.at( j );
+            std::string dataName = interfacesConfig_.at( i ).readData.at( j );
 
             if ( dataName.compare( "Temperature" ) == 0 )
             {
@@ -407,7 +568,7 @@ void preciceAdapter::Adapter::execute()
 
         if (isCouplingTimestepComplete()) {
             adapterInfo( "The coupling timestep is complete.", "info" );
-            adapterInfo( "Writing the results...", "dev" );
+            adapterInfo( "  Writing the results...", "dev" );
             // TODO write() or writeNow()?
             // TODO Check if results are written at the last timestep.
             // TODO Check for implicit coupling to avoid multiple writes.
@@ -425,7 +586,7 @@ void preciceAdapter::Adapter::execute()
 
 void preciceAdapter::Adapter::adjustTimeStep()
 {
-    adapterInfo( "Adjust the solver's timestep (only if dynamic timestep is used)", "debug" );
+    adapterInfo( "Adjusting the solver's timestep... (only if dynamic timestep is used)", "dev" );
     adjustSolverTimeStep();
 
     return;
@@ -482,7 +643,7 @@ void preciceAdapter::Adapter::adjustSolverTimeStep()
         {
             // TODO This case doesn't make sense - drop the option
             adapterInfo(
-                "The solver's timestep cannot be smaller than the "
+                "  The solver's timestep cannot be smaller than the "
                 "coupling timestep, because subcycling has not been activated. "
                 "Forcing the solver to use the coupling timestep.",
                 "warning"
@@ -492,7 +653,7 @@ void preciceAdapter::Adapter::adjustSolverTimeStep()
         else
         {
             adapterInfo(
-                "The solver's timestep is smaller than the "
+                "  The solver's timestep is smaller than the "
                 "coupling timestep. Subcycling...",
                 "warning"
             );
@@ -502,7 +663,7 @@ void preciceAdapter::Adapter::adjustSolverTimeStep()
     else if ( timestepSolverDetermined > timestepPrecice_ )
     {
         adapterInfo(
-            "The solver's timestep cannot be larger than the coupling timestep."
+            "  The solver's timestep cannot be larger than the coupling timestep."
             " Adjusting from " +
             std::to_string(timestepSolverDetermined) +
             " to " +
@@ -515,7 +676,7 @@ void preciceAdapter::Adapter::adjustSolverTimeStep()
     {
         // TODO Merge?
         adapterInfo(
-            "The solver's timestep is the same as the coupling timestep.",
+            "  The solver's timestep is the same as the coupling timestep.",
             "info"
         );
         timestepSolver_ = timestepPrecice_;

@@ -1,7 +1,6 @@
 #ifndef PRECICEADAPTER_H
 #define PRECICEADAPTER_H
 
-#include "Config.H"
 #include "Interface.H"
 
 // OpenFOAM header files
@@ -12,6 +11,8 @@
 #include "turbulentFluidThermoModel.H"
 
 // Other header files
+// YAML reader - Used to read the adapter's configuration file.
+#include "yaml-cpp/yaml.h"
 // MPI - Used to extract the MPI configuration for the preCICE initialization.
 #include "mpi.h"
 // preCICE Solver Interface
@@ -22,6 +23,17 @@ namespace preciceAdapter {
 class Adapter {
 
 private:
+
+    //- TODO Add description
+    struct InterfaceConfig {
+        std::string meshName;
+        std::vector<std::string> patchNames;
+        std::vector<std::string> writeData;
+        std::vector<std::string> readData;
+    };
+
+    //- Configuration interfaces
+    std::vector<struct InterfaceConfig> interfacesConfig_;
 
     //- OpenFOAM runTime object
     const Foam::Time& runTime_;
@@ -36,9 +48,6 @@ private:
     //- OpenFOAM turbulence model
     // TODO Check the turbulence model type
     Foam::compressible::turbulenceModel * turbulence_ = NULL;
-
-    //- Adapter's configuration
-    Config config_;
 
     // Configuration parameters used in the Adapter
 
@@ -104,6 +113,14 @@ private:
 
     //- Printed output and error handling
     void adapterInfo(const std::string message, const std::string level);
+
+    // Configuration
+
+        //- Read the adapter's configuration file
+        bool configFileRead();
+
+        //- Check the adapter's configuration file
+        bool configFileCheck(const std::string adapterConfigFileName);
 
     // Methods communicating with preCICE
 
