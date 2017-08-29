@@ -321,21 +321,21 @@ bool preciceAdapter::Adapter::configure()
     }
 
     adapterInfo( "Writing coupling data (for the first iteration) & initializing preCICE data...", "debug");
-    this->initialize();
+    initialize();
 
     adapterInfo( "preCICE was configured and initialized", "info" );
 
     adapterInfo( "Reading coupling data (for the first iteration)...", "debug" );
-    this->readCouplingData();
+    readCouplingData();
 
     // Write checkpoint (for the first iteration)
-    if ( this->isWriteCheckpointRequired() )
+    if ( isWriteCheckpointRequired() )
     {
         if ( checkpointingEnabled_ )
         {
             adapterInfo( "Writing a checkpoint (for the first iteration)...", "debug" );
-            this->writeCheckpoint();
-            this->fulfilledWriteCheckpoint();
+            writeCheckpoint();
+            fulfilledWriteCheckpoint();
             adapterInfo( "  Checkpoint was written.", "debug" );
         }
         else
@@ -347,7 +347,7 @@ bool preciceAdapter::Adapter::configure()
     // Adjust the timestep for the first iteration, if it is fixed
     if (!adjustableTimestep_) {
         adapterInfo( "Adjusting the solver's timestep (if fixed timestep, for the second iteration)", "dev" );
-        this->adjustSolverTimeStep();
+        adjustSolverTimeStep();
     }
 
     return true;
@@ -355,32 +355,32 @@ bool preciceAdapter::Adapter::configure()
 
 void preciceAdapter::Adapter::execute()
 {
-    if ( this->isCouplingOngoing() ) {
+    if ( isCouplingOngoing() ) {
         adapterInfo( "The coupling is ongoing.", "info" );
 
         adapterInfo( "Writing coupling data (from the previous iteration)...", "debug" );
-        this->writeCouplingData();
+        writeCouplingData();
 
         adapterInfo( "Advancing preCICE...", "info" );
-        this->advance();
+        advance();
 
         adapterInfo( "Reading coupling data (from the previous iteration)...", "debug" );
-        this->readCouplingData();
+        readCouplingData();
 
         // Adjust the timestep, if it is fixed
         if (!adjustableTimestep_) {
             adapterInfo( "Adjusting the solver's timestep... (if fixed timestep, from the previous iteration)", "dev" );
-            this->adjustSolverTimeStep();
+            adjustSolverTimeStep();
         }
 
         // Read checkpoint (from the previous iteration)
-        if ( this->isReadCheckpointRequired() )
+        if ( isReadCheckpointRequired() )
         {
             if ( checkpointingEnabled_ )
             {
                 adapterInfo( "Reading a checkpoint... (from the previous iteration)", "debug" );
-                this->readCheckpoint();
-                this->fulfilledReadCheckpoint();
+                readCheckpoint();
+                fulfilledReadCheckpoint();
                 adapterInfo( "  Checkpoint was read.", "debug" );
             }
             else
@@ -390,13 +390,13 @@ void preciceAdapter::Adapter::execute()
         }
 
         // Write checkpoint (from the previous iteration)
-        if ( this->isWriteCheckpointRequired() )
+        if ( isWriteCheckpointRequired() )
         {
             if ( checkpointingEnabled_ )
             {
                 adapterInfo( "Writing a checkpoint... (from the previous iteration)", "debug" );
-                this->writeCheckpoint();
-                this->fulfilledWriteCheckpoint();
+                writeCheckpoint();
+                fulfilledWriteCheckpoint();
                 adapterInfo( "  Checkpoint was written", "debug" );
             }
             else
@@ -405,7 +405,7 @@ void preciceAdapter::Adapter::execute()
             }
         }
 
-        if (this->isCouplingTimestepComplete()) {
+        if (isCouplingTimestepComplete()) {
             adapterInfo( "The coupling timestep is complete.", "info" );
             adapterInfo( "Writing the results...", "dev" );
             // TODO write() or writeNow()?
@@ -426,7 +426,7 @@ void preciceAdapter::Adapter::execute()
 void preciceAdapter::Adapter::adjustTimeStep()
 {
     adapterInfo( "Adjust the solver's timestep (only if dynamic timestep is used)", "debug" );
-    this->adjustSolverTimeStep();
+    adjustSolverTimeStep();
 
     return;
 }
