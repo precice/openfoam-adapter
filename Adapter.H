@@ -66,6 +66,9 @@ private:
         //- Type of timestep (fixed, adjustable)
         bool adjustableTimestep_;
 
+        //- Should the (fixed) timestep stored and used?
+        bool useStoredTimestep_ = false;
+
         //- OpenFOAM Application/Solver name
         Foam::word applicationName_;
 
@@ -82,6 +85,9 @@ private:
 
         //- Timestep used by the solver
         double timestepSolver_;
+
+        //- Stored (fixed) timestep
+        double timestepStored_;
 
     // Checkpointing
 

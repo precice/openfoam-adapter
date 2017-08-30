@@ -611,7 +611,47 @@ void preciceAdapter::Adapter::advance()
 
 void preciceAdapter::Adapter::adjustSolverTimeStep()
 {
-    double timestepSolverDetermined = runTime_.deltaT().value();
+    // The timestep size that the solver has determined that it wants to use
+    double timestepSolverDetermined;
+
+    /* In this method, the adapter overwrites the timestep used by OpenFOAM.
+       If the timestep is not adjustable, OpenFOAM will not try to re-estimate
+       the timestep or read it again from the controlDict. Therefore, store
+       the value that the timestep has is the begining and try again to use this
+       in every iteration.
+       // TODO Treat also the case where the user modifies the timestep
+       // in the controlDict during the simulation.
+    */
+
+    // Is the timestep adjustable or fixed?
+    if ( !adjustableTimestep_ )
+    {
+        // Have we already stored the timestep?
+        if ( !useStoredTimestep_ )
+        {
+            // Store the value
+            timestepStored_ = runTime_.deltaT().value();
+
+            // Ok, we stored it once, we will use this from now on
+            useStoredTimestep_ = true;
+        }
+
+        // Use the stored timestep as the determined solver's timestep
+        timestepSolverDetermined = timestepStored_;
+    }
+    else
+    {
+        // The timestep is adjustable, so OpenFOAM will modify it
+        // and therefore we can use the updated value
+        timestepSolverDetermined = runTime_.deltaT().value();
+    }
+
+    /* If the solver tries to use a timestep smaller than the one determined
+       by preCICE, that means that the solver is trying to subcycle.
+       This may not be allowed by the user.
+       If the solver tries to use a bigger timestep, then it needs to use
+       the same timestep as the one determined by preCICE.
+    */
 
     if ( timestepSolverDetermined < timestepPrecice_ )
     {
