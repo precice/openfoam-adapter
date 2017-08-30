@@ -160,8 +160,7 @@ bool preciceAdapter::Adapter::configFileCheck(const std::string adapterConfigFil
     // Check if the "subcycling" node exists
     if ( !adapterConfig["subcycling"] )
     {
-        adapterInfo( "The 'subcycling' node is missing in " + adapterConfigFileName + ".", "warning" );
-        configErrors = true;
+        adapterInfo( "The 'subcycling' node is missing in " + adapterConfigFileName + ". Assuming that subcycling is allowed.", "debug" );
     }
 
     if ( !configErrors )
@@ -252,7 +251,10 @@ bool preciceAdapter::Adapter::configFileRead()
     }
 
     // Set the subcyclingAllowed_ switch
-    subcyclingAllowed_ = adapterConfig_["subcycling"].as<bool>();
+    if ( adapterConfig_["subcycling"] )
+    {
+        subcyclingAllowed_ = adapterConfig_["subcycling"].as<bool>();
+    }
     adapterInfo( "    subcycling : " + std::to_string(subcyclingAllowed_), "debug" );
 
     return true;
@@ -615,21 +617,18 @@ void preciceAdapter::Adapter::adjustSolverTimeStep()
     {
         if ( !subcyclingAllowed_ )
         {
-            // TODO This case doesn't make sense - drop the option
             adapterInfo(
                 "  The solver's timestep cannot be smaller than the "
-                "coupling timestep, because subcycling has not been activated. "
-                "Forcing the solver to use the coupling timestep.",
-                "warning"
+                "coupling timestep, because subcycling is disabled. ",
+                "error-critical"
             );
-            timestepSolver_ = timestepPrecice_;
         }
         else
         {
             adapterInfo(
                 "  The solver's timestep is smaller than the "
                 "coupling timestep. Subcycling...",
-                "warning"
+                "info"
             );
             timestepSolver_ = timestepSolverDetermined;
         }
@@ -648,10 +647,9 @@ void preciceAdapter::Adapter::adjustSolverTimeStep()
     }
     else
     {
-        // TODO Merge?
         adapterInfo(
             "  The solver's timestep is the same as the coupling timestep.",
-            "info"
+            "debug"
         );
         timestepSolver_ = timestepPrecice_;
     }

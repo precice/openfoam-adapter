@@ -58,7 +58,7 @@ private:
         std::string preciceConfigFilename_;
 
         //- Switch for subcycling
-        bool subcyclingAllowed_;
+        bool subcyclingAllowed_ = true;
 
         //- Switch for checkpointing
         bool checkpointing_ = false;
