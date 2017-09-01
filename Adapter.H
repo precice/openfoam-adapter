@@ -84,7 +84,7 @@ private:
         double timestepPrecice_;
 
         //- Timestep used by the solver
-        double timestepSolver_;
+        double timestepSolver_ = -1;
 
         //- Stored (fixed) timestep
         double timestepStored_;

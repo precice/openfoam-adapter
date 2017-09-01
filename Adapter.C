@@ -18,8 +18,7 @@ using namespace Foam;
 preciceAdapter::Adapter::Adapter(const Time& runTime, const fvMesh& mesh)
 :
 runTime_(runTime),
-mesh_(mesh),
-timestepSolver_(-1)
+mesh_(mesh)
 {
     adapterInfo( "The preciceAdapter was loaded.", "info" );
     return;
