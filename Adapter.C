@@ -486,8 +486,8 @@ bool preciceAdapter::Adapter::configure()
     {
         checkpointing_ = true;
 
-        // Add fields in the checkpointing list
-        adapterInfo( "Add checkpoint fields", "dev" );
+        // Setup the checkpointing (find and add fields to checkpoint)
+        setupCheckpointing();
 
         // Write checkpoint (for the first iteration)
         adapterInfo( "Writing a checkpoint (for the first iteration)...", "debug" );
@@ -507,60 +507,67 @@ bool preciceAdapter::Adapter::configure()
 
 void preciceAdapter::Adapter::execute()
 {
-    adapterInfo( "Writing coupling data (from the previous iteration)...", "debug" );
-    writeCouplingData();
-
-    adapterInfo( "Advancing preCICE...", "info" );
-    advance();
-
-    adapterInfo( "Reading coupling data (from the previous iteration)...", "debug" );
-    readCouplingData();
-
-    // Adjust the timestep, if it is fixed
-    if (!adjustableTimestep_) {
-        adapterInfo( "Adjusting the solver's timestep... (if fixed timestep, from the previous iteration)", "dev" );
-        adjustSolverTimeStep();
-    }
-
-    // Read checkpoint (from the previous iteration)
-    if ( isReadCheckpointRequired() )
+    if ( isCouplingOngoing() )
     {
-        adapterInfo( "Reading a checkpoint... (from the previous iteration)", "debug" );
-        readCheckpoint();
-        fulfilledReadCheckpoint();
-        adapterInfo( "  Checkpoint was read.", "debug" );
-    }
+        adapterInfo( "Writing coupling data (from the previous iteration)...", "debug" );
+        writeCouplingData();
 
-    // Write checkpoint (from the previous iteration)
-    if ( isWriteCheckpointRequired() )
-    {
-        adapterInfo( "Writing a checkpoint... (from the previous iteration)", "debug" );
-        writeCheckpoint();
-        fulfilledWriteCheckpoint();
-        adapterInfo( "  Checkpoint was written", "debug" );
-    }
+        adapterInfo( "Advancing preCICE...", "info" );
+        advance();
 
-    if (isCouplingTimestepComplete()) {
-        adapterInfo( "The coupling timestep is complete.", "info" );
-        adapterInfo( "  Writing the results...", "dev" );
-        // TODO write() or writeNow()?
-        // TODO Check if results are written at the last timestep.
-        // TODO Check for implicit coupling to avoid multiple writes.
-        const_cast<Time&>(runTime_).writeNow();
-    }
+        // Read checkpoint (from the previous iteration)
+        if ( isReadCheckpointRequired() )
+        {
+            adapterInfo( "Reading a checkpoint... (from the previous iteration)", "debug" );
+            readCheckpoint();
+            fulfilledReadCheckpoint();
+            adapterInfo( "  Checkpoint was read.", "debug" );
+        }
 
-    // If the coupling is not going to continue, tear down everything
-    // and stop the simulation
-    if ( !isCouplingOngoing() )
-    {
-        adapterInfo( "The coupling completed.", "info" );
+        adapterInfo( "Reading coupling data (from the previous iteration)...", "debug" );
+        readCouplingData();
 
-        adapterInfo( "Finalizing the preCICE solver interface...", "debug" );
-        precice_->finalize();
+        // Adjust the timestep, if it is fixed
+        if (!adjustableTimestep_) {
+            adapterInfo( "Adjusting the solver's timestep... (if fixed timestep, from the previous iteration)", "dev" );
+            adjustSolverTimeStep();
+        }
 
-        // Tell OpenFOAM to stop the simulation
-        // TODO Check if the results are written at the last time
-        runTime_.stopAt(Time::saNoWriteNow);
+        // Write checkpoint (from the previous iteration)
+        if ( isWriteCheckpointRequired() )
+        {
+            adapterInfo( "Writing a checkpoint... (from the previous iteration)", "debug" );
+            writeCheckpoint();
+            fulfilledWriteCheckpoint();
+            adapterInfo( "  Checkpoint was written", "debug" );
+        }
+
+        if (isCouplingTimestepComplete()) {
+            adapterInfo( "The coupling timestep is complete.", "info" );
+            adapterInfo( "  Writing the results...", "dev" );
+            // TODO write() or writeNow()?
+            // TODO Check if results are written at the last timestep.
+            // TODO Check for implicit coupling to avoid multiple writes.
+            const_cast<Time&>(runTime_).writeNow();
+        }
+
+        // If the coupling is not going to continue, tear down everything
+        // and stop the simulation.
+        if ( !isCouplingOngoing() )
+        {
+            adapterInfo( "The coupling completed.", "info" );
+
+            adapterInfo( "Finalizing the preCICE solver interface...", "debug" );
+            precice_->finalize();
+
+            // Destroy preCICE
+            delete precice_;
+            precice_ = NULL;
+
+            // Tell OpenFOAM to stop the simulation
+            // TODO Check if the results are written at the last time
+            runTime_.stopAt(Time::saNoWriteNow);
+        }
     }
 
     return;
@@ -707,7 +714,18 @@ void preciceAdapter::Adapter::adjustSolverTimeStep()
 
 bool preciceAdapter::Adapter::isCouplingOngoing()
 {
-    return precice_->isCouplingOngoing();
+    bool isCouplingOngoing = false;
+
+    // If the coupling ends before the solver ends,
+    // the solver would try to access this method again,
+    // giving a segmentation fault if precice_
+    // was not available.
+    if ( NULL != precice_ )
+    {
+        isCouplingOngoing = precice_->isCouplingOngoing();
+    }
+
+    return isCouplingOngoing;
 }
 
 bool preciceAdapter::Adapter::isCouplingTimestepComplete()
@@ -744,6 +762,116 @@ void preciceAdapter::Adapter::storeCheckpointTime()
 void preciceAdapter::Adapter::reloadCheckpointTime()
 {
     const_cast<Time&>(runTime_).setTime( couplingIterationTimeValue_, couplingIterationTimeIndex_ );
+}
+
+void preciceAdapter::Adapter::setupCheckpointing()
+{
+    // Add fields in the checkpointing list
+    adapterInfo( "Creating a list of checkpointed fields...", "debug" );
+
+    /* Find and add all the registered objects in the mesh_
+       of type volScalarField
+    */
+
+    // Print the available objects of type volScalarField
+    // TODO Direct this through adapterInfo()
+    adapterInfo( "Available objects of type volScalarField : ", "debug" );
+    if ( ADAPTER_DEBUG_MODE ) {
+        Info << mesh_.lookupClass<volScalarField>() << nl << nl;
+    }
+
+    wordList objectNames_ = mesh_.lookupClass<volScalarField>().toc();
+
+    forAll( objectNames_, i )
+    {
+        if ( mesh_.foundObject<volScalarField>(objectNames_[i]) )
+        {
+            addCheckpointField(
+                const_cast<volScalarField&>(
+                    mesh_.lookupObject<volScalarField>( objectNames_[i] )
+                )
+            );
+
+            adapterInfo(
+                "Added " + objectNames_[i] + " in the list of checkpointed fields.",
+                "debug"
+            );
+        }
+        else
+        {
+            adapterInfo( "Did not find " + objectNames_[i], "debug" );
+        }
+    }
+
+    /* Find and add all the registered objects in the mesh_
+       of type volVectorField
+    */
+
+    // Print the available objects of type volVectorField
+    // TODO Direct this through adapterInfo()
+    adapterInfo( "Available objects of type volVectorField : ", "debug" );
+    if ( ADAPTER_DEBUG_MODE ) {
+        Info << mesh_.lookupClass<volVectorField>() << nl << nl;
+    }
+
+    objectNames_ = mesh_.lookupClass<volVectorField>().toc();
+
+    forAll( objectNames_, i )
+    {
+        if ( mesh_.foundObject<volVectorField>(objectNames_[i]) )
+        {
+            addCheckpointField(
+                const_cast<volVectorField&>(
+                    mesh_.lookupObject<volVectorField>( objectNames_[i] )
+                )
+            );
+
+            adapterInfo(
+                "Added " + objectNames_[i] + " in the list of checkpointed fields.",
+                "debug"
+            );
+        }
+        else
+        {
+            adapterInfo( "Did not find " + objectNames_[i], "debug" );
+        }
+    }
+
+    /* Find and add all the registered objects in the mesh_
+       of type surfaceScalarField
+    */
+
+    // Print the available objects of type surfaceScalarField
+    // TODO Direct this through adapterInfo()
+    adapterInfo( "Available objects of type surfaceScalarField : ", "debug" );
+    if ( ADAPTER_DEBUG_MODE ) {
+        Info << mesh_.lookupClass<surfaceScalarField>() << nl << nl;
+    }
+
+    objectNames_ = mesh_.lookupClass<surfaceScalarField>().toc();
+
+    forAll( objectNames_, i )
+    {
+        if ( mesh_.foundObject<surfaceScalarField>(objectNames_[i]) )
+        {
+            addCheckpointField(
+                const_cast<surfaceScalarField&>(
+                    mesh_.lookupObject<surfaceScalarField>( objectNames_[i] )
+                )
+            );
+
+            adapterInfo(
+                "Added " + objectNames_[i] + " in the list of checkpointed fields.",
+                "debug"
+            );
+        }
+        else
+        {
+            adapterInfo( "Did not find " + objectNames_[i], "debug" );
+        }
+    }
+
+    // TODO Add other types, if needed.
 }
 
 void preciceAdapter::Adapter::addCheckpointField( volScalarField & field )
@@ -854,10 +982,21 @@ preciceAdapter::Adapter::~Adapter()
     }
     interfaces_.clear();
 
-    adapterInfo( "Destroying the preCICE solver interface...", "debug" );
-    // TODO: throws segmentation fault if it has not been initialized at premature exit.
+    // If the coupling was ongoing, finalize preCICE now.
+    // This may happen if the solver finishes before the specified coupling time.
+    // TODO The solver waits forever in the isCouplingOngoing() if
+    // the solver finishes earlier than the coupling.
+    if ( isCouplingOngoing() )
+    {
+        adapterInfo( "The simulation finished before the coupling completes.", "warning" );
+        precice_->finalize();
+    }
+
+    // If the solver interface was not deleted before, delete it now.
+    // Normally it should be deleted when isCouplingOngoing() becomes false.
     if ( NULL != precice_ )
     {
+        adapterInfo( "Destroying the preCICE solver interface...", "debug" );
         delete precice_;
         precice_ = NULL;
     }

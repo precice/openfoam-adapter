@@ -165,6 +165,9 @@ private:
 
     // Methods for checkpointing
 
+        //- Configure the checkpointing
+        void setupCheckpointing();
+
         //- Make a copy of the runTime object
         void storeCheckpointTime();
 
