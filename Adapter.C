@@ -15,6 +15,9 @@ using namespace Foam;
 
 #define ADAPTER_DEBUG_MODE 1
 
+#define INFO_STR_ADAPTER "---[preciceAdapter] "
+#define INFO_STR_DEBUG "[DEBUG] "
+
 preciceAdapter::Adapter::Adapter(const Time& runTime, const fvMesh& mesh)
 :
 runTime_(runTime),
@@ -29,14 +32,15 @@ void preciceAdapter::Adapter::adapterInfo(const std::string message, const std::
     if ( level.compare("info") == 0 )
     {
         // Prepend the message with a string
-        Info << "---[preciceAdapter] "
+        Info << INFO_STR_ADAPTER
              << message.c_str()
              << nl;
     }
     else if ( level.compare("warning") == 0 )
     {
         // Produce a warning message with cyan header
-        Info << "\033[36m" // cyan color
+        WarningInFunction
+             << "\033[36m" // cyan color
              << "Warning in the preCICE adapter: "
              << "\033[0m" // restore color
              << nl
@@ -76,22 +80,25 @@ void preciceAdapter::Adapter::adapterInfo(const std::string message, const std::
     {
         if ( ADAPTER_DEBUG_MODE )
         {
-            Info << "---[preciceAdapter] [DEBUG] "
-            << message.c_str()
-            << nl;
+            Info << INFO_STR_ADAPTER
+                 << INFO_STR_DEBUG
+                 << message.c_str()
+                 << nl;
         }
     }
     else if ( level.compare("dev") == 0 )
     {
         Info << "\033[35m" // cyan color
-             << "---[preciceAdapter] [under development] "
+             << INFO_STR_ADAPTER
+             << "[under development] "
              << "\033[0m" // restore color
              << message.c_str()
              << nl;
     }
     else
     {
-        Info << "---[preciceAdapter] [unknown info level] "
+        Info << INFO_STR_ADAPTER
+             << "[unknown info level] "
              << message.c_str()
              << nl;
     }
