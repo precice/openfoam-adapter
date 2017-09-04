@@ -630,7 +630,7 @@ void preciceAdapter::Adapter::adjustSolverTimeStep()
     /* In this method, the adapter overwrites the timestep used by OpenFOAM.
        If the timestep is not adjustable, OpenFOAM will not try to re-estimate
        the timestep or read it again from the controlDict. Therefore, store
-       the value that the timestep has is the begining and try again to use this
+       the value that the timestep has is the beginning and try again to use this
        in every iteration.
        // TODO Treat also the case where the user modifies the timestep
        // in the controlDict during the simulation.
@@ -642,6 +642,18 @@ void preciceAdapter::Adapter::adjustSolverTimeStep()
         // Have we already stored the timestep?
         if ( !useStoredTimestep_ )
         {
+            // Show a warning if runTimeModifiable is set
+            if ( runTime_.runTimeModifiable() )
+            {
+                adapterInfo("You have enabled 'runTimeModifiable' in the "
+                            "controlDict. The preciceAdapter does not yet "
+                            "support this functionality when "
+                            "'adjustableTimestep' is not enabled. "
+                            "If you modify the 'deltaT' in the controlDict "
+                            "during the simulation, it will not be updated.",
+                            "warning");
+            }
+
             // Store the value
             timestepStored_ = runTime_.deltaT().value();
 
@@ -671,7 +683,7 @@ void preciceAdapter::Adapter::adjustSolverTimeStep()
         if ( !subcyclingAllowed_ )
         {
             adapterInfo(
-                "  The solver's timestep cannot be smaller than the "
+                "The solver's timestep cannot be smaller than the "
                 "coupling timestep, because subcycling is disabled. ",
                 "error-critical"
             );
@@ -679,7 +691,7 @@ void preciceAdapter::Adapter::adjustSolverTimeStep()
         else
         {
             adapterInfo(
-                "  The solver's timestep is smaller than the "
+                "The solver's timestep is smaller than the "
                 "coupling timestep. Subcycling...",
                 "info"
             );
@@ -689,7 +701,7 @@ void preciceAdapter::Adapter::adjustSolverTimeStep()
     else if ( timestepSolverDetermined > timestepPrecice_ )
     {
         adapterInfo(
-            "  The solver's timestep cannot be larger than the coupling timestep."
+            "The solver's timestep cannot be larger than the coupling timestep."
             " Adjusting from " +
             std::to_string(timestepSolverDetermined) +
             " to " +
@@ -701,7 +713,7 @@ void preciceAdapter::Adapter::adjustSolverTimeStep()
     else
     {
         adapterInfo(
-            "  The solver's timestep is the same as the coupling timestep.",
+            "The solver's timestep is the same as the coupling timestep.",
             "debug"
         );
         timestepSolver_ = timestepPrecice_;
