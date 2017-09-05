@@ -536,70 +536,67 @@ void preciceAdapter::Adapter::execute()
                      "See the log for details.", "error" );
     }
 
-    if ( isCouplingOngoing() )
+    // The solver has already solved the equations for this timestep.
+    // Now call the adapter's methods to perform the coupling.
+
+    // Write the coupling data in the buffer
+    writeCouplingData();
+
+    // Advance preCICE
+    advance();
+
+    // Read checkpoint if required
+    if ( isReadCheckpointRequired() )
     {
-        // The solver has already solved the equations for this timestep.
-        // Now call the adapter's methods to perform the coupling.
+        readCheckpoint();
+        fulfilledReadCheckpoint();
+    }
 
-        // Write the coupling data in the buffer
-        writeCouplingData();
+    // Read the received coupling data from the buffer
+    readCouplingData();
 
-        // Advance preCICE
-        advance();
+    // Adjust the timestep, if it is fixed
+    if (!adjustableTimestep_) {
+        adjustSolverTimeStep();
+    }
 
-        // Read checkpoint if required
-        if ( isReadCheckpointRequired() )
+    // Write checkpoint if required
+    if ( isWriteCheckpointRequired() )
+    {
+        writeCheckpoint();
+        fulfilledWriteCheckpoint();
+    }
+
+    if (isCouplingTimestepComplete()) {
+        adapterInfo( "The coupling timestep is complete.", "info" );
+        adapterInfo( "  Writing the results...", "dev" );
+        // TODO write() or writeNow()?
+        // TODO Check if results are written at the last timestep.
+        // TODO Check for implicit coupling to avoid multiple writes.
+        const_cast<Time&>(runTime_).writeNow();
+    }
+
+    // If the coupling is not going to continue, tear down everything
+    // and stop the simulation.
+    if ( !isCouplingOngoing() )
+    {
+        adapterInfo( "The coupling completed.", "info" );
+
+        // Tell OpenFOAM to stop the simulation.
+        // Set the solver's endTime to now. The next evaluation of
+        // runTime.run() will be false and the solver will exit.
+        const_cast<Time&>(runTime_).setEndTime(runTime_.value());
+
+        if ( preventEarlyExit_ )
         {
-            readCheckpoint();
-            fulfilledReadCheckpoint();
+            adapterInfo( "The simulation was ended by preCICE. "
+                         "Calling the end() methods of any functionObject.",
+                         "info" );
+            const_cast<Time&>(runTime_).functionObjects().end();
         }
 
-        // Read the received coupling data from the buffer
-        readCouplingData();
-
-        // Adjust the timestep, if it is fixed
-        if (!adjustableTimestep_) {
-            adjustSolverTimeStep();
-        }
-
-        // Write checkpoint if required
-        if ( isWriteCheckpointRequired() )
-        {
-            writeCheckpoint();
-            fulfilledWriteCheckpoint();
-        }
-
-        if (isCouplingTimestepComplete()) {
-            adapterInfo( "The coupling timestep is complete.", "info" );
-            adapterInfo( "  Writing the results...", "dev" );
-            // TODO write() or writeNow()?
-            // TODO Check if results are written at the last timestep.
-            // TODO Check for implicit coupling to avoid multiple writes.
-            const_cast<Time&>(runTime_).writeNow();
-        }
-
-        // If the coupling is not going to continue, tear down everything
-        // and stop the simulation.
-        if ( !isCouplingOngoing() )
-        {
-            adapterInfo( "The coupling completed.", "info" );
-
-            // Tell OpenFOAM to stop the simulation.
-            // Set the solver's endTime to now. The next evaluation of
-            // runTime.run() will be false and the solver will exit.
-            const_cast<Time&>(runTime_).setEndTime(runTime_.value());
-
-            if ( preventEarlyExit_ )
-            {
-                adapterInfo( "The simulation was ended by preCICE. "
-                             "Calling the end() methods of any functionObject.",
-                             "info" );
-                const_cast<Time&>(runTime_).functionObjects().end();
-            }
-
-            // Finalize the preCICE solver interface and delete data
-            finalize();
-        }
+        // Finalize the preCICE solver interface and delete data
+        finalize();
     }
 
     return;
