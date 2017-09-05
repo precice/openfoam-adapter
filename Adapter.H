@@ -66,6 +66,10 @@ private:
         //- Switch for checkpointing
         bool checkpointing_ = false;
 
+        //- Switch for automatically preventing the solver from exiting before
+        //  the coupling is complete.
+        bool preventEarlyExit_ = true;
+
         //- Type of timestep (fixed, adjustable)
         bool adjustableTimestep_;
 
@@ -80,6 +84,9 @@ private:
 
     //- preCICE solver interface
     precice::SolverInterface * precice_ = NULL;
+
+    //- preCICE solver interface initialized
+    bool preciceInitialized_ = false;
 
     // Timesteps
 
@@ -133,8 +140,11 @@ private:
 
     // Methods communicating with preCICE
 
-        //- Initialize preCICE
+        //- Initialize preCICE and exchange the first data
         void initialize();
+
+        //- Finalize and destroy preCICE
+        void finalize();
 
         //- Advance preCICE
         void advance();
@@ -197,10 +207,10 @@ private:
         //- Write the checkpoint - store the fields and time
         void writeCheckpoint();
 
-        //- Destroy the preCICE interface and delete the allocated
-        //  memory in a proper way. Called by the destructor and
-        //  by the error handling method adapterInfo().
-        void teardown();
+    //- Destroy the preCICE interface and delete the allocated
+    //  memory in a proper way. Called by the destructor and
+    //  by the error handling method adapterInfo().
+    void teardown();
 
 public:
 
@@ -217,6 +227,9 @@ public:
 
         //- Called by the functionObject's adjustTimeStep()
         void adjustTimeStep();
+
+        //- Called by the functionObject's end()
+        void end();
 
         //- Destructor
         ~Adapter();

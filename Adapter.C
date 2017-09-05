@@ -248,6 +248,13 @@ bool preciceAdapter::Adapter::configFileRead()
     }
     adapterInfo( "    subcycling : " + std::to_string(subcyclingAllowed_), "debug" );
 
+    // Set the preventEarlyExit_ switch
+    if ( adapterConfig_["preventEarlyExit"] )
+    {
+        preventEarlyExit_ = adapterConfig_["preventEarlyExit"].as<bool>();
+    }
+    adapterInfo( "    prevent early exit : " + std::to_string(preventEarlyExit_), "debug" );
+
     return true;
 }
 
@@ -488,6 +495,31 @@ void preciceAdapter::Adapter::configure()
         writeCheckpoint();
         fulfilledWriteCheckpoint();
         adapterInfo( "  Checkpoint was written.", "debug" );
+
+        // "Checkpointinging required" means also that we are performing
+        // an implicit coupling. This can cause problems at the last
+        // timestep, as the solver will try to exit before the coupling
+        // is complete, if the solver's endTime is the same or smaller
+        // than the endTime specified by preCICE. See the implementation
+        // of Foam::Time::run() for more details.
+        // To prevent this, we set the solver's endTime to "infinity"
+        // and let only preCICE control the simulatin end.
+        // TODO Can we just access the preCICE maxTime?
+        // This has the side-effect of not triggering the end() method
+        // in any functionObject normally. Therefore, we trigger it
+        // when preCICE dictates to stop the coupling.
+        // However, the user can disable this behavior in the configuration.
+        if ( preventEarlyExit_ )
+        {
+            adapterInfo( "Implicit coupling is used. Setting the solver's endTime "
+                         "to infinity to prevent any early exits. "
+                         "Only preCICE will control the simulation's endTime. "
+                         "Any functionObject's end() method will be triggered by the adapter. "
+                         "You may disable this behavior in the adapter's configuration.",
+                         "warning");
+            const_cast<Time&>(runTime_).setEndTime( std::numeric_limits<double>::infinity() );
+        }
+
     }
 
     // Adjust the timestep for the first iteration, if it is fixed
@@ -559,16 +591,21 @@ void preciceAdapter::Adapter::execute()
         {
             adapterInfo( "The coupling completed.", "info" );
 
-            adapterInfo( "Finalizing the preCICE solver interface...", "debug" );
-            precice_->finalize();
+            // Tell OpenFOAM to stop the simulation.
+            // Set the solver's endTime to now. The next evaluation of
+            // runTime.run() will be false and the solver will exit.
+            const_cast<Time&>(runTime_).setEndTime(runTime_.value());
 
-            // Destroy preCICE
-            delete precice_;
-            precice_ = NULL;
+            if ( preventEarlyExit_ )
+            {
+                adapterInfo( "The simulation was ended by preCICE. "
+                             "Calling the end() methods of any functionObject.",
+                             "info" );
+                const_cast<Time&>(runTime_).functionObjects().end();
+            }
 
-            // Tell OpenFOAM to stop the simulation
-            // TODO Check if the results are written at the last time
-            runTime_.stopAt(Time::saNoWriteNow);
+            // Finalize the preCICE solver interface and delete data
+            finalize();
         }
     }
 
@@ -603,6 +640,8 @@ void preciceAdapter::Adapter::initialize()
 {
     timestepPrecice_ = precice_->initialize();
 
+    preciceInitialized_ = true;
+
     if ( precice_->isActionRequired( precice::constants::actionWriteInitialData() ) )
     {
         writeCouplingData();
@@ -610,6 +649,26 @@ void preciceAdapter::Adapter::initialize()
     }
 
     precice_->initializeData();
+}
+
+void preciceAdapter::Adapter::finalize()
+{
+    if ( NULL != precice_ && preciceInitialized_ && !isCouplingOngoing() )
+    {
+        adapterInfo( "Finalizing preCICE...", "debug" );
+
+        // Finalize the preCICE solver interface
+        precice_->finalize();
+
+        preciceInitialized_ = false;
+
+        // Delete the solver interface and all the related data
+        teardown();
+    }
+    else
+    {
+        adapterInfo( "Could not finalize preCICE.", "error" );
+    }
 }
 
 void preciceAdapter::Adapter::advance()
@@ -961,18 +1020,17 @@ void preciceAdapter::Adapter::writeCheckpoint()
     // TODO Store all the fields of type surfaceVectorField
 }
 
+void preciceAdapter::Adapter::end()
+{
+    // Throw an error if the simulation exited before the coupling was complete
+    if ( NULL != precice_ && isCouplingOngoing() )
+    {
+        adapterInfo("The solver exited before the coupling was complete.", "error");
+    }
+}
+
 void preciceAdapter::Adapter::teardown()
 {
-    // If the coupling was ongoing, finalize preCICE now.
-    // This may happen if the solver finishes before the specified coupling time.
-    // TODO The solver waits forever in the isCouplingOngoing() if
-    // the solver finishes earlier than the coupling.
-    // if ( isCouplingOngoing() )
-    // {
-    //     adapterInfo( "The simulation finished before the coupling completes.", "warning" );
-    //     precice_->finalize();
-    // }
-
     // If the solver interface was not deleted before, delete it now.
     // Normally it should be deleted when isCouplingOngoing() becomes false.
     if ( NULL != precice_ )
@@ -995,8 +1053,6 @@ void preciceAdapter::Adapter::teardown()
     }
 
     // Delete the copied fields for checkpointing
-    // TODO Find a better way - check what happens when trying to delete
-    // them before getting created.
     if ( checkpointing_ )
     {
         adapterInfo( "Deleting the checkpoints... ", "debug" );
@@ -1019,6 +1075,8 @@ void preciceAdapter::Adapter::teardown()
         surfaceScalarFieldCopies_.clear();
 
         // TODO Add delete for other types (if any)
+
+        checkpointing_ = false;
     }
 
 }

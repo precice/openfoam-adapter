@@ -87,6 +87,7 @@ bool Foam::functionObjects::preciceAdapterFunctionObject::execute()
 bool Foam::functionObjects::preciceAdapterFunctionObject::end()
 {
     // TODO drop if not needed
+    adapter_.end();
     return true;
 }
 
