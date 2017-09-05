@@ -69,13 +69,15 @@ Foam::functionObjects::preciceAdapterFunctionObject::~preciceAdapterFunctionObje
 bool Foam::functionObjects::preciceAdapterFunctionObject::read(const dictionary& dict)
 {
     // Configure the adapter
-    return adapter_.configure();
+    adapter_.configure();
+
+    return true;
 }
 
 
 bool Foam::functionObjects::preciceAdapterFunctionObject::execute()
 {
-    // TODO Convert to bool and add check
+    // Perform the coupling
     adapter_.execute();
 
     return true;

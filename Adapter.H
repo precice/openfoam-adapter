@@ -51,6 +51,9 @@ private:
 
     // Configuration parameters used in the Adapter
 
+        //- Note if there were errors in the read() method
+        bool errorsInConfigure = false;
+
         //- preCICE participant name
         std::string participantName_;
 
@@ -194,6 +197,11 @@ private:
         //- Write the checkpoint - store the fields and time
         void writeCheckpoint();
 
+        //- Destroy the preCICE interface and delete the allocated
+        //  memory in a proper way. Called by the destructor and
+        //  by the error handling method adapterInfo().
+        void teardown();
+
 public:
 
     // Methods called by the functionObject
@@ -202,7 +210,7 @@ public:
         Adapter(const Foam::Time& runTime, const Foam::fvMesh& mesh);
 
         //- Setup the adapter's configuration
-        bool configure();
+        void configure();
 
         //- Called by the functionObject's execute()
         void execute();

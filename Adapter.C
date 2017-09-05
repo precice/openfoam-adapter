@@ -50,27 +50,12 @@ void preciceAdapter::Adapter::adapterInfo(const std::string message, const std::
     else if ( level.compare("error") == 0 )
     {
         // Produce an error message with red header
-        // and exit the functionObject
+        // and exit the functionObject.
+        // It will also exit the simulation, unless it
+        // is called inside the functionObject's read().
         FatalErrorInFunction
              << "\033[31m" // red color
              << "Error in the preCICE adapter: "
-             << "\033[0m" // restore color
-             << nl
-             << message.c_str()
-             << exit(FatalError);
-    }
-    else if ( level.compare("error-critical") == 0 )
-    {
-        // Stop the simulation: when a functionObject produces an error,
-        // OpenFOAM catches it as a warning and the simulation continues.
-        // This forces the simulation to stop.
-        runTime_.stopAt(Time::saNoWriteNow);
-
-        // Produce an error message with red header
-        // and exit the functionObject
-        FatalErrorInFunction
-             << "\033[31m" // red color
-             << "Critical Error in the preCICE adapter: "
              << "\033[0m" // restore color
              << nl
              << message.c_str()
@@ -91,7 +76,7 @@ void preciceAdapter::Adapter::adapterInfo(const std::string message, const std::
         Info << "\033[35m" // cyan color
              << INFO_STR_ADAPTER
              << "[under development] "
-             << "\033[0m" // restore color
+             << "\033[0m " // restore color
              << message.c_str()
              << nl;
     }
@@ -267,15 +252,24 @@ bool preciceAdapter::Adapter::configFileRead()
 }
 
 
-bool preciceAdapter::Adapter::configure()
+void preciceAdapter::Adapter::configure()
 {
     adapterInfo( "Entered Adapter::configure().", "debug" );
 
     // Read the adapter's configuration file
     if ( !configFileRead() )
     {
-        adapterInfo( "There was a problem reading the adapter's configuration file. See the log for details.", "error-critical" );
-        return false;
+        // This method is called from the functionObject's read() method,
+        // which is called by the Foam::functionObjectList::read() method.
+        // All the exceptions triggered in this method are caught as
+        // warnings and the simulation continues simply without the
+        // functionObject. However, we want the simulation to exit with an
+        // error in case something is wrong. We store the information that
+        // there was an error and it will be handled by the first call to
+        // the functionObject's execute(), which can throw errors normally.
+        errorsInConfigure = true;
+
+        return;
     }
 
     // Get the solver name
@@ -374,7 +368,7 @@ bool preciceAdapter::Adapter::configure()
                         interface->addCouplingDataWriter( dataName, bw );
                         adapterInfo( "  Added Heat Flux for buoyantPimpleFoam", "dev" );
                     } else {
-                        adapterInfo( "  Problem: no thermo or no turbulence model specified", "error" );
+                        adapterInfo( "Problem: no thermo or no turbulence model specified", "error" );
                     }
                 }
                 else
@@ -398,13 +392,13 @@ bool preciceAdapter::Adapter::configure()
             if ( dataName.compare( "Heat-Transfer-Coefficient" ) == 0 )
             {
                 // TODO Implement Heat Transfer Coefficient
-                adapterInfo( "  Heat Transfer Coefficient not implemented yet!", "error" );
+                adapterInfo( "Heat Transfer Coefficient not implemented yet!", "error" );
             }
 
             if ( dataName.compare( "Sink-Temperature" ) == 0 )
             {
                 // TODO Implement Sink Temperature
-                adapterInfo( "  Sink Temperature not implemented yet!", "error" );
+                adapterInfo( "Sink Temperature not implemented yet!", "error" );
             }
 
         } // end add coupling data writers
@@ -436,7 +430,7 @@ bool preciceAdapter::Adapter::configure()
                         interface->addCouplingDataReader( dataName, br );
                         adapterInfo( "  Added Heat Flux for buoyantPimpleFoam", "dev" );
                     } else {
-                        adapterInfo( "  Problem: no thermo or no turbulence model specified", "error" );
+                        adapterInfo( "Problem: no thermo or no turbulence model specified", "error" );
                     }
                 }
                 else
@@ -460,13 +454,13 @@ bool preciceAdapter::Adapter::configure()
             if ( dataName.compare( "Heat-Transfer-Coefficient" ) == 0 )
             {
                 // TODO Implement Heat Transfer Coefficient
-                adapterInfo( "  Heat Transfer Coefficient not implemented yet!", "error" );
+                adapterInfo( "Heat Transfer Coefficient not implemented yet!", "error" );
             }
 
             if ( dataName.compare( "Sink-Temperature" ) == 0 )
             {
                 // TODO Implement Sink Temperature
-                adapterInfo( "  Sink Temperature not implemented yet!", "error" );
+                adapterInfo( "Sink Temperature not implemented yet!", "error" );
             }
 
         } // end add coupling data readers
@@ -498,15 +492,23 @@ bool preciceAdapter::Adapter::configure()
 
     // Adjust the timestep for the first iteration, if it is fixed
     if (!adjustableTimestep_) {
-        adapterInfo( "Adjusting the solver's timestep (if fixed timestep, for the second iteration)", "dev" );
+        adapterInfo( "Adjusting the solver's timestep (if fixed timestep, for the second iteration)", "debug" );
         adjustSolverTimeStep();
     }
 
-    return true;
+    return;
 }
 
 void preciceAdapter::Adapter::execute()
 {
+    if ( errorsInConfigure )
+    {
+        // Handle any errors during configure().
+        // See the comments in configure() for details.
+        adapterInfo( "There was a problem while configuring the adapter. "
+                     "See the log for details.", "error" );
+    }
+
     if ( isCouplingOngoing() )
     {
         adapterInfo( "Writing coupling data (from the previous iteration)...", "debug" );
@@ -685,7 +687,7 @@ void preciceAdapter::Adapter::adjustSolverTimeStep()
             adapterInfo(
                 "The solver's timestep cannot be smaller than the "
                 "coupling timestep, because subcycling is disabled. ",
-                "error-critical"
+                "error"
             );
         }
         else
@@ -959,10 +961,42 @@ void preciceAdapter::Adapter::writeCheckpoint()
     // TODO Store all the fields of type surfaceVectorField
 }
 
-preciceAdapter::Adapter::~Adapter()
+void preciceAdapter::Adapter::teardown()
 {
+    // If the coupling was ongoing, finalize preCICE now.
+    // This may happen if the solver finishes before the specified coupling time.
+    // TODO The solver waits forever in the isCouplingOngoing() if
+    // the solver finishes earlier than the coupling.
+    // if ( isCouplingOngoing() )
+    // {
+    //     adapterInfo( "The simulation finished before the coupling completes.", "warning" );
+    //     precice_->finalize();
+    // }
+
+    // If the solver interface was not deleted before, delete it now.
+    // Normally it should be deleted when isCouplingOngoing() becomes false.
+    if ( NULL != precice_ )
+    {
+        adapterInfo( "Destroying the preCICE solver interface...", "debug" );
+        delete precice_;
+        precice_ = NULL;
+    }
+
+    // Delete the preCICE solver interfaces
+    if ( interfaces_.size() > 0 )
+    {
+        adapterInfo( "Deleting the interfaces...", "debug" );
+
+        for ( uint i = 0; i < interfaces_.size(); i++ )
+        {
+            delete interfaces_.at( i );
+        }
+        interfaces_.clear();
+    }
 
     // Delete the copied fields for checkpointing
+    // TODO Find a better way - check what happens when trying to delete
+    // them before getting created.
     if ( checkpointing_ )
     {
         adapterInfo( "Deleting the checkpoints... ", "debug" );
@@ -987,29 +1021,9 @@ preciceAdapter::Adapter::~Adapter()
         // TODO Add delete for other types (if any)
     }
 
-    adapterInfo( "Deleting the interfaces...", "debug" );
-    for ( uint i = 0; i < interfaces_.size(); i++ )
-    {
-        delete interfaces_.at( i );
-    }
-    interfaces_.clear();
+}
 
-    // If the coupling was ongoing, finalize preCICE now.
-    // This may happen if the solver finishes before the specified coupling time.
-    // TODO The solver waits forever in the isCouplingOngoing() if
-    // the solver finishes earlier than the coupling.
-    if ( isCouplingOngoing() )
-    {
-        adapterInfo( "The simulation finished before the coupling completes.", "warning" );
-        precice_->finalize();
-    }
-
-    // If the solver interface was not deleted before, delete it now.
-    // Normally it should be deleted when isCouplingOngoing() becomes false.
-    if ( NULL != precice_ )
-    {
-        adapterInfo( "Destroying the preCICE solver interface...", "debug" );
-        delete precice_;
-        precice_ = NULL;
-    }
+preciceAdapter::Adapter::~Adapter()
+{
+    teardown();
 }

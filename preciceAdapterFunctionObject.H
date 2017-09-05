@@ -111,10 +111,10 @@ public:
         //- Read the preciceAdapterFunctionObject data
         virtual bool read(const dictionary&);
 
-        //- Execute
+        //- Execute in the beginning of each time-loop, after the first one
         virtual bool execute();
 
-        //- Execute at the final time-loop
+        //- Execute at the final time-loop, after execute()
         virtual bool end();
 
         //- Write the preciceAdapterFunctionObject
