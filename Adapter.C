@@ -473,12 +473,10 @@ void preciceAdapter::Adapter::configure()
         } // end add coupling data readers
     }
 
-    adapterInfo( "Writing coupling data (for the first iteration) & initializing preCICE data...", "debug");
+    // Initialize preCICE and exchange the first coupling data
     initialize();
 
-    adapterInfo( "preCICE was configured and initialized", "info" );
-
-    adapterInfo( "Reading coupling data (for the first iteration)...", "debug" );
+    // Read the received coupling data
     readCouplingData();
 
     // If checkpointing is required, specify the checkpointed fields
@@ -491,10 +489,8 @@ void preciceAdapter::Adapter::configure()
         setupCheckpointing();
 
         // Write checkpoint (for the first iteration)
-        adapterInfo( "Writing a checkpoint (for the first iteration)...", "debug" );
         writeCheckpoint();
         fulfilledWriteCheckpoint();
-        adapterInfo( "  Checkpoint was written.", "debug" );
 
         // "Checkpointinging required" means also that we are performing
         // an implicit coupling. This can cause problems at the last
@@ -524,7 +520,6 @@ void preciceAdapter::Adapter::configure()
 
     // Adjust the timestep for the first iteration, if it is fixed
     if (!adjustableTimestep_) {
-        adapterInfo( "Adjusting the solver's timestep (if fixed timestep, for the second iteration)", "debug" );
         adjustSolverTimeStep();
     }
 
@@ -543,37 +538,35 @@ void preciceAdapter::Adapter::execute()
 
     if ( isCouplingOngoing() )
     {
-        adapterInfo( "Writing coupling data (from the previous iteration)...", "debug" );
+        // The solver has already solved the equations for this timestep.
+        // Now call the adapter's methods to perform the coupling.
+
+        // Write the coupling data in the buffer
         writeCouplingData();
 
-        adapterInfo( "Advancing preCICE...", "info" );
+        // Advance preCICE
         advance();
 
-        // Read checkpoint (from the previous iteration)
+        // Read checkpoint if required
         if ( isReadCheckpointRequired() )
         {
-            adapterInfo( "Reading a checkpoint... (from the previous iteration)", "debug" );
             readCheckpoint();
             fulfilledReadCheckpoint();
-            adapterInfo( "  Checkpoint was read.", "debug" );
         }
 
-        adapterInfo( "Reading coupling data (from the previous iteration)...", "debug" );
+        // Read the received coupling data from the buffer
         readCouplingData();
 
         // Adjust the timestep, if it is fixed
         if (!adjustableTimestep_) {
-            adapterInfo( "Adjusting the solver's timestep... (if fixed timestep, from the previous iteration)", "dev" );
             adjustSolverTimeStep();
         }
 
-        // Write checkpoint (from the previous iteration)
+        // Write checkpoint if required
         if ( isWriteCheckpointRequired() )
         {
-            adapterInfo( "Writing a checkpoint... (from the previous iteration)", "debug" );
             writeCheckpoint();
             fulfilledWriteCheckpoint();
-            adapterInfo( "  Checkpoint was written", "debug" );
         }
 
         if (isCouplingTimestepComplete()) {
@@ -614,7 +607,6 @@ void preciceAdapter::Adapter::execute()
 
 void preciceAdapter::Adapter::adjustTimeStep()
 {
-    adapterInfo( "Adjusting the solver's timestep... (only if dynamic timestep is used)", "dev" );
     adjustSolverTimeStep();
 
     return;
@@ -622,6 +614,8 @@ void preciceAdapter::Adapter::adjustTimeStep()
 
 void preciceAdapter::Adapter::readCouplingData()
 {
+    adapterInfo( "Reading coupling data...", "debug" );
+
     for ( uint i = 0; i < interfaces_.size(); i++ )
     {
         interfaces_.at( i )->readCouplingData();
@@ -630,6 +624,8 @@ void preciceAdapter::Adapter::readCouplingData()
 
 void preciceAdapter::Adapter::writeCouplingData()
 {
+    adapterInfo( "Writing coupling data...", "debug" );
+
     for ( uint i = 0; i < interfaces_.size(); i++ )
     {
         interfaces_.at( i )->writeCouplingData();
@@ -638,6 +634,7 @@ void preciceAdapter::Adapter::writeCouplingData()
 
 void preciceAdapter::Adapter::initialize()
 {
+    adapterInfo( "Iniializing the preCICE solver interface...", "debug" );
     timestepPrecice_ = precice_->initialize();
 
     preciceInitialized_ = true;
@@ -648,14 +645,17 @@ void preciceAdapter::Adapter::initialize()
         precice_->fulfilledAction( precice::constants::actionWriteInitialData() );
     }
 
+    adapterInfo( "Initializing preCICE data...", "debug");
     precice_->initializeData();
+
+    adapterInfo( "preCICE was configured and initialized", "info" );
 }
 
 void preciceAdapter::Adapter::finalize()
 {
     if ( NULL != precice_ && preciceInitialized_ && !isCouplingOngoing() )
     {
-        adapterInfo( "Finalizing preCICE...", "debug" );
+        adapterInfo( "Finalizing the preCICE solver interface...", "debug" );
 
         // Finalize the preCICE solver interface
         precice_->finalize();
@@ -673,6 +673,8 @@ void preciceAdapter::Adapter::finalize()
 
 void preciceAdapter::Adapter::advance()
 {
+    adapterInfo( "Advancing preCICE...", "info" );
+
     if ( timestepSolver_ == -1 )
     {
         timestepPrecice_ = precice_->advance( timestepPrecice_ );
@@ -685,6 +687,8 @@ void preciceAdapter::Adapter::advance()
 
 void preciceAdapter::Adapter::adjustSolverTimeStep()
 {
+    adapterInfo( "Adjusting the solver's timestep...", "debug" );
+
     // The timestep size that the solver has determined that it wants to use
     double timestepSolverDetermined;
 
@@ -830,11 +834,13 @@ void preciceAdapter::Adapter::storeCheckpointTime()
 {
     couplingIterationTimeIndex_ = runTime_.timeIndex();
     couplingIterationTimeValue_ = runTime_.value();
+    adapterInfo( "Stored time value t = " + std::to_string(runTime_.value()), "debug" );
 }
 
 void preciceAdapter::Adapter::reloadCheckpointTime()
 {
     const_cast<Time&>(runTime_).setTime( couplingIterationTimeValue_, couplingIterationTimeIndex_ );
+    adapterInfo( "Reloaded time value t = " + std::to_string(runTime_.value()), "debug" );
 }
 
 void preciceAdapter::Adapter::setupCheckpointing()
@@ -970,6 +976,8 @@ void preciceAdapter::Adapter::addCheckpointField( surfaceScalarField & field )
 
 void preciceAdapter::Adapter::readCheckpoint()
 {
+    adapterInfo( "Reading a checkpoint...", "debug" );
+
     // Reload the runTime
     reloadCheckpointTime();
 
@@ -992,10 +1000,14 @@ void preciceAdapter::Adapter::readCheckpoint()
     }
 
     // TODO Reload all the fields of type surfaceVectorField
+
+    adapterInfo( "Checkpoint was read. Time = " + std::to_string(runTime_.value()), "debug" );
 }
 
 void preciceAdapter::Adapter::writeCheckpoint()
 {
+    adapterInfo( "Writing a checkpoint...", "debug" );
+
     // Store the runTime
     storeCheckpointTime();
 
@@ -1018,6 +1030,7 @@ void preciceAdapter::Adapter::writeCheckpoint()
     }
 
     // TODO Store all the fields of type surfaceVectorField
+    adapterInfo( "Checkpoint for time t = " + std::to_string(runTime_.value()) + " was stored.", "debug" );
 }
 
 void preciceAdapter::Adapter::end()
