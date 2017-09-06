@@ -13,10 +13,17 @@
 
 using namespace Foam;
 
-#define ADAPTER_DEBUG_MODE 1
+// Output debug messages. Keep it disabled for production runs.
+#define ADAPTER_DEBUG_MODE
 
+#ifdef ADAPTER_DEBUG_MODE
+#define DEBUG(x) x
+#else
+#define DEBUG(x)
+#endif
+
+// String added in the beginning of every printed message
 #define INFO_STR_ADAPTER "---[preciceAdapter] "
-#define INFO_STR_DEBUG "[DEBUG] "
 
 preciceAdapter::Adapter::Adapter(const Time& runTime, const fvMesh& mesh)
 :
@@ -27,7 +34,7 @@ mesh_(mesh)
     return;
 }
 
-void preciceAdapter::Adapter::adapterInfo(const std::string message, const std::string level = "info")
+void preciceAdapter::Adapter::adapterInfo(const std::string message, const std::string level)
 {
     if ( level.compare("info") == 0 )
     {
@@ -63,13 +70,10 @@ void preciceAdapter::Adapter::adapterInfo(const std::string message, const std::
     }
     else if ( level.compare("debug") == 0 )
     {
-        if ( ADAPTER_DEBUG_MODE )
-        {
-            Info << INFO_STR_ADAPTER
-                 << INFO_STR_DEBUG
-                 << message.c_str()
-                 << nl;
-        }
+        Info << INFO_STR_ADAPTER
+             << "[DEBUG] "
+             << message.c_str()
+             << nl;
     }
     else if ( level.compare("dev") == 0 )
     {
@@ -93,7 +97,7 @@ void preciceAdapter::Adapter::adapterInfo(const std::string message, const std::
 
 bool preciceAdapter::Adapter::configFileCheck(const std::string adapterConfigFileName)
 {
-    adapterInfo( "Checking the adapter's YAML configuration file...", "debug" );
+    DEBUG( adapterInfo( "Checking the adapter's YAML configuration file..." ) );
 
     bool configErrors = false;
 
@@ -148,11 +152,6 @@ bool preciceAdapter::Adapter::configFileCheck(const std::string adapterConfigFil
         }
     }
 
-    if ( !configErrors )
-    {
-        adapterInfo( "The adapter's YAML configuration file " + adapterConfigFileName + " is complete." , "debug");
-    }
-
     return !configErrors;
 }
 
@@ -162,7 +161,7 @@ bool preciceAdapter::Adapter::configFileRead()
 
     // Check the configuration file
     const std::string adapterConfigFileName = runTime_.path() + "/precice-adapter-config.yml";
-    adapterInfo( "Reading the adapter's YAML configuration file " + adapterConfigFileName + "...", "debug" );
+    DEBUG( adapterInfo( "Reading the adapter's YAML configuration file " + adapterConfigFileName + "..." ) );
 
     if ( !configFileCheck(adapterConfigFileName) ) return false;
 
@@ -171,64 +170,64 @@ bool preciceAdapter::Adapter::configFileRead()
 
     // Read the preCICE participant name
     participantName_ = adapterConfig_["participant"].as<std::string>();
-    adapterInfo( "  participant : " + participantName_, "debug" );
+    DEBUG( adapterInfo( "  participant : " + participantName_ ) );
 
     // Read the preCICE configuration file name
     preciceConfigFilename_ = adapterConfig_["precice-config-file"].as<std::string>();
-    adapterInfo( "  precice-config-file : " + preciceConfigFilename_, "debug" );
+    DEBUG( adapterInfo( "  precice-config-file : " + preciceConfigFilename_ ) );
 
     // TODO Read the coupling interfaces configuration
     YAML::Node adapterConfigInterfaces = adapterConfig_["interfaces"];
-    adapterInfo( "  interfaces : ", "debug" );
+    DEBUG( adapterInfo( "  interfaces : " ) );
     for (uint i = 0; i < adapterConfigInterfaces.size(); i++)
     {
         struct InterfaceConfig interfaceConfig;
         interfaceConfig.meshName = adapterConfigInterfaces[i]["mesh"].as<std::string>();
-        adapterInfo( "  - mesh      : " + interfaceConfig.meshName, "debug" );
+        DEBUG( adapterInfo( "  - mesh      : " + interfaceConfig.meshName ) );
 
-        adapterInfo( "    patches   : ", "debug");
+        DEBUG( adapterInfo( "    patches   : ") );
         for ( uint j = 0; j < adapterConfigInterfaces[i]["patches"].size(); j++)
         {
             interfaceConfig.patchNames.push_back( adapterConfigInterfaces[i]["patches"][j].as<std::string>() );
-            adapterInfo( "      " + adapterConfigInterfaces[i]["patches"][j].as<std::string>(), "debug" );
+            DEBUG( adapterInfo( "      " + adapterConfigInterfaces[i]["patches"][j].as<std::string>() ) );
         }
 
         // TODO: Consider simplification
         if ( adapterConfigInterfaces[i]["write-data"] )
         {
-            adapterInfo( "    write-data : ", "debug" );
+            DEBUG( adapterInfo( "    write-data : " ) );
             if ( adapterConfigInterfaces[i]["write-data"].size() > 0 )
             {
                 // TODO Check: before it was adapterConfigInterfaces[i]["read-data"].size()
                 for ( uint j = 0; j < adapterConfigInterfaces[i]["write-data"].size(); j++)
                 {
                     interfaceConfig.writeData.push_back( adapterConfigInterfaces[i]["write-data"][j].as<std::string>() );
-                    adapterInfo( "      " + adapterConfigInterfaces[i]["write-data"][j].as<std::string>(), "debug" );
+                    DEBUG( adapterInfo( "      " + adapterConfigInterfaces[i]["write-data"][j].as<std::string>() ) );
                 }
             }
             else
             {
                 interfaceConfig.writeData.push_back( adapterConfigInterfaces[i]["write-data"].as<std::string>() );
-                adapterInfo( "      " + adapterConfigInterfaces[i]["write-data"].as<std::string>(), "debug" );
+                DEBUG( adapterInfo( "      " + adapterConfigInterfaces[i]["write-data"].as<std::string>() ) );
             }
         }
 
         // TODO: Consider simplification
         if ( adapterConfigInterfaces[i]["read-data"] )
         {
-            adapterInfo( "    read-data : ", "debug" );
+            DEBUG( adapterInfo( "    read-data : " ) );
             if ( adapterConfigInterfaces[i]["read-data"].size() > 0 )
             {
                 for ( uint j = 0; j < adapterConfigInterfaces[i]["read-data"].size(); j++)
                 {
                     interfaceConfig.readData.push_back( adapterConfigInterfaces[i]["read-data"][j].as<std::string>() );
-                    adapterInfo( "      " + adapterConfigInterfaces[i]["read-data"][j].as<std::string>(), "debug" );
+                    DEBUG( adapterInfo( "      " + adapterConfigInterfaces[i]["read-data"][j].as<std::string>() ) );
                 }
             }
             else
             {
                 interfaceConfig.readData.push_back( adapterConfigInterfaces[i]["read-data"].as<std::string>() );
-                adapterInfo( "      " + adapterConfigInterfaces[i]["read-data"].as<std::string>(), "debug" );
+                DEBUG( adapterInfo( "      " + adapterConfigInterfaces[i]["read-data"].as<std::string>() ) );
             }
         }
 
@@ -240,14 +239,14 @@ bool preciceAdapter::Adapter::configFileRead()
     {
         subcyclingAllowed_ = adapterConfig_["subcycling"].as<bool>();
     }
-    adapterInfo( "    subcycling : " + std::to_string(subcyclingAllowed_), "debug" );
+    DEBUG( adapterInfo( "    subcycling : " + std::to_string(subcyclingAllowed_) ) );
 
     // Set the preventEarlyExit_ switch
     if ( adapterConfig_["preventEarlyExit"] )
     {
         preventEarlyExit_ = adapterConfig_["preventEarlyExit"].as<bool>();
     }
-    adapterInfo( "    prevent early exit : " + std::to_string(preventEarlyExit_), "debug" );
+    DEBUG( adapterInfo( "    prevent early exit : " + std::to_string(preventEarlyExit_) ) );
 
     return true;
 }
@@ -274,74 +273,74 @@ void preciceAdapter::Adapter::configure()
 
     // Get the solver name
     runTime_.controlDict().readIfPresent("application", applicationName_);
-    adapterInfo( "Application: " + applicationName_, "debug" );
+    DEBUG( adapterInfo( "Application: " + applicationName_ ) );
 
     // Check the timestep type (fixed vs adjustable)
-    adapterInfo( "Checking the timestep type (fixed vs adjustable)...", "debug" );
+    DEBUG( adapterInfo( "Checking the timestep type (fixed vs adjustable)..." ) );
     adjustableTimestep_ = runTime_.controlDict().lookupOrDefault("adjustTimeStep", false);
 
     if ( adjustableTimestep_ ) {
-        adapterInfo( "  Timestep type: adjustable.", "debug" );
+        DEBUG( adapterInfo( "  Timestep type: adjustable." ) );
     } else {
-        adapterInfo( "  Timestep type: fixed.", "debug" );
+        DEBUG( adapterInfo( "  Timestep type: fixed." ) );
     }
 
     // Initialize preCICE
-    adapterInfo( "Creating the preCICE solver interface...", "debug" );
+    DEBUG( adapterInfo( "Creating the preCICE solver interface..." ) );
     int MPIEnabled = 0;
     int MPIRank = 0;
     int MPISize = 1;
 
     MPI_Initialized( &MPIEnabled );
-    adapterInfo( "  MPI used: " + std::to_string(MPIEnabled), "debug" );
+    DEBUG( adapterInfo( "  MPI used: " + std::to_string(MPIEnabled) ) );
 
     if ( MPIEnabled )
     {
         MPI_Comm_rank( MPI_COMM_WORLD, &MPIRank );
-        adapterInfo( "  MPI rank: " + std::to_string(MPIRank), "debug" );
+        DEBUG( adapterInfo( "  MPI rank: " + std::to_string(MPIRank) ) );
 
         MPI_Comm_size( MPI_COMM_WORLD, &MPISize );
-        adapterInfo( "  MPI size: " + std::to_string(MPISize), "debug" );
+        DEBUG( adapterInfo( "  MPI size: " + std::to_string(MPISize) ) );
     }
 
     precice_ = new precice::SolverInterface( participantName_, MPIRank, MPISize );
-    adapterInfo( "  preCICE solver interface was created.", "debug" );
+    DEBUG( adapterInfo( "  preCICE solver interface was created." ) );
 
-    adapterInfo( "Configuring preCICE...", "debug" );
+    DEBUG( adapterInfo( "Configuring preCICE..." ) );
     precice_->configure( preciceConfigFilename_ );
-    adapterInfo( "  preCICE was configured.", "debug" );
+    DEBUG( adapterInfo( "  preCICE was configured." ) );
 
     // Get the thermophysical model
-    adapterInfo( "Specifying the thermophysical model...", "debug" );
+    DEBUG( adapterInfo( "Specifying the thermophysical model..." ) );
     if (mesh_.foundObject<basicThermo>("thermophysicalProperties")) {
-        adapterInfo( "  Found 'thermophysicalProperties', refering to 'basicThermo'.", "debug" );
+        DEBUG( adapterInfo( "  Found 'thermophysicalProperties', refering to 'basicThermo'." ) );
         thermo_ = const_cast<basicThermo*>(&mesh_.lookupObject<basicThermo>("thermophysicalProperties"));
     } else {
-        adapterInfo( "  Did not find 'thermophysicalProperties', no thermoModel specified.", "debug" );
+        DEBUG( adapterInfo( "  Did not find 'thermophysicalProperties', no thermoModel specified." ) );
         if (mesh_.foundObject<volScalarField>("T")) {
-            adapterInfo( "  Found the T object.", "debug" );
+            DEBUG( adapterInfo( "  Found the T object." ) );
         }
     }
 
     // Get the turbulence model
-    adapterInfo( "Specifying the turbulence model...", "debug" );
+    DEBUG( adapterInfo( "Specifying the turbulence model..." ) );
     if (mesh_.foundObject<compressible::turbulenceModel>("turbulenceProperties")) {
-        adapterInfo( "  Found 'turbulenceProperties', refering to 'compressible::turbulenceModel'.", "debug" );
+        DEBUG( adapterInfo( "  Found 'turbulenceProperties', refering to 'compressible::turbulenceModel'." ) );
         turbulence_ = const_cast<compressible::turbulenceModel*>(&mesh_.lookupObject<compressible::turbulenceModel>("turbulenceProperties"));
     } else {
-        adapterInfo( "  Did not find 'turbulenceProperties', no turbulenceModel specified.", "debug" );
+        DEBUG( adapterInfo( "  Did not find 'turbulenceProperties', no turbulenceModel specified." ) );
     }
 
     // Create interfaces
-    adapterInfo( "Creating interfaces...", "debug" );
+    DEBUG( adapterInfo( "Creating interfaces..." ) );
     for ( uint i = 0; i < interfacesConfig_.size(); i++ )
     {
         Interface * interface = new Interface( *precice_, mesh_, interfacesConfig_.at( i ).meshName, interfacesConfig_.at( i ).patchNames );
         interfaces_.push_back( interface );
-        adapterInfo( "Interface created on mesh" + interfacesConfig_.at( i ).meshName, "debug" );
+        DEBUG( adapterInfo( "Interface created on mesh" + interfacesConfig_.at( i ).meshName ) );
 
         // TODO: Add coupling data users for 'sink temperature' and for 'heat transfer coefficient'
-        adapterInfo( "Adding coupling data writers...", "dev" );
+        DEBUG( adapterInfo( "Adding coupling data writers...", "dev" ) );
         for ( uint j = 0; j < interfacesConfig_.at( i ).writeData.size(); j++ )
         {
             std::string dataName = interfacesConfig_.at( i ).writeData.at( j );
@@ -351,11 +350,11 @@ void preciceAdapter::Adapter::configure()
                 if (thermo_) {
                     TemperatureBoundaryValues * bw = new TemperatureBoundaryValues( &thermo_->T() );
                     interface->addCouplingDataWriter( dataName, bw );
-                    adapterInfo( "  Added Temperature from thermoModel.", "dev" );
+                    DEBUG( adapterInfo( "  Added Temperature from thermoModel.", "dev" ) );
                 } else {
                     TemperatureBoundaryValues * bw = new TemperatureBoundaryValues( const_cast<volScalarField*>(&mesh_.lookupObject<volScalarField>("T")) ); // TODO Mesh does not have T()
                     interface->addCouplingDataWriter( dataName, bw );
-                    adapterInfo( "  Added Temperature from T.", "dev" );
+                    DEBUG( adapterInfo( "  Added Temperature from T.", "dev" ) );
                 }
             }
 
@@ -366,7 +365,7 @@ void preciceAdapter::Adapter::configure()
                     if ( thermo_ && turbulence_ ) {
                         BuoyantPimpleHeatFluxBoundaryValues * bw = new BuoyantPimpleHeatFluxBoundaryValues( &thermo_->T(), thermo_, turbulence_ );
                         interface->addCouplingDataWriter( dataName, bw );
-                        adapterInfo( "  Added Heat Flux for buoyantPimpleFoam", "dev" );
+                        DEBUG( adapterInfo( "  Added Heat Flux for buoyantPimpleFoam", "dev" ) );
                     } else {
                         adapterInfo( "Problem: no thermo or no turbulence model specified", "error" );
                     }
@@ -377,14 +376,14 @@ void preciceAdapter::Adapter::configure()
                         double k = 100; // TODO: IMPORTANT specify k properly (conductivity for solids-laplacianFoam_preCICE)
                         HeatFluxBoundaryValues * bw = new HeatFluxBoundaryValues( &thermo_->T(), k);
                         interface->addCouplingDataWriter( dataName, bw );
-                        adapterInfo( "  Added Heat Flux with temperature from thermoModel.", "dev" );
-                        adapterInfo( "  Assuming conductivity k = 100.", "dev" );
+                        DEBUG( adapterInfo( "  Added Heat Flux with temperature from thermoModel.", "dev" ) );
+                        DEBUG( adapterInfo( "  Assuming conductivity k = 100.", "dev" ) );
                     } else {
                         double k = 100; // TODO: IMPORTANT specify k properly (conductivity for solids-laplacianFoam_preCICE)
                         HeatFluxBoundaryValues * bw = new HeatFluxBoundaryValues( const_cast<volScalarField*>(&mesh_.lookupObject<volScalarField>("T")), k);
                         interface->addCouplingDataWriter( dataName, bw );
-                        adapterInfo( "  Added Heat Flux with temperature from T.", "dev" );
-                        adapterInfo( "  Assuming conductivity k = 100.", "dev" );
+                        DEBUG( adapterInfo( "  Added Heat Flux with temperature from T.", "dev" ) );
+                        DEBUG( adapterInfo( "  Assuming conductivity k = 100.", "dev" ) );
                     }
                 }
             }
@@ -403,7 +402,7 @@ void preciceAdapter::Adapter::configure()
 
         } // end add coupling data writers
 
-        adapterInfo( "Adding coupling data readers...", "dev" );
+        DEBUG( adapterInfo( "Adding coupling data readers...", "dev" ) );
         for ( uint j = 0; j < interfacesConfig_.at( i ).readData.size(); j++ )
         {
             std::string dataName = interfacesConfig_.at( i ).readData.at( j );
@@ -413,11 +412,11 @@ void preciceAdapter::Adapter::configure()
                 if ( thermo_ ) {
                     TemperatureBoundaryCondition * br = new TemperatureBoundaryCondition( &thermo_->T() );
                     interface->addCouplingDataReader( dataName, br );
-                    adapterInfo( "  Added Temperature from thermoModel.", "dev" );
+                    DEBUG( adapterInfo( "  Added Temperature from thermoModel.", "dev" ) );
                 } else {
                     TemperatureBoundaryCondition * br = new TemperatureBoundaryCondition( const_cast<volScalarField*>(&mesh_.lookupObject<volScalarField>("T")) );
                     interface->addCouplingDataReader( dataName, br );
-                    adapterInfo( "  Added Temperature from T.", "dev" );
+                    DEBUG( adapterInfo( "  Added Temperature from T.", "dev" ) );
                 }
             }
 
@@ -428,7 +427,7 @@ void preciceAdapter::Adapter::configure()
                     if ( thermo_ && turbulence_ ) {
                         BuoyantPimpleHeatFluxBoundaryCondition * br = new BuoyantPimpleHeatFluxBoundaryCondition( &thermo_->T(), thermo_, turbulence_ );
                         interface->addCouplingDataReader( dataName, br );
-                        adapterInfo( "  Added Heat Flux for buoyantPimpleFoam", "dev" );
+                        DEBUG( adapterInfo( "  Added Heat Flux for buoyantPimpleFoam", "dev" ) );
                     } else {
                         adapterInfo( "Problem: no thermo or no turbulence model specified", "error" );
                     }
@@ -439,14 +438,14 @@ void preciceAdapter::Adapter::configure()
                         double k = 100; // TODO: IMPORTANT specify k properly (conductivity for solids-laplacianFoam_preCICE)
                         HeatFluxBoundaryCondition * br = new HeatFluxBoundaryCondition( &thermo_->T(), k);
                         interface->addCouplingDataReader( dataName, br );
-                        adapterInfo( "  Added Heat Flux with temperature from thermoModel.", "dev" );
-                        adapterInfo( "  Assuming conductivity k = 100.", "dev" );
+                        DEBUG( adapterInfo( "  Added Heat Flux with temperature from thermoModel.", "dev" ) );
+                        DEBUG( adapterInfo( "  Assuming conductivity k = 100.", "dev" ) );
                     } else {
                         double k = 100; // TODO: IMPORTANT specify k properly (conductivity for solids-laplacianFoam_preCICE)
                         HeatFluxBoundaryCondition * br = new HeatFluxBoundaryCondition( const_cast<volScalarField*>(&mesh_.lookupObject<volScalarField>("T")), k);
                         interface->addCouplingDataReader( dataName, br );
-                        adapterInfo( "  Added Heat Flux with temperature from T.", "dev" );
-                        adapterInfo( "  Assuming conductivity k = 100.", "dev" );
+                        DEBUG( adapterInfo( "  Added Heat Flux with temperature from T.", "dev" ) );
+                        DEBUG( adapterInfo( "  Assuming conductivity k = 100.", "dev" ) );
                     }
             	}
             }
@@ -563,8 +562,8 @@ void preciceAdapter::Adapter::execute()
     // Check the behavior e.g. by using watch on a result file:
     //     watch -n 0.1 -d ls --full-time Fluid/0.01/T.gz
     if ( checkpointing_ && isCouplingTimestepComplete() ) {
-        adapterInfo( "The coupling timestep is complete. "
-                     "Updating the results.", "info" );
+        adapterInfo( "The coupling timestep completed. "
+                     "Writing the updated results.", "info" );
         const_cast<Time&>(runTime_).writeNow();
     }
 
@@ -585,7 +584,7 @@ void preciceAdapter::Adapter::execute()
         if ( preventEarlyExit_ )
         {
             adapterInfo( "The simulation was ended by preCICE. "
-                         "Calling the end() methods of any functionObject.",
+                         "Calling the end() methods of any functionObject explicitly.",
                          "info" );
             const_cast<Time&>(runTime_).functionObjects().end();
         }
@@ -603,7 +602,7 @@ void preciceAdapter::Adapter::adjustTimeStep()
 
 void preciceAdapter::Adapter::readCouplingData()
 {
-    adapterInfo( "Reading coupling data...", "debug" );
+    DEBUG( adapterInfo( "Reading coupling data..." ) );
 
     for ( uint i = 0; i < interfaces_.size(); i++ )
     {
@@ -613,7 +612,7 @@ void preciceAdapter::Adapter::readCouplingData()
 
 void preciceAdapter::Adapter::writeCouplingData()
 {
-    adapterInfo( "Writing coupling data...", "debug" );
+    DEBUG( adapterInfo( "Writing coupling data..." ) );
 
     for ( uint i = 0; i < interfaces_.size(); i++ )
     {
@@ -623,7 +622,7 @@ void preciceAdapter::Adapter::writeCouplingData()
 
 void preciceAdapter::Adapter::initialize()
 {
-    adapterInfo( "Iniializing the preCICE solver interface...", "debug" );
+    DEBUG( adapterInfo( "Iniializing the preCICE solver interface..." ) );
     timestepPrecice_ = precice_->initialize();
 
     preciceInitialized_ = true;
@@ -634,7 +633,7 @@ void preciceAdapter::Adapter::initialize()
         precice_->fulfilledAction( precice::constants::actionWriteInitialData() );
     }
 
-    adapterInfo( "Initializing preCICE data...", "debug");
+    DEBUG( adapterInfo( "Initializing preCICE data...") );
     precice_->initializeData();
 
     adapterInfo( "preCICE was configured and initialized", "info" );
@@ -644,7 +643,7 @@ void preciceAdapter::Adapter::finalize()
 {
     if ( NULL != precice_ && preciceInitialized_ && !isCouplingOngoing() )
     {
-        adapterInfo( "Finalizing the preCICE solver interface...", "debug" );
+        DEBUG( adapterInfo( "Finalizing the preCICE solver interface..." ) );
 
         // Finalize the preCICE solver interface
         precice_->finalize();
@@ -669,7 +668,7 @@ void preciceAdapter::Adapter::advance()
 
 void preciceAdapter::Adapter::adjustSolverTimeStep()
 {
-    adapterInfo( "Adjusting the solver's timestep...", "debug" );
+    DEBUG( adapterInfo( "Adjusting the solver's timestep..." ) );
 
     // The timestep size that the solver has determined that it wants to use
     double timestepSolverDetermined;
@@ -759,10 +758,8 @@ void preciceAdapter::Adapter::adjustSolverTimeStep()
     }
     else
     {
-        adapterInfo(
-            "The solver's timestep is the same as the coupling timestep.",
-            "debug"
-        );
+        DEBUG( adapterInfo( "The solver's timestep is the same as the "
+                            "coupling timestep." ) );
         timestepSolver_ = timestepPrecice_;
     }
 
@@ -816,19 +813,19 @@ void preciceAdapter::Adapter::storeCheckpointTime()
 {
     couplingIterationTimeIndex_ = runTime_.timeIndex();
     couplingIterationTimeValue_ = runTime_.value();
-    adapterInfo( "Stored time value t = " + std::to_string(runTime_.value()), "debug" );
+    DEBUG( adapterInfo( "Stored time value t = " + std::to_string(runTime_.value()) ) );
 }
 
 void preciceAdapter::Adapter::reloadCheckpointTime()
 {
     const_cast<Time&>(runTime_).setTime( couplingIterationTimeValue_, couplingIterationTimeIndex_ );
-    adapterInfo( "Reloaded time value t = " + std::to_string(runTime_.value()), "debug" );
+    DEBUG( adapterInfo( "Reloaded time value t = " + std::to_string(runTime_.value()) ) );
 }
 
 void preciceAdapter::Adapter::setupCheckpointing()
 {
     // Add fields in the checkpointing list
-    adapterInfo( "Creating a list of checkpointed fields...", "debug" );
+    DEBUG( adapterInfo( "Creating a list of checkpointed fields..." ) );
 
     /* Find and add all the registered objects in the mesh_
        of type volScalarField
@@ -836,10 +833,10 @@ void preciceAdapter::Adapter::setupCheckpointing()
 
     // Print the available objects of type volScalarField
     // TODO Direct this through adapterInfo()
-    adapterInfo( "Available objects of type volScalarField : ", "debug" );
-    if ( ADAPTER_DEBUG_MODE ) {
+    DEBUG( adapterInfo( "Available objects of type volScalarField : " ) );
+    #ifdef ADAPTER_DEBUG_MODE
         Info << mesh_.lookupClass<volScalarField>() << nl << nl;
-    }
+    #endif
 
     wordList objectNames_ = mesh_.lookupClass<volScalarField>().toc();
 
@@ -853,14 +850,13 @@ void preciceAdapter::Adapter::setupCheckpointing()
                 )
             );
 
-            adapterInfo(
-                "Added " + objectNames_[i] + " in the list of checkpointed fields.",
-                "debug"
-            );
+            DEBUG( adapterInfo(
+                "Added " + objectNames_[i] + " in the list of checkpointed fields."
+            ) );
         }
         else
         {
-            adapterInfo( "Did not find " + objectNames_[i], "debug" );
+            DEBUG( adapterInfo( "Did not find " + objectNames_[i] ) );
         }
     }
 
@@ -870,10 +866,10 @@ void preciceAdapter::Adapter::setupCheckpointing()
 
     // Print the available objects of type volVectorField
     // TODO Direct this through adapterInfo()
-    adapterInfo( "Available objects of type volVectorField : ", "debug" );
-    if ( ADAPTER_DEBUG_MODE ) {
+    DEBUG( adapterInfo( "Available objects of type volVectorField : " ) );
+    #ifdef ADAPTER_DEBUG_MODE
         Info << mesh_.lookupClass<volVectorField>() << nl << nl;
-    }
+    #endif
 
     objectNames_ = mesh_.lookupClass<volVectorField>().toc();
 
@@ -887,14 +883,13 @@ void preciceAdapter::Adapter::setupCheckpointing()
                 )
             );
 
-            adapterInfo(
-                "Added " + objectNames_[i] + " in the list of checkpointed fields.",
-                "debug"
-            );
+            DEBUG( adapterInfo(
+                "Added " + objectNames_[i] + " in the list of checkpointed fields."
+            ) );
         }
         else
         {
-            adapterInfo( "Did not find " + objectNames_[i], "debug" );
+            DEBUG( adapterInfo( "Did not find " + objectNames_[i] ) );
         }
     }
 
@@ -902,12 +897,12 @@ void preciceAdapter::Adapter::setupCheckpointing()
        of type surfaceScalarField
     */
 
-    // Print the available objects of type surfaceScalarField
-    // TODO Direct this through adapterInfo()
-    adapterInfo( "Available objects of type surfaceScalarField : ", "debug" );
-    if ( ADAPTER_DEBUG_MODE ) {
+    #ifdef ADAPTER_DEBUG_MODE
+        // Print the available objects of type surfaceScalarField
+        adapterInfo( "Available objects of type surfaceScalarField : " );
+        // TODO Direct this through adapterInfo()
         Info << mesh_.lookupClass<surfaceScalarField>() << nl << nl;
-    }
+    #endif
 
     objectNames_ = mesh_.lookupClass<surfaceScalarField>().toc();
 
@@ -921,14 +916,14 @@ void preciceAdapter::Adapter::setupCheckpointing()
                 )
             );
 
-            adapterInfo(
-                "Added " + objectNames_[i] + " in the list of checkpointed fields.",
-                "debug"
-            );
+            DEBUG( adapterInfo(
+                "Added " + objectNames_[i] + " in the list of checkpointed fields."
+            ) );
         }
         else
         {
-            adapterInfo( "Did not find " + objectNames_[i], "debug" );
+            adapterInfo( "Did not find " + objectNames_[i] +
+                         " to add in the checkpointed fields.", "warning" );
         }
     }
 
@@ -958,7 +953,7 @@ void preciceAdapter::Adapter::addCheckpointField( surfaceScalarField & field )
 
 void preciceAdapter::Adapter::readCheckpoint()
 {
-    adapterInfo( "Reading a checkpoint...", "debug" );
+    DEBUG( adapterInfo( "Reading a checkpoint..." ) );
 
     // Reload the runTime
     reloadCheckpointTime();
@@ -983,12 +978,12 @@ void preciceAdapter::Adapter::readCheckpoint()
 
     // TODO Reload all the fields of type surfaceVectorField
 
-    adapterInfo( "Checkpoint was read. Time = " + std::to_string(runTime_.value()), "debug" );
+    DEBUG( adapterInfo( "Checkpoint was read. Time = " + std::to_string(runTime_.value()) ) );
 }
 
 void preciceAdapter::Adapter::writeCheckpoint()
 {
-    adapterInfo( "Writing a checkpoint...", "debug" );
+    DEBUG( adapterInfo( "Writing a checkpoint..." ) );
 
     // Store the runTime
     storeCheckpointTime();
@@ -1012,7 +1007,8 @@ void preciceAdapter::Adapter::writeCheckpoint()
     }
 
     // TODO Store all the fields of type surfaceVectorField
-    adapterInfo( "Checkpoint for time t = " + std::to_string(runTime_.value()) + " was stored.", "debug" );
+
+    DEBUG( adapterInfo( "Checkpoint for time t = " + std::to_string(runTime_.value()) + " was stored." ) );
 }
 
 void preciceAdapter::Adapter::end()
@@ -1020,7 +1016,7 @@ void preciceAdapter::Adapter::end()
     // Throw a warning if the simulation exited before the coupling was complete
     if ( NULL != precice_ && isCouplingOngoing() )
     {
-        adapterInfo("The solver exited before the coupling was complete.", "warning");
+        adapterInfo( "The solver exited before the coupling was complete.", "warning" );
     }
 }
 
@@ -1030,7 +1026,7 @@ void preciceAdapter::Adapter::teardown()
     // Normally it should be deleted when isCouplingOngoing() becomes false.
     if ( NULL != precice_ )
     {
-        adapterInfo( "Destroying the preCICE solver interface...", "debug" );
+        DEBUG( adapterInfo( "Destroying the preCICE solver interface..." ) );
         delete precice_;
         precice_ = NULL;
     }
@@ -1038,7 +1034,7 @@ void preciceAdapter::Adapter::teardown()
     // Delete the preCICE solver interfaces
     if ( interfaces_.size() > 0 )
     {
-        adapterInfo( "Deleting the interfaces...", "debug" );
+        DEBUG( adapterInfo( "Deleting the interfaces..." ) );
 
         for ( uint i = 0; i < interfaces_.size(); i++ )
         {
@@ -1050,7 +1046,7 @@ void preciceAdapter::Adapter::teardown()
     // Delete the copied fields for checkpointing
     if ( checkpointing_ )
     {
-        adapterInfo( "Deleting the checkpoints... ", "debug" );
+        DEBUG( adapterInfo( "Deleting the checkpoints... " ) );
         for ( uint i = 0; i < volScalarFieldCopies_.size(); i++ )
         {
             delete volScalarFieldCopies_.at( i );

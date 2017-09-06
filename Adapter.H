@@ -128,7 +128,7 @@ private:
             std::vector<Foam::surfaceScalarField*> surfaceScalarFieldCopies_;
 
     //- Printed output and error handling
-    void adapterInfo(const std::string message, const std::string level);
+    void adapterInfo(const std::string message, const std::string level = "debug");
 
     // Configuration
 
