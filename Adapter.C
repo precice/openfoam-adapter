@@ -148,12 +148,6 @@ bool preciceAdapter::Adapter::configFileCheck(const std::string adapterConfigFil
         }
     }
 
-    // Check if the "subcycling" node exists
-    if ( !adapterConfig["subcycling"] )
-    {
-        adapterInfo( "The 'subcycling' node is missing in " + adapterConfigFileName + ". Assuming that subcycling is allowed.", "debug" );
-    }
-
     if ( !configErrors )
     {
         adapterInfo( "The adapter's YAML configuration file " + adapterConfigFileName + " is complete." , "debug");
@@ -261,7 +255,6 @@ bool preciceAdapter::Adapter::configFileRead()
 
 void preciceAdapter::Adapter::configure()
 {
-    adapterInfo( "Entered Adapter::configure().", "debug" );
 
     // Read the adapter's configuration file
     if ( !configFileRead() )
@@ -699,7 +692,7 @@ void preciceAdapter::Adapter::adjustSolverTimeStep()
             {
                 adapterInfo("You have enabled 'runTimeModifiable' in the "
                             "controlDict. The preciceAdapter does not yet "
-                            "support this functionality when "
+                            "fully support this functionality when "
                             "'adjustableTimestep' is not enabled. "
                             "If you modify the 'deltaT' in the controlDict "
                             "during the simulation, it will not be updated.",
