@@ -144,7 +144,7 @@ explicitly at the end of the simulation.
 
 In order to disable this behavior, you may define the option
 `preventEarlyExit: No` in the adapter's configuration file.
-Still, if the solver exits before the coupling completes, an error
+Still, if the solver exits before the coupling completes, a warning
 will be reported.
 
 #### Function Objects

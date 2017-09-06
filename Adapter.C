@@ -494,13 +494,13 @@ void preciceAdapter::Adapter::configure()
     // If the solver tries to end before the coupling is complete,
     // e.g. because the solver's endTime was smaller or (in implicit
     // coupling) equal with the max-time specified in preCICE,
-    // problems may occur near the end of the simulation.
+    // problems may occur near the end of the simulation,
+    // as the function object may be called only once near the end.
     // See the implementation of Foam::Time::run() for more details.
     // To prevent this, we set the solver's endTime to "infinity"
-    // and let only preCICE control the simulatin end.
-    // TODO Can we just access the preCICE max-time?
+    // and let only preCICE control the end of the simulation.
     // This has the side-effect of not triggering the end() method
-    // in any functionObject normally. Therefore, we trigger it
+    // in any function object normally. Therefore, we trigger it
     // when preCICE dictates to stop the coupling.
     // However, the user can disable this behavior in the configuration.
     if ( preventEarlyExit_ )
@@ -510,7 +510,7 @@ void preciceAdapter::Adapter::configure()
                      "Any functionObject's end() method will be triggered by the adapter. "
                      "You may disable this behavior in the adapter's configuration.",
                      "warning");
-        const_cast<Time&>(runTime_).setEndTime( std::numeric_limits<double>::infinity() );
+        const_cast<Time&>(runTime_).setEndTime( GREAT );
     }
 
     return;
@@ -1015,10 +1015,10 @@ void preciceAdapter::Adapter::writeCheckpoint()
 
 void preciceAdapter::Adapter::end()
 {
-    // Throw an error if the simulation exited before the coupling was complete
+    // Throw a warning if the simulation exited before the coupling was complete
     if ( NULL != precice_ && isCouplingOngoing() )
     {
-        adapterInfo("The solver exited before the coupling was complete.", "error");
+        adapterInfo("The solver exited before the coupling was complete.", "warning");
     }
 }
 
