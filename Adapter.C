@@ -671,15 +671,8 @@ void preciceAdapter::Adapter::finalize()
 void preciceAdapter::Adapter::advance()
 {
     adapterInfo( "Advancing preCICE...", "info" );
-
-    if ( timestepSolver_ == -1 )
-    {
-        timestepPrecice_ = precice_->advance( timestepPrecice_ );
-    }
-    else
-    {
-        timestepPrecice_ = precice_->advance( timestepSolver_ );
-    }
+    
+    timestepPrecice_ = precice_->advance( timestepSolver_ );
 }
 
 void preciceAdapter::Adapter::adjustSolverTimeStep()
