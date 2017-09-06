@@ -68,7 +68,6 @@ Foam::functionObjects::preciceAdapterFunctionObject::~preciceAdapterFunctionObje
 
 bool Foam::functionObjects::preciceAdapterFunctionObject::read(const dictionary& dict)
 {
-    // Configure the adapter
     adapter_.configure();
 
     return true;
@@ -77,7 +76,6 @@ bool Foam::functionObjects::preciceAdapterFunctionObject::read(const dictionary&
 
 bool Foam::functionObjects::preciceAdapterFunctionObject::execute()
 {
-    // Perform the coupling
     adapter_.execute();
 
     return true;
@@ -86,21 +84,19 @@ bool Foam::functionObjects::preciceAdapterFunctionObject::execute()
 
 bool Foam::functionObjects::preciceAdapterFunctionObject::end()
 {
-    // TODO drop if not needed
     adapter_.end();
+
     return true;
 }
 
 
 bool Foam::functionObjects::preciceAdapterFunctionObject::write()
 {
-    // TODO drop if not needed
     return true;
 }
 
 bool Foam::functionObjects::preciceAdapterFunctionObject::adjustTimeStep()
 {
-    // TODO Convert to bool and add check
     adapter_.adjustTimeStep();
 
     return true;
