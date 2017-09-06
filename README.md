@@ -1,7 +1,6 @@
 # preCICE-adapter for the CFD code OpenFOAM
 
-_**Note:** This adapter is under development and currently does not add
-any functionality. This README file also corresponds to the current
+_**Note:** This adapter is under development and currently only adds limited functionality. This README file also corresponds to the current
 development of the adapter and is therefore incomplete._
 
 This adapter is developed as part of Gerasimos Chourdakis' master's thesis.
@@ -73,9 +72,12 @@ interfaces:
   write-data: Temperature
   read-data: Heat-Flux
 
-subcycling: Yes
+# Optional, use in special cases
+#
+# preventEarlyExit: No # Default: yes
+#
+# subcycling: No # Default: yes
 
-checkpointing: Yes
 ```
 
 The `participant` needs to be the same as the one specified in the `precice-config-file`,
@@ -88,51 +90,18 @@ participating in the coupled simulation. These need to be defined in the files
 included in the `0/` directory. The values for `write-data` and `read-data` are
 currently placeholders.
 
-The parameters `subcycling` and `checkpointing` expect a `Yes` or a `No`.
-The first one allows the solver to subcycle, while the second enables the
-checkpointing. See the preCICE documentation for more information on this.
+The parameters `preventEarlyExit` and
+`subcycling` expect a `Yes` or a `No`.
+The first one gives the complete control
+of the simulation's end to the adapter,
+while the second one disables the
+subcycling. Both may be used in special
+situation, in which these features may cause problems.
+
 
 ## Setup an example
-The adapter currently only prints information about the calls to the
-functionObject's methods and does not add any useful functionality.
 
-For now, you may use it e.g. with the solver buoyantPimpleFoam.
-An easy way to test it is by adding the call to the preciceAdapterFunctionObject
-in the "Hot Room" tutorial, provided with OpenFOAM.
-
-1. Copy the tutorial to your case directory:
-```
-$ cp -r $FOAM_TUTORIALS/heatTransfer/buoyantPimpleFoam/hotRoom/ $FOAM_RUN/
-```
-
-2. Modify the `system/controlDict` file and add at the end:
-```c++
-functions
-{
-    preCICE_Adapter
-    {
-        type preciceAdapterFunctionObject;
-        libs ("libpreciceAdapterFunctionObject.so");
-    }
-}
-```
-
-3. Add the configuration file `precice-adapter-config.yml` in the case directory.
-
-4. Set the boundary patches that are participating in the coupled simulation.
-This needs to be done both in the files in the `0/` directory and in the adapter's
-configuration file.
-
-5. Run the case:
-```
-$ ./Allrun
-```
-
-The solver outputs information into the `log.buoyantPimpleFoam` log file.
-If everything went well, you should be able to find lines like the following in it:
-```
----[preciceAdapter] CONSTRUCTOR --------
-```
+TODO: Tutorials and examples will be added later.
 
 ## Compatibility
 
@@ -141,7 +110,7 @@ If everything went well, you should be able to find lines like the following in 
 The following OpenFOAM versions and solvers have been tested to work with this adapter:
 
 * OpenFOAM 5.0 - openfoam.org
-* OpenFOAM 4.1 - openfoam.org
+* OpenFOAM 4.1 - openfoam.org (TODO: last check was a while ago)
 
 The following versions are known to be currently _incompatible_:
 
@@ -155,6 +124,94 @@ The following OpenFOAM solvers (in the respective OpenFOAM versions) are known t
 #### Heat Transfer
 
 * buoyantPimpleFoam (OF4, OF5)
+
+### Notes on OpenFOAM features
+
+#### End of the simulation
+
+Both the solver and preCICE try to control when the simulation should end.
+While in an explicit coupling scenario this is clearly defined,
+in an implicit coupling scenario the solver may schedule its exit
+(and therefore the last call to the adapter) before the coupling is complete.
+See [how function objects are called](https://cpp.openfoam.org/v5/Time_8C_source.html#l00781)
+for more details on this.
+
+In order to prevent early exits from the solver, the solver's endTime
+is set to infinity and it is later set to the current time when
+the simulation needs to end. This has the side effect of not calling
+any function object's `end()` method normally, so these are triggered
+explicitly at the end of the simulation.
+
+In order to disable this behavior, you may define the option
+`preventEarlyExit: No` in the adapter's configuration file.
+Still, if the solver exits before the coupling completes, an error
+will be reported.
+
+#### Function Objects
+
+In principle, using other function objects alongside the preCICE adapter
+is possible. They should be defined *before* the adapter in the
+`system/controlDict`, as (by default and opt-out) the adapter controls when the
+simulation should end and explicitly triggers (only) the `end()` methods
+of any other function objects at the end of the simulation.
+If the `end()` of a function object depends on its `execute()`, then
+the latter should have been called before the preCICE adapter's `execute()`.
+
+If you want to test this behavior, you may
+also include e.g. the `systemCall` function
+object in your `system/controlDict`:
+
+```c++
+functions
+{
+
+    systemCall1
+    {
+        type        systemCall;
+        libs        ("libutilityFunctionObjects.so");
+
+        executeCalls
+        (
+            "echo \*\*\* systemCall execute \*\*\*"
+        );
+
+        writeCalls
+        (
+            "echo \*\*\* systemCall write \*\*\*"
+        );
+
+        endCalls
+        (
+            "echo \*\*\* systemCall end \*\*\*"
+        );
+    }
+
+    preCICE_Adapter
+    {
+        type preciceAdapterFunctionObject;
+        libs ("libpreciceAdapterFunctionObject.so");
+    }
+
+}
+```
+
+#### Adjustable timestep and modifiable runTime
+
+In the `system/controlDict`, you may optionally specify the
+following:
+
+```c++
+adjustTimeStep  yes;
+maxCo           0.5;
+
+runTimeModifiable yes;
+```
+
+The adapter works both with fixed and adjustable timestep
+and it supports the `runTimeModifiable` feature.
+However, if you set a *fixed timestep* and *runTimeModifiable*,
+changing the configured timestep *during the simulation* will
+not affect the timestep used. A warning will be shown in this case.
 
 ### Compatible preCICE versions
 
