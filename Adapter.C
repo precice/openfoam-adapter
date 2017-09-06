@@ -491,36 +491,33 @@ void preciceAdapter::Adapter::configure()
         // Write checkpoint (for the first iteration)
         writeCheckpoint();
         fulfilledWriteCheckpoint();
-
-        // "Checkpointinging required" means also that we are performing
-        // an implicit coupling. This can cause problems at the last
-        // timestep, as the solver will try to exit before the coupling
-        // is complete, if the solver's endTime is the same or smaller
-        // than the endTime specified by preCICE. See the implementation
-        // of Foam::Time::run() for more details.
-        // To prevent this, we set the solver's endTime to "infinity"
-        // and let only preCICE control the simulatin end.
-        // TODO Can we just access the preCICE maxTime?
-        // This has the side-effect of not triggering the end() method
-        // in any functionObject normally. Therefore, we trigger it
-        // when preCICE dictates to stop the coupling.
-        // However, the user can disable this behavior in the configuration.
-        if ( preventEarlyExit_ )
-        {
-            adapterInfo( "Implicit coupling is used. Setting the solver's endTime "
-                         "to infinity to prevent any early exits. "
-                         "Only preCICE will control the simulation's endTime. "
-                         "Any functionObject's end() method will be triggered by the adapter. "
-                         "You may disable this behavior in the adapter's configuration.",
-                         "warning");
-            const_cast<Time&>(runTime_).setEndTime( std::numeric_limits<double>::infinity() );
-        }
-
     }
 
     // Adjust the timestep for the first iteration, if it is fixed
     if (!adjustableTimestep_) {
         adjustSolverTimeStep();
+    }
+
+    // If the solver tries to end before the coupling is complete,
+    // e.g. because the solver's endTime was smaller or (in implicit
+    // coupling) equal with the max-time specified in preCICE,
+    // problems may occur near the end of the simulation.
+    // See the implementation of Foam::Time::run() for more details.
+    // To prevent this, we set the solver's endTime to "infinity"
+    // and let only preCICE control the simulatin end.
+    // TODO Can we just access the preCICE max-time?
+    // This has the side-effect of not triggering the end() method
+    // in any functionObject normally. Therefore, we trigger it
+    // when preCICE dictates to stop the coupling.
+    // However, the user can disable this behavior in the configuration.
+    if ( preventEarlyExit_ )
+    {
+        adapterInfo( "Setting the solver's endTime to infinity to prevent early exits. "
+                     "Only preCICE will control the simulation's endTime. "
+                     "Any functionObject's end() method will be triggered by the adapter. "
+                     "You may disable this behavior in the adapter's configuration.",
+                     "warning");
+        const_cast<Time&>(runTime_).setEndTime( std::numeric_limits<double>::infinity() );
     }
 
     return;
@@ -582,6 +579,9 @@ void preciceAdapter::Adapter::execute()
     {
         adapterInfo( "The coupling completed.", "info" );
 
+        // Finalize the preCICE solver interface and delete data
+        finalize();
+
         // Tell OpenFOAM to stop the simulation.
         // Set the solver's endTime to now. The next evaluation of
         // runTime.run() will be false and the solver will exit.
@@ -594,9 +594,6 @@ void preciceAdapter::Adapter::execute()
                          "info" );
             const_cast<Time&>(runTime_).functionObjects().end();
         }
-
-        // Finalize the preCICE solver interface and delete data
-        finalize();
     }
 
     return;
@@ -671,7 +668,7 @@ void preciceAdapter::Adapter::finalize()
 void preciceAdapter::Adapter::advance()
 {
     adapterInfo( "Advancing preCICE...", "info" );
-    
+
     timestepPrecice_ = precice_->advance( timestepSolver_ );
 }
 
