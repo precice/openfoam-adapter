@@ -195,6 +195,12 @@ functions
 }
 ```
 
+#### Writing results
+
+As soon as OpenFOAM writes the results, it will not try to write again
+if the time takes the same value again. Therefore, during an implicit
+coupling, we write again when the coupling timestep is complete.
+
 #### Adjustable timestep and modifiable runTime
 
 In the `system/controlDict`, you may optionally specify the

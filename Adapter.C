@@ -557,12 +557,14 @@ void preciceAdapter::Adapter::execute()
         fulfilledWriteCheckpoint();
     }
 
-    if (isCouplingTimestepComplete()) {
-        adapterInfo( "The coupling timestep is complete.", "info" );
-        adapterInfo( "  Writing the results...", "dev" );
-        // TODO write() or writeNow()?
-        // TODO Check if results are written at the last timestep.
-        // TODO Check for implicit coupling to avoid multiple writes.
+    // As soon as OpenFOAM writes the results, it will not try to write again
+    // if the time takes the same value again. Therefore, during an implicit
+    // coupling, we write again when the coupling timestep is complete.
+    // Check the behavior e.g. by using watch on a result file:
+    //     watch -n 0.1 -d ls --full-time Fluid/0.01/T.gz
+    if ( checkpointing_ && isCouplingTimestepComplete() ) {
+        adapterInfo( "The coupling timestep is complete. "
+                     "Updating the results.", "info" );
         const_cast<Time&>(runTime_).writeNow();
     }
 
