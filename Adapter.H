@@ -18,14 +18,17 @@
 // preCICE Solver Interface
 #include "precice/SolverInterface.hpp"
 
-namespace preciceAdapter {
+namespace preciceAdapter
+{
 
-class Adapter {
+class Adapter
+{
 
 private:
 
     //- TODO Add description
-    struct InterfaceConfig {
+    struct InterfaceConfig
+    {
         std::string meshName;
         std::vector<std::string> patchNames;
         std::vector<std::string> writeData;
@@ -128,7 +131,7 @@ private:
             std::vector<Foam::surfaceScalarField*> surfaceScalarFieldCopies_;
 
     //- Printed output and error handling
-    void adapterInfo(const std::string message, const std::string level = "debug");
+    void adapterInfo( const std::string message, const std::string level = "debug" );
 
     // Configuration
 
@@ -136,7 +139,7 @@ private:
         bool configFileRead();
 
         //- Check the adapter's configuration file
-        bool configFileCheck(const std::string adapterConfigFileName);
+        bool configFileCheck( const std::string adapterConfigFileName );
 
     // Methods communicating with preCICE
 
@@ -217,7 +220,7 @@ public:
     // Methods called by the functionObject
 
         //- Constructor
-        Adapter(const Foam::Time& runTime, const Foam::fvMesh& mesh);
+        Adapter( const Foam::Time& runTime, const Foam::fvMesh& mesh );
 
         //- Setup the adapter's configuration
         void configure();
