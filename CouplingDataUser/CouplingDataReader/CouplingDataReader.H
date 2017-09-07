@@ -13,10 +13,10 @@ protected:
 
 public:
 
-	virtual void read( double * dataBuffer ) = 0;
-	virtual ~CouplingDataReader()
-	{
-	}
+    virtual void read(double * dataBuffer) = 0;
+
+    virtual ~CouplingDataReader()
+    {}
 
 };
 

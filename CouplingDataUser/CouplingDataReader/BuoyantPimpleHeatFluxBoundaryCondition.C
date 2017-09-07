@@ -1,39 +1,43 @@
-#include "BuoyantPimpleHeatFluxBoundaryCondition.h"
-#include <boost/log/trivial.hpp>
+#include "BuoyantPimpleHeatFluxBoundaryCondition.H"
 
 using namespace Foam;
 
-preciceAdapter::BuoyantPimpleHeatFluxBoundaryCondition::BuoyantPimpleHeatFluxBoundaryCondition( volScalarField * T, basicThermo * thermo, compressible::turbulenceModel * turbulence ) :
-	T_( T ),
-	thermo_( thermo ),
-	turbulence_( turbulence )
+preciceAdapter::
+BuoyantPimpleHeatFluxBoundaryCondition::
+BuoyantPimpleHeatFluxBoundaryCondition
+(
+    volScalarField * T,
+    basicThermo * thermo,
+    compressible::turbulenceModel * turbulence
+)
+:
+T_(T),
+thermo_(thermo),
+turbulence_(turbulence)
 {
-	dataType_ = scalar;
+    dataType_ = scalar;
 }
 
-void preciceAdapter::BuoyantPimpleHeatFluxBoundaryCondition::read( double * dataBuffer )
+void preciceAdapter::
+BuoyantPimpleHeatFluxBoundaryCondition::
+read(double * dataBuffer)
 {
+    int bufferIndex = 0;
 
-	// BOOST_LOG_TRIVIAL( info ) << "Setting heat flux boundary condition";
+    for (uint k = 0; k < patchIDs_.size(); k++)
+    {
+        int patchID = patchIDs_.at(k);
 
-	int bufferIndex = 0;
+        scalarField kappaEff = turbulence_->kappaEff() ().boundaryField()[patchID];
 
-	for( uint k = 0 ; k < patchIDs_.size() ; k++ )
-	{
+        fixedGradientFvPatchScalarField & gradientPatch =
+        refCast<fixedGradientFvPatchScalarField>(T_->boundaryFieldRef()[patchID]);
 
-		int patchID = patchIDs_.at( k );
+        scalarField & gradient = gradientPatch.gradient();
 
-		scalarField kappaEff = turbulence_->kappaEff() ().boundaryField()[patchID];
-
-		fixedGradientFvPatchScalarField & gradientPatch =
-			refCast<fixedGradientFvPatchScalarField>( T_->boundaryFieldRef()[patchID] );
-
-		scalarField & gradient = gradientPatch.gradient();
-
-		forAll( gradientPatch, i )
-		{
-			gradient[i] = dataBuffer[bufferIndex++] / kappaEff[i];
-		}
-
-	}
+        forAll(gradientPatch, i)
+        {
+            gradient[i] = dataBuffer[bufferIndex++] / kappaEff[i];
+        }
+    }
 }

@@ -3,7 +3,7 @@
 
 #include "fvCFD.H"
 #include "fixedGradientFvPatchFields.H"
-#include "CouplingDataReader.h"
+#include "CouplingDataReader.H"
 
 namespace preciceAdapter
 {
@@ -13,13 +13,15 @@ class HeatFluxBoundaryCondition : public CouplingDataReader
 
 protected:
 
-	volScalarField * T_;
-	double k_;
+    volScalarField * T_;
+
+    double k_;
 
 public:
 
-	HeatFluxBoundaryCondition( Foam::volScalarField * T, double k );
-	void read( double * dataBuffer );
+    HeatFluxBoundaryCondition(Foam::volScalarField * T, double k);
+
+    void read(double * dataBuffer);
 
 };
 

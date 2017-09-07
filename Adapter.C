@@ -3,13 +3,13 @@
 
 #include "IOstreams.H"
 
-#include "CouplingDataUser/CouplingDataReader/TemperatureBoundaryCondition.h"
-#include "CouplingDataUser/CouplingDataReader/HeatFluxBoundaryCondition.h"
-#include "CouplingDataUser/CouplingDataReader/BuoyantPimpleHeatFluxBoundaryCondition.h"
+#include "CouplingDataUser/CouplingDataReader/TemperatureBoundaryCondition.H"
+#include "CouplingDataUser/CouplingDataReader/HeatFluxBoundaryCondition.H"
+#include "CouplingDataUser/CouplingDataReader/BuoyantPimpleHeatFluxBoundaryCondition.H"
 
-#include "CouplingDataUser/CouplingDataWriter/TemperatureBoundaryValues.h"
-#include "CouplingDataUser/CouplingDataWriter/HeatFluxBoundaryValues.h"
-#include "CouplingDataUser/CouplingDataWriter/BuoyantPimpleHeatFluxBoundaryValues.h"
+#include "CouplingDataUser/CouplingDataWriter/TemperatureBoundaryValues.H"
+#include "CouplingDataUser/CouplingDataWriter/HeatFluxBoundaryValues.H"
+#include "CouplingDataUser/CouplingDataWriter/BuoyantPimpleHeatFluxBoundaryValues.H"
 
 using namespace Foam;
 

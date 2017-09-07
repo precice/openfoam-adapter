@@ -7,8 +7,8 @@
 #include <vector>
 #include <boost/log/trivial.hpp>
 #include "fvCFD.H"
-#include "CouplingDataUser/CouplingDataReader/CouplingDataReader.h"
-#include "CouplingDataUser/CouplingDataWriter/CouplingDataWriter.h"
+#include "CouplingDataUser/CouplingDataReader/CouplingDataReader.H"
+#include "CouplingDataUser/CouplingDataWriter/CouplingDataWriter.H"
 #include "precice/SolverInterface.hpp"
 
 

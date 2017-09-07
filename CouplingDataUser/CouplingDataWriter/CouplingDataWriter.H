@@ -9,14 +9,12 @@ namespace preciceAdapter
 class CouplingDataWriter : public CouplingDataUser
 {
 
-protected:
-
 public:
 
-	virtual void write( double * dataBuffer ) = 0;
-	virtual ~CouplingDataWriter()
-	{
-	}
+    virtual void write(double * dataBuffer) = 0;
+
+    virtual ~CouplingDataWriter()
+    {}
 
 };
 

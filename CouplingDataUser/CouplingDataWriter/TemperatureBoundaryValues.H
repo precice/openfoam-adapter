@@ -1,7 +1,7 @@
 #ifndef TEMPERATUREBOUNDARYVALUES_H
 #define TEMPERATUREBOUNDARYVALUES_H
 
-#include "CouplingDataWriter.h"
+#include "CouplingDataWriter.H"
 #include "fvCFD.H"
 
 
@@ -13,12 +13,13 @@ class TemperatureBoundaryValues : public CouplingDataWriter
 
 protected:
 
-	Foam::volScalarField * T_;
+    Foam::volScalarField * T_;
 
 public:
 
-	TemperatureBoundaryValues( Foam::volScalarField * T );
-	void write( double * dataBuffer );
+    TemperatureBoundaryValues(Foam::volScalarField * T);
+
+    void write(double * dataBuffer);
 
 };
 

@@ -1,7 +1,7 @@
 #ifndef TEMPERATUREBOUNDARYCONDITION_H
 #define TEMPERATUREBOUNDARYCONDITION_H
 
-#include "CouplingDataReader.h"
+#include "CouplingDataReader.H"
 #include "fvCFD.H"
 
 namespace preciceAdapter
@@ -12,12 +12,13 @@ class TemperatureBoundaryCondition : public CouplingDataReader
 
 protected:
 
-	Foam::volScalarField * T_;
+    Foam::volScalarField * T_;
 
 public:
 
-	TemperatureBoundaryCondition( Foam::volScalarField * T );
-	void read( double * dataBuffer );
+    TemperatureBoundaryCondition(Foam::volScalarField * T);
+
+    void read(double * dataBuffer);
 
 };
 
