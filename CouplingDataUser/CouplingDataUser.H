@@ -48,6 +48,15 @@ public:
     //- Set the patch IDs that form the interface
     void setPatchIDs(std::vector<int> patchIDs);
 
+    //- Write the coupling data to the buffer
+    virtual void write(double * dataBuffer) = 0;
+
+    //- Read the coupling data from the buffer
+    virtual void read(double * dataBuffer) = 0;
+
+    //- Destructor
+    virtual ~CouplingDataUser() {}
+
 };
 
 }

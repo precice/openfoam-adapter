@@ -73,7 +73,7 @@ void preciceAdapter::Interface::configureMesh_(const fvMesh& mesh)
 void preciceAdapter::Interface::addCouplingDataWriter
 (
     std::string dataName,
-    CouplingDataWriter * couplingDataWriter
+    CouplingDataUser * couplingDataWriter
 )
 {
     couplingDataWriter->setDataID(precice_.getDataID(dataName, meshID_));
@@ -90,7 +90,7 @@ void preciceAdapter::Interface::addCouplingDataWriter
 void preciceAdapter::Interface::addCouplingDataReader
 (
     std::string dataName,
-    preciceAdapter::CouplingDataReader * couplingDataReader
+    preciceAdapter::CouplingDataUser * couplingDataReader
 )
 {
     couplingDataReader->setDataID(precice_.getDataID(dataName, meshID_));
@@ -110,7 +110,7 @@ void preciceAdapter::Interface::readCouplingData()
     {
         for (uint i = 0; i < couplingDataReaders_.size(); i++)
         {
-            preciceAdapter::CouplingDataReader *
+            preciceAdapter::CouplingDataUser *
                 couplingDataReader = couplingDataReaders_.at(i);
 
             if (couplingDataReader->hasVectorData())
@@ -143,7 +143,7 @@ void preciceAdapter::Interface::writeCouplingData()
 {
     for (uint i = 0; i < couplingDataWriters_.size(); i++)
     {
-        preciceAdapter::CouplingDataWriter *
+        preciceAdapter::CouplingDataUser *
             couplingDataWriter = couplingDataWriters_.at(i);
 
         couplingDataWriter->write(dataBuffer_);

@@ -11,6 +11,9 @@
 #include "CouplingDataUser/CouplingDataWriter/HeatFluxBoundaryValues.H"
 #include "CouplingDataUser/CouplingDataWriter/BuoyantPimpleHeatFluxBoundaryValues.H"
 
+#include "CouplingDataUser/Temperature.H"
+#include "CouplingDataUser/HeatFlux.H"
+
 using namespace Foam;
 
 // Output debug messages. Keep it disabled for production runs.
@@ -355,14 +358,26 @@ void preciceAdapter::Adapter::configure()
             {
                 if (thermo_)
                 {
-                    TemperatureBoundaryValues * bw = new TemperatureBoundaryValues(&thermo_->T());
-                    interface->addCouplingDataWriter(dataName, bw);
+                    // TemperatureBoundaryValues * bw = new TemperatureBoundaryValues(&thermo_->T());
+                    // interface->addCouplingDataWriter(dataName, bw);
+                    interface->addCouplingDataWriter(dataName, new User::Temperature(&thermo_->T()));
                     DEBUG(adapterInfo("  Added Temperature from thermoModel.", "dev"));
                 }
                 else
                 {
-                    TemperatureBoundaryValues * bw = new TemperatureBoundaryValues(const_cast<volScalarField*>(&mesh_.lookupObject<volScalarField>("T"))); // TODO Mesh does not have T()
-                    interface->addCouplingDataWriter(dataName, bw);
+                    // TemperatureBoundaryValues * bw = new TemperatureBoundaryValues(const_cast<volScalarField*>(&mesh_.lookupObject<volScalarField>("T"))); // TODO Mesh does not have T()
+                    // interface->addCouplingDataWriter(dataName, bw);
+                    interface->addCouplingDataWriter
+                    (
+                        dataName,
+                        new User::Temperature
+                        (
+                            const_cast<volScalarField*>
+                            (
+                                &mesh_.lookupObject<volScalarField>("T")
+                            )
+                        )
+                    );
                     DEBUG(adapterInfo("  Added Temperature from T.", "dev"));
                 }
             }
@@ -373,9 +388,9 @@ void preciceAdapter::Adapter::configure()
                 {
                     if (thermo_ && turbulence_)
                     {
-                        BuoyantPimpleHeatFluxBoundaryValues * bw = new BuoyantPimpleHeatFluxBoundaryValues(&thermo_->T(), thermo_, turbulence_);
-                        interface->addCouplingDataWriter(dataName, bw);
-                        DEBUG(adapterInfo("  Added Heat Flux for buoyantPimpleFoam", "dev"));
+                        // BuoyantPimpleHeatFluxBoundaryValues * bw = new BuoyantPimpleHeatFluxBoundaryValues(&thermo_->T(), thermo_, turbulence_);
+                        // interface->addCouplingDataWriter(dataName, bw);
+                        // DEBUG(adapterInfo("  Added Heat Flux for buoyantPimpleFoam", "dev"));
                     }
                     else
                     {
@@ -387,16 +402,29 @@ void preciceAdapter::Adapter::configure()
                     if (thermo_)
                     {
                         double k = 100; // TODO: IMPORTANT specify k properly (conductivity for solids-laplacianFoam_preCICE)
-                        HeatFluxBoundaryValues * bw = new HeatFluxBoundaryValues(&thermo_->T(), k);
-                        interface->addCouplingDataWriter(dataName, bw);
+                        // HeatFluxBoundaryValues * bw = new HeatFluxBoundaryValues(&thermo_->T(), k);
+                        // interface->addCouplingDataWriter(dataName, bw);
+                        interface->addCouplingDataWriter(dataName, new User::HeatFlux(&thermo_->T(), k));
                         DEBUG(adapterInfo("  Added Heat Flux with temperature from thermoModel.", "dev"));
                         DEBUG(adapterInfo("  Assuming conductivity k = 100.", "dev"));
                     }
                     else
                     {
                         double k = 100; // TODO: IMPORTANT specify k properly (conductivity for solids-laplacianFoam_preCICE)
-                        HeatFluxBoundaryValues * bw = new HeatFluxBoundaryValues(const_cast<volScalarField*>(&mesh_.lookupObject<volScalarField>("T")), k);
-                        interface->addCouplingDataWriter(dataName, bw);
+                        // HeatFluxBoundaryValues * bw = new HeatFluxBoundaryValues(const_cast<volScalarField*>(&mesh_.lookupObject<volScalarField>("T")), k);
+                        // interface->addCouplingDataWriter(dataName, bw);
+                        interface->addCouplingDataWriter
+                        (
+                            dataName,
+                            new User::HeatFlux
+                            (
+                                const_cast<volScalarField*>
+                                (
+                                    &mesh_.lookupObject<volScalarField>("T")
+                                ),
+                                k
+                            )
+                        );
                         DEBUG(adapterInfo("  Added Heat Flux with temperature from T.", "dev"));
                         DEBUG(adapterInfo("  Assuming conductivity k = 100.", "dev"));
                     }
@@ -426,14 +454,26 @@ void preciceAdapter::Adapter::configure()
             {
                 if (thermo_)
                 {
-                    TemperatureBoundaryCondition * br = new TemperatureBoundaryCondition(&thermo_->T());
-                    interface->addCouplingDataReader(dataName, br);
+                    // TemperatureBoundaryCondition * br = new TemperatureBoundaryCondition(&thermo_->T());
+                    // interface->addCouplingDataReader(dataName, br);
+                    interface->addCouplingDataReader(dataName, new User::Temperature(&thermo_->T()));
                     DEBUG(adapterInfo("  Added Temperature from thermoModel.", "dev"));
                 }
                 else
                 {
-                    TemperatureBoundaryCondition * br = new TemperatureBoundaryCondition(const_cast<volScalarField*>(&mesh_.lookupObject<volScalarField>("T")));
-                    interface->addCouplingDataReader(dataName, br);
+                    // TemperatureBoundaryCondition * br = new TemperatureBoundaryCondition(const_cast<volScalarField*>(&mesh_.lookupObject<volScalarField>("T")));
+                    // interface->addCouplingDataReader(dataName, br);
+                    interface->addCouplingDataReader
+                    (
+                        dataName,
+                        new User::Temperature
+                        (
+                            const_cast<volScalarField*>
+                            (
+                                &mesh_.lookupObject<volScalarField>("T")
+                            )
+                        )
+                    );
                     DEBUG(adapterInfo("  Added Temperature from T.", "dev"));
                 }
             }
@@ -444,9 +484,9 @@ void preciceAdapter::Adapter::configure()
             	{
                     if (thermo_ && turbulence_)
                     {
-                        BuoyantPimpleHeatFluxBoundaryCondition * br = new BuoyantPimpleHeatFluxBoundaryCondition(&thermo_->T(), thermo_, turbulence_);
-                        interface->addCouplingDataReader(dataName, br);
-                        DEBUG(adapterInfo("  Added Heat Flux for buoyantPimpleFoam", "dev"));
+                        // BuoyantPimpleHeatFluxBoundaryCondition * br = new BuoyantPimpleHeatFluxBoundaryCondition(&thermo_->T(), thermo_, turbulence_);
+                        // interface->addCouplingDataReader(dataName, br);
+                        // DEBUG(adapterInfo("  Added Heat Flux for buoyantPimpleFoam", "dev"));
                     }
                     else
                     {
@@ -458,16 +498,29 @@ void preciceAdapter::Adapter::configure()
                     if (thermo_)
                     {
                         double k = 100; // TODO: IMPORTANT specify k properly (conductivity for solids-laplacianFoam_preCICE)
-                        HeatFluxBoundaryCondition * br = new HeatFluxBoundaryCondition(&thermo_->T(), k);
-                        interface->addCouplingDataReader(dataName, br);
+                        // HeatFluxBoundaryCondition * br = new HeatFluxBoundaryCondition(&thermo_->T(), k);
+                        // interface->addCouplingDataReader(dataName, br);
+                        interface->addCouplingDataReader(dataName, new User::HeatFlux(&thermo_->T(), k));
                         DEBUG(adapterInfo("  Added Heat Flux with temperature from thermoModel.", "dev"));
                         DEBUG(adapterInfo("  Assuming conductivity k = 100.", "dev"));
                     }
                     else
                     {
                         double k = 100; // TODO: IMPORTANT specify k properly (conductivity for solids-laplacianFoam_preCICE)
-                        HeatFluxBoundaryCondition * br = new HeatFluxBoundaryCondition(const_cast<volScalarField*>(&mesh_.lookupObject<volScalarField>("T")), k);
-                        interface->addCouplingDataReader(dataName, br);
+                        // HeatFluxBoundaryCondition * br = new HeatFluxBoundaryCondition(const_cast<volScalarField*>(&mesh_.lookupObject<volScalarField>("T")), k);
+                        // interface->addCouplingDataReader(dataName, br);
+                        interface->addCouplingDataReader
+                        (
+                            dataName,
+                            new User::HeatFlux
+                            (
+                                const_cast<volScalarField*>
+                                (
+                                    &mesh_.lookupObject<volScalarField>("T")
+                                ),
+                                k
+                            )
+                        );
                         DEBUG(adapterInfo("  Added Heat Flux with temperature from T.", "dev"));
                         DEBUG(adapterInfo("  Assuming conductivity k = 100.", "dev"));
                     }

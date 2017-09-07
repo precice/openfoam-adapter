@@ -1,6 +1,9 @@
 Interface.C
 
 CouplingDataUser/CouplingDataUser.C
+CouplingDataUser/Temperature.C
+CouplingDataUser/HeatFlux.C
+
 CouplingDataUser/CouplingDataReader/TemperatureBoundaryCondition.C
 CouplingDataUser/CouplingDataReader/HeatFluxBoundaryCondition.C
 CouplingDataUser/CouplingDataReader/BuoyantPimpleHeatFluxBoundaryCondition.C

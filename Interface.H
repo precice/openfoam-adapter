@@ -47,10 +47,10 @@ protected:
     double * dataBuffer_;
 
     //- Vector of CouplingDataReaders
-    std::vector<CouplingDataReader*> couplingDataReaders_;
+    std::vector<CouplingDataUser*> couplingDataReaders_;
 
     //- Vector of CouplingDataWriters
-    std::vector<CouplingDataWriter*> couplingDataWriters_;
+    std::vector<CouplingDataUser*> couplingDataWriters_;
 
     //- Extracts the locations of the face centers and exposes them to preCICE
     //  with setMeshVertices
@@ -72,14 +72,15 @@ public:
     void addCouplingDataReader
     (
         std::string dataName,
-        CouplingDataReader * couplingDataReader
+        CouplingDataUser * couplingDataReader
     );
 
 
     //- Add a CouplingDataWriter to the interface
-    void addCouplingDataWriter(
+    void addCouplingDataWriter
+    (
         std::string dataName,
-        CouplingDataWriter * couplingDataWriter
+        CouplingDataUser * couplingDataWriter
     );
 
     //- Call read() on each couplingDataReader to read the coupling data
