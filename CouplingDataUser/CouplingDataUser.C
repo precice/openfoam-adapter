@@ -1,38 +1,39 @@
-#include "CouplingDataUser.h"
-#include <iostream>
+#include "CouplingDataUser.H"
 
 preciceAdapter::CouplingDataUser::CouplingDataUser()
 {
-    // set default
-    _dataType = scalar;
-}
-
-bool preciceAdapter::CouplingDataUser::hasVectorData()
-{
-	return _dataType == vector;
 }
 
 bool preciceAdapter::CouplingDataUser::hasScalarData()
 {
-	return _dataType == scalar;
+    return dataType_ == scalar;
 }
 
-void preciceAdapter::CouplingDataUser::setSize( int size )
+bool preciceAdapter::CouplingDataUser::hasVectorData()
 {
-	_bufferSize = size;
+    return dataType_ == vector;
 }
 
-void preciceAdapter::CouplingDataUser::setPatchIDs( std::vector<int> patchIDs )
+void preciceAdapter::CouplingDataUser::setBufferSize(int size)
 {
-	_patchIDs = patchIDs;
+    bufferSize_ = size;
+
+    return;
 }
 
-void preciceAdapter::CouplingDataUser::setDataID( int dataID )
+void preciceAdapter::CouplingDataUser::setDataID(int dataID)
 {
-	_dataID = dataID;
+    dataID_ = dataID;
+
+    return;
 }
 
-int preciceAdapter::CouplingDataUser::getDataID()
+int preciceAdapter::CouplingDataUser::dataID()
 {
-	return _dataID;
+    return dataID_;
+}
+
+void preciceAdapter::CouplingDataUser::setPatchIDs(std::vector<int> patchIDs)
+{
+    patchIDs_ = patchIDs;
 }

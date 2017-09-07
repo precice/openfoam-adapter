@@ -3,11 +3,11 @@
 using namespace Foam;
 
 preciceAdapter::BuoyantPimpleHeatFluxBoundaryValues::BuoyantPimpleHeatFluxBoundaryValues( volScalarField * T, basicThermo * thermo, compressible::turbulenceModel * turbulence ) :
-	_T( T ),
-	_thermo( thermo ),
-	_turbulence( turbulence )
+	T_( T ),
+	thermo_( thermo ),
+	turbulence_( turbulence )
 {
-    _dataType = scalar;
+    dataType_ = scalar;
 }
 
 void preciceAdapter::BuoyantPimpleHeatFluxBoundaryValues::write( double * dataBuffer )
@@ -15,13 +15,13 @@ void preciceAdapter::BuoyantPimpleHeatFluxBoundaryValues::write( double * dataBu
 
 	int bufferIndex = 0;
 
-	for( uint k = 0 ; k < _patchIDs.size() ; k++ )
+	for( uint k = 0 ; k < patchIDs_.size() ; k++ )
 	{
 
-		int patchID = _patchIDs.at( k );
+		int patchID = patchIDs_.at( k );
 
-		scalarField flux = -_turbulence->kappaEff() ().boundaryField()[patchID]
-						   * _thermo->T().boundaryField()[patchID].snGrad();
+		scalarField flux = -turbulence_->kappaEff() ().boundaryField()[patchID]
+						   * thermo_->T().boundaryField()[patchID].snGrad();
 
 		forAll( flux, i )
 		{

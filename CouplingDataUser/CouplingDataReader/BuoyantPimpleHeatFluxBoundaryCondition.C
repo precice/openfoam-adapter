@@ -4,11 +4,11 @@
 using namespace Foam;
 
 preciceAdapter::BuoyantPimpleHeatFluxBoundaryCondition::BuoyantPimpleHeatFluxBoundaryCondition( volScalarField * T, basicThermo * thermo, compressible::turbulenceModel * turbulence ) :
-	_T( T ),
-	_thermo( thermo ),
-	_turbulence( turbulence )
+	T_( T ),
+	thermo_( thermo ),
+	turbulence_( turbulence )
 {
-	_dataType = scalar;
+	dataType_ = scalar;
 }
 
 void preciceAdapter::BuoyantPimpleHeatFluxBoundaryCondition::read( double * dataBuffer )
@@ -18,15 +18,15 @@ void preciceAdapter::BuoyantPimpleHeatFluxBoundaryCondition::read( double * data
 
 	int bufferIndex = 0;
 
-	for( uint k = 0 ; k < _patchIDs.size() ; k++ )
+	for( uint k = 0 ; k < patchIDs_.size() ; k++ )
 	{
 
-		int patchID = _patchIDs.at( k );
+		int patchID = patchIDs_.at( k );
 
-		scalarField kappaEff = _turbulence->kappaEff() ().boundaryField()[patchID];
+		scalarField kappaEff = turbulence_->kappaEff() ().boundaryField()[patchID];
 
 		fixedGradientFvPatchScalarField & gradientPatch =
-			refCast<fixedGradientFvPatchScalarField>( _T->boundaryFieldRef()[patchID] );
+			refCast<fixedGradientFvPatchScalarField>( T_->boundaryFieldRef()[patchID] );
 
 		scalarField & gradient = gradientPatch.gradient();
 

@@ -1,7 +1,7 @@
 #ifndef COUPLINGDATAREADER_H
 #define COUPLINGDATAREADER_H
 
-#include "../CouplingDataUser.h"
+#include "../CouplingDataUser.H"
 
 namespace preciceAdapter
 {

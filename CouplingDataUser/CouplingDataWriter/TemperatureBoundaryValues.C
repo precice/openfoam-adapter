@@ -3,21 +3,21 @@
 using namespace Foam;
 
 preciceAdapter::TemperatureBoundaryValues::TemperatureBoundaryValues( volScalarField * T ) :
-	_T( T )
+	T_( T )
 {
-    _dataType = scalar;
+    dataType_ = scalar;
 }
 
 void preciceAdapter::TemperatureBoundaryValues::write( double * dataBuffer )
 {
 	int bufferIndex = 0;
 
-	for( uint k = 0 ; k < _patchIDs.size() ; k++ )
+	for( uint k = 0 ; k < patchIDs_.size() ; k++ )
 	{
-		int patchID = _patchIDs.at( k );
-		forAll( _T->boundaryFieldRef()[patchID], i )
+		int patchID = patchIDs_.at( k );
+		forAll( T_->boundaryFieldRef()[patchID], i )
 		{
-			dataBuffer[bufferIndex++] = _T->boundaryFieldRef()[patchID][i];
+			dataBuffer[bufferIndex++] = T_->boundaryFieldRef()[patchID][i];
 		}
 	}
 }

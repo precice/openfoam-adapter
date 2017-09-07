@@ -13,8 +13,8 @@ class HeatFluxBoundaryCondition : public CouplingDataReader
 
 protected:
 
-	volScalarField * _T;
-	double _k;
+	volScalarField * T_;
+	double k_;
 
 public:
 

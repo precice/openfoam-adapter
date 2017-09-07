@@ -3,27 +3,27 @@
 using namespace Foam;
 
 preciceAdapter::HeatFluxBoundaryCondition::HeatFluxBoundaryCondition( volScalarField * T, double k ) :
-	_T( T ),
-	_k( k )
+	T_( T ),
+	k_( k )
 {
-	_dataType = scalar;
+	dataType_ = scalar;
 }
 
 void preciceAdapter::HeatFluxBoundaryCondition::read( double * dataBuffer )
 {
 	int bufferIndex = 0;
 
-	for( uint k = 0 ; k < _patchIDs.size() ; k++ )
+	for( uint k = 0 ; k < patchIDs_.size() ; k++ )
 	{
 
-		int patchID = _patchIDs.at( k );
+		int patchID = patchIDs_.at( k );
 
 		fixedGradientFvPatchScalarField & gradientPatch =
-			refCast<fixedGradientFvPatchScalarField>( _T->boundaryFieldRef()[patchID] );
+			refCast<fixedGradientFvPatchScalarField>( T_->boundaryFieldRef()[patchID] );
 
 		forAll( gradientPatch, i )
 		{
-			gradientPatch.gradient()[i] = dataBuffer[bufferIndex++] / _k;
+			gradientPatch.gradient()[i] = dataBuffer[bufferIndex++] / k_;
 		}
 
 	}

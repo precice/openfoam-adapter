@@ -12,8 +12,8 @@ class HeatFluxBoundaryValues : public CouplingDataWriter
 
 protected:
 
-	Foam::volScalarField * _T;
-	double _k;
+	Foam::volScalarField * T_;
+	double k_;
 
 public:
 

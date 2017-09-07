@@ -12,7 +12,7 @@ class TemperatureBoundaryCondition : public CouplingDataReader
 
 protected:
 
-	Foam::volScalarField * _T;
+	Foam::volScalarField * T_;
 
 public:
 

@@ -13,7 +13,7 @@ class TemperatureBoundaryValues : public CouplingDataWriter
 
 protected:
 
-	Foam::volScalarField * _T;
+	Foam::volScalarField * T_;
 
 public:
 

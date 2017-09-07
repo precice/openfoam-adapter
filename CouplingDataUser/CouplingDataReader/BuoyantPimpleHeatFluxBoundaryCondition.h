@@ -15,9 +15,9 @@ class BuoyantPimpleHeatFluxBoundaryCondition : public CouplingDataReader
 
 protected:
 
-	Foam::volScalarField * _T;
-	Foam::basicThermo * _thermo;
-	Foam::compressible::turbulenceModel * _turbulence;
+	Foam::volScalarField * T_;
+	Foam::basicThermo * thermo_;
+	Foam::compressible::turbulenceModel * turbulence_;
 
 public:
 

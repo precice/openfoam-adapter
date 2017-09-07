@@ -14,9 +14,9 @@ class BuoyantPimpleHeatFluxBoundaryValues : public CouplingDataWriter
 
 protected:
 
-	volScalarField * _T;
-	basicThermo * _thermo;
-	Foam::compressible::turbulenceModel * _turbulence;
+	volScalarField * T_;
+	basicThermo * thermo_;
+	Foam::compressible::turbulenceModel * turbulence_;
 
 public:
 
