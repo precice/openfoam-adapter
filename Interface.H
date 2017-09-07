@@ -5,7 +5,6 @@
 
 #include <string>
 #include <vector>
-#include <boost/log/trivial.hpp>
 #include "fvCFD.H"
 #include "CouplingDataUser/CouplingDataReader/CouplingDataReader.H"
 #include "CouplingDataUser/CouplingDataWriter/CouplingDataWriter.H"
@@ -19,112 +18,80 @@ class Interface
 {
 protected:
 
-	/**
-	 * @brief preCICE's solver interface object
-	 */
-	precice::SolverInterface & _precice;
+    //- preCICE solver interface
+    precice::SolverInterface & precice_;
 
-	/**
-	 * @brief Mesh name used in the preCICE configuration
-	 */
-	std::string _meshName;
+    //- Mesh name used in the preCICE configuration
+    std::string meshName_;
 
-	/**
-	 * @brief Mesh ID assigned by preCICE to the interface
-	 */
-	int _meshID;
+    //- Mesh ID assigned by preCICE to the interface
+    int meshID_;
 
-	/**
-	 * @brief Vector of patch names that make up the interface
-	 */
-	std::vector<std::string> _patchNames;
 
-	/**
-	 * @brief Vector of patch IDs that make up the interface
-	 */
-	std::vector<int> _patchIDs;
+    //- Names of the OpenFOAM patches that form the interface
+    std::vector<std::string> patchNames_;
 
-	/**
-	 * @brief Number of vertices of the interface
-	 */
-	int _numDataLocations;
+    //- OpenFOAM patches that form the interface
+    std::vector<int> patchIDs_;
 
-	/**
-	 * @brief Vertex IDs assigned by preCICE
-	 */
-	int * _vertexIDs;
+    //- Number of vertices of the interface
+    int numDataLocations_ = 0;
 
-	/**
-	 * @brief Number of dimensions (fixed to 3, cannot handle 2)
-	 */
-	int _numDims;
+    //- Vertex IDs assigned by preCICE
+    int * vertexIDs_;
 
-	/**
-	 * @brief Buffer for the coupling data
-	 */
-	double * _dataBuffer;
+    //- Number of dimensions (fixed to 3, cannot handle 2)
+    int numDims_ = 3;
 
-	/**
-	 * @brief Vector of CouplingDataReaders
-	 */
-     // TODO
-	std::vector<CouplingDataReader*> _couplingDataReaders;
+    //- Buffer for the coupling data
+    double * dataBuffer_;
 
-	/**
-	 * @brief Vector of CouplingDataWriters
-	 */
-     // TODO
-	std::vector<CouplingDataWriter*> _couplingDataWriters;
+    //- Vector of CouplingDataReaders
+    std::vector<CouplingDataReader*> couplingDataReaders_;
 
-	/**
-	 * @brief Extracts locations of face centers and exposes them to preCICE with setMeshVertices
-	 * TODO: Create a mesh of nodes instead of face centers?
-	 */
-	void _configureMesh( const Foam::fvMesh& mesh );
+    //- Vector of CouplingDataWriters
+    std::vector<CouplingDataWriter*> couplingDataWriters_;
+
+    //- Extracts the locations of the face centers and exposes them to preCICE
+    //  with setMeshVertices
+    //  TODO: Create a mesh of nodes instead of face centers?
+    void configureMesh_(const Foam::fvMesh& mesh);
 
 public:
 
-	/**
-	 * @brief Interface constructor
-	 * @param precice: preCICE solver interface object
-	 * @param mesh: OpenFOAM's mesh
-	 * @param meshName: Mesh name assigned to the interface in the preCICE configuration
-	 * @param patchNames: Vector of patch names that make up the interface
-	 */
-	Interface( precice::SolverInterface & precice,
-			   const Foam::fvMesh& mesh,
-			   std::string meshName,
-			   std::vector<std::string> patchNames
-			   );
+    //- Constructor
+    Interface
+    (
+        precice::SolverInterface & precice,
+        const Foam::fvMesh& mesh,
+        std::string meshName,
+        std::vector<std::string> patchNames
+    );
 
-	/**
-	 * @brief Adds a CouplingDataReader to the interface
-	 */
-     //TODO
-	void addCouplingDataReader( std::string dataName, CouplingDataReader * couplingDataReader );
+    //- Add a CouplingDataReader to the interface
+    void addCouplingDataReader
+    (
+        std::string dataName,
+        CouplingDataReader * couplingDataReader
+    );
 
-	/**
-	 * @brief Adds a CouplingDataWriter to the interface
-	 */
-     //TODO
-	void addCouplingDataWriter( std::string dataName, CouplingDataWriter * couplingDataWriter );
 
-	/**
-	 * @brief Calls read() on each couplingDataReader to read the coupling data from the buffer
-	 * and apply the boundary conditions
-	 */
-	void readCouplingData();
+    //- Add a CouplingDataWriter to the interface
+    void addCouplingDataWriter(
+        std::string dataName,
+        CouplingDataWriter * couplingDataWriter
+    );
 
-	/**
-	 * @brief Calls write() on each couplingDataWriter to extract the boundary data and write it
-	 * into the buffer
-	 */
-	void writeCouplingData();
+    //- Call read() on each couplingDataReader to read the coupling data
+    //  from the buffer and apply the boundary conditions
+    void readCouplingData();
 
-	/**
-	 * @brief Destructor
-	 */
-	~Interface();
+    //- Call write() on each couplingDataWriter to extract the boundary data
+    //  and write it into the buffer
+    void writeCouplingData();
+
+    //- Destructor
+    ~Interface();
 
 };
 
