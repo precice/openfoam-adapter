@@ -131,7 +131,7 @@ private:
             std::vector<Foam::surfaceScalarField*> surfaceScalarFieldCopies_;
 
     //- Printed output and error handling
-    void adapterInfo( const std::string message, const std::string level = "debug" );
+    void adapterInfo(const std::string message, const std::string level = "debug");
 
     // Configuration
 
@@ -139,7 +139,7 @@ private:
         bool configFileRead();
 
         //- Check the adapter's configuration file
-        bool configFileCheck( const std::string adapterConfigFileName );
+        bool configFileCheck(const std::string adapterConfigFileName);
 
     // Methods communicating with preCICE
 
@@ -193,13 +193,13 @@ private:
         // Add checkpoint fields, depending on the type
 
             //- Add a volScalarField to checkpoint
-            void addCheckpointField( volScalarField & field );
+            void addCheckpointField(volScalarField & field);
 
             //- Add a volVectorField to checkpoint
-            void addCheckpointField( volVectorField & field );
+            void addCheckpointField(volVectorField & field);
 
             //- Add a surfaceScalarField to checkpoint
-            void addCheckpointField( surfaceScalarField & field );
+            void addCheckpointField(surfaceScalarField & field);
 
             //- TODO Add a surfaceVectorField to checkpoint
             // TODO Make all these a template?
@@ -220,7 +220,7 @@ public:
     // Methods called by the functionObject
 
         //- Constructor
-        Adapter( const Foam::Time& runTime, const Foam::fvMesh& mesh );
+        Adapter(const Foam::Time& runTime, const Foam::fvMesh& mesh);
 
         //- Setup the adapter's configuration
         void configure();
