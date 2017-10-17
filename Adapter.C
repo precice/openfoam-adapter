@@ -253,6 +253,91 @@ bool preciceAdapter::Adapter::configFileRead()
     return true;
 }
 
+std::string preciceAdapter::Adapter::determineSolverType()
+{
+    std::string solverType;
+
+    // Determine the solver type: Compressible, Incompressible or Basic.
+    // Look for the files transportProperties, turbulenceProperties,
+    // and thermophysicalProperties
+    bool transportPropertiesExists = false;
+    bool turbulencePropertiesExists = false;
+    bool thermophysicalPropertiesExists = false;
+
+    if (mesh_.foundObject<IOdictionary>("transportProperties"))
+    {
+        transportPropertiesExists = true;
+        DEBUG(adapterInfo("Found the transportProperties dictionary."));
+    }
+    else
+    {
+        DEBUG(adapterInfo("Did not find the transportProperties dictionary."));
+    }
+
+    if (mesh_.foundObject<IOdictionary>(turbulenceModel::propertiesName))
+    {
+        turbulencePropertiesExists = true;
+        DEBUG(adapterInfo("Found the " + turbulenceModel::propertiesName
+            + " dictionary."));
+    }
+    else
+    {
+        DEBUG(adapterInfo("Did not find the " + turbulenceModel::propertiesName
+            + " dictionary."));
+    }
+
+    if (mesh_.foundObject<IOdictionary>("thermophysicalProperties"))
+    {
+        thermophysicalPropertiesExists = true;
+        DEBUG(adapterInfo("Found the thermophysicalProperties dictionary."));
+    }
+    else
+    {
+        DEBUG(adapterInfo("Did not find the thermophysicalProperties dictionary."));
+    }
+
+    if (turbulencePropertiesExists)
+    {
+        if (thermophysicalPropertiesExists)
+        {
+            solverType = "compressible";
+            DEBUG(adapterInfo("This is a compressible flow solver, "
+                "as turbulence and thermophysical properties are provided."));
+        }
+        else if (transportPropertiesExists)
+        {
+            solverType = "incompressible";
+            DEBUG(adapterInfo("This is an incompressible flow solver, "
+            "as turbulence and transport properties are provided."));
+        }
+        else
+        {
+            adapterInfo("Could not determine the solver type, or this is not "
+            "a compatible solver: although turbulence properties are provided, "
+            "neither transport or thermophysical properties are provided.",
+            "error");
+        }
+    }
+    else
+    {
+        if (transportPropertiesExists)
+        {
+            solverType = "basic";
+            DEBUG(adapterInfo("This is a basic solver, as transport properties "
+            "are provided, while turbulence or transport properties are not "
+            "provided."));
+        }
+        else
+        {
+            adapterInfo("Could not determine the solver type, or this is not a "
+            "compatible solver: neither transport, nor turbulence properties "
+            "are provided.",
+            "error");
+        }
+    }
+
+    return solverType;
+}
 
 void preciceAdapter::Adapter::configure()
 {
@@ -311,86 +396,8 @@ void preciceAdapter::Adapter::configure()
     precice_->configure(preciceConfigFilename_);
     DEBUG(adapterInfo("  preCICE was configured."));
 
-    // Determine the solver type: Compressible, Incompressible or Basic.
-    // Look for the files transportProperties, turbulenceProperties,
-    // and thermophysicalProperties
-    bool transportPropertiesExists = false;
-    bool turbulencePropertiesExists = false;
-    bool thermophysicalPropertiesExists = false;
-
-    if (mesh_.foundObject<IOdictionary>("transportProperties"))
-    {
-        transportPropertiesExists = true;
-        DEBUG(adapterInfo("Found the transportProperties dictionary."));
-    }
-    else
-    {
-        DEBUG(adapterInfo("Did not find the transportProperties dictionary."));
-    }
-
-    if (mesh_.foundObject<IOdictionary>(turbulenceModel::propertiesName))
-    {
-        turbulencePropertiesExists = true;
-        DEBUG(adapterInfo("Found the " + turbulenceModel::propertiesName
-            + " dictionary."));
-    }
-    else
-    {
-        DEBUG(adapterInfo("Did not find the " + turbulenceModel::propertiesName
-            + " dictionary."));
-    }
-
-    if (mesh_.foundObject<IOdictionary>("thermophysicalProperties"))
-    {
-        thermophysicalPropertiesExists = true;
-        DEBUG(adapterInfo("Found the thermophysicalProperties dictionary."));
-    }
-    else
-    {
-        DEBUG(adapterInfo("Did not find the thermophysicalProperties dictionary."));
-    }
-
-    std::string solverType;
-
-    if (turbulencePropertiesExists)
-    {
-        if (thermophysicalPropertiesExists)
-        {
-            solverType = "compressible";
-            DEBUG(adapterInfo("This is a compressible flow solver, "
-                "as turbulence and thermophysical properties are provided."));
-        }
-        else if (transportPropertiesExists)
-        {
-            solverType = "incompressible";
-            DEBUG(adapterInfo("This is an incompressible flow solver, "
-            "as turbulence and transport properties are provided."));
-        }
-        else
-        {
-            adapterInfo("Could not determine the solver type, or this is not "
-            "a compatible solver: although turbulence properties are provided, "
-            "neither transport or thermophysical properties are provided.",
-            "error");
-        }
-    }
-    else
-    {
-        if (transportPropertiesExists)
-        {
-            solverType = "basic";
-            DEBUG(adapterInfo("This is a basic solver, as transport properties "
-            "are provided, while turbulence or transport properties are not "
-            "provided."));
-        }
-        else
-        {
-            adapterInfo("Could not determine the solver type, or this is not a "
-            "compatible solver: neither transport, nor turbulence properties "
-            "are provided.",
-            "error");
-        }
-    }
+    // Determine the type of the solver
+    std::string solverType = determineSolverType();
 
     // Create interfaces
     DEBUG(adapterInfo("Creating interfaces..."));

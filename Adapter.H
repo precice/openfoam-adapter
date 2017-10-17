@@ -141,6 +141,9 @@ private:
         //- Check the adapter's configuration file
         bool configFileCheck(const std::string adapterConfigFileName);
 
+        //- Determine the solver type
+        std::string determineSolverType();
+
     // Methods communicating with preCICE
 
         //- Initialize preCICE and exchange the first data
