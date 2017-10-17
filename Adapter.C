@@ -311,32 +311,6 @@ void preciceAdapter::Adapter::configure()
     precice_->configure(preciceConfigFilename_);
     DEBUG(adapterInfo("  preCICE was configured."));
 
-    // Get the thermophysical model // TODO: Do we still need this?
-    DEBUG(adapterInfo("Specifying the thermophysical model..."));
-    if (mesh_.foundObject<basicThermo>("thermophysicalProperties"))
-    {
-        DEBUG(adapterInfo("  Found 'thermophysicalProperties', refering to 'basicThermo'."));
-        thermo_ = const_cast<basicThermo*>(&mesh_.lookupObject<basicThermo>("thermophysicalProperties"));
-    }
-    else
-    {
-        DEBUG(adapterInfo("  Did not find 'thermophysicalProperties', no thermoModel specified."));
-        if (mesh_.foundObject<volScalarField>("T"))
-        {
-            DEBUG(adapterInfo("  Found the T object."));
-        }
-    }
-
-    // Get the turbulence model // TODO: Do we still need this?
-    DEBUG(adapterInfo("Specifying the turbulence model..."));
-    if (mesh_.foundObject<compressible::turbulenceModel>("turbulenceProperties"))
-    {
-        DEBUG(adapterInfo("  Found 'turbulenceProperties', refering to 'compressible::turbulenceModel'."));
-        turbulence_ = const_cast<compressible::turbulenceModel*>(&mesh_.lookupObject<compressible::turbulenceModel>("turbulenceProperties"));
-    } else {
-        DEBUG(adapterInfo("  Did not find 'turbulenceProperties', no turbulenceModel specified."));
-    }
-
     // Determine the solver type: Compressible, Incompressible or Basic.
     // Look for the files transportProperties, turbulenceProperties,
     // and thermophysicalProperties
@@ -434,26 +408,12 @@ void preciceAdapter::Adapter::configure()
 
             if (dataName.compare("Temperature") == 0)
             {
-                if (thermo_) // TODO: Do we really need this?
-                {
-                    interface->addCouplingDataWriter(dataName, new User::Temperature(&thermo_->T()));
-                    DEBUG(adapterInfo("  Added Temperature from thermoModel.", "dev"));
-                }
-                else
-                {
-                    interface->addCouplingDataWriter
-                    (
-                        dataName,
-                        new User::Temperature
-                        (
-                            const_cast<volScalarField*>
-                            (
-                                &mesh_.lookupObject<volScalarField>("T")
-                            )
-                        )
-                    );
-                    DEBUG(adapterInfo("  Added Temperature from T.", "dev"));
-                }
+                interface->addCouplingDataWriter
+                (
+                    dataName,
+                    new User::Temperature(mesh_)
+                );
+                DEBUG(adapterInfo("  Added Temperature."));
             }
 
             if (dataName.compare("Heat-Flux") == 0)
@@ -517,26 +477,12 @@ void preciceAdapter::Adapter::configure()
 
             if (dataName.compare("Temperature") == 0)
             {
-                if (thermo_) // TODO: Do we really need this? Try only with the next case.
-                {
-                    interface->addCouplingDataReader(dataName, new User::Temperature(&thermo_->T()));
-                    DEBUG(adapterInfo("  Added Temperature from thermoModel.", "dev"));
-                }
-                else
-                {
-                    interface->addCouplingDataReader
-                    (
-                        dataName,
-                        new User::Temperature
-                        (
-                            const_cast<volScalarField*>
-                            (
-                                &mesh_.lookupObject<volScalarField>("T")
-                            )
-                        )
-                    );
-                    DEBUG(adapterInfo("  Added Temperature from T.", "dev"));
-                }
+                interface->addCouplingDataReader
+                (
+                    dataName,
+                    new User::Temperature(mesh_)
+                );
+                DEBUG(adapterInfo("  Added Temperature."));
             }
 
             if (dataName.compare("Heat-Flux") == 0)

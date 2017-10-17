@@ -4,10 +4,15 @@ using namespace Foam;
 
 preciceAdapter::User::Temperature::Temperature
 (
-    volScalarField * T
+    const Foam::fvMesh& mesh
 )
 :
-T_(T)
+T_(
+    const_cast<volScalarField*>
+    (
+        &mesh.lookupObject<volScalarField>("T")
+    )
+)
 {
     dataType_ = scalar;
 }

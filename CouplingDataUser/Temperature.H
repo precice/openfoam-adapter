@@ -21,7 +21,7 @@ private:
 public:
 
     //- Constructor
-    Temperature(Foam::volScalarField * T);
+    Temperature(const Foam::fvMesh& mesh);
 
     //- Write the temperature values into the buffer
     void write(double * buffer);
