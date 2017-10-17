@@ -121,9 +121,120 @@ The following versions are known to be currently _incompatible_:
 
 The following OpenFOAM solvers (in the respective OpenFOAM versions) are known to work with the adapter. However, more solvers may be compatible.
 
+#### Basic
+
+* laplacianFoam (modified to read `k`, `rho`, and `Cp`) (OF4, OF5)
+
 #### Heat Transfer
 
 * buoyantPimpleFoam (OF4, OF5)
+* buoyantBoussinesqPimpleFoam (modified to read `rho`, and `Cp`) (OF4, OF5)
+
+### Solver requirements
+
+The adapter can be loaded by any official OpenFOAM solver, but there are some
+requirements to use the specific solver for conjugate heat transfer simulations.
+
+First of all, the solver needs to be able to simulate heat transfer. This means
+that the solver should create a Temperature field (named `T`) and provide
+thermal conductivity or diffusivity fields.
+
+Three categories of solvers are assumed: compresible, incompressible and basic solvers.
+
+#### Compressible turbulent flow solvers
+For example `buoyantPimpleFoam` or `buoyantSimpleFoam`. These solvers simulate
+heat transfer and compute the effective thermal conductivity automatically.
+They include the file `turbulentFluidThermoModel.H` and instantiate
+a `compressible::turbulenceModel`. This is needed in the adapter as a part of
+the effective conductivity is affected by the turbulence.
+
+Assumptions:
+* Temperature is a registered IOObject named `T`.
+* The dictionaries `turbulenceProperties` and `thermophysicalProperties`
+are provided.
+
+#### Incompressible turbulent flow solvers
+For example `buoyantBoussinesqPimpleFoam` or `buoyantBoussinesqSimpleFoam`.
+These solvers simulate heat transfer but do not compute the effective thermal
+conductivity, as they don't know the density of the fluid or the
+specific heat capacity. Therefore,
+the solver needs to be modified to read these parameters from the
+`transportProperties` dictionary.
+
+The following lines need to be added at the end of the `createFields.H`
+file of the solver:
+
+```c++
+Info<< "Reading density rho\n" << endl;
+
+dimensionedScalar rho
+(
+    laminarTransport.lookup("rho")
+);
+
+Info<< "Reading specific heat Cp\n" << endl;
+
+dimensionedScalar Cp
+(
+    laminarTransport.lookup("Cp")
+);
+```
+
+No other changes are required in the code. If this is an official solver,
+adjust the name and the build path in the `Make/files`. Afterwards,
+recompile the solver.
+
+_Note:_ if you are trying to build `buoyantBoussinesqPimpleFoam`, keep in mind
+that it looks for some source files in the `../buoyantBoussinesqSimpleFoam`
+directory.
+
+Assumptions:
+* Temperature is a registered IOObject named `T`.
+* The dictionaries `turbulenceProperties` and `transportProperties`
+are provided.
+* `transportProperties` contains density `rho` and specific heat capacity `Cp`.
+* The turbulent thermal diffusivity is a registered IOObject named `alphat`.
+If it is not found, then only the laminar part of the thermal diffusivity is
+used (a warning is triggered in this case).
+
+#### Basic solvers
+For example `laplacianFoam`. These solvers can
+simulate heat transfer, but they need to also provide a conductivity `k`,
+density `rho` and specific heat capacity `Cp`.
+
+In order to read these parameters, the following lines need to be added
+in the solver's `createFields.H` file:
+
+```c++
+Info<< "Reading conductivity k\n" << endl;
+
+dimensionedScalar k
+(
+    transportProperties.lookup("k")
+);
+
+Info<< "Reading density rho\n" << endl;
+
+dimensionedScalar rho
+(
+    transportProperties.lookup("rho")
+);
+
+Info<< "Reading specific heat Cp\n" << endl;
+
+dimensionedScalar Cp
+(
+    transportProperties.lookup("Cp")
+);
+```
+
+Recompile the solver as for the incompressible solvers.
+
+Assumptions:
+* Temperature is a registered IOObject named `T`.
+* The dictionariy `transportProperties` is provided.
+* `transportProperties` contains conductivity `k`, density `rho`,
+and specific heat capacity `Cp`.
 
 ### Notes on OpenFOAM features
 
@@ -221,7 +332,49 @@ not affect the timestep used. A warning will be shown in this case.
 
 ### Compatible preCICE versions
 
-The preCICE version corresponding to the commit [284c466](https://github.com/precice/precice/commit/284c466e93ac5a63ebf3a13ecf04a6e8b325a794) (July 25, 2017) is known to work with the adapter.
+The preCICE version corresponding to the commit [e05fbc0](https://github.com/precice/precice/commit/e05fbc0101021c12eff0c41ef58c16ec75acba54) (October 11, 2017) is known to work with the adapter. Newer versions should also be compatible.
 
 Please note that, if you are using preCICE as a shared library, you need
 to have it added in your `LD_LIBRARY_PATH`.
+
+### Notes on preCICE features
+
+The adapter is developed with all the features of preCICE in mind. However,
+some specific features are not yet fully supported.
+
+#### Nearest-projection mapping
+
+The nearest-projection mapping is currently not supported by the OpenFOAM adapter,
+as topological information is not yet provided to preCICE. This will be
+implemented in future releases.
+
+### Notes on configuration
+
+#### Valid combinations of `write-data` and `read-data`
+
+For a Dirichlet-Neumann coupling, the `write-data` and `read-data` can be
+either (`Temperature`, `Heat-Flux`) or (`Heat-Flux`, `Temperature`).
+
+For a Robin-Robin coupling, they can be either (`Heat-Transfer-Coefficient`, `Sink-Temperature`)
+or (`Sink-Temperature`, `Heat-Transfer-Coefficient`).
+
+#### Debug mode
+
+Additional debug messages can be printed. For performance reasons, these
+messages are disabled at compile-time. In order to activate them,
+the adapter needs to be built with the `ADAPTER_DEBUG_MODE` defined.
+For this, comment-out the respective line in the beginning of the `Adapter.C` file.
+
+### How to couple a different variable?
+
+In case you want to couple a different variable, you need to create a new
+coupling data user library in the `preciceAdapter::User` namespace.
+Then you need to add an option for it in the configuration reading part
+to add it to the `couplingDataWriters` and `couplingDataReaders`
+whenever requested.
+
+TODO: More details will be added in the future.
+
+_Note:_ make sure to include any additional required libraries in the `LIB_LIBS`
+section of the `Make/options`. Since the adapter is a shared library,
+another missing library will trigger an "undefined symbol" runtime error.

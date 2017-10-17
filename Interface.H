@@ -6,8 +6,7 @@
 #include <string>
 #include <vector>
 #include "fvCFD.H"
-#include "CouplingDataUser/CouplingDataReader/CouplingDataReader.H"
-#include "CouplingDataUser/CouplingDataWriter/CouplingDataWriter.H"
+#include "CouplingDataUser/CouplingDataUser.H"
 #include "precice/SolverInterface.hpp"
 
 

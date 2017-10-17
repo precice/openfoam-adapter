@@ -3,14 +3,6 @@
 
 #include "IOstreams.H"
 
-#include "CouplingDataUser/CouplingDataReader/TemperatureBoundaryCondition.H"
-#include "CouplingDataUser/CouplingDataReader/HeatFluxBoundaryCondition.H"
-#include "CouplingDataUser/CouplingDataReader/BuoyantPimpleHeatFluxBoundaryCondition.H"
-
-#include "CouplingDataUser/CouplingDataWriter/TemperatureBoundaryValues.H"
-#include "CouplingDataUser/CouplingDataWriter/HeatFluxBoundaryValues.H"
-#include "CouplingDataUser/CouplingDataWriter/BuoyantPimpleHeatFluxBoundaryValues.H"
-
 #include "CouplingDataUser/Temperature.H"
 #include "CouplingDataUser/HeatFlux.H"
 
@@ -34,6 +26,11 @@ runTime_(runTime),
 mesh_(mesh)
 {
     adapterInfo("The preciceAdapter was loaded.", "info");
+
+    // TODO: Remove in the final version
+    #ifdef ADAPTER_DEBUG_MODE
+        Info<< "Registered objects: " << mesh_.names() << endl;
+    #endif
 
     return;
 }
@@ -314,7 +311,7 @@ void preciceAdapter::Adapter::configure()
     precice_->configure(preciceConfigFilename_);
     DEBUG(adapterInfo("  preCICE was configured."));
 
-    // Get the thermophysical model
+    // Get the thermophysical model // TODO: Do we still need this?
     DEBUG(adapterInfo("Specifying the thermophysical model..."));
     if (mesh_.foundObject<basicThermo>("thermophysicalProperties"))
     {
@@ -330,7 +327,7 @@ void preciceAdapter::Adapter::configure()
         }
     }
 
-    // Get the turbulence model
+    // Get the turbulence model // TODO: Do we still need this?
     DEBUG(adapterInfo("Specifying the turbulence model..."));
     if (mesh_.foundObject<compressible::turbulenceModel>("turbulenceProperties"))
     {
@@ -338,6 +335,87 @@ void preciceAdapter::Adapter::configure()
         turbulence_ = const_cast<compressible::turbulenceModel*>(&mesh_.lookupObject<compressible::turbulenceModel>("turbulenceProperties"));
     } else {
         DEBUG(adapterInfo("  Did not find 'turbulenceProperties', no turbulenceModel specified."));
+    }
+
+    // Determine the solver type: Compressible, Incompressible or Basic.
+    // Look for the files transportProperties, turbulenceProperties,
+    // and thermophysicalProperties
+    bool transportPropertiesExists = false;
+    bool turbulencePropertiesExists = false;
+    bool thermophysicalPropertiesExists = false;
+
+    if (mesh_.foundObject<IOdictionary>("transportProperties"))
+    {
+        transportPropertiesExists = true;
+        DEBUG(adapterInfo("Found the transportProperties dictionary."));
+    }
+    else
+    {
+        DEBUG(adapterInfo("Did not find the transportProperties dictionary."));
+    }
+
+    if (mesh_.foundObject<IOdictionary>(turbulenceModel::propertiesName))
+    {
+        turbulencePropertiesExists = true;
+        DEBUG(adapterInfo("Found the " + turbulenceModel::propertiesName
+            + " dictionary."));
+    }
+    else
+    {
+        DEBUG(adapterInfo("Did not find the " + turbulenceModel::propertiesName
+            + " dictionary."));
+    }
+
+    if (mesh_.foundObject<IOdictionary>("thermophysicalProperties"))
+    {
+        thermophysicalPropertiesExists = true;
+        DEBUG(adapterInfo("Found the thermophysicalProperties dictionary."));
+    }
+    else
+    {
+        DEBUG(adapterInfo("Did not find the thermophysicalProperties dictionary."));
+    }
+
+    std::string solverType;
+
+    if (turbulencePropertiesExists)
+    {
+        if (thermophysicalPropertiesExists)
+        {
+            solverType = "compressible";
+            DEBUG(adapterInfo("This is a compressible flow solver, "
+                "as turbulence and thermophysical properties are provided."));
+        }
+        else if (transportPropertiesExists)
+        {
+            solverType = "incompressible";
+            DEBUG(adapterInfo("This is an incompressible flow solver, "
+            "as turbulence and transport properties are provided."));
+        }
+        else
+        {
+            adapterInfo("Could not determine the solver type, or this is not "
+            "a compatible solver: although turbulence properties are provided, "
+            "neither transport or thermophysical properties are provided.",
+            "error");
+        }
+    }
+    else
+    {
+        if (transportPropertiesExists)
+        {
+            solverType = "basic";
+            DEBUG(adapterInfo("This is a basic solver, as transport properties "
+            "are provided, while turbulence or transport properties are not "
+            "provided."));
+        }
+        else
+        {
+            adapterInfo("Could not determine the solver type, or this is not a "
+            "compatible solver: neither transport, nor turbulence properties "
+            "are provided.",
+            "error");
+        }
     }
 
     // Create interfaces
@@ -356,17 +434,13 @@ void preciceAdapter::Adapter::configure()
 
             if (dataName.compare("Temperature") == 0)
             {
-                if (thermo_)
+                if (thermo_) // TODO: Do we really need this?
                 {
-                    // TemperatureBoundaryValues * bw = new TemperatureBoundaryValues(&thermo_->T());
-                    // interface->addCouplingDataWriter(dataName, bw);
                     interface->addCouplingDataWriter(dataName, new User::Temperature(&thermo_->T()));
                     DEBUG(adapterInfo("  Added Temperature from thermoModel.", "dev"));
                 }
                 else
                 {
-                    // TemperatureBoundaryValues * bw = new TemperatureBoundaryValues(const_cast<volScalarField*>(&mesh_.lookupObject<volScalarField>("T"))); // TODO Mesh does not have T()
-                    // interface->addCouplingDataWriter(dataName, bw);
                     interface->addCouplingDataWriter
                     (
                         dataName,
@@ -384,50 +458,41 @@ void preciceAdapter::Adapter::configure()
 
             if (dataName.compare("Heat-Flux") == 0)
             {
-                if (applicationName_.compare("buoyantPimpleFoam") == 0)
+                if (solverType.compare("compressible") == 0)
                 {
-                    if (thermo_ && turbulence_)
-                    {
-                        // BuoyantPimpleHeatFluxBoundaryValues * bw = new BuoyantPimpleHeatFluxBoundaryValues(&thermo_->T(), thermo_, turbulence_);
-                        // interface->addCouplingDataWriter(dataName, bw);
-                        // DEBUG(adapterInfo("  Added Heat Flux for buoyantPimpleFoam", "dev"));
-                    }
-                    else
-                    {
-                        adapterInfo("Problem: no thermo or no turbulence model specified", "error");
-                    }
+                    interface->addCouplingDataWriter
+                    (
+                        dataName,
+                        new User::HeatFlux_Compressible(mesh_)
+                    );
+                    DEBUG(adapterInfo("  Added Heat Flux for compressible solvers."));
+                }
+                else if (solverType.compare("incompressible") == 0)
+                {
+                    interface->addCouplingDataWriter
+                    (
+                        dataName,
+                        new User::HeatFlux_Incompressible(mesh_)
+                    );
+                    DEBUG(adapterInfo("  Added Heat Flux for incompressible solvers. "
+                        "Requires additional parameters to be read from the "
+                        "solver (see README)."));
+                }
+                else if (solverType.compare("basic") == 0)
+                {
+                    interface->addCouplingDataWriter
+                    (
+                        dataName,
+                        new User::HeatFlux_Basic(mesh_)
+                    );
+                    DEBUG(adapterInfo("  Added Heat Flux for basic solvers. "
+                        "Requires additional parameters to be read from the "
+                        "solver (see README)."));
                 }
                 else
                 {
-                    if (thermo_)
-                    {
-                        double k = 100; // TODO: IMPORTANT specify k properly (conductivity for solids-laplacianFoam_preCICE)
-                        // HeatFluxBoundaryValues * bw = new HeatFluxBoundaryValues(&thermo_->T(), k);
-                        // interface->addCouplingDataWriter(dataName, bw);
-                        interface->addCouplingDataWriter(dataName, new User::HeatFlux(&thermo_->T(), k));
-                        DEBUG(adapterInfo("  Added Heat Flux with temperature from thermoModel.", "dev"));
-                        DEBUG(adapterInfo("  Assuming conductivity k = 100.", "dev"));
-                    }
-                    else
-                    {
-                        double k = 100; // TODO: IMPORTANT specify k properly (conductivity for solids-laplacianFoam_preCICE)
-                        // HeatFluxBoundaryValues * bw = new HeatFluxBoundaryValues(const_cast<volScalarField*>(&mesh_.lookupObject<volScalarField>("T")), k);
-                        // interface->addCouplingDataWriter(dataName, bw);
-                        interface->addCouplingDataWriter
-                        (
-                            dataName,
-                            new User::HeatFlux
-                            (
-                                const_cast<volScalarField*>
-                                (
-                                    &mesh_.lookupObject<volScalarField>("T")
-                                ),
-                                k
-                            )
-                        );
-                        DEBUG(adapterInfo("  Added Heat Flux with temperature from T.", "dev"));
-                        DEBUG(adapterInfo("  Assuming conductivity k = 100.", "dev"));
-                    }
+                    adapterInfo("Unknown solver type - cannot add heat flux.",
+                        "error");
                 }
             }
 
@@ -452,17 +517,13 @@ void preciceAdapter::Adapter::configure()
 
             if (dataName.compare("Temperature") == 0)
             {
-                if (thermo_)
+                if (thermo_) // TODO: Do we really need this? Try only with the next case.
                 {
-                    // TemperatureBoundaryCondition * br = new TemperatureBoundaryCondition(&thermo_->T());
-                    // interface->addCouplingDataReader(dataName, br);
                     interface->addCouplingDataReader(dataName, new User::Temperature(&thermo_->T()));
                     DEBUG(adapterInfo("  Added Temperature from thermoModel.", "dev"));
                 }
                 else
                 {
-                    // TemperatureBoundaryCondition * br = new TemperatureBoundaryCondition(const_cast<volScalarField*>(&mesh_.lookupObject<volScalarField>("T")));
-                    // interface->addCouplingDataReader(dataName, br);
                     interface->addCouplingDataReader
                     (
                         dataName,
@@ -480,51 +541,42 @@ void preciceAdapter::Adapter::configure()
 
             if (dataName.compare("Heat-Flux") == 0)
             {
-            	if (applicationName_.compare("buoyantPimpleFoam") == 0)
-            	{
-                    if (thermo_ && turbulence_)
-                    {
-                        // BuoyantPimpleHeatFluxBoundaryCondition * br = new BuoyantPimpleHeatFluxBoundaryCondition(&thermo_->T(), thermo_, turbulence_);
-                        // interface->addCouplingDataReader(dataName, br);
-                        // DEBUG(adapterInfo("  Added Heat Flux for buoyantPimpleFoam", "dev"));
-                    }
-                    else
-                    {
-                        adapterInfo("Problem: no thermo or no turbulence model specified", "error");
-                    }
+                if (solverType.compare("compressible") == 0)
+                {
+                    interface->addCouplingDataReader
+                    (
+                        dataName,
+                        new User::HeatFlux_Compressible(mesh_)
+                    );
+                    DEBUG(adapterInfo("  Added Heat Flux for compressible solvers."));
+                }
+                else if (solverType.compare("incompressible") == 0)
+                {
+                    interface->addCouplingDataReader
+                    (
+                        dataName,
+                        new User::HeatFlux_Incompressible(mesh_)
+                    );
+                    DEBUG(adapterInfo("  Added Heat Flux for incompressible solvers. "
+                        "Requires additional parameters to be read from the solver "
+                        "(see README)."));
+                }
+                else if (solverType.compare("basic") == 0)
+                {
+                    interface->addCouplingDataReader
+                    (
+                        dataName,
+                        new User::HeatFlux_Basic(mesh_)
+                    );
+                    DEBUG(adapterInfo("  Added Heat Flux for basic solvers. "
+                        "Requires additional parameters to be read from the "
+                        "solver (see README)."));
                 }
                 else
                 {
-                    if (thermo_)
-                    {
-                        double k = 100; // TODO: IMPORTANT specify k properly (conductivity for solids-laplacianFoam_preCICE)
-                        // HeatFluxBoundaryCondition * br = new HeatFluxBoundaryCondition(&thermo_->T(), k);
-                        // interface->addCouplingDataReader(dataName, br);
-                        interface->addCouplingDataReader(dataName, new User::HeatFlux(&thermo_->T(), k));
-                        DEBUG(adapterInfo("  Added Heat Flux with temperature from thermoModel.", "dev"));
-                        DEBUG(adapterInfo("  Assuming conductivity k = 100.", "dev"));
-                    }
-                    else
-                    {
-                        double k = 100; // TODO: IMPORTANT specify k properly (conductivity for solids-laplacianFoam_preCICE)
-                        // HeatFluxBoundaryCondition * br = new HeatFluxBoundaryCondition(const_cast<volScalarField*>(&mesh_.lookupObject<volScalarField>("T")), k);
-                        // interface->addCouplingDataReader(dataName, br);
-                        interface->addCouplingDataReader
-                        (
-                            dataName,
-                            new User::HeatFlux
-                            (
-                                const_cast<volScalarField*>
-                                (
-                                    &mesh_.lookupObject<volScalarField>("T")
-                                ),
-                                k
-                            )
-                        );
-                        DEBUG(adapterInfo("  Added Heat Flux with temperature from T.", "dev"));
-                        DEBUG(adapterInfo("  Assuming conductivity k = 100.", "dev"));
-                    }
-            	}
+                    adapterInfo("Unknown solver type - cannot add heat flux.",
+                        "error");
+                }
             }
 
             if (dataName.compare("Heat-Transfer-Coefficient") == 0)

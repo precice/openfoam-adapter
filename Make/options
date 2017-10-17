@@ -16,6 +16,13 @@ EXE_INC = \
 LIB_LIBS = \
     -lfiniteVolume \
     -lmeshTools \
+    -lsolidThermo \
+    -lfluidThermophysicalModels \
+    -lincompressibleTransportModels \
+    -lcompressibleTransportModels \
+    -lturbulenceModels \
+    -lincompressibleTurbulenceModels \
+    -lcompressibleTurbulenceModels \
     -L${PRECICE_ROOT}/build/last \
     -L${PETSC_DIR}/${PETSC_ARCH}/lib \
     -lprecice \

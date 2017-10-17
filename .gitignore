@@ -39,3 +39,5 @@ Make/linux64GccDPInt32Opt/
 .cproject
 .project
 .settings/
+
+*.swp
