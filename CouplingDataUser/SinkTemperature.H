@@ -1,0 +1,37 @@
+#ifndef COUPLINGDATAUSER_SINKTEMPERATURE_H
+#define COUPLINGDATAUSER_SINKTEMPERATURE_H
+
+#include "CouplingDataUser.H"
+#include "mixedFvPatchFields.H"
+#include "fvCFD.H"
+
+namespace preciceAdapter
+{
+namespace User
+{
+
+class SinkTemperature : public CouplingDataUser
+{
+
+private:
+
+    //- Temperature field
+    Foam::volScalarField * T_;
+
+public:
+
+    //- Constructor
+    SinkTemperature(const Foam::fvMesh& mesh);
+
+    //- Write the sink temperature values into the buffer
+    void write(double * buffer);
+
+    //- Read the sink temperature values from the buffer
+    void read(double * buffer);
+
+};
+
+}
+}
+
+#endif

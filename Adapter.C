@@ -5,6 +5,7 @@
 
 #include "CouplingDataUser/Temperature.H"
 #include "CouplingDataUser/HeatFlux.H"
+#include "CouplingDataUser/SinkTemperature.H"
 
 // NOTE: If you want to couple a new variable, include the class' header here.
 // You also need to include it in the Make/files file.
@@ -415,7 +416,7 @@ void preciceAdapter::Adapter::configure()
         interfaces_.push_back(interface);
         DEBUG(adapterInfo("Interface created on mesh" + interfacesConfig_.at(i).meshName));
 
-        // TODO: Add coupling data users for 'sink temperature' and for 'heat transfer coefficient'
+        // TODO: Add coupling data users for 'heat transfer coefficient'
         DEBUG(adapterInfo("Adding coupling data writers...", "dev"));
         for (uint j = 0; j < interfacesConfig_.at(i).writeData.size(); j++)
         {
@@ -479,8 +480,12 @@ void preciceAdapter::Adapter::configure()
 
             if (dataName.compare("Sink-Temperature") == 0)
             {
-                // TODO Implement Sink Temperature
-                adapterInfo("Sink Temperature not implemented yet!", "error");
+                interface->addCouplingDataWriter
+                (
+                    dataName,
+                    new User::SinkTemperature(mesh_)
+                );
+                DEBUG(adapterInfo("  Added Sink Temperature."));
             }
 
             // NOTE: If you want to couple another variable, you need
@@ -554,8 +559,12 @@ void preciceAdapter::Adapter::configure()
 
             if (dataName.compare("Sink-Temperature") == 0)
             {
-                // TODO Implement Sink Temperature
-                adapterInfo("Sink Temperature not implemented yet!", "error");
+                interface->addCouplingDataReader
+                (
+                    dataName,
+                    new User::SinkTemperature(mesh_)
+                );
+                DEBUG(adapterInfo("  Added Sink Temperature."));
             }
 
             // NOTE: If you want to couple another variable, you need

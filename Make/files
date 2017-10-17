@@ -4,6 +4,7 @@ CouplingDataUser/CouplingDataUser.C
 CouplingDataUser/Temperature.C
 CouplingDataUser/KappaEffective.C
 CouplingDataUser/HeatFlux.C
+CouplingDataUser/SinkTemperature.C
 
 Adapter.C
 
