@@ -25,7 +25,14 @@ Class
 
 Description
     This function object prepares an OpenFOAM solver for preCICE (precice.org).
-    TODO: Add more information.
+    See the README.md for details.
+    Look on precice.org for the latest version of the adapter.
+
+    NOTE: In case the functionObjects interface is different for your OpenFOAM
+    version, you may create a new function object with the same name and type,
+    using the template for functionObjects that you can usually find in the
+    $FOAM_ETC/codeTemplates/ directory. This is only a wrapper to the
+    adapter's methods.
 
     Example of function object specification:
     \verbatim

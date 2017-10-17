@@ -205,7 +205,9 @@ private:
             void addCheckpointField(surfaceScalarField & field);
 
             //- TODO Add a surfaceVectorField to checkpoint
-            // TODO Make all these a template?
+
+            // NOTE: Add here methods to add other object types to checkpoint,
+            // if needed.
 
         //- Read the checkpoint - restore the fields and time
         void readCheckpoint();

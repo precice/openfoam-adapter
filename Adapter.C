@@ -6,6 +6,11 @@
 #include "CouplingDataUser/Temperature.H"
 #include "CouplingDataUser/HeatFlux.H"
 
+// NOTE: If you want to couple a new variable, include the class' header here.
+// You also need to include it in the Make/files file.
+// In case you use additional OpenFOAM symbols, you may also need to specify
+// the respective libraries in the Make/options.
+
 using namespace Foam;
 
 // Output debug messages. Keep it disabled for production runs.
@@ -255,6 +260,9 @@ bool preciceAdapter::Adapter::configFileRead()
 
 std::string preciceAdapter::Adapter::determineSolverType()
 {
+    // NOTE: When coupling a different variable, you may want to
+    // add more cases here.
+
     std::string solverType;
 
     // Determine the solver type: Compressible, Incompressible or Basic.
@@ -475,6 +483,12 @@ void preciceAdapter::Adapter::configure()
                 adapterInfo("Sink Temperature not implemented yet!", "error");
             }
 
+            // NOTE: If you want to couple another variable, you need
+            // to add your new coupling data user as a coupling data
+            // writer here (and as a reader below).
+            // The argument of the dataName.compare() needs to match
+            // the one provided in the adapter's configuration file.
+
         } // end add coupling data writers
 
         DEBUG(adapterInfo("Adding coupling data readers...", "dev"));
@@ -543,6 +557,12 @@ void preciceAdapter::Adapter::configure()
                 // TODO Implement Sink Temperature
                 adapterInfo("Sink Temperature not implemented yet!", "error");
             }
+
+            // NOTE: If you want to couple another variable, you need
+            // to add your new coupling data user as a coupling data
+            // reader here (and as a writer above).
+            // The argument of the dataName.compare() needs to match
+            // the one provided in the adapter's configuration file.
 
         } // end add coupling data readers
     }
@@ -1069,7 +1089,7 @@ void preciceAdapter::Adapter::setupCheckpointing()
         }
     }
 
-    // TODO Add other types, if needed.
+    // NOTE: Add here other object types to checkpoint, if needed.
 
     return;
 }
@@ -1101,6 +1121,8 @@ void preciceAdapter::Adapter::addCheckpointField(surfaceScalarField & field)
     return;
 }
 
+// NOTE: Add here methods to add other object types to checkpoint, if needed.
+
 void preciceAdapter::Adapter::readCheckpoint()
 {
     DEBUG(adapterInfo("Reading a checkpoint..."));
@@ -1127,6 +1149,8 @@ void preciceAdapter::Adapter::readCheckpoint()
     }
 
     // TODO Reload all the fields of type surfaceVectorField
+
+    // NOTE: Add here other field types to read, if needed.
 
     #ifdef ADAPTER_DEBUG_MODE
         adapterInfo
@@ -1164,6 +1188,8 @@ void preciceAdapter::Adapter::writeCheckpoint()
     }
 
     // TODO Store all the fields of type surfaceVectorField
+
+    // NOTE: Add here other types to write, if needed.
 
     #ifdef ADAPTER_DEBUG_MODE
         adapterInfo
@@ -1231,7 +1257,7 @@ void preciceAdapter::Adapter::teardown()
         }
         surfaceScalarFieldCopies_.clear();
 
-        // TODO Add delete for other types (if any)
+        // NOTE: Add here delete for other types, if needed
 
         checkpointing_ = false;
     }

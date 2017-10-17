@@ -368,12 +368,13 @@ For this, comment-out the respective line in the beginning of the `Adapter.C` fi
 ### How to couple a different variable?
 
 In case you want to couple a different variable, you need to create a new
-coupling data user library in the `preciceAdapter::User` namespace.
-Then you need to add an option for it in the configuration reading part
-to add it to the `couplingDataWriters` and `couplingDataReaders`
+coupling data user class in the `preciceAdapter::User` namespace.
+Then you need to add an option for it in the configuration part
+to add objects of it into the `couplingDataWriters` and `couplingDataReaders`
 whenever requested.
 
-TODO: More details will be added in the future.
+There are some `NOTE`s in the files `Adapter.H`, `Adapter.C` and
+`CouplingDataUser/Temperature.H` to guide you through the process.
 
 _Note:_ make sure to include any additional required libraries in the `LIB_LIBS`
 section of the `Make/options`. Since the adapter is a shared library,
