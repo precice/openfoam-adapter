@@ -10,6 +10,7 @@ namespace preciceAdapter
 namespace User
 {
 
+//- Class that writes and reads sink temperature.
 class SinkTemperature : public CouplingDataUser
 {
 

@@ -9,7 +9,7 @@ namespace preciceAdapter
 namespace User
 {
 
-//- Abstract class that writes and reads heat fluxes.
+//- Abstract class that writes and reads heat flux.
 //  Some parts of it are implemented differently for compressible,
 //  incompressible or basic solvers.
 class HeatFlux : public CouplingDataUser
@@ -29,7 +29,7 @@ protected:
 public:
 
     //- Constructor
-    HeatFlux(Foam::volScalarField * T);
+    HeatFlux(const Foam::fvMesh& mesh);
 
     //- Compute heat flux values from the temperature field
     //  and write them into the buffer

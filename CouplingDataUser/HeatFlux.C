@@ -8,10 +8,15 @@ using namespace Foam;
 
 preciceAdapter::User::HeatFlux::HeatFlux
 (
-    volScalarField * T
+    const Foam::fvMesh& mesh
 )
 :
-T_(T)
+T_(
+    const_cast<volScalarField*>
+    (
+        &mesh.lookupObject<volScalarField>("T")
+    )
+)
 {
     dataType_ = scalar;
 }
@@ -89,12 +94,7 @@ preciceAdapter::User::HeatFlux_Compressible::HeatFlux_Compressible
     const Foam::fvMesh& mesh
 )
 :
-HeatFlux(
-    const_cast<volScalarField*>
-    (
-        &mesh.lookupObject<volScalarField>("T")
-    )
-),
+HeatFlux(mesh),
 Kappa_(new KappaEff_Compressible(mesh))
 {
 }
@@ -121,12 +121,7 @@ preciceAdapter::User::HeatFlux_Incompressible::HeatFlux_Incompressible
     const Foam::fvMesh& mesh
 )
 :
-HeatFlux(
-    const_cast<volScalarField*>
-    (
-        &mesh.lookupObject<volScalarField>("T")
-    )
-),
+HeatFlux(mesh),
 Kappa_(new KappaEff_Incompressible(mesh))
 {
 }
@@ -153,12 +148,7 @@ preciceAdapter::User::HeatFlux_Basic::HeatFlux_Basic
     const Foam::fvMesh& mesh
 )
 :
-HeatFlux(
-    const_cast<volScalarField*>
-    (
-        &mesh.lookupObject<volScalarField>("T")
-    )
-),
+HeatFlux(mesh),
 Kappa_(new KappaEff_Basic(mesh))
 {
 }

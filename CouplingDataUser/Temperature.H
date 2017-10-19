@@ -10,6 +10,7 @@ namespace preciceAdapter
 namespace User
 {
 
+//- Class that writes and reads temperature.
 class Temperature : public CouplingDataUser
 {
 
