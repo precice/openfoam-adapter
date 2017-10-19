@@ -6,6 +6,7 @@
 #include "CouplingDataUser/Temperature.H"
 #include "CouplingDataUser/HeatFlux.H"
 #include "CouplingDataUser/SinkTemperature.H"
+#include "CouplingDataUser/HeatTransferCoefficient.H"
 
 // NOTE: If you want to couple a new variable, include the class' header here.
 // You also need to include it in the Make/files file.
@@ -474,8 +475,42 @@ void preciceAdapter::Adapter::configure()
 
             if (dataName.compare("Heat-Transfer-Coefficient") == 0)
             {
-                // TODO Implement Heat Transfer Coefficient
-                adapterInfo("Heat Transfer Coefficient not implemented yet!", "error");
+                if (solverType.compare("compressible") == 0)
+                {
+                    interface->addCouplingDataWriter
+                    (
+                        dataName,
+                        new User::HeatTransferCoefficient_Compressible(mesh_)
+                    );
+                    DEBUG(adapterInfo("  Added Heat Transfer Coefficient for compressible solvers."));
+                }
+                else if (solverType.compare("incompressible") == 0)
+                {
+                    interface->addCouplingDataWriter
+                    (
+                        dataName,
+                        new User::HeatTransferCoefficient_Incompressible(mesh_)
+                    );
+                    DEBUG(adapterInfo("  Added Heat Transfer Coefficient for incompressible solvers. "
+                        "Requires additional parameters to be read from the "
+                        "solver (see README)."));
+                }
+                else if (solverType.compare("basic") == 0)
+                {
+                    interface->addCouplingDataWriter
+                    (
+                        dataName,
+                        new User::HeatTransferCoefficient_Basic(mesh_)
+                    );
+                    DEBUG(adapterInfo("  Added Heat Transfer Coefficient for basic solvers. "
+                        "Requires additional parameters to be read from the "
+                        "solver (see README)."));
+                }
+                else
+                {
+                    adapterInfo("Unknown solver type - cannot add heat transfer coefficient.",
+                        "error");
+                }
             }
 
             if (dataName.compare("Sink-Temperature") == 0)
@@ -553,8 +588,42 @@ void preciceAdapter::Adapter::configure()
 
             if (dataName.compare("Heat-Transfer-Coefficient") == 0)
             {
-                // TODO Implement Heat Transfer Coefficient
-                adapterInfo("Heat Transfer Coefficient not implemented yet!", "error");
+                if (solverType.compare("compressible") == 0)
+                {
+                    interface->addCouplingDataReader
+                    (
+                        dataName,
+                        new User::HeatTransferCoefficient_Compressible(mesh_)
+                    );
+                    DEBUG(adapterInfo("  Added Heat Transfer Coefficient for compressible solvers."));
+                }
+                else if (solverType.compare("incompressible") == 0)
+                {
+                    interface->addCouplingDataReader
+                    (
+                        dataName,
+                        new User::HeatTransferCoefficient_Incompressible(mesh_)
+                    );
+                    DEBUG(adapterInfo("  Added Heat Transfer Coefficient for incompressible solvers. "
+                        "Requires additional parameters to be read from the solver "
+                        "(see README)."));
+                }
+                else if (solverType.compare("basic") == 0)
+                {
+                    interface->addCouplingDataReader
+                    (
+                        dataName,
+                        new User::HeatTransferCoefficient_Basic(mesh_)
+                    );
+                    DEBUG(adapterInfo("  Added Heat Transfer Coefficient for basic solvers. "
+                        "Requires additional parameters to be read from the "
+                        "solver (see README)."));
+                }
+                else
+                {
+                    adapterInfo("Unknown solver type - cannot add heat transfer coefficient.",
+                        "error");
+                }
             }
 
             if (dataName.compare("Sink-Temperature") == 0)
