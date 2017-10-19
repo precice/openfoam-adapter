@@ -26,7 +26,10 @@ class Adapter
 
 private:
 
-    //- TODO Add description
+    //- Structure of the configuration of each coupling interface.
+    //  Every interface needs to know the coupling mesh, the OpenFOAM
+    //  patches that consist the coupling surface and the kinds
+    //  of data that are exchanged.
     struct InterfaceConfig
     {
         std::string meshName;
@@ -43,14 +46,6 @@ private:
 
     //- OpenFOAM fvMesh object
     const Foam::fvMesh& mesh_;
-
-    //- OpenFOAM thermophysical model
-    // TODO Check the thermophysical model type
-    Foam::basicThermo * thermo_ = NULL;
-
-    //- OpenFOAM turbulence model
-    // TODO Check the turbulence model type
-    Foam::compressible::turbulenceModel * turbulence_ = NULL;
 
     // Configuration parameters used in the Adapter
 
