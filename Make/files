@@ -8,6 +8,8 @@ CHT/HeatFlux.C
 CHT/HeatTransferCoefficient.C
 CHT/SinkTemperature.C
 
+CHT/CHT.C
+
 Adapter.C
 
 preciceAdapterFunctionObject.C

@@ -3,11 +3,6 @@
 
 #include "IOstreams.H"
 
-#include "CHT/Temperature.H"
-#include "CHT/HeatFlux.H"
-#include "CHT/SinkTemperature.H"
-#include "CHT/HeatTransferCoefficient.H"
-
 // NOTE: If you want to couple a new variable, include the class' header here.
 // You also need to include it in the Make/files file.
 // In case you use additional OpenFOAM symbols, you may also need to specify
@@ -257,96 +252,14 @@ bool preciceAdapter::Adapter::configFileRead()
     }
     DEBUG(adapterInfo("    prevent early exit : " + std::to_string(preventEarlyExit_)));
 
+    // Set the CHTenabled_ switch
+    if (adapterConfig_["CHTenabled"])
+    {
+        CHTenabled_ = adapterConfig_["CHTenabled"].as<bool>();
+    }
+    DEBUG(adapterInfo("    CHT module enabled : " + std::to_string(CHTenabled_)));
+
     return true;
-}
-
-std::string preciceAdapter::Adapter::determineSolverType()
-{
-    // NOTE: When coupling a different variable, you may want to
-    // add more cases here.
-
-    std::string solverType;
-
-    // Determine the solver type: Compressible, Incompressible or Basic.
-    // Look for the files transportProperties, turbulenceProperties,
-    // and thermophysicalProperties
-    bool transportPropertiesExists = false;
-    bool turbulencePropertiesExists = false;
-    bool thermophysicalPropertiesExists = false;
-
-    if (mesh_.foundObject<IOdictionary>("transportProperties"))
-    {
-        transportPropertiesExists = true;
-        DEBUG(adapterInfo("Found the transportProperties dictionary."));
-    }
-    else
-    {
-        DEBUG(adapterInfo("Did not find the transportProperties dictionary."));
-    }
-
-    if (mesh_.foundObject<IOdictionary>(turbulenceModel::propertiesName))
-    {
-        turbulencePropertiesExists = true;
-        DEBUG(adapterInfo("Found the " + turbulenceModel::propertiesName
-            + " dictionary."));
-    }
-    else
-    {
-        DEBUG(adapterInfo("Did not find the " + turbulenceModel::propertiesName
-            + " dictionary."));
-    }
-
-    if (mesh_.foundObject<IOdictionary>("thermophysicalProperties"))
-    {
-        thermophysicalPropertiesExists = true;
-        DEBUG(adapterInfo("Found the thermophysicalProperties dictionary."));
-    }
-    else
-    {
-        DEBUG(adapterInfo("Did not find the thermophysicalProperties dictionary."));
-    }
-
-    if (turbulencePropertiesExists)
-    {
-        if (thermophysicalPropertiesExists)
-        {
-            solverType = "compressible";
-            DEBUG(adapterInfo("This is a compressible flow solver, "
-                "as turbulence and thermophysical properties are provided."));
-        }
-        else if (transportPropertiesExists)
-        {
-            solverType = "incompressible";
-            DEBUG(adapterInfo("This is an incompressible flow solver, "
-            "as turbulence and transport properties are provided."));
-        }
-        else
-        {
-            adapterInfo("Could not determine the solver type, or this is not "
-            "a compatible solver: although turbulence properties are provided, "
-            "neither transport or thermophysical properties are provided.",
-            "error");
-        }
-    }
-    else
-    {
-        if (transportPropertiesExists)
-        {
-            solverType = "basic";
-            DEBUG(adapterInfo("This is a basic solver, as transport properties "
-            "are provided, while turbulence or transport properties are not "
-            "provided."));
-        }
-        else
-        {
-            adapterInfo("Could not determine the solver type, or this is not a "
-            "compatible solver: neither transport, nor turbulence properties "
-            "are provided.",
-            "error");
-        }
-    }
-
-    return solverType;
 }
 
 void preciceAdapter::Adapter::configure()
@@ -366,10 +279,6 @@ void preciceAdapter::Adapter::configure()
 
         return;
     }
-
-    // Get the solver name
-    runTime_.controlDict().readIfPresent("application", applicationName_);
-    DEBUG(adapterInfo("Application: " + applicationName_));
 
     // Check the timestep type (fixed vs adjustable)
     DEBUG(adapterInfo("Checking the timestep type (fixed vs adjustable)..."));
@@ -406,8 +315,12 @@ void preciceAdapter::Adapter::configure()
     precice_->configure(preciceConfigFilename_);
     DEBUG(adapterInfo("  preCICE was configured."));
 
-    // Determine the type of the solver
-    std::string solverType = determineSolverType();
+    // Configure the CHT module
+    if (CHTenabled_)
+    {
+        CHT = new CHT::ConjugateHeatTransfer(mesh_);
+        CHT->configure();
+    }
 
     // Create interfaces
     DEBUG(adapterInfo("Creating interfaces..."));
@@ -417,118 +330,16 @@ void preciceAdapter::Adapter::configure()
         interfaces_.push_back(interface);
         DEBUG(adapterInfo("Interface created on mesh" + interfacesConfig_.at(i).meshName));
 
-        // TODO: Add coupling data users for 'heat transfer coefficient'
         DEBUG(adapterInfo("Adding coupling data writers...", "dev"));
         for (uint j = 0; j < interfacesConfig_.at(i).writeData.size(); j++)
         {
             std::string dataName = interfacesConfig_.at(i).writeData.at(j);
 
-            if (dataName.compare("Temperature") == 0)
+            // Add CHT-related coupling data writers
+            if (CHTenabled_)
             {
-                interface->addCouplingDataWriter
-                (
-                    dataName,
-                    new CHT::Temperature(mesh_)
-                );
-                DEBUG(adapterInfo("  Added Temperature."));
+                CHT->addWriters(dataName, interface);
             }
-
-            if (dataName.compare("Heat-Flux") == 0)
-            {
-                if (solverType.compare("compressible") == 0)
-                {
-                    interface->addCouplingDataWriter
-                    (
-                        dataName,
-                        new CHT::HeatFlux_Compressible(mesh_)
-                    );
-                    DEBUG(adapterInfo("  Added Heat Flux for compressible solvers."));
-                }
-                else if (solverType.compare("incompressible") == 0)
-                {
-                    interface->addCouplingDataWriter
-                    (
-                        dataName,
-                        new CHT::HeatFlux_Incompressible(mesh_)
-                    );
-                    DEBUG(adapterInfo("  Added Heat Flux for incompressible solvers. "
-                        "Requires additional parameters to be read from the "
-                        "solver (see README)."));
-                }
-                else if (solverType.compare("basic") == 0)
-                {
-                    interface->addCouplingDataWriter
-                    (
-                        dataName,
-                        new CHT::HeatFlux_Basic(mesh_)
-                    );
-                    DEBUG(adapterInfo("  Added Heat Flux for basic solvers. "
-                        "Requires additional parameters to be read from the "
-                        "solver (see README)."));
-                }
-                else
-                {
-                    adapterInfo("Unknown solver type - cannot add heat flux.",
-                        "error");
-                }
-            }
-
-            if (dataName.compare("Heat-Transfer-Coefficient") == 0)
-            {
-                if (solverType.compare("compressible") == 0)
-                {
-                    interface->addCouplingDataWriter
-                    (
-                        dataName,
-                        new CHT::HeatTransferCoefficient_Compressible(mesh_)
-                    );
-                    DEBUG(adapterInfo("  Added Heat Transfer Coefficient for compressible solvers."));
-                }
-                else if (solverType.compare("incompressible") == 0)
-                {
-                    interface->addCouplingDataWriter
-                    (
-                        dataName,
-                        new CHT::HeatTransferCoefficient_Incompressible(mesh_)
-                    );
-                    DEBUG(adapterInfo("  Added Heat Transfer Coefficient for incompressible solvers. "
-                        "Requires additional parameters to be read from the "
-                        "solver (see README)."));
-                }
-                else if (solverType.compare("basic") == 0)
-                {
-                    interface->addCouplingDataWriter
-                    (
-                        dataName,
-                        new CHT::HeatTransferCoefficient_Basic(mesh_)
-                    );
-                    DEBUG(adapterInfo("  Added Heat Transfer Coefficient for basic solvers. "
-                        "Requires additional parameters to be read from the "
-                        "solver (see README)."));
-                }
-                else
-                {
-                    adapterInfo("Unknown solver type - cannot add heat transfer coefficient.",
-                        "error");
-                }
-            }
-
-            if (dataName.compare("Sink-Temperature") == 0)
-            {
-                interface->addCouplingDataWriter
-                (
-                    dataName,
-                    new CHT::SinkTemperature(mesh_)
-                );
-                DEBUG(adapterInfo("  Added Sink Temperature."));
-            }
-
-            // NOTE: If you want to couple another variable, you need
-            // to add your new coupling data user as a coupling data
-            // writer here (and as a reader below).
-            // The argument of the dataName.compare() needs to match
-            // the one provided in the adapter's configuration file.
-
         } // end add coupling data writers
 
         DEBUG(adapterInfo("Adding coupling data readers...", "dev"));
@@ -536,112 +347,11 @@ void preciceAdapter::Adapter::configure()
         {
             std::string dataName = interfacesConfig_.at(i).readData.at(j);
 
-            if (dataName.compare("Temperature") == 0)
+            // Add CHT-related coupling data readers
+            if (CHTenabled_)
             {
-                interface->addCouplingDataReader
-                (
-                    dataName,
-                    new CHT::Temperature(mesh_)
-                );
-                DEBUG(adapterInfo("  Added Temperature."));
+                CHT->addReaders(dataName, interface);
             }
-
-            if (dataName.compare("Heat-Flux") == 0)
-            {
-                if (solverType.compare("compressible") == 0)
-                {
-                    interface->addCouplingDataReader
-                    (
-                        dataName,
-                        new CHT::HeatFlux_Compressible(mesh_)
-                    );
-                    DEBUG(adapterInfo("  Added Heat Flux for compressible solvers."));
-                }
-                else if (solverType.compare("incompressible") == 0)
-                {
-                    interface->addCouplingDataReader
-                    (
-                        dataName,
-                        new CHT::HeatFlux_Incompressible(mesh_)
-                    );
-                    DEBUG(adapterInfo("  Added Heat Flux for incompressible solvers. "
-                        "Requires additional parameters to be read from the solver "
-                        "(see README)."));
-                }
-                else if (solverType.compare("basic") == 0)
-                {
-                    interface->addCouplingDataReader
-                    (
-                        dataName,
-                        new CHT::HeatFlux_Basic(mesh_)
-                    );
-                    DEBUG(adapterInfo("  Added Heat Flux for basic solvers. "
-                        "Requires additional parameters to be read from the "
-                        "solver (see README)."));
-                }
-                else
-                {
-                    adapterInfo("Unknown solver type - cannot add heat flux.",
-                        "error");
-                }
-            }
-
-            if (dataName.compare("Heat-Transfer-Coefficient") == 0)
-            {
-                if (solverType.compare("compressible") == 0)
-                {
-                    interface->addCouplingDataReader
-                    (
-                        dataName,
-                        new CHT::HeatTransferCoefficient_Compressible(mesh_)
-                    );
-                    DEBUG(adapterInfo("  Added Heat Transfer Coefficient for compressible solvers."));
-                }
-                else if (solverType.compare("incompressible") == 0)
-                {
-                    interface->addCouplingDataReader
-                    (
-                        dataName,
-                        new CHT::HeatTransferCoefficient_Incompressible(mesh_)
-                    );
-                    DEBUG(adapterInfo("  Added Heat Transfer Coefficient for incompressible solvers. "
-                        "Requires additional parameters to be read from the solver "
-                        "(see README)."));
-                }
-                else if (solverType.compare("basic") == 0)
-                {
-                    interface->addCouplingDataReader
-                    (
-                        dataName,
-                        new CHT::HeatTransferCoefficient_Basic(mesh_)
-                    );
-                    DEBUG(adapterInfo("  Added Heat Transfer Coefficient for basic solvers. "
-                        "Requires additional parameters to be read from the "
-                        "solver (see README)."));
-                }
-                else
-                {
-                    adapterInfo("Unknown solver type - cannot add heat transfer coefficient.",
-                        "error");
-                }
-            }
-
-            if (dataName.compare("Sink-Temperature") == 0)
-            {
-                interface->addCouplingDataReader
-                (
-                    dataName,
-                    new CHT::SinkTemperature(mesh_)
-                );
-                DEBUG(adapterInfo("  Added Sink Temperature."));
-            }
-
-            // NOTE: If you want to couple another variable, you need
-            // to add your new coupling data user as a coupling data
-            // reader here (and as a writer above).
-            // The argument of the dataName.compare() needs to match
-            // the one provided in the adapter's configuration file.
-
         } // end add coupling data readers
     }
 
@@ -1338,6 +1048,14 @@ void preciceAdapter::Adapter::teardown()
         // NOTE: Add here delete for other types, if needed
 
         checkpointing_ = false;
+    }
+
+    // Delete the CHT module
+    if(NULL != CHT)
+    {
+        DEBUG(adapterInfo("Destroying the CHT module..."));
+        delete CHT;
+        CHT = NULL;
     }
 
     return;

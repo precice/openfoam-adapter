@@ -2,6 +2,7 @@
 #define PRECICEADAPTER_H
 
 #include "Interface.H"
+#include "CHT/CHT.H"
 
 // OpenFOAM header files
 #include "Time.H"
@@ -71,11 +72,11 @@ private:
         //- Type of timestep (fixed, adjustable)
         bool adjustableTimestep_;
 
-        //- Should the (fixed) timestep stored and used?
+        //- Should the (fixed) timestep be stored and used?
         bool useStoredTimestep_ = false;
 
-        //- OpenFOAM Application/Solver name
-        Foam::word applicationName_;
+        //- Switch to enable the ConjugateHeatTransfer module
+        bool CHTenabled_ = true;
 
     //- Interfaces
     std::vector<Interface*> interfaces_;
@@ -85,6 +86,9 @@ private:
 
     //- preCICE solver interface initialized
     bool preciceInitialized_ = false;
+
+    //- Conjugate Heat Transfer module object
+    CHT::ConjugateHeatTransfer * CHT = NULL;
 
     // Timesteps
 
@@ -125,9 +129,6 @@ private:
             //- Checkpointed surfaceScalarField fields (copies)
             std::vector<Foam::surfaceScalarField*> surfaceScalarFieldCopies_;
 
-    //- Printed output and error handling
-    void adapterInfo(const std::string message, const std::string level = "debug");
-
     // Configuration
 
         //- Read the adapter's configuration file
@@ -135,9 +136,6 @@ private:
 
         //- Check the adapter's configuration file
         bool configFileCheck(const std::string adapterConfigFileName);
-
-        //- Determine the solver type
-        std::string determineSolverType();
 
     // Methods communicating with preCICE
 
@@ -221,6 +219,9 @@ public:
 
         //- Constructor
         Adapter(const Foam::Time& runTime, const Foam::fvMesh& mesh);
+
+        //- Printed output and error handling
+        static void adapterInfo(const std::string message, const std::string level = "debug");
 
         //- Setup the adapter's configuration
         void configure();
