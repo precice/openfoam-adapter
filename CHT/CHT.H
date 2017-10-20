@@ -26,6 +26,12 @@ protected:
     //- Solver type
     std::string solverType_;
 
+    //- Name of the transportProperties dictionary
+    std::string nameTransportProperties_;
+
+    //- Name of the temperature field
+    std::string nameT_;
+
 public:
 
     //- Constructor
@@ -35,7 +41,10 @@ public:
     std::string determineSolverType();
 
     //- Configure
-    void configure();
+    void configure(
+        const std::string nameTransportProperties,
+        const std::string nameT
+    );
 
     //- Add coupling data writers
     void addWriters(std::string dataName, Interface * interface);

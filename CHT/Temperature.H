@@ -22,7 +22,11 @@ private:
 public:
 
     //- Constructor
-    Temperature(const Foam::fvMesh& mesh);
+    Temperature
+    (
+        const Foam::fvMesh& mesh,
+        const std::string nameT
+    );
 
     //- Write the temperature values into the buffer
     void write(double * buffer);

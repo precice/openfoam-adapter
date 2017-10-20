@@ -22,7 +22,11 @@ private:
 public:
 
     //- Constructor
-    SinkTemperature(const Foam::fvMesh& mesh);
+    SinkTemperature
+    (
+        const Foam::fvMesh& mesh,
+        const std::string nameT
+    );
 
     //- Write the sink temperature values into the buffer
     void write(double * buffer);

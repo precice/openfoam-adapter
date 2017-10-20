@@ -78,6 +78,12 @@ private:
         //- Switch to enable the ConjugateHeatTransfer module
         bool CHTenabled_ = true;
 
+        //- Name of the transportProperties dictionary
+        std::string nameTransportProperties_ = "transportProperties";
+
+        //- Name of the temperature field
+        std::string nameT_ = "T";
+
     //- Interfaces
     std::vector<Interface*> interfaces_;
 
@@ -88,7 +94,7 @@ private:
     bool preciceInitialized_ = false;
 
     //- Conjugate Heat Transfer module object
-    CHT::ConjugateHeatTransfer * CHT = NULL;
+    CHT::ConjugateHeatTransfer * CHT_ = NULL;
 
     // Timesteps
 

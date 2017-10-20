@@ -32,7 +32,11 @@ protected:
 public:
 
     //- Constructor
-    HeatTransferCoefficient(const Foam::fvMesh& mesh);
+    HeatTransferCoefficient
+    (
+        const Foam::fvMesh& mesh,
+        const std::string nameT
+    );
 
     //- Write the heat transfer coefficient values into the buffer
     virtual void write(double * buffer);
@@ -65,7 +69,11 @@ protected:
 public:
 
     //- Constructor
-    HeatTransferCoefficient_Compressible(const Foam::fvMesh& mesh);
+    HeatTransferCoefficient_Compressible
+    (
+        const Foam::fvMesh& mesh,
+        const std::string nameT
+    );
 
     //- Destructor
     virtual ~HeatTransferCoefficient_Compressible();
@@ -92,7 +100,12 @@ protected:
 public:
 
     //- Constructor
-    HeatTransferCoefficient_Incompressible(const Foam::fvMesh& mesh);
+    HeatTransferCoefficient_Incompressible
+    (
+        const Foam::fvMesh& mesh,
+        const std::string nameTransportProperties,
+        const std::string nameT
+    );
 
     //- Destructor
     virtual ~HeatTransferCoefficient_Incompressible();
@@ -120,7 +133,12 @@ protected:
 public:
 
     //- Constructor
-    HeatTransferCoefficient_Basic(const Foam::fvMesh& mesh);
+    HeatTransferCoefficient_Basic
+    (
+        const Foam::fvMesh& mesh,
+        const std::string nameTransportProperties,
+        const std::string nameT
+    );
 
     //- Destructor
     virtual ~HeatTransferCoefficient_Basic();

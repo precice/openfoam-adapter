@@ -20,6 +20,20 @@ preciceAdapter::CHT::ConjugateHeatTransfer::ConjugateHeatTransfer
 mesh_(mesh)
 {}
 
+void preciceAdapter::CHT::ConjugateHeatTransfer::configure
+(
+    const std::string nameTransportProperties,
+    const std::string nameT
+)
+{
+    DEBUG(Adapter::adapterInfo("Configuring the CHT module..."));
+
+    nameTransportProperties_ = nameTransportProperties;
+    nameT_ = nameT;
+
+    solverType_ = determineSolverType();
+}
+
 std::string preciceAdapter::CHT::ConjugateHeatTransfer::determineSolverType()
 {
     // NOTE: When coupling a different variable, you may want to
@@ -34,7 +48,7 @@ std::string preciceAdapter::CHT::ConjugateHeatTransfer::determineSolverType()
     bool turbulencePropertiesExists = false;
     bool thermophysicalPropertiesExists = false;
 
-    if (mesh_.foundObject<IOdictionary>("transportProperties"))
+    if (mesh_.foundObject<IOdictionary>(nameTransportProperties_))
     {
         transportPropertiesExists = true;
         DEBUG(Adapter::adapterInfo("Found the transportProperties dictionary."));
@@ -109,12 +123,6 @@ std::string preciceAdapter::CHT::ConjugateHeatTransfer::determineSolverType()
     return solverType;
 }
 
-void preciceAdapter::CHT::ConjugateHeatTransfer::configure()
-{
-    DEBUG(Adapter::adapterInfo("Configuring the CHT module..."));
-    solverType_ = determineSolverType();
-}
-
 void preciceAdapter::CHT::ConjugateHeatTransfer::addWriters(std::string dataName, Interface * interface)
 {
     if (dataName.compare("Temperature") == 0)
@@ -122,7 +130,7 @@ void preciceAdapter::CHT::ConjugateHeatTransfer::addWriters(std::string dataName
         interface->addCouplingDataWriter
         (
             dataName,
-            new Temperature(mesh_)
+            new Temperature(mesh_, nameT_)
         );
         DEBUG(Adapter::adapterInfo("  Added Temperature."));
     }
@@ -134,7 +142,7 @@ void preciceAdapter::CHT::ConjugateHeatTransfer::addWriters(std::string dataName
             interface->addCouplingDataWriter
             (
                 dataName,
-                new HeatFlux_Compressible(mesh_)
+                new HeatFlux_Compressible(mesh_, nameT_)
             );
             DEBUG(Adapter::adapterInfo("  Added Heat Flux for compressible solvers."));
         }
@@ -143,7 +151,7 @@ void preciceAdapter::CHT::ConjugateHeatTransfer::addWriters(std::string dataName
             interface->addCouplingDataWriter
             (
                 dataName,
-                new HeatFlux_Incompressible(mesh_)
+                new HeatFlux_Incompressible(mesh_, nameTransportProperties_, nameT_)
             );
             DEBUG(Adapter::adapterInfo("  Added Heat Flux for incompressible solvers. "
                 "Requires additional parameters to be read from the "
@@ -154,7 +162,7 @@ void preciceAdapter::CHT::ConjugateHeatTransfer::addWriters(std::string dataName
             interface->addCouplingDataWriter
             (
                 dataName,
-                new HeatFlux_Basic(mesh_)
+                new HeatFlux_Basic(mesh_, nameTransportProperties_, nameT_)
             );
             DEBUG(Adapter::adapterInfo("  Added Heat Flux for basic solvers. "
                 "Requires additional parameters to be read from the "
@@ -174,7 +182,7 @@ void preciceAdapter::CHT::ConjugateHeatTransfer::addWriters(std::string dataName
             interface->addCouplingDataWriter
             (
                 dataName,
-                new HeatTransferCoefficient_Compressible(mesh_)
+                new HeatTransferCoefficient_Compressible(mesh_, nameT_)
             );
             DEBUG(Adapter::adapterInfo("  Added Heat Transfer Coefficient for compressible solvers."));
         }
@@ -183,7 +191,7 @@ void preciceAdapter::CHT::ConjugateHeatTransfer::addWriters(std::string dataName
             interface->addCouplingDataWriter
             (
                 dataName,
-                new HeatTransferCoefficient_Incompressible(mesh_)
+                new HeatTransferCoefficient_Incompressible(mesh_, nameTransportProperties_, nameT_)
             );
             DEBUG(Adapter::adapterInfo("  Added Heat Transfer Coefficient for incompressible solvers. "
                 "Requires additional parameters to be read from the "
@@ -194,7 +202,7 @@ void preciceAdapter::CHT::ConjugateHeatTransfer::addWriters(std::string dataName
             interface->addCouplingDataWriter
             (
                 dataName,
-                new HeatTransferCoefficient_Basic(mesh_)
+                new HeatTransferCoefficient_Basic(mesh_, nameTransportProperties_, nameT_)
             );
             DEBUG(Adapter::adapterInfo("  Added Heat Transfer Coefficient for basic solvers. "
                 "Requires additional parameters to be read from the "
@@ -212,7 +220,7 @@ void preciceAdapter::CHT::ConjugateHeatTransfer::addWriters(std::string dataName
         interface->addCouplingDataWriter
         (
             dataName,
-            new SinkTemperature(mesh_)
+            new SinkTemperature(mesh_, nameT_)
         );
         DEBUG(Adapter::adapterInfo("  Added Sink Temperature."));
     }
@@ -231,7 +239,7 @@ void preciceAdapter::CHT::ConjugateHeatTransfer::addReaders(std::string dataName
         interface->addCouplingDataReader
         (
             dataName,
-            new Temperature(mesh_)
+            new Temperature(mesh_, nameT_)
         );
         DEBUG(Adapter::adapterInfo("  Added Temperature."));
     }
@@ -243,7 +251,7 @@ void preciceAdapter::CHT::ConjugateHeatTransfer::addReaders(std::string dataName
             interface->addCouplingDataReader
             (
                 dataName,
-                new HeatFlux_Compressible(mesh_)
+                new HeatFlux_Compressible(mesh_, nameT_)
             );
             DEBUG(Adapter::adapterInfo("  Added Heat Flux for compressible solvers."));
         }
@@ -252,7 +260,7 @@ void preciceAdapter::CHT::ConjugateHeatTransfer::addReaders(std::string dataName
             interface->addCouplingDataReader
             (
                 dataName,
-                new HeatFlux_Incompressible(mesh_)
+                new HeatFlux_Incompressible(mesh_, nameTransportProperties_, nameT_)
             );
             DEBUG(Adapter::adapterInfo("  Added Heat Flux for incompressible solvers. "
                 "Requires additional parameters to be read from the solver "
@@ -263,7 +271,7 @@ void preciceAdapter::CHT::ConjugateHeatTransfer::addReaders(std::string dataName
             interface->addCouplingDataReader
             (
                 dataName,
-                new HeatFlux_Basic(mesh_)
+                new HeatFlux_Basic(mesh_, nameTransportProperties_, nameT_)
             );
             DEBUG(Adapter::adapterInfo("  Added Heat Flux for basic solvers. "
                 "Requires additional parameters to be read from the "
@@ -283,7 +291,7 @@ void preciceAdapter::CHT::ConjugateHeatTransfer::addReaders(std::string dataName
             interface->addCouplingDataReader
             (
                 dataName,
-                new HeatTransferCoefficient_Compressible(mesh_)
+                new HeatTransferCoefficient_Compressible(mesh_, nameT_)
             );
             DEBUG(Adapter::adapterInfo("  Added Heat Transfer Coefficient for compressible solvers."));
         }
@@ -292,7 +300,7 @@ void preciceAdapter::CHT::ConjugateHeatTransfer::addReaders(std::string dataName
             interface->addCouplingDataReader
             (
                 dataName,
-                new HeatTransferCoefficient_Incompressible(mesh_)
+                new HeatTransferCoefficient_Incompressible(mesh_, nameTransportProperties_, nameT_)
             );
             DEBUG(Adapter::adapterInfo("  Added Heat Transfer Coefficient for incompressible solvers. "
                 "Requires additional parameters to be read from the solver "
@@ -303,7 +311,7 @@ void preciceAdapter::CHT::ConjugateHeatTransfer::addReaders(std::string dataName
             interface->addCouplingDataReader
             (
                 dataName,
-                new HeatTransferCoefficient_Basic(mesh_)
+                new HeatTransferCoefficient_Basic(mesh_, nameTransportProperties_, nameT_)
             );
             DEBUG(Adapter::adapterInfo("  Added Heat Transfer Coefficient for basic solvers. "
                 "Requires additional parameters to be read from the "
@@ -321,7 +329,7 @@ void preciceAdapter::CHT::ConjugateHeatTransfer::addReaders(std::string dataName
         interface->addCouplingDataReader
         (
             dataName,
-            new SinkTemperature(mesh_)
+            new SinkTemperature(mesh_, nameT_)
         );
         DEBUG(Adapter::adapterInfo("  Added Sink Temperature."));
     }

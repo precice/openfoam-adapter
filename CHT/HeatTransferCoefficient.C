@@ -9,13 +9,14 @@ using namespace Foam;
 
 preciceAdapter::CHT::HeatTransferCoefficient::HeatTransferCoefficient
 (
-    const Foam::fvMesh& mesh
+    const Foam::fvMesh& mesh,
+    const std::string nameT
 )
 :
 T_(
     const_cast<volScalarField*>
     (
-        &mesh.lookupObject<volScalarField>("T")
+        &mesh.lookupObject<volScalarField>(nameT)
     )
 ),
 mesh_(mesh)
@@ -100,10 +101,11 @@ void preciceAdapter::CHT::HeatTransferCoefficient::read(double * buffer)
 preciceAdapter::CHT::
 HeatTransferCoefficient_Compressible::HeatTransferCoefficient_Compressible
 (
-    const Foam::fvMesh& mesh
+    const Foam::fvMesh& mesh,
+    const std::string nameT
 )
 :
-HeatTransferCoefficient(mesh),
+HeatTransferCoefficient(mesh, nameT),
 Kappa_(new KappaEff_Compressible(mesh))
 {
 }
@@ -131,11 +133,13 @@ getKappaEffAt(int i)
 preciceAdapter::CHT::HeatTransferCoefficient_Incompressible::
 HeatTransferCoefficient_Incompressible
 (
-    const Foam::fvMesh& mesh
+    const Foam::fvMesh& mesh,
+    const std::string nameTransportProperties,
+    const std::string nameT
 )
 :
-HeatTransferCoefficient(mesh),
-Kappa_(new KappaEff_Incompressible(mesh))
+HeatTransferCoefficient(mesh, nameT),
+Kappa_(new KappaEff_Incompressible(mesh, nameTransportProperties))
 {
 }
 
@@ -162,11 +166,13 @@ getKappaEffAt(int i)
 preciceAdapter::CHT::HeatTransferCoefficient_Basic::
 HeatTransferCoefficient_Basic
 (
-    const Foam::fvMesh& mesh
+    const Foam::fvMesh& mesh,
+    const std::string nameTransportProperties,
+    const std::string nameT
 )
 :
-HeatTransferCoefficient(mesh),
-Kappa_(new KappaEff_Basic(mesh))
+HeatTransferCoefficient(mesh, nameT),
+Kappa_(new KappaEff_Basic(mesh, nameTransportProperties))
 {
 }
 

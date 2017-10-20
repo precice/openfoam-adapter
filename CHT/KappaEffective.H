@@ -55,10 +55,14 @@ protected:
     //  used to compute the effective thermal conductivity.
     const Foam::incompressible::turbulenceModel & turbulence_;
 
+    //- Name of the transportProperties dictionary
+    const std::string nameTransportProperties_;
+
 public:
 
     //- Constructor
-    KappaEff_Incompressible(const Foam::fvMesh& mesh);
+    KappaEff_Incompressible(const Foam::fvMesh& mesh,
+        const std::string nameTransportProperties);
 
     //- Extract the kappaEff on the specific patch and store it.
     void extract(uint patchID);
@@ -81,10 +85,14 @@ protected:
     //- Effective conductivity (the same for each cell)
     Foam::scalar kappaEff_;
 
+    //- Name of the transportProperties dictionary
+    const std::string nameTransportProperties_;
+
 public:
 
     //- Constructor
-    KappaEff_Basic(const Foam::fvMesh& mesh);
+    KappaEff_Basic(const Foam::fvMesh& mesh,
+        const std::string nameTransportProperties);
 
     //- Extract the kappaEff on the specific patch and store it.
     void extract(uint patchID);

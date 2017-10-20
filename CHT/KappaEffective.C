@@ -31,13 +31,15 @@ scalar preciceAdapter::CHT::KappaEff_Compressible::getAt(int i)
 
 preciceAdapter::CHT::KappaEff_Incompressible::KappaEff_Incompressible
 (
-    const Foam::fvMesh& mesh
+    const Foam::fvMesh& mesh,
+    const std::string nameTransportProperties
 )
 :
 mesh_(mesh),
 turbulence_(
     mesh.lookupObject<incompressible::turbulenceModel>(turbulenceModel::propertiesName)
-)
+),
+nameTransportProperties_(nameTransportProperties)
 {}
 
 void preciceAdapter::CHT::KappaEff_Incompressible::extract(uint patchID)
@@ -48,7 +50,7 @@ void preciceAdapter::CHT::KappaEff_Incompressible::extract(uint patchID)
     const scalarField & nu = turbulence_.nu() ().boundaryField()[patchID];
 
     // Make sure that the transportProperties exists.
-    if (!mesh_.foundObject<IOdictionary>("transportProperties"))
+    if (!mesh_.foundObject<IOdictionary>(nameTransportProperties_))
     {
         FatalErrorInFunction
             << "The transportProperties dictionary needs "
@@ -58,7 +60,7 @@ void preciceAdapter::CHT::KappaEff_Incompressible::extract(uint patchID)
 
     // Get the transportProperties dictionary
     const dictionary & transportProperties =
-        &mesh_.lookupObject<IOdictionary>("transportProperties");
+        &mesh_.lookupObject<IOdictionary>(nameTransportProperties_);
 
     // Get the Prandl number from the transportProperties.
     // If it does not exist, an error is thrown automatically.
@@ -115,10 +117,12 @@ scalar preciceAdapter::CHT::KappaEff_Incompressible::getAt(int i)
 
 preciceAdapter::CHT::KappaEff_Basic::KappaEff_Basic
 (
-    const Foam::fvMesh& mesh
+    const Foam::fvMesh& mesh,
+    const std::string nameTransportProperties
 )
 :
-mesh_(mesh)
+mesh_(mesh),
+nameTransportProperties_(nameTransportProperties)
 {}
 
 void preciceAdapter::CHT::KappaEff_Basic::extract(uint patchID)
@@ -126,7 +130,7 @@ void preciceAdapter::CHT::KappaEff_Basic::extract(uint patchID)
     // Extract kappaEff_ as a parameter from the transportProperties file
 
     // Make sure that the transportProperties exists.
-    if (!mesh_.foundObject<IOdictionary>("transportProperties"))
+    if (!mesh_.foundObject<IOdictionary>(nameTransportProperties_))
     {
         FatalErrorInFunction
             << "The transportProperties dictionary needs "
@@ -136,7 +140,7 @@ void preciceAdapter::CHT::KappaEff_Basic::extract(uint patchID)
 
     // Get the transportProperties dictionary
     const dictionary& transportProperties =
-        mesh_.lookupObject<IOdictionary>("transportProperties");
+        mesh_.lookupObject<IOdictionary>(nameTransportProperties_);
 
     // Get the conductivity from the file
     kappaEff_ = transportProperties.lookupType<dimensionedScalar>("k").value();

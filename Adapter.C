@@ -259,6 +259,20 @@ bool preciceAdapter::Adapter::configFileRead()
     }
     DEBUG(adapterInfo("    CHT module enabled : " + std::to_string(CHTenabled_)));
 
+    // Read the name of the transportProperties dictionary (if different)
+    if (adapterConfig_["nameTransportProperties"])
+    {
+        nameTransportProperties_ = adapterConfig_["nameTransportProperties"].as<std::string>();
+    }
+    DEBUG(adapterInfo("    transportProperties name : " + nameTransportProperties_));
+
+    // Read the name of the temperature field (if different)
+    if (adapterConfig_["nameT"])
+    {
+        nameT_ = adapterConfig_["nameT"].as<std::string>();
+    }
+    DEBUG(adapterInfo("    temperature field name : " + nameT_));
+
     return true;
 }
 
@@ -318,8 +332,8 @@ void preciceAdapter::Adapter::configure()
     // Configure the CHT module
     if (CHTenabled_)
     {
-        CHT = new CHT::ConjugateHeatTransfer(mesh_);
-        CHT->configure();
+        CHT_ = new CHT::ConjugateHeatTransfer(mesh_);
+        CHT_->configure(nameTransportProperties_, nameT_);
     }
 
     // Create interfaces
@@ -338,7 +352,7 @@ void preciceAdapter::Adapter::configure()
             // Add CHT-related coupling data writers
             if (CHTenabled_)
             {
-                CHT->addWriters(dataName, interface);
+                CHT_->addWriters(dataName, interface);
             }
         } // end add coupling data writers
 
@@ -350,7 +364,7 @@ void preciceAdapter::Adapter::configure()
             // Add CHT-related coupling data readers
             if (CHTenabled_)
             {
-                CHT->addReaders(dataName, interface);
+                CHT_->addReaders(dataName, interface);
             }
         } // end add coupling data readers
     }
@@ -1051,11 +1065,11 @@ void preciceAdapter::Adapter::teardown()
     }
 
     // Delete the CHT module
-    if(NULL != CHT)
+    if(NULL != CHT_)
     {
         DEBUG(adapterInfo("Destroying the CHT module..."));
-        delete CHT;
-        CHT = NULL;
+        delete CHT_;
+        CHT_ = NULL;
     }
 
     return;

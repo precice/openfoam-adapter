@@ -29,7 +29,7 @@ protected:
 public:
 
     //- Constructor
-    HeatFlux(const Foam::fvMesh& mesh);
+    HeatFlux(const Foam::fvMesh& mesh, const std::string nameT);
 
     //- Compute heat flux values from the temperature field
     //  and write them into the buffer
@@ -64,7 +64,11 @@ protected:
 public:
 
     //- Constructor
-    HeatFlux_Compressible(const Foam::fvMesh& mesh);
+    HeatFlux_Compressible
+    (
+        const Foam::fvMesh& mesh,
+        const std::string nameT
+    );
 
     //- Destructor
     virtual ~HeatFlux_Compressible();
@@ -91,7 +95,12 @@ protected:
 public:
 
     //- Constructor
-    HeatFlux_Incompressible(const Foam::fvMesh& mesh);
+    HeatFlux_Incompressible
+    (
+        const Foam::fvMesh& mesh,
+        const std::string nameTransportProperties,
+        const std::string nameT
+    );
 
     //- Destructor
     virtual ~HeatFlux_Incompressible();
@@ -118,7 +127,12 @@ protected:
 public:
 
     //- Constructor
-    HeatFlux_Basic(const Foam::fvMesh& mesh);
+    HeatFlux_Basic
+    (
+        const Foam::fvMesh& mesh,
+        const std::string nameTransportProperties,
+        const std::string nameT
+    );
 
     //- Destructor
     virtual ~HeatFlux_Basic();
