@@ -344,7 +344,7 @@ void preciceAdapter::Adapter::configure()
         interfaces_.push_back(interface);
         DEBUG(adapterInfo("Interface created on mesh" + interfacesConfig_.at(i).meshName));
 
-        DEBUG(adapterInfo("Adding coupling data writers...", "dev"));
+        DEBUG(adapterInfo("Adding coupling data writers..."));
         for (uint j = 0; j < interfacesConfig_.at(i).writeData.size(); j++)
         {
             std::string dataName = interfacesConfig_.at(i).writeData.at(j);
@@ -356,7 +356,7 @@ void preciceAdapter::Adapter::configure()
             }
         } // end add coupling data writers
 
-        DEBUG(adapterInfo("Adding coupling data readers...", "dev"));
+        DEBUG(adapterInfo("Adding coupling data readers..."));
         for (uint j = 0; j < interfacesConfig_.at(i).readData.size(); j++)
         {
             std::string dataName = interfacesConfig_.at(i).readData.at(j);

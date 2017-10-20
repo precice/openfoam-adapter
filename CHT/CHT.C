@@ -175,7 +175,7 @@ void preciceAdapter::CHT::ConjugateHeatTransfer::addWriters(std::string dataName
         }
     }
 
-    if (dataName.compare("Heat-Transfer-Coefficient") == 0)
+    if (dataName.find("Heat-Transfer-Coefficient") == 0)
     {
         if (solverType_.compare("compressible") == 0)
         {
@@ -215,7 +215,7 @@ void preciceAdapter::CHT::ConjugateHeatTransfer::addWriters(std::string dataName
         }
     }
 
-    if (dataName.compare("Sink-Temperature") == 0)
+    if (dataName.find("Sink-Temperature") == 0)
     {
         interface->addCouplingDataWriter
         (
@@ -284,7 +284,7 @@ void preciceAdapter::CHT::ConjugateHeatTransfer::addReaders(std::string dataName
         }
     }
 
-    if (dataName.compare("Heat-Transfer-Coefficient") == 0)
+    if (dataName.find("Heat-Transfer-Coefficient") == 0)
     {
         if (solverType_.compare("compressible") == 0)
         {
@@ -324,7 +324,7 @@ void preciceAdapter::CHT::ConjugateHeatTransfer::addReaders(std::string dataName
         }
     }
 
-    if (dataName.compare("Sink-Temperature") == 0)
+    if (dataName.find("Sink-Temperature") == 0)
     {
         interface->addCouplingDataReader
         (
