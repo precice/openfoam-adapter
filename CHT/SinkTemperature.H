@@ -1,5 +1,5 @@
-#ifndef COUPLINGDATAUSER_SINKTEMPERATURE_H
-#define COUPLINGDATAUSER_SINKTEMPERATURE_H
+#ifndef CHT_SINKTEMPERATURE_H
+#define CHT_SINKTEMPERATURE_H
 
 #include "CouplingDataUser.H"
 #include "mixedFvPatchFields.H"
@@ -7,7 +7,7 @@
 
 namespace preciceAdapter
 {
-namespace User
+namespace CHT
 {
 
 //- Class that writes and reads sink temperature.

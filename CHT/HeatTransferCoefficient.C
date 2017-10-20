@@ -5,9 +5,9 @@
 
 using namespace Foam;
 
-//----- preciceAdapter::User::HeatTransferCoefficient --------------------------
+//----- preciceAdapter::CHT::HeatTransferCoefficient --------------------------
 
-preciceAdapter::User::HeatTransferCoefficient::HeatTransferCoefficient
+preciceAdapter::CHT::HeatTransferCoefficient::HeatTransferCoefficient
 (
     const Foam::fvMesh& mesh
 )
@@ -24,7 +24,7 @@ mesh_(mesh)
 }
 
 
-void preciceAdapter::User::HeatTransferCoefficient::write(double * buffer)
+void preciceAdapter::CHT::HeatTransferCoefficient::write(double * buffer)
 {
     int bufferIndex = 0;
 
@@ -53,7 +53,7 @@ void preciceAdapter::User::HeatTransferCoefficient::write(double * buffer)
 }
 
 
-void preciceAdapter::User::HeatTransferCoefficient::read(double * buffer)
+void preciceAdapter::CHT::HeatTransferCoefficient::read(double * buffer)
 {
     int bufferIndex = 0;
 
@@ -95,9 +95,9 @@ void preciceAdapter::User::HeatTransferCoefficient::read(double * buffer)
 }
 
 
-//----- preciceAdapter::User::HeatTransferCoefficient_Compressible -------------
+//----- preciceAdapter::CHT::HeatTransferCoefficient_Compressible -------------
 
-preciceAdapter::User::
+preciceAdapter::CHT::
 HeatTransferCoefficient_Compressible::HeatTransferCoefficient_Compressible
 (
     const Foam::fvMesh& mesh
@@ -108,27 +108,27 @@ Kappa_(new KappaEff_Compressible(mesh))
 {
 }
 
-preciceAdapter::User::HeatTransferCoefficient_Compressible::
+preciceAdapter::CHT::HeatTransferCoefficient_Compressible::
 ~HeatTransferCoefficient_Compressible()
 {
     delete Kappa_;
 }
 
-void preciceAdapter::User::HeatTransferCoefficient_Compressible::
+void preciceAdapter::CHT::HeatTransferCoefficient_Compressible::
 extractKappaEff(uint patchID)
 {
     Kappa_->extract(patchID);
 }
 
-scalar preciceAdapter::User::HeatTransferCoefficient_Compressible::
+scalar preciceAdapter::CHT::HeatTransferCoefficient_Compressible::
 getKappaEffAt(int i)
 {
     return Kappa_->getAt(i);
 }
 
-//----- preciceAdapter::User::HeatTransferCoefficient_Incompressible -----------
+//----- preciceAdapter::CHT::HeatTransferCoefficient_Incompressible -----------
 
-preciceAdapter::User::HeatTransferCoefficient_Incompressible::
+preciceAdapter::CHT::HeatTransferCoefficient_Incompressible::
 HeatTransferCoefficient_Incompressible
 (
     const Foam::fvMesh& mesh
@@ -139,27 +139,27 @@ Kappa_(new KappaEff_Incompressible(mesh))
 {
 }
 
-preciceAdapter::User::HeatTransferCoefficient_Incompressible::
+preciceAdapter::CHT::HeatTransferCoefficient_Incompressible::
 ~HeatTransferCoefficient_Incompressible()
 {
     delete Kappa_;
 }
 
-void preciceAdapter::User::HeatTransferCoefficient_Incompressible::
+void preciceAdapter::CHT::HeatTransferCoefficient_Incompressible::
 extractKappaEff(uint patchID)
 {
     Kappa_->extract(patchID);
 }
 
-scalar preciceAdapter::User::HeatTransferCoefficient_Incompressible::
+scalar preciceAdapter::CHT::HeatTransferCoefficient_Incompressible::
 getKappaEffAt(int i)
 {
     return Kappa_->getAt(i);
 }
 
-//----- preciceAdapter::User::HeatTransferCoefficient_Basic -----------------------------------
+//----- preciceAdapter::CHT::HeatTransferCoefficient_Basic -----------------------------------
 
-preciceAdapter::User::HeatTransferCoefficient_Basic::
+preciceAdapter::CHT::HeatTransferCoefficient_Basic::
 HeatTransferCoefficient_Basic
 (
     const Foam::fvMesh& mesh
@@ -170,19 +170,19 @@ Kappa_(new KappaEff_Basic(mesh))
 {
 }
 
-preciceAdapter::User::HeatTransferCoefficient_Basic::
+preciceAdapter::CHT::HeatTransferCoefficient_Basic::
 ~HeatTransferCoefficient_Basic()
 {
     delete Kappa_;
 }
 
-void preciceAdapter::User::HeatTransferCoefficient_Basic::
+void preciceAdapter::CHT::HeatTransferCoefficient_Basic::
 extractKappaEff(uint patchID)
 {
     Kappa_->extract(patchID);
 }
 
-scalar preciceAdapter::User::HeatTransferCoefficient_Basic::
+scalar preciceAdapter::CHT::HeatTransferCoefficient_Basic::
 getKappaEffAt(int i)
 {
     return Kappa_->getAt(i);

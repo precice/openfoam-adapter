@@ -1,12 +1,12 @@
-#ifndef COUPLINGDATAUSER_HEATTRANSFERCOEFFICIENT_H
-#define COUPLINGDATAUSER_HEATTRANSFERCOEFFICIENT_H
+#ifndef CHT_HEATTRANSFERCOEFFICIENT_H
+#define CHT_HEATTRANSFERCOEFFICIENT_H
 
 #include "CouplingDataUser.H"
 #include "KappaEffective.H"
 
 namespace preciceAdapter
 {
-namespace User
+namespace CHT
 {
 
 //- Abstract class that writes and reads heat transfer coefficient.

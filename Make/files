@@ -1,11 +1,12 @@
 Interface.C
 
-CouplingDataUser/CouplingDataUser.C
-CouplingDataUser/Temperature.C
-CouplingDataUser/KappaEffective.C
-CouplingDataUser/HeatFlux.C
-CouplingDataUser/HeatTransferCoefficient.C
-CouplingDataUser/SinkTemperature.C
+CouplingDataUser.C
+
+CHT/Temperature.C
+CHT/KappaEffective.C
+CHT/HeatFlux.C
+CHT/HeatTransferCoefficient.C
+CHT/SinkTemperature.C
 
 Adapter.C
 

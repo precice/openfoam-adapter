@@ -4,7 +4,7 @@
 #include <string>
 #include <vector>
 #include "fvCFD.H"
-#include "CouplingDataUser/CouplingDataUser.H"
+#include "CouplingDataUser.H"
 #include "precice/SolverInterface.hpp"
 
 

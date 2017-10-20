@@ -1,12 +1,12 @@
-#ifndef COUPLINGDATAUSER_COMMON_KAPPAEFF_H
-#define COUPLINGDATAUSER_COMMON_KAPPAEFF_H
+#ifndef CHT_COMMON_KAPPAEFF_H
+#define CHT_COMMON_KAPPAEFF_H
 
 #include "turbulentFluidThermoModel.H"
 #include "turbulentTransportModel.H"
 
 namespace preciceAdapter
 {
-namespace User
+namespace CHT
 {
 
 //- Class that extracts the effective conductivity from compressible

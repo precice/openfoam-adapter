@@ -4,9 +4,9 @@
 
 using namespace Foam;
 
-//----- preciceAdapter::User::HeatFlux -----------------------------------------
+//----- preciceAdapter::CHT::HeatFlux -----------------------------------------
 
-preciceAdapter::User::HeatFlux::HeatFlux
+preciceAdapter::CHT::HeatFlux::HeatFlux
 (
     const Foam::fvMesh& mesh
 )
@@ -21,7 +21,7 @@ T_(
     dataType_ = scalar;
 }
 
-void preciceAdapter::User::HeatFlux::write(double * buffer)
+void preciceAdapter::CHT::HeatFlux::write(double * buffer)
 {
     int bufferIndex = 0;
 
@@ -53,7 +53,7 @@ void preciceAdapter::User::HeatFlux::write(double * buffer)
     }
 }
 
-void preciceAdapter::User::HeatFlux::read(double * buffer)
+void preciceAdapter::CHT::HeatFlux::read(double * buffer)
 {
     int bufferIndex = 0;
 
@@ -87,9 +87,9 @@ void preciceAdapter::User::HeatFlux::read(double * buffer)
     }
 }
 
-//----- preciceAdapter::User::HeatFlux_Compressible ----------------------------
+//----- preciceAdapter::CHT::HeatFlux_Compressible ----------------------------
 
-preciceAdapter::User::HeatFlux_Compressible::HeatFlux_Compressible
+preciceAdapter::CHT::HeatFlux_Compressible::HeatFlux_Compressible
 (
     const Foam::fvMesh& mesh
 )
@@ -99,24 +99,24 @@ Kappa_(new KappaEff_Compressible(mesh))
 {
 }
 
-preciceAdapter::User::HeatFlux_Compressible::~HeatFlux_Compressible()
+preciceAdapter::CHT::HeatFlux_Compressible::~HeatFlux_Compressible()
 {
     delete Kappa_;
 }
 
-void preciceAdapter::User::HeatFlux_Compressible::extractKappaEff(uint patchID)
+void preciceAdapter::CHT::HeatFlux_Compressible::extractKappaEff(uint patchID)
 {
     Kappa_->extract(patchID);
 }
 
-scalar preciceAdapter::User::HeatFlux_Compressible::getKappaEffAt(int i)
+scalar preciceAdapter::CHT::HeatFlux_Compressible::getKappaEffAt(int i)
 {
     return Kappa_->getAt(i);
 }
 
-//----- preciceAdapter::User::HeatFlux_Incompressible --------------------------
+//----- preciceAdapter::CHT::HeatFlux_Incompressible --------------------------
 
-preciceAdapter::User::HeatFlux_Incompressible::HeatFlux_Incompressible
+preciceAdapter::CHT::HeatFlux_Incompressible::HeatFlux_Incompressible
 (
     const Foam::fvMesh& mesh
 )
@@ -126,24 +126,24 @@ Kappa_(new KappaEff_Incompressible(mesh))
 {
 }
 
-preciceAdapter::User::HeatFlux_Incompressible::~HeatFlux_Incompressible()
+preciceAdapter::CHT::HeatFlux_Incompressible::~HeatFlux_Incompressible()
 {
     delete Kappa_;
 }
 
-void preciceAdapter::User::HeatFlux_Incompressible::extractKappaEff(uint patchID)
+void preciceAdapter::CHT::HeatFlux_Incompressible::extractKappaEff(uint patchID)
 {
     Kappa_->extract(patchID);
 }
 
-scalar preciceAdapter::User::HeatFlux_Incompressible::getKappaEffAt(int i)
+scalar preciceAdapter::CHT::HeatFlux_Incompressible::getKappaEffAt(int i)
 {
     return Kappa_->getAt(i);
 }
 
-//----- preciceAdapter::User::HeatFlux_Basic -----------------------------------
+//----- preciceAdapter::CHT::HeatFlux_Basic -----------------------------------
 
-preciceAdapter::User::HeatFlux_Basic::HeatFlux_Basic
+preciceAdapter::CHT::HeatFlux_Basic::HeatFlux_Basic
 (
     const Foam::fvMesh& mesh
 )
@@ -153,17 +153,17 @@ Kappa_(new KappaEff_Basic(mesh))
 {
 }
 
-preciceAdapter::User::HeatFlux_Basic::~HeatFlux_Basic()
+preciceAdapter::CHT::HeatFlux_Basic::~HeatFlux_Basic()
 {
     delete Kappa_;
 }
 
-void preciceAdapter::User::HeatFlux_Basic::extractKappaEff(uint patchID)
+void preciceAdapter::CHT::HeatFlux_Basic::extractKappaEff(uint patchID)
 {
     Kappa_->extract(patchID);
 }
 
-scalar preciceAdapter::User::HeatFlux_Basic::getKappaEffAt(int i)
+scalar preciceAdapter::CHT::HeatFlux_Basic::getKappaEffAt(int i)
 {
     return Kappa_->getAt(i);
 }

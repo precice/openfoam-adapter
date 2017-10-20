@@ -2,7 +2,7 @@
 
 using namespace Foam;
 
-preciceAdapter::User::SinkTemperature::SinkTemperature
+preciceAdapter::CHT::SinkTemperature::SinkTemperature
 (
     const Foam::fvMesh& mesh
 )
@@ -17,7 +17,7 @@ T_(
     dataType_ = scalar;
 }
 
-void preciceAdapter::User::SinkTemperature::write(double * buffer)
+void preciceAdapter::CHT::SinkTemperature::write(double * buffer)
 {
     int bufferIndex = 0;
 
@@ -51,7 +51,7 @@ void preciceAdapter::User::SinkTemperature::write(double * buffer)
     }
 }
 
-void preciceAdapter::User::SinkTemperature::read(double * buffer)
+void preciceAdapter::CHT::SinkTemperature::read(double * buffer)
 {
     int bufferIndex = 0;
 

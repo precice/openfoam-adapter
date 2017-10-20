@@ -2,9 +2,9 @@
 
 using namespace Foam;
 
-//----- preciceAdapter::User::KappaEff_Compressible ------------------
+//----- preciceAdapter::CHT::KappaEff_Compressible ------------------
 
-preciceAdapter::User::KappaEff_Compressible::KappaEff_Compressible
+preciceAdapter::CHT::KappaEff_Compressible::KappaEff_Compressible
 (
     const Foam::fvMesh& mesh
 )
@@ -15,21 +15,21 @@ turbulence_(
 )
 {}
 
-void preciceAdapter::User::KappaEff_Compressible::extract(uint patchID)
+void preciceAdapter::CHT::KappaEff_Compressible::extract(uint patchID)
 {
     // Extract kappaEff_ from the turbulence model
     kappaEff_ = turbulence_.kappaEff() ().boundaryField()[patchID];
 }
 
-scalar preciceAdapter::User::KappaEff_Compressible::getAt(int i)
+scalar preciceAdapter::CHT::KappaEff_Compressible::getAt(int i)
 {
     return kappaEff_[i];
 }
 
 
-//----- preciceAdapter::User::KappaEff_Incompressible ------------------
+//----- preciceAdapter::CHT::KappaEff_Incompressible ------------------
 
-preciceAdapter::User::KappaEff_Incompressible::KappaEff_Incompressible
+preciceAdapter::CHT::KappaEff_Incompressible::KappaEff_Incompressible
 (
     const Foam::fvMesh& mesh
 )
@@ -40,7 +40,7 @@ turbulence_(
 )
 {}
 
-void preciceAdapter::User::KappaEff_Incompressible::extract(uint patchID)
+void preciceAdapter::CHT::KappaEff_Incompressible::extract(uint patchID)
 {
     // Compute kappaEff_ from the turbulence model, using alpha and Prandl
 
@@ -106,14 +106,14 @@ void preciceAdapter::User::KappaEff_Incompressible::extract(uint patchID)
 
 }
 
-scalar preciceAdapter::User::KappaEff_Incompressible::getAt(int i)
+scalar preciceAdapter::CHT::KappaEff_Incompressible::getAt(int i)
 {
     return kappaEff_[i];
 }
 
-//----- preciceAdapter::User::KappaEff_Basic ---------------------------
+//----- preciceAdapter::CHT::KappaEff_Basic ---------------------------
 
-preciceAdapter::User::KappaEff_Basic::KappaEff_Basic
+preciceAdapter::CHT::KappaEff_Basic::KappaEff_Basic
 (
     const Foam::fvMesh& mesh
 )
@@ -121,7 +121,7 @@ preciceAdapter::User::KappaEff_Basic::KappaEff_Basic
 mesh_(mesh)
 {}
 
-void preciceAdapter::User::KappaEff_Basic::extract(uint patchID)
+void preciceAdapter::CHT::KappaEff_Basic::extract(uint patchID)
 {
     // Extract kappaEff_ as a parameter from the transportProperties file
 
@@ -142,7 +142,7 @@ void preciceAdapter::User::KappaEff_Basic::extract(uint patchID)
     kappaEff_ = transportProperties.lookupType<dimensionedScalar>("k").value();
 }
 
-scalar preciceAdapter::User::KappaEff_Basic::getAt(int i)
+scalar preciceAdapter::CHT::KappaEff_Basic::getAt(int i)
 {
     // For a basic solver, the kappaEff is only one value.
     // Therefore, return the same value all the time.

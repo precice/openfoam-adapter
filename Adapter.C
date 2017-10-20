@@ -3,10 +3,10 @@
 
 #include "IOstreams.H"
 
-#include "CouplingDataUser/Temperature.H"
-#include "CouplingDataUser/HeatFlux.H"
-#include "CouplingDataUser/SinkTemperature.H"
-#include "CouplingDataUser/HeatTransferCoefficient.H"
+#include "CHT/Temperature.H"
+#include "CHT/HeatFlux.H"
+#include "CHT/SinkTemperature.H"
+#include "CHT/HeatTransferCoefficient.H"
 
 // NOTE: If you want to couple a new variable, include the class' header here.
 // You also need to include it in the Make/files file.
@@ -428,7 +428,7 @@ void preciceAdapter::Adapter::configure()
                 interface->addCouplingDataWriter
                 (
                     dataName,
-                    new User::Temperature(mesh_)
+                    new CHT::Temperature(mesh_)
                 );
                 DEBUG(adapterInfo("  Added Temperature."));
             }
@@ -440,7 +440,7 @@ void preciceAdapter::Adapter::configure()
                     interface->addCouplingDataWriter
                     (
                         dataName,
-                        new User::HeatFlux_Compressible(mesh_)
+                        new CHT::HeatFlux_Compressible(mesh_)
                     );
                     DEBUG(adapterInfo("  Added Heat Flux for compressible solvers."));
                 }
@@ -449,7 +449,7 @@ void preciceAdapter::Adapter::configure()
                     interface->addCouplingDataWriter
                     (
                         dataName,
-                        new User::HeatFlux_Incompressible(mesh_)
+                        new CHT::HeatFlux_Incompressible(mesh_)
                     );
                     DEBUG(adapterInfo("  Added Heat Flux for incompressible solvers. "
                         "Requires additional parameters to be read from the "
@@ -460,7 +460,7 @@ void preciceAdapter::Adapter::configure()
                     interface->addCouplingDataWriter
                     (
                         dataName,
-                        new User::HeatFlux_Basic(mesh_)
+                        new CHT::HeatFlux_Basic(mesh_)
                     );
                     DEBUG(adapterInfo("  Added Heat Flux for basic solvers. "
                         "Requires additional parameters to be read from the "
@@ -480,7 +480,7 @@ void preciceAdapter::Adapter::configure()
                     interface->addCouplingDataWriter
                     (
                         dataName,
-                        new User::HeatTransferCoefficient_Compressible(mesh_)
+                        new CHT::HeatTransferCoefficient_Compressible(mesh_)
                     );
                     DEBUG(adapterInfo("  Added Heat Transfer Coefficient for compressible solvers."));
                 }
@@ -489,7 +489,7 @@ void preciceAdapter::Adapter::configure()
                     interface->addCouplingDataWriter
                     (
                         dataName,
-                        new User::HeatTransferCoefficient_Incompressible(mesh_)
+                        new CHT::HeatTransferCoefficient_Incompressible(mesh_)
                     );
                     DEBUG(adapterInfo("  Added Heat Transfer Coefficient for incompressible solvers. "
                         "Requires additional parameters to be read from the "
@@ -500,7 +500,7 @@ void preciceAdapter::Adapter::configure()
                     interface->addCouplingDataWriter
                     (
                         dataName,
-                        new User::HeatTransferCoefficient_Basic(mesh_)
+                        new CHT::HeatTransferCoefficient_Basic(mesh_)
                     );
                     DEBUG(adapterInfo("  Added Heat Transfer Coefficient for basic solvers. "
                         "Requires additional parameters to be read from the "
@@ -518,7 +518,7 @@ void preciceAdapter::Adapter::configure()
                 interface->addCouplingDataWriter
                 (
                     dataName,
-                    new User::SinkTemperature(mesh_)
+                    new CHT::SinkTemperature(mesh_)
                 );
                 DEBUG(adapterInfo("  Added Sink Temperature."));
             }
@@ -541,7 +541,7 @@ void preciceAdapter::Adapter::configure()
                 interface->addCouplingDataReader
                 (
                     dataName,
-                    new User::Temperature(mesh_)
+                    new CHT::Temperature(mesh_)
                 );
                 DEBUG(adapterInfo("  Added Temperature."));
             }
@@ -553,7 +553,7 @@ void preciceAdapter::Adapter::configure()
                     interface->addCouplingDataReader
                     (
                         dataName,
-                        new User::HeatFlux_Compressible(mesh_)
+                        new CHT::HeatFlux_Compressible(mesh_)
                     );
                     DEBUG(adapterInfo("  Added Heat Flux for compressible solvers."));
                 }
@@ -562,7 +562,7 @@ void preciceAdapter::Adapter::configure()
                     interface->addCouplingDataReader
                     (
                         dataName,
-                        new User::HeatFlux_Incompressible(mesh_)
+                        new CHT::HeatFlux_Incompressible(mesh_)
                     );
                     DEBUG(adapterInfo("  Added Heat Flux for incompressible solvers. "
                         "Requires additional parameters to be read from the solver "
@@ -573,7 +573,7 @@ void preciceAdapter::Adapter::configure()
                     interface->addCouplingDataReader
                     (
                         dataName,
-                        new User::HeatFlux_Basic(mesh_)
+                        new CHT::HeatFlux_Basic(mesh_)
                     );
                     DEBUG(adapterInfo("  Added Heat Flux for basic solvers. "
                         "Requires additional parameters to be read from the "
@@ -593,7 +593,7 @@ void preciceAdapter::Adapter::configure()
                     interface->addCouplingDataReader
                     (
                         dataName,
-                        new User::HeatTransferCoefficient_Compressible(mesh_)
+                        new CHT::HeatTransferCoefficient_Compressible(mesh_)
                     );
                     DEBUG(adapterInfo("  Added Heat Transfer Coefficient for compressible solvers."));
                 }
@@ -602,7 +602,7 @@ void preciceAdapter::Adapter::configure()
                     interface->addCouplingDataReader
                     (
                         dataName,
-                        new User::HeatTransferCoefficient_Incompressible(mesh_)
+                        new CHT::HeatTransferCoefficient_Incompressible(mesh_)
                     );
                     DEBUG(adapterInfo("  Added Heat Transfer Coefficient for incompressible solvers. "
                         "Requires additional parameters to be read from the solver "
@@ -613,7 +613,7 @@ void preciceAdapter::Adapter::configure()
                     interface->addCouplingDataReader
                     (
                         dataName,
-                        new User::HeatTransferCoefficient_Basic(mesh_)
+                        new CHT::HeatTransferCoefficient_Basic(mesh_)
                     );
                     DEBUG(adapterInfo("  Added Heat Transfer Coefficient for basic solvers. "
                         "Requires additional parameters to be read from the "
@@ -631,7 +631,7 @@ void preciceAdapter::Adapter::configure()
                 interface->addCouplingDataReader
                 (
                     dataName,
-                    new User::SinkTemperature(mesh_)
+                    new CHT::SinkTemperature(mesh_)
                 );
                 DEBUG(adapterInfo("  Added Sink Temperature."));
             }

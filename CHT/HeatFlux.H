@@ -1,12 +1,12 @@
-#ifndef COUPLINGDATAUSER_HEATFLUX_H
-#define COUPLINGDATAUSER_HEATFLUX_H
+#ifndef CHT_HEATFLUX_H
+#define CHT_HEATFLUX_H
 
 #include "CouplingDataUser.H"
 #include "KappaEffective.H"
 
 namespace preciceAdapter
 {
-namespace User
+namespace CHT
 {
 
 //- Abstract class that writes and reads heat flux.

@@ -1,5 +1,5 @@
-#ifndef COUPLINGDATAUSER_TEMPERATURE_H
-#define COUPLINGDATAUSER_TEMPERATURE_H
+#ifndef CHT_TEMPERATURE_H
+#define CHT_TEMPERATURE_H
 
 #include "CouplingDataUser.H"
 
@@ -7,7 +7,7 @@
 
 namespace preciceAdapter
 {
-namespace User
+namespace CHT
 {
 
 //- Class that writes and reads temperature.
