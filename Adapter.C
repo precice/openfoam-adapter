@@ -163,9 +163,20 @@ bool preciceAdapter::Adapter::configFileCheck(const std::string adapterConfigFil
 
 bool preciceAdapter::Adapter::configFileRead()
 {
-    // Check the configuration file
-    const std::string adapterConfigFileName = runTime_.path() + "/precice-adapter-config.yml";
-    DEBUG(adapterInfo("Reading the adapter's YAML configuration file " + adapterConfigFileName + "..."));
+    // Check the configuration file.
+    // The file should be named "precice-adapter-config.yml" and located
+    // in the global case directory. In case of a decomposed case, this is
+    // the parent directory of the "processor*" directories.
+    std::string adapterConfigFileName;
+    if (runTime_.processorCase())
+    {
+        adapterConfigFileName = runTime_.path() + "/../precice-adapter-config.yml";
+    }
+    else
+    {
+        adapterConfigFileName = runTime_.path() + "/precice-adapter-config.yml";
+    }
+    adapterInfo("Reading the adapter's YAML configuration file " + adapterConfigFileName + "...", "info");
 
     if (!configFileCheck(adapterConfigFileName)) return false;
 
