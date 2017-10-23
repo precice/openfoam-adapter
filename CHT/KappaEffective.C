@@ -94,6 +94,7 @@ void preciceAdapter::CHT::KappaEff_Incompressible::extract(uint patchID)
 
     // Get the Prandl number from the transportProperties.
     // If it does not exist, an error is thrown automatically.
+    // TODO: Read this value only once
     const scalar & Pr =
         transportProperties.lookupType<dimensionedScalar>(namePr_).value();
 
@@ -124,12 +125,14 @@ void preciceAdapter::CHT::KappaEff_Incompressible::extract(uint patchID)
 
     // Get the density from the transportProperties (must be provided and read).
     // If it does not exist, an error is thrown automatically.
+    // TODO: Read this value only once
     const scalar & rho =
         transportProperties.lookupType<dimensionedScalar>(nameRho_).value();
 
     // Get the specific heat capacity from the transportProperties
     // (must be provided and read).
     // If it does not exist, an error is thrown automatically.
+    // TODO: Read this value only once
     const scalar & Cp =
         transportProperties.lookupType<dimensionedScalar>(nameCp_).value();
 
@@ -179,6 +182,7 @@ void preciceAdapter::CHT::KappaEff_Basic::extract(uint patchID)
         mesh_.lookupObject<IOdictionary>(nameTransportProperties_);
 
     // Get the conductivity from the file
+    // TODO: Read this value only once
     kappaEff_ = transportProperties.lookupType<dimensionedScalar>(nameKappa_).value();
 }
 

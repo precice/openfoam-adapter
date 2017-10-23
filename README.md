@@ -139,7 +139,7 @@ First of all, the solver needs to be able to simulate heat transfer. This means
 that the solver should create a Temperature field (named `T`) and provide
 thermal conductivity or diffusivity fields.
 
-Three categories of solvers are assumed: compresible, incompressible and basic solvers.
+Three categories of solvers are assumed: compressible, incompressible and basic solvers.
 
 #### Compressible turbulent flow solvers
 For example `buoyantPimpleFoam` or `buoyantSimpleFoam`. These solvers simulate
@@ -157,36 +157,17 @@ are provided.
 For example `buoyantBoussinesqPimpleFoam` or `buoyantBoussinesqSimpleFoam`.
 These solvers simulate heat transfer but do not compute the effective thermal
 conductivity, as they don't know the density of the fluid or the
-specific heat capacity. Therefore,
-the solver needs to be modified to read these parameters from the
-`transportProperties` dictionary.
+specific heat capacity. Therefore, values for these need to be provided.
+The adapter looks for them in the `transportProperties` dictionary.
 
-The following lines need to be added at the end of the `createFields.H`
-file of the solver:
-
+For example, the following lines need to be added in the `constant/transportProperties`
+file:
 ```c++
-Info<< "Reading density rho\n" << endl;
-
-dimensionedScalar rho
-(
-    laminarTransport.lookup("rho")
-);
-
-Info<< "Reading specific heat Cp\n" << endl;
-
-dimensionedScalar Cp
-(
-    laminarTransport.lookup("Cp")
-);
+rho              rho [ 1 -3  0  0 0 0 0 ] 50;
+Cp               Cp  [ 0  2 -2 -1 0 0 0 ] 5;
 ```
 
-No other changes are required in the code. If this is an official solver,
-adjust the name and the build path in the `Make/files`. Afterwards,
-recompile the solver.
-
-_Note:_ if you are trying to build `buoyantBoussinesqPimpleFoam`, keep in mind
-that it looks for some source files in the `../buoyantBoussinesqSimpleFoam`
-directory.
+The solver itself does not need to read these values.
 
 Assumptions:
 * Temperature is a registered IOObject named `T`.
@@ -198,43 +179,68 @@ If it is not found, then only the laminar part of the thermal diffusivity is
 used (a warning is triggered in this case).
 
 #### Basic solvers
-For example `laplacianFoam`. These solvers can
-simulate heat transfer, but they need to also provide a conductivity `k`,
-density `rho` and specific heat capacity `Cp`.
+For example `laplacianFoam` can simulate heat transfer, using a
+thermal diffusion parameter `DT`.
+The adapter additionally expects values for conductivity `k`,
+density `rho` and specific heat capacity `Cp` in the `transportProperties`
+dictionary.
 
-In order to read these parameters, the following lines need to be added
-in the solver's `createFields.H` file:
-
+For example, the following lines need to be present in the `constant/transportProperties`
+file for the `laplacianFoam`:
 ```c++
-Info<< "Reading conductivity k\n" << endl;
-
-dimensionedScalar k
-(
-    transportProperties.lookup("k")
-);
-
-Info<< "Reading density rho\n" << endl;
-
-dimensionedScalar rho
-(
-    transportProperties.lookup("rho")
-);
-
-Info<< "Reading specific heat Cp\n" << endl;
-
-dimensionedScalar Cp
-(
-    transportProperties.lookup("Cp")
-);
+DT               DT  [ 0  2 -1  0 0 0 0 ] 1;
+k                k   [ 1  1 -3 -1 0 0 0 ] 100;
+rho              rho [ 1 -3  0  0 0 0 0 ] 1;
+Cp               Cp  [ 0  2 -2 -1 0 0 0 ] 100;
 ```
 
-Recompile the solver as for the incompressible solvers.
+Do not delete the, already provided in the pure solver, `DT`, as `laplacianFoam` expects it. Specify the values
+for `k`, `rho`, and `Cp` and then calculate the `DT` as `k / rho / Cp`.
+The solver itself does not need to read the additional parameters.
 
 Assumptions:
 * Temperature is a registered IOObject named `T`.
 * The dictionariy `transportProperties` is provided.
 * `transportProperties` contains conductivity `k`, density `rho`,
 and specific heat capacity `Cp`.
+
+#### Parameters and fields with different names
+
+The names of the parameters and fields that the adapter looks for
+can be changed, in order to support a wider variety of solvers.
+You may specify the following parameters in the adapter's configuration
+file (the values correspond to the default values):
+
+```yaml
+# Temperature field
+nameT: T
+# transportProperties dictionary
+nameTransportProperties: transportProperties
+# thermal conductivity
+nameKappa: k
+# density
+nameRho: rho
+# specific heat capacity for constant pressure
+nameCp: Cp
+# Prandtl number
+namePr: Pr
+# turbulent thermal diffusivity
+nameAlphat: alphat
+```
+
+### User-defined solver type
+
+The adapter tries to automatically determine the solver type,
+based on the dictionaries that the solver uses.
+However, you may manually specify the solver type to be `basic`,
+`incompressible` or `compressible`:
+
+```yaml
+solverType: compressible
+```
+
+This will force the adapter use the boundary condition implementations
+for the respective type.
 
 ### Notes on OpenFOAM features
 
@@ -363,18 +369,19 @@ or (`Sink-Temperature`, `Heat-Transfer-Coefficient`).
 Additional debug messages can be printed. For performance reasons, these
 messages are disabled at compile-time. In order to activate them,
 the adapter needs to be built with the `ADAPTER_DEBUG_MODE` defined.
-For this, comment-out the respective line in the beginning of the `Adapter.C` file.
+For this, comment-out the respective line in the beginning of the `Adapter.C` file. Additional
+flags exist in the `CHT.C` and `KappaEffective.C`.
 
 ### How to couple a different variable?
 
 In case you want to couple a different variable, you need to create a new
-coupling data user class in the `preciceAdapter::User` namespace.
+coupling data user class in the `preciceAdapter::CHT` namespace or in a new one.
 Then you need to add an option for it in the configuration part
 to add objects of it into the `couplingDataWriters` and `couplingDataReaders`
 whenever requested.
 
 There are some `NOTE`s in the files `Adapter.H`, `Adapter.C` and
-`CouplingDataUser/Temperature.H` to guide you through the process.
+`CHT/Temperature.H` to guide you through the process.
 
 _Note:_ make sure to include any additional required libraries in the `LIB_LIBS`
 section of the `Make/options`. Since the adapter is a shared library,
