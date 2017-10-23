@@ -872,13 +872,33 @@ void preciceAdapter::Adapter::readCheckpoint()
     // Reload all the fields of type volScalarField
     for (uint i = 0; i < volScalarFields_.size(); i++)
     {
+        // Load the volume field
         *(volScalarFields_.at(i)) == *(volScalarFieldCopies_.at(i));
+        // Evaluate the boundaries, if supported
+        try{
+            if ("epsilon" != volScalarFields_.at(i)->name())
+            {
+                volScalarFields_.at(i)->correctBoundaryConditions();
+            }
+            // TODO: Known bug: cannot find "volScalarField::Internal kEpsilon:G"
+            // Currently it is skipped. Before it was not corrected at all.
+        } catch (Foam::error) {
+            DEBUG(adapterInfo("Could not evaluate the boundary for" + volScalarFields_.at(i)->name(), "warning"));
+        }
+
     }
 
     // Reload all the fields of type volVectorField
     for (uint i = 0; i < volVectorFields_.size(); i++)
     {
+        // Load the volume field
         *(volVectorFields_.at(i)) == *(volVectorFieldCopies_.at(i));
+        // Evaluate the boundaries
+        try{
+            volVectorFields_.at(i)->correctBoundaryConditions();
+        } catch (...) {
+            DEBUG(adapterInfo("Could not evaluate the boundary for" + volVectorFields_.at(i)->name(), "warning"));
+        }
     }
 
     // Reload all the fields of type surfaceScalarField
