@@ -2,7 +2,7 @@
 #define UTILITIES_H
 
 // Output debug messages. Keep it disabled for production runs.
-// #define ADAPTER_DEBUG_MODE
+#define ADAPTER_DEBUG_MODE
 
 #ifdef ADAPTER_DEBUG_MODE
 #define DEBUG(x) x

@@ -229,6 +229,7 @@ void preciceAdapter::Adapter::configure()
         return;
     }
 
+try{
     // Check the timestep type (fixed vs adjustable)
     DEBUG(adapterInfo("Checking the timestep type (fixed vs adjustable)..."));
     adjustableTimestep_ = runTime_.controlDict().lookupOrDefault("adjustTimeStep", false);
@@ -351,6 +352,10 @@ void preciceAdapter::Adapter::configure()
        );
         const_cast<Time&>(runTime_).setEndTime(GREAT);
     }
+
+} catch (Foam::error) {
+    errorsInConfigure = true;
+}
 
     return;
 }
