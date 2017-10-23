@@ -28,7 +28,6 @@ bool preciceAdapter::Adapter::configFileCheck(const std::string adapterConfigFil
 
     YAML::Node adapterConfig = YAML::LoadFile(adapterConfigFileName);
 
-    // TODO Consider simplifying
     // Check if the "participant" node exists
     if (!adapterConfig["participant"])
     {
@@ -41,7 +40,6 @@ bool preciceAdapter::Adapter::configFileCheck(const std::string adapterConfigFil
     {
         adapterInfo("The 'precice-config-file' node is missing in " + adapterConfigFileName + ".", "warning");
         configErrors = true;
-        // TODO Check if the specified file exists
     }
 
     // Check if the "interfaces" node exists
@@ -68,13 +66,11 @@ bool preciceAdapter::Adapter::configFileCheck(const std::string adapterConfigFil
             {
                 adapterInfo("The 'write-data' node is missing for the interface #" + std::to_string(i+1) + " in " + adapterConfigFileName + ".", "warning");
                 configErrors = true;
-                // TODO Add check for allowed values.
             }
             if (!adapterConfig["interfaces"][i]["read-data"])
             {
                 adapterInfo("The 'read-data' node is missing for the interface #" + std::to_string(i+1) + " in " + adapterConfigFileName + ".", "warning");
                 configErrors = true;
-                // TODO Add check for allowed values.
             }
         }
     }
@@ -113,7 +109,6 @@ bool preciceAdapter::Adapter::configFileRead()
     preciceConfigFilename_ = adapterConfig_["precice-config-file"].as<std::string>();
     DEBUG(adapterInfo("  precice-config-file : " + preciceConfigFilename_));
 
-    // TODO Read the coupling interfaces configuration
     YAML::Node adapterConfigInterfaces = adapterConfig_["interfaces"];
     DEBUG(adapterInfo("  interfaces : "));
     for (uint i = 0; i < adapterConfigInterfaces.size(); i++)
@@ -129,13 +124,11 @@ bool preciceAdapter::Adapter::configFileRead()
             DEBUG(adapterInfo("      " + adapterConfigInterfaces[i]["patches"][j].as<std::string>()));
         }
 
-        // TODO: Consider simplification
         if (adapterConfigInterfaces[i]["write-data"])
         {
             DEBUG(adapterInfo("    write-data : "));
             if (adapterConfigInterfaces[i]["write-data"].size() > 0)
             {
-                // TODO Check: before it was adapterConfigInterfaces[i]["read-data"].size()
                 for (uint j = 0; j < adapterConfigInterfaces[i]["write-data"].size(); j++)
                 {
                     interfaceConfig.writeData.push_back(adapterConfigInterfaces[i]["write-data"][j].as<std::string>());
@@ -149,7 +142,6 @@ bool preciceAdapter::Adapter::configFileRead()
             }
         }
 
-        // TODO: Consider simplification
         if (adapterConfigInterfaces[i]["read-data"])
         {
             DEBUG(adapterInfo("    read-data : "));
@@ -638,7 +630,8 @@ void preciceAdapter::Adapter::adjustSolverTimeStep()
     }
 
     // Update the solver's timestep (but don't trigger the adjustDeltaT(),
-    // which also triggers the functionObject's adjustTimeStep()) (TODO)
+    // which also triggers the functionObject's adjustTimeStep())
+    // TODO: Keep this in mind if any relevant problem appears.
     const_cast<Time&>(runTime_).setDeltaT(timestepSolver_, false);
 
     return;
@@ -716,7 +709,6 @@ void preciceAdapter::Adapter::setupCheckpointing()
     */
 
     // Print the available objects of type volScalarField
-    // TODO Direct this through adapterInfo()
     DEBUG(adapterInfo("Available objects of type volScalarField : "));
     #ifdef ADAPTER_DEBUG_MODE
         Info << mesh_.lookupClass<volScalarField>() << nl << nl;
@@ -763,7 +755,6 @@ void preciceAdapter::Adapter::setupCheckpointing()
     */
 
     // Print the available objects of type volVectorField
-    // TODO Direct this through adapterInfo()
     DEBUG(adapterInfo("Available objects of type volVectorField : "));
     #ifdef ADAPTER_DEBUG_MODE
         Info << mesh_.lookupClass<volVectorField>() << nl << nl;
@@ -804,7 +795,6 @@ void preciceAdapter::Adapter::setupCheckpointing()
     #ifdef ADAPTER_DEBUG_MODE
         // Print the available objects of type surfaceScalarField
         adapterInfo("Available objects of type surfaceScalarField : ");
-        // TODO Direct this through adapterInfo()
         Info << mesh_.lookupClass<surfaceScalarField>() << nl << nl;
     #endif
 
@@ -937,6 +927,7 @@ void preciceAdapter::Adapter::readCheckpoint()
             }
             // TODO: Known bug: cannot find "volScalarField::Internal kEpsilon:G"
             // Currently it is skipped. Before it was not corrected at all.
+            // A warning for this is thrown when adding epsilon to the checkpoint.
         } catch (Foam::error) {
             DEBUG(adapterInfo("Could not evaluate the boundary for" + volScalarFields_.at(i)->name(), "warning"));
         }
