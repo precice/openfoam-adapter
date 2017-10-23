@@ -1,18 +1,8 @@
 #include "KappaEffective.H"
 
-// Used only for accessing the static adapterInfo() method
-#include "Adapter.H"
+#include "Utilities.H"
 
 using namespace Foam;
-
-// Output debug messages. Keep it disabled for production runs.
-#define ADAPTER_DEBUG_MODE
-
-#ifdef ADAPTER_DEBUG_MODE
-#define DEBUG(x) x
-#else
-#define DEBUG(x)
-#endif
 
 //----- preciceAdapter::CHT::KappaEff_Compressible ------------------
 
@@ -26,7 +16,7 @@ turbulence_(
     mesh.lookupObject<compressible::turbulenceModel>(turbulenceModel::propertiesName)
 )
 {
-    DEBUG(Adapter::adapterInfo("Constructed KappaEff_Compressible."));
+    DEBUG(adapterInfo("Constructed KappaEff_Compressible."));
 }
 
 void preciceAdapter::CHT::KappaEff_Compressible::extract(uint patchID)
@@ -63,12 +53,12 @@ nameCp_(nameCp),
 namePr_(namePr),
 nameAlphat_(nameAlphat)
 {
-        DEBUG(Adapter::adapterInfo("Constructed KappaEff_Incompressible."));
-        DEBUG(Adapter::adapterInfo("  Name of transportProperties: " + nameTransportProperties_));
-        DEBUG(Adapter::adapterInfo("  Name of density: " + nameRho_));
-        DEBUG(Adapter::adapterInfo("  Name of heat capacity: " + nameCp_));
-        DEBUG(Adapter::adapterInfo("  Name of Prandl number: " + namePr_));
-        DEBUG(Adapter::adapterInfo("  Name of turbulent thermal diffusivity: " + nameAlphat_));
+        DEBUG(adapterInfo("Constructed KappaEff_Incompressible."));
+        DEBUG(adapterInfo("  Name of transportProperties: " + nameTransportProperties_));
+        DEBUG(adapterInfo("  Name of density: " + nameRho_));
+        DEBUG(adapterInfo("  Name of heat capacity: " + nameCp_));
+        DEBUG(adapterInfo("  Name of Prandl number: " + namePr_));
+        DEBUG(adapterInfo("  Name of turbulent thermal diffusivity: " + nameAlphat_));
 }
 
 void preciceAdapter::CHT::KappaEff_Incompressible::extract(uint patchID)
@@ -159,9 +149,9 @@ mesh_(mesh),
 nameTransportProperties_(nameTransportProperties),
 nameKappa_(nameKappa)
 {
-    DEBUG(Adapter::adapterInfo("Constructed KappaEff_Basic."));
-    DEBUG(Adapter::adapterInfo("  Name of transportProperties: " + nameTransportProperties_));
-    DEBUG(Adapter::adapterInfo("  Name of conductivity: " + nameKappa_));
+    DEBUG(adapterInfo("Constructed KappaEff_Basic."));
+    DEBUG(adapterInfo("  Name of transportProperties: " + nameTransportProperties_));
+    DEBUG(adapterInfo("  Name of conductivity: " + nameKappa_));
 }
 
 void preciceAdapter::CHT::KappaEff_Basic::extract(uint patchID)

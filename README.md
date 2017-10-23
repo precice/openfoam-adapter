@@ -369,8 +369,7 @@ or (`Sink-Temperature`, `Heat-Transfer-Coefficient`).
 Additional debug messages can be printed. For performance reasons, these
 messages are disabled at compile-time. In order to activate them,
 the adapter needs to be built with the `ADAPTER_DEBUG_MODE` defined.
-For this, comment-out the respective line in the beginning of the `Adapter.C` file. Additional
-flags exist in the `CHT.C` and `KappaEffective.C`.
+For this, comment-out the respective line in the beginning of the `Utilities.H` file.
 
 ### How to couple a different variable?
 

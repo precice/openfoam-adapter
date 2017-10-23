@@ -213,8 +213,7 @@ private:
         void writeCheckpoint();
 
     //- Destroy the preCICE interface and delete the allocated
-    //  memory in a proper way. Called by the destructor and
-    //  by the error handling method adapterInfo().
+    //  memory in a proper way. Called by the destructor.
     void teardown();
 
 public:
@@ -223,9 +222,6 @@ public:
 
         //- Constructor
         Adapter(const Foam::Time& runTime, const Foam::fvMesh& mesh);
-
-        //- Printed output and error handling
-        static void adapterInfo(const std::string message, const std::string level = "debug");
 
         //- Setup the adapter's configuration
         void configure();

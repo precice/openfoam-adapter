@@ -26,6 +26,8 @@ protected:
     //- OpenFOAM fvMesh object
     const Foam::fvMesh& mesh_;
 
+    // TODO: Create a struct for all the parameter names
+
     //- Solver type
     std::string solverType_ = "none";
 

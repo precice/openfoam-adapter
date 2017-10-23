@@ -1,21 +1,10 @@
 #include "Adapter.H"
 #include "Interface.H"
+#include "Utilities.H"
 
 #include "IOstreams.H"
 
 using namespace Foam;
-
-// Output debug messages. Keep it disabled for production runs.
-#define ADAPTER_DEBUG_MODE
-
-#ifdef ADAPTER_DEBUG_MODE
-#define DEBUG(x) x
-#else
-#define DEBUG(x)
-#endif
-
-// String added in the beginning of every printed message
-#define INFO_STR_ADAPTER "---[preciceAdapter] "
 
 preciceAdapter::Adapter::Adapter(const Time& runTime, const fvMesh& mesh)
 :
@@ -28,67 +17,6 @@ mesh_(mesh)
     #ifdef ADAPTER_DEBUG_MODE
         Info<< "Registered objects: " << mesh_.names() << endl;
     #endif
-
-    return;
-}
-
-void preciceAdapter::Adapter::adapterInfo(const std::string message, const std::string level)
-{
-    if (level.compare("info") == 0)
-    {
-        // Prepend the message with a string
-        Info << INFO_STR_ADAPTER
-             << message.c_str()
-             << nl;
-    }
-    else if (level.compare("warning") == 0)
-    {
-        // Produce a warning message with cyan header
-        WarningInFunction
-             << "\033[36m" // cyan color
-             << "Warning in the preCICE adapter: "
-             << "\033[0m" // restore color
-             << nl
-             << message.c_str()
-             << nl;
-    }
-    else if (level.compare("error") == 0)
-    {
-        // Produce an error message with red header
-        // and exit the functionObject.
-        // It will also exit the simulation, unless it
-        // is called inside the functionObject's read().
-        FatalErrorInFunction
-             << "\033[31m" // red color
-             << "Error in the preCICE adapter: "
-             << "\033[0m" // restore color
-             << nl
-             << message.c_str()
-             << exit(FatalError);
-    }
-    else if (level.compare("debug") == 0)
-    {
-        Info << INFO_STR_ADAPTER
-             << "[DEBUG] "
-             << message.c_str()
-             << nl;
-    }
-    else if (level.compare("dev") == 0)
-    {
-        Info << "\033[35m" // cyan color
-             << INFO_STR_ADAPTER
-             << "[under development] "
-             << "\033[0m " // restore color
-             << message.c_str()
-             << nl;
-    }
-    else
-    {
-        Info << INFO_STR_ADAPTER
-             << "[unknown info level] "
-             << message.c_str()
-             << nl;
-    }
 
     return;
 }
