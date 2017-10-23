@@ -13,7 +13,6 @@ mesh_(mesh)
 {
     adapterInfo("The preciceAdapter was loaded.", "info");
 
-    // TODO: Remove in the final version
     #ifdef ADAPTER_DEBUG_MODE
         Info<< "Registered objects: " << mesh_.names() << endl;
     #endif
@@ -743,6 +742,14 @@ void preciceAdapter::Adapter::setupCheckpointing()
                 " in the list of checkpointed fields."
            );
             #endif
+
+            // TODO: Known bug, see readCheckpoint()
+            if ("epsilon" == objectNames_[i])
+            {
+                DEBUG(adapterInfo("Known bug: after reading a checkpoint, "
+                        "the boundaries for epsilon will not be corrected.",
+                        "warning"));
+            }
         }
         else
         {
