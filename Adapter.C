@@ -352,7 +352,8 @@ try{
         const_cast<Time&>(runTime_).setEndTime(GREAT);
     }
 
-} catch (Foam::error) {
+} catch (const Foam::error &e) {
+    adapterInfo(e.message(), "info");
     errorsInConfigure = true;
 }
 
