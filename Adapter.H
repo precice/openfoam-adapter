@@ -2,14 +2,18 @@
 #define PRECICEADAPTER_H
 
 #include "Interface.H"
+
+// Conjugate Heat Transfer module
 #include "CHT/CHT.H"
+
+// NOTE: If you want to couple a new variable, include your module's header here.
+// You also need to include it in the Make/files file.
+// In case you use additional OpenFOAM symbols, you may also need to specify
+// the respective libraries in the Make/options.
 
 // OpenFOAM header files
 #include "Time.H"
 #include "fvMesh.H"
-#include "basicThermo.H"
-#include "turbulenceModel.H"
-#include "turbulentFluidThermoModel.H"
 
 // Other header files
 // YAML reader - Used to read the adapter's configuration file.
@@ -77,30 +81,6 @@ private:
 
         //- Switch to enable the ConjugateHeatTransfer module
         bool CHTenabled_ = true;
-
-        //- Solver type optionally provided by the user
-        std::string solverType_ = "none";
-
-        //- Name of the transportProperties dictionary
-        std::string nameTransportProperties_ = "transportProperties";
-
-        //- Name of the temperature field
-        std::string nameT_ = "T";
-
-        //- Name of the conductivity parameter
-        std::string nameKappa_ = "k";
-
-        //- Name of the density parameter
-        std::string nameRho_ = "rho";
-
-        //- Name of the heat capacity parameter
-        std::string nameCp_ = "Cp";
-
-        //- Name of the Prandtl number parameter
-        std::string namePr_ = "Pr";
-
-        //- Name of the turbulent thermal diffusivity field
-        std::string nameAlphat_ = "alphat";
 
     //- Interfaces
     std::vector<Interface*> interfaces_;

@@ -1,7 +1,7 @@
 # preCICE-adapter for the CFD code OpenFOAM
 
-_**Note:** This adapter is under development and currently only adds limited functionality. This README file also corresponds to the current
-development of the adapter and is therefore incomplete._
+_**Note:** This adapter is under development but it is functional.
+This README file also corresponds to the current development of the adapter._
 
 This adapter is developed as part of Gerasimos Chourdakis' master's thesis.
 It is based on [previous work](https://github.com/ludcila/CHT-preCICE) by Lucia Cheung ([master's thesis](https://www5.in.tum.de/pub/Cheung2016_Thesis.pdf), in cooperation with [SimScale](https://www.simscale.com/)).

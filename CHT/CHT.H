@@ -10,6 +10,9 @@
 
 #include "fvCFD.H"
 
+// YAML reader - Used to read the adapter's configuration file.
+#include "yaml-cpp/yaml.h"
+
 namespace preciceAdapter
 {
 namespace CHT
@@ -27,66 +30,47 @@ protected:
     std::string solverType_ = "none";
 
     //- Name of the transportProperties dictionary
-    std::string nameTransportProperties_;
+    std::string nameTransportProperties_ = "transportProperties";
 
     //- Name of the temperature field
-    std::string nameT_;
+    std::string nameT_ = "T";
 
     //- Name of the thermal conductivity for a basic solver
-    std::string nameKappa_;
+    std::string nameKappa_ = "k";
 
     //- Name of the density for an incompressible solver
-    std::string nameRho_;
+    std::string nameRho_ = "rho";
 
     //- Name of the specific heat for an incompressible solver
-    std::string nameCp_;
+    std::string nameCp_ = "Cp";
 
     //- Name of the Prandtl number for an incompressible solver
-    std::string namePr_;
+    std::string namePr_ = "Pr";
 
     //- Name of the turbulent thermal diffusivity field for an incompressible solver
-    std::string nameAlphat_;
+    std::string nameAlphat_ = "alphat";
+
+protected:
+
+    //- Determine the solver type
+    std::string determineSolverType();
+
+    //- Read the CHT-related options from the adapter's configuraiton file
+    bool readConfig(const YAML::Node adapterConfig);
 
 public:
 
     //- Constructor
     ConjugateHeatTransfer(const Foam::fvMesh& mesh);
 
-    //- Determine the solver type
-    std::string determineSolverType();
-
     //- Configure
-    void configure();
+    bool configure(const YAML::Node adapterConfig);
 
     //- Add coupling data writers
     void addWriters(std::string dataName, Interface * interface);
 
     //- Add coupling data readers
     void addReaders(std::string dataName, Interface * interface);
-
-    //- Set the solver type
-    void setSolverType(const std::string solverType);
-
-    //- Set the name of the temperature field
-    void setNameT(const std::string nameT);
-
-    //- Set the name of the transportProperties dictionary
-    void setNameTransportProperties(const std::string nameTransportProperties);
-
-    //- Set the name of the user-provided thermal conductivity k
-    void setNameKappa(const std::string nameKappa);
-
-    //- Set the name of the user-provided density rho
-    void setNameRho(const std::string nameRho);
-
-    //- Set the name of the user-provided heat capacity Cp
-    void setNameCp(const std::string nameCp);
-
-    //- Set the name of the user-provided Prandtl number Pr
-    void setNamePr(const std::string namePr);
-
-    //- Set the name of the turbulent thermal diffusivity
-    void setNameAlphat(const std::string nameAlphat);
 };
 
 }

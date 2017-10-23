@@ -22,10 +22,14 @@ preciceAdapter::CHT::ConjugateHeatTransfer::ConjugateHeatTransfer
 mesh_(mesh)
 {}
 
-void preciceAdapter::CHT::ConjugateHeatTransfer::configure()
+bool preciceAdapter::CHT::ConjugateHeatTransfer::configure(const YAML::Node adapterConfig)
 {
     DEBUG(Adapter::adapterInfo("Configuring the CHT module..."));
 
+    // Read the CHT-specific options from the adapter's configuration file
+    if (!readConfig(adapterConfig)) return false;
+
+    // Check the solver type and determine it if needed
     if (
         solverType_.compare("compressible") == 0 ||
         solverType_.compare("incompressible") == 0 ||
@@ -45,6 +49,68 @@ void preciceAdapter::CHT::ConjugateHeatTransfer::configure()
         solverType_ = determineSolverType();
     }
 
+    return true;
+}
+
+bool preciceAdapter::CHT::ConjugateHeatTransfer::readConfig(const YAML::Node adapterConfig)
+{
+    // Read the solver type (if not specified, it is determined automatically)
+    if (adapterConfig["solverType"])
+    {
+        solverType_ = adapterConfig["solverType"].as<std::string>();
+    }
+    DEBUG(Adapter::adapterInfo("    user-defined solver type : " + solverType_));
+
+    // Read the name of the temperature field (if different)
+    if (adapterConfig["nameT"])
+    {
+        nameT_ = adapterConfig["nameT"].as<std::string>();
+    }
+    DEBUG(Adapter::adapterInfo("    temperature field name : " + nameT_));
+
+    // Read the name of the transportProperties dictionary (if different)
+    if (adapterConfig["nameTransportProperties"])
+    {
+        nameTransportProperties_ = adapterConfig["nameTransportProperties"].as<std::string>();
+    }
+    DEBUG(Adapter::adapterInfo("    transportProperties name : " + nameTransportProperties_));
+
+    // Read the name of the conductivity parameter for basic solvers (if different)
+    if (adapterConfig["nameKappa"])
+    {
+        nameKappa_ = adapterConfig["nameKappa"].as<std::string>();
+    }
+    DEBUG(Adapter::adapterInfo("    conductivity name for basic solvers : " + nameKappa_));
+
+    // Read the name of the density parameter for incompressible solvers (if different)
+    if (adapterConfig["nameRho"])
+    {
+        nameRho_ = adapterConfig["nameRho"].as<std::string>();
+    }
+    DEBUG(Adapter::adapterInfo("    density name for incompressible solvers : " + nameRho_));
+
+    // Read the name of the heat capacity parameter for incompressible solvers (if different)
+    if (adapterConfig["nameCp"])
+    {
+        nameCp_ = adapterConfig["nameCp"].as<std::string>();
+    }
+    DEBUG(Adapter::adapterInfo("    heat capacity name for incompressible solvers : " + nameCp_));
+
+    // Read the name of the Prandtl number parameter for incompressible solvers (if different)
+    if (adapterConfig["namePr"])
+    {
+        namePr_ = adapterConfig["namePr"].as<std::string>();
+    }
+    DEBUG(Adapter::adapterInfo("    Prandtl number name for incompressible solvers : " + namePr_));
+
+    // Read the name of the turbulent thermal diffusivity field for incompressible solvers (if different)
+    if (adapterConfig["nameAlphat"])
+    {
+        nameAlphat_ = adapterConfig["nameAlphat"].as<std::string>();
+    }
+    DEBUG(Adapter::adapterInfo("    Turbulent thermal diffusivity field name for incompressible solvers : " + nameAlphat_));
+
+    return true;
 }
 
 std::string preciceAdapter::CHT::ConjugateHeatTransfer::determineSolverType()
@@ -336,68 +402,4 @@ void preciceAdapter::CHT::ConjugateHeatTransfer::addReaders(std::string dataName
     // reader here (and as a writer above).
     // The argument of the dataName.compare() needs to match
     // the one provided in the adapter's configuration file.
-}
-
-void preciceAdapter::CHT::ConjugateHeatTransfer::setSolverType
-(
-    const std::string solverType
-)
-{
-    solverType_ = solverType;
-}
-
-void preciceAdapter::CHT::ConjugateHeatTransfer::setNameT
-(
-    const std::string nameT
-)
-{
-    nameT_ = nameT;
-}
-
-void preciceAdapter::CHT::ConjugateHeatTransfer::setNameTransportProperties
-(
-    const std::string nameTransportProperties
-)
-{
-    nameTransportProperties_ = nameTransportProperties;
-}
-
-void preciceAdapter::CHT::ConjugateHeatTransfer::setNameKappa
-(
-    const std::string nameKappa
-)
-{
-    nameKappa_ = nameKappa;
-}
-
-void preciceAdapter::CHT::ConjugateHeatTransfer::setNameRho
-(
-    const std::string nameRho
-)
-{
-    nameRho_ = nameRho;
-}
-
-void preciceAdapter::CHT::ConjugateHeatTransfer::setNameCp
-(
-    const std::string nameCp
-)
-{
-    nameCp_ = nameCp;
-}
-
-void preciceAdapter::CHT::ConjugateHeatTransfer::setNamePr
-(
-    const std::string namePr
-)
-{
-    namePr_ = namePr;
-}
-
-void preciceAdapter::CHT::ConjugateHeatTransfer::setNameAlphat
-(
-    const std::string nameAlphat
-)
-{
-    nameAlphat_ = nameAlphat;
 }
