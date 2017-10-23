@@ -78,6 +78,9 @@ private:
         //- Switch to enable the ConjugateHeatTransfer module
         bool CHTenabled_ = true;
 
+        //- Solver type optionally provided by the user
+        std::string solverType_ = "none";
+
         //- Name of the transportProperties dictionary
         std::string nameTransportProperties_ = "transportProperties";
 

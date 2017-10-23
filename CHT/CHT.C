@@ -26,7 +26,24 @@ void preciceAdapter::CHT::ConjugateHeatTransfer::configure()
 {
     DEBUG(Adapter::adapterInfo("Configuring the CHT module..."));
 
-    solverType_ = determineSolverType();
+    if (
+        solverType_.compare("compressible") == 0 ||
+        solverType_.compare("incompressible") == 0 ||
+        solverType_.compare("basic") == 0
+    )
+    {
+        DEBUG(Adapter::adapterInfo("Known solver type: " + solverType_));
+    }
+    else if (solverType_.compare("none") == 0)
+    {
+        DEBUG(Adapter::adapterInfo("Determining the solver type..."));
+        solverType_ = determineSolverType();
+    }
+    else
+    {
+        DEBUG(Adapter::adapterInfo("Unknown solver type. Determining the solver type..."));
+        solverType_ = determineSolverType();
+    }
 
 }
 
@@ -319,6 +336,14 @@ void preciceAdapter::CHT::ConjugateHeatTransfer::addReaders(std::string dataName
     // reader here (and as a writer above).
     // The argument of the dataName.compare() needs to match
     // the one provided in the adapter's configuration file.
+}
+
+void preciceAdapter::CHT::ConjugateHeatTransfer::setSolverType
+(
+    const std::string solverType
+)
+{
+    solverType_ = solverType;
 }
 
 void preciceAdapter::CHT::ConjugateHeatTransfer::setNameT

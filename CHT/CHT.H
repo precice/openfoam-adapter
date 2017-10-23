@@ -24,7 +24,7 @@ protected:
     const Foam::fvMesh& mesh_;
 
     //- Solver type
-    std::string solverType_;
+    std::string solverType_ = "none";
 
     //- Name of the transportProperties dictionary
     std::string nameTransportProperties_;
@@ -64,8 +64,8 @@ public:
     //- Add coupling data readers
     void addReaders(std::string dataName, Interface * interface);
 
-    //- TODO: Set the solver type
-    // void setSolverType(const std::string solverType);
+    //- Set the solver type
+    void setSolverType(const std::string solverType);
 
     //- Set the name of the temperature field
     void setNameT(const std::string nameT);

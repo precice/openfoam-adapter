@@ -270,12 +270,12 @@ bool preciceAdapter::Adapter::configFileRead()
     }
     DEBUG(adapterInfo("    CHT module enabled : " + std::to_string(CHTenabled_)));
 
-    // Read the name of the transportProperties dictionary (if different)
-    if (adapterConfig_["nameTransportProperties"])
+    // Read the solver type (if not specified, it is determined automatically)
+    if (adapterConfig_["solverType"])
     {
-        nameTransportProperties_ = adapterConfig_["nameTransportProperties"].as<std::string>();
+        solverType_ = adapterConfig_["solverType"].as<std::string>();
     }
-    DEBUG(adapterInfo("    transportProperties name : " + nameTransportProperties_));
+    DEBUG(adapterInfo("    user-defined solver type : " + solverType_));
 
     // Read the name of the temperature field (if different)
     if (adapterConfig_["nameT"])
@@ -283,6 +283,13 @@ bool preciceAdapter::Adapter::configFileRead()
         nameT_ = adapterConfig_["nameT"].as<std::string>();
     }
     DEBUG(adapterInfo("    temperature field name : " + nameT_));
+
+    // Read the name of the transportProperties dictionary (if different)
+    if (adapterConfig_["nameTransportProperties"])
+    {
+        nameTransportProperties_ = adapterConfig_["nameTransportProperties"].as<std::string>();
+    }
+    DEBUG(adapterInfo("    transportProperties name : " + nameTransportProperties_));
 
     // Read the name of the conductivity parameter for basic solvers (if different)
     if (adapterConfig_["nameKappa"])
@@ -379,6 +386,7 @@ void preciceAdapter::Adapter::configure()
     if (CHTenabled_)
     {
         CHT_ = new CHT::ConjugateHeatTransfer(mesh_);
+        CHT_->setSolverType(solverType_);
         CHT_->setNameTransportProperties(nameTransportProperties_);
         CHT_->setNameT(nameT_);
         CHT_->setNameKappa(nameKappa_);
