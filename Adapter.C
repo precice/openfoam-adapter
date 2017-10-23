@@ -284,6 +284,41 @@ bool preciceAdapter::Adapter::configFileRead()
     }
     DEBUG(adapterInfo("    temperature field name : " + nameT_));
 
+    // Read the name of the conductivity parameter for basic solvers (if different)
+    if (adapterConfig_["nameKappa"])
+    {
+        nameKappa_ = adapterConfig_["nameKappa"].as<std::string>();
+    }
+    DEBUG(adapterInfo("    conductivity name for basic solvers : " + nameKappa_));
+
+    // Read the name of the density parameter for incompressible solvers (if different)
+    if (adapterConfig_["nameRho"])
+    {
+        nameRho_ = adapterConfig_["nameRho"].as<std::string>();
+    }
+    DEBUG(adapterInfo("    density name for incompressible solvers : " + nameRho_));
+
+    // Read the name of the heat capacity parameter for incompressible solvers (if different)
+    if (adapterConfig_["nameCp"])
+    {
+        nameCp_ = adapterConfig_["nameCp"].as<std::string>();
+    }
+    DEBUG(adapterInfo("    heat capacity name for incompressible solvers : " + nameCp_));
+
+    // Read the name of the Prandtl number parameter for incompressible solvers (if different)
+    if (adapterConfig_["namePr"])
+    {
+        namePr_ = adapterConfig_["namePr"].as<std::string>();
+    }
+    DEBUG(adapterInfo("    Prandtl number name for incompressible solvers : " + namePr_));
+
+    // Read the name of the turbulent thermal diffusivity field for incompressible solvers (if different)
+    if (adapterConfig_["nameAlphat"])
+    {
+        nameAlphat_ = adapterConfig_["nameAlphat"].as<std::string>();
+    }
+    DEBUG(adapterInfo("    Turbulent thermal diffusivity field name for incompressible solvers : " + nameAlphat_));
+
     return true;
 }
 
@@ -344,7 +379,14 @@ void preciceAdapter::Adapter::configure()
     if (CHTenabled_)
     {
         CHT_ = new CHT::ConjugateHeatTransfer(mesh_);
-        CHT_->configure(nameTransportProperties_, nameT_);
+        CHT_->setNameTransportProperties(nameTransportProperties_);
+        CHT_->setNameT(nameT_);
+        CHT_->setNameKappa(nameKappa_);
+        CHT_->setNameRho(nameRho_);
+        CHT_->setNameCp(nameCp_);
+        CHT_->setNamePr(namePr_);
+        CHT_->setNameAlphat(nameAlphat_);
+        CHT_->configure();
     }
 
     // Create interfaces

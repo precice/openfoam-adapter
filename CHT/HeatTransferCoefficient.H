@@ -103,8 +103,12 @@ public:
     HeatTransferCoefficient_Incompressible
     (
         const Foam::fvMesh& mesh,
+        const std::string nameT,
         const std::string nameTransportProperties,
-        const std::string nameT
+        const std::string nameRho,
+        const std::string nameCp,
+        const std::string namePr,
+        const std::string nameAlphat
     );
 
     //- Destructor
@@ -136,8 +140,9 @@ public:
     HeatTransferCoefficient_Basic
     (
         const Foam::fvMesh& mesh,
+        const std::string nameT,
         const std::string nameTransportProperties,
-        const std::string nameT
+        const std::string nameKappa
     );
 
     //- Destructor

@@ -84,6 +84,21 @@ private:
         //- Name of the temperature field
         std::string nameT_ = "T";
 
+        //- Name of the conductivity parameter
+        std::string nameKappa_ = "k";
+
+        //- Name of the density parameter
+        std::string nameRho_ = "rho";
+
+        //- Name of the heat capacity parameter
+        std::string nameCp_ = "Cp";
+
+        //- Name of the Prandtl number parameter
+        std::string namePr_ = "Pr";
+
+        //- Name of the turbulent thermal diffusivity field
+        std::string nameAlphat_ = "alphat";
+
     //- Interfaces
     std::vector<Interface*> interfaces_;
 

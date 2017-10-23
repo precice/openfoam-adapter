@@ -58,11 +58,30 @@ protected:
     //- Name of the transportProperties dictionary
     const std::string nameTransportProperties_;
 
+    //- Name of the user-provided density (in the transportProperties)
+    const std::string nameRho_;
+
+    //- Name of the user-provided heat capacity (in the transportProperties)
+    const std::string nameCp_;
+
+    //- Name of the user-provided Prandtl number (in the transportProperties)
+    const std::string namePr_;
+
+    //- Name of the turbulent thermal diffusivity field
+    const std::string nameAlphat_;
+
 public:
 
     //- Constructor
-    KappaEff_Incompressible(const Foam::fvMesh& mesh,
-        const std::string nameTransportProperties);
+    KappaEff_Incompressible
+    (
+        const Foam::fvMesh& mesh,
+        const std::string nameTransportProperties,
+        const std::string nameRho,
+        const std::string nameCp,
+        const std::string namePr,
+        const std::string nameAlphat
+    );
 
     //- Extract the kappaEff on the specific patch and store it.
     void extract(uint patchID);
@@ -88,11 +107,18 @@ protected:
     //- Name of the transportProperties dictionary
     const std::string nameTransportProperties_;
 
+    //- Name of the user-provided conductivity (in the transportProperties)
+    const std::string nameKappa_;
+
 public:
 
     //- Constructor
-    KappaEff_Basic(const Foam::fvMesh& mesh,
-        const std::string nameTransportProperties);
+    KappaEff_Basic
+    (
+        const Foam::fvMesh& mesh,
+        const std::string nameTransportProperties,
+        const std::string nameKappa
+    );
 
     //- Extract the kappaEff on the specific patch and store it.
     void extract(uint patchID);

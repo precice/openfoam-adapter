@@ -1,6 +1,18 @@
 #include "KappaEffective.H"
 
+// Used only for accessing the static adapterInfo() method
+#include "Adapter.H"
+
 using namespace Foam;
+
+// Output debug messages. Keep it disabled for production runs.
+#define ADAPTER_DEBUG_MODE
+
+#ifdef ADAPTER_DEBUG_MODE
+#define DEBUG(x) x
+#else
+#define DEBUG(x)
+#endif
 
 //----- preciceAdapter::CHT::KappaEff_Compressible ------------------
 
@@ -13,7 +25,9 @@ mesh_(mesh),
 turbulence_(
     mesh.lookupObject<compressible::turbulenceModel>(turbulenceModel::propertiesName)
 )
-{}
+{
+    DEBUG(Adapter::adapterInfo("Constructed KappaEff_Compressible."));
+}
 
 void preciceAdapter::CHT::KappaEff_Compressible::extract(uint patchID)
 {
@@ -32,21 +46,37 @@ scalar preciceAdapter::CHT::KappaEff_Compressible::getAt(int i)
 preciceAdapter::CHT::KappaEff_Incompressible::KappaEff_Incompressible
 (
     const Foam::fvMesh& mesh,
-    const std::string nameTransportProperties
+    const std::string nameTransportProperties,
+    const std::string nameRho,
+    const std::string nameCp,
+    const std::string namePr,
+    const std::string nameAlphat
 )
 :
 mesh_(mesh),
 turbulence_(
     mesh.lookupObject<incompressible::turbulenceModel>(turbulenceModel::propertiesName)
 ),
-nameTransportProperties_(nameTransportProperties)
-{}
+nameTransportProperties_(nameTransportProperties),
+nameRho_(nameRho),
+nameCp_(nameCp),
+namePr_(namePr),
+nameAlphat_(nameAlphat)
+{
+        DEBUG(Adapter::adapterInfo("Constructed KappaEff_Incompressible."));
+        DEBUG(Adapter::adapterInfo("  Name of transportProperties: " + nameTransportProperties_));
+        DEBUG(Adapter::adapterInfo("  Name of density: " + nameRho_));
+        DEBUG(Adapter::adapterInfo("  Name of heat capacity: " + nameCp_));
+        DEBUG(Adapter::adapterInfo("  Name of Prandl number: " + namePr_));
+        DEBUG(Adapter::adapterInfo("  Name of turbulent thermal diffusivity: " + nameAlphat_));
+}
 
 void preciceAdapter::CHT::KappaEff_Incompressible::extract(uint patchID)
 {
     // Compute kappaEff_ from the turbulence model, using alpha and Prandl
 
     // Get the laminar viscosity from the turbulence model
+    // TODO: Do we really need turbulence at the end?
     const scalarField & nu = turbulence_.nu() ().boundaryField()[patchID];
 
     // Make sure that the transportProperties exists.
@@ -65,7 +95,7 @@ void preciceAdapter::CHT::KappaEff_Incompressible::extract(uint patchID)
     // Get the Prandl number from the transportProperties.
     // If it does not exist, an error is thrown automatically.
     const scalar & Pr =
-        transportProperties.lookupType<dimensionedScalar>("Pr").value();
+        transportProperties.lookupType<dimensionedScalar>(namePr_).value();
 
     // Compute the effective thermal diffusivity
     // (alphaEff = alpha + alphat = nu / Pr + nut / Prt)
@@ -73,10 +103,10 @@ void preciceAdapter::CHT::KappaEff_Incompressible::extract(uint patchID)
     scalarField alphaEff;
 
     // Does the turbulent thermal diffusivity exist in the object registry?
-    if (mesh_.foundObject<volScalarField>("alphat"))
+    if (mesh_.foundObject<volScalarField>(nameAlphat_))
     {
         const scalarField & alphat =
-            mesh_.lookupObject<volScalarField>("alphat").boundaryField()[patchID];
+            mesh_.lookupObject<volScalarField>(nameAlphat_).boundaryField()[patchID];
 
         alphaEff = nu / Pr + alphat;
     }
@@ -95,13 +125,13 @@ void preciceAdapter::CHT::KappaEff_Incompressible::extract(uint patchID)
     // Get the density from the transportProperties (must be provided and read).
     // If it does not exist, an error is thrown automatically.
     const scalar & rho =
-        transportProperties.lookupType<dimensionedScalar>("rho").value();
+        transportProperties.lookupType<dimensionedScalar>(nameRho_).value();
 
     // Get the specific heat capacity from the transportProperties
     // (must be provided and read).
     // If it does not exist, an error is thrown automatically.
     const scalar & Cp =
-        transportProperties.lookupType<dimensionedScalar>("Cp").value();
+        transportProperties.lookupType<dimensionedScalar>(nameCp_).value();
 
     // Compute the effective thermal conductivity
     kappaEff_ = alphaEff * rho * Cp;
@@ -118,12 +148,18 @@ scalar preciceAdapter::CHT::KappaEff_Incompressible::getAt(int i)
 preciceAdapter::CHT::KappaEff_Basic::KappaEff_Basic
 (
     const Foam::fvMesh& mesh,
-    const std::string nameTransportProperties
+    const std::string nameTransportProperties,
+    const std::string nameKappa
 )
 :
 mesh_(mesh),
-nameTransportProperties_(nameTransportProperties)
-{}
+nameTransportProperties_(nameTransportProperties),
+nameKappa_(nameKappa)
+{
+    DEBUG(Adapter::adapterInfo("Constructed KappaEff_Basic."));
+    DEBUG(Adapter::adapterInfo("  Name of transportProperties: " + nameTransportProperties_));
+    DEBUG(Adapter::adapterInfo("  Name of conductivity: " + nameKappa_));
+}
 
 void preciceAdapter::CHT::KappaEff_Basic::extract(uint patchID)
 {
@@ -143,7 +179,7 @@ void preciceAdapter::CHT::KappaEff_Basic::extract(uint patchID)
         mesh_.lookupObject<IOdictionary>(nameTransportProperties_);
 
     // Get the conductivity from the file
-    kappaEff_ = transportProperties.lookupType<dimensionedScalar>("k").value();
+    kappaEff_ = transportProperties.lookupType<dimensionedScalar>(nameKappa_).value();
 }
 
 scalar preciceAdapter::CHT::KappaEff_Basic::getAt(int i)
