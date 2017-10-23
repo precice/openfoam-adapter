@@ -836,6 +836,44 @@ void preciceAdapter::Adapter::setupCheckpointing()
         }
     }
 
+    /* Find and add all the registered objects in the mesh_
+       of type surfaceVectorField
+    */
+
+    #ifdef ADAPTER_DEBUG_MODE
+        // Print the available objects of type surfaceVectorField
+        adapterInfo("Available objects of type surfaceVectorField : ");
+        Info << mesh_.lookupClass<surfaceVectorField>() << nl << nl;
+    #endif
+
+    objectNames_ = mesh_.lookupClass<surfaceVectorField>().toc();
+
+    forAll(objectNames_, i)
+    {
+        if (mesh_.foundObject<surfaceVectorField>(objectNames_[i]))
+        {
+            addCheckpointField
+            (
+                const_cast<surfaceVectorField&>
+                (
+                    mesh_.lookupObject<surfaceVectorField>(objectNames_[i])
+               )
+           );
+
+            #ifdef ADAPTER_DEBUG_MODE
+            adapterInfo
+            (
+                "Added " + objectNames_[i] +
+                " in the list of checkpointed fields."
+           );
+            #endif
+        }
+        else
+        {
+            adapterInfo("Could not checkpoint " + objectNames_[i], "warning");
+        }
+    }
+
     // NOTE: Add here other object types to checkpoint, if needed.
 
     return;
@@ -864,6 +902,15 @@ void preciceAdapter::Adapter::addCheckpointField(surfaceScalarField & field)
     surfaceScalarField * copy = new surfaceScalarField(field);
     surfaceScalarFields_.push_back(&field);
     surfaceScalarFieldCopies_.push_back(copy);
+
+    return;
+}
+
+void preciceAdapter::Adapter::addCheckpointField(surfaceVectorField & field)
+{
+    surfaceVectorField * copy = new surfaceVectorField(field);
+    surfaceVectorFields_.push_back(&field);
+    surfaceVectorFieldCopies_.push_back(copy);
 
     return;
 }
@@ -915,7 +962,11 @@ void preciceAdapter::Adapter::readCheckpoint()
         *(surfaceScalarFields_.at(i)) == *(surfaceScalarFieldCopies_.at(i));
     }
 
-    // TODO Reload all the fields of type surfaceVectorField
+    // Reload all the fields of type surfaceVectorField
+    for (uint i = 0; i < surfaceVectorFields_.size(); i++)
+    {
+        *(surfaceVectorFields_.at(i)) == *(surfaceVectorFieldCopies_.at(i));
+    }
 
     // NOTE: Add here other field types to read, if needed.
 
@@ -954,7 +1005,11 @@ void preciceAdapter::Adapter::writeCheckpoint()
         *(surfaceScalarFieldCopies_.at(i)) == *(surfaceScalarFields_.at(i));
     }
 
-    // TODO Store all the fields of type surfaceVectorField
+    // Store all the fields of type surfaceVectorField
+    for (uint i = 0; i < surfaceVectorFields_.size(); i++)
+    {
+        *(surfaceVectorFieldCopies_.at(i)) == *(surfaceVectorFields_.at(i));
+    }
 
     // NOTE: Add here other types to write, if needed.
 

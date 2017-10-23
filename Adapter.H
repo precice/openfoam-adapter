@@ -133,6 +133,12 @@ private:
             //- Checkpointed surfaceScalarField fields (copies)
             std::vector<Foam::surfaceScalarField*> surfaceScalarFieldCopies_;
 
+            //- Checkpointed surfaceVectorField fields
+            std::vector<Foam::surfaceVectorField*> surfaceVectorFields_;
+
+            //- Checkpointed surfaceVectorField fields (copies)
+            std::vector<Foam::surfaceVectorField*> surfaceVectorFieldCopies_;
+
     // Configuration
 
         //- Read the adapter's configuration file
@@ -201,7 +207,8 @@ private:
             //- Add a surfaceScalarField to checkpoint
             void addCheckpointField(surfaceScalarField & field);
 
-            //- TODO Add a surfaceVectorField to checkpoint
+            //- Add a surfaceVectorField to checkpoint
+            void addCheckpointField(surfaceVectorField & field);
 
             // NOTE: Add here methods to add other object types to checkpoint,
             // if needed.
