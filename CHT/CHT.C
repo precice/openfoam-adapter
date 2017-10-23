@@ -194,7 +194,16 @@ std::string preciceAdapter::CHT::ConjugateHeatTransfer::determineSolverType()
 
 void preciceAdapter::CHT::ConjugateHeatTransfer::addWriters(std::string dataName, Interface * interface)
 {
-    if (dataName.compare("Temperature") == 0)
+    if (dataName.find("Sink-Temperature") == 0)
+    {
+        interface->addCouplingDataWriter
+        (
+            dataName,
+            new SinkTemperature(mesh_, nameT_)
+        );
+        DEBUG(adapterInfo("Added writer: Sink Temperature."));
+    }
+    else if (dataName.find("Temperature") == 0)
     {
         interface->addCouplingDataWriter
         (
@@ -203,8 +212,7 @@ void preciceAdapter::CHT::ConjugateHeatTransfer::addWriters(std::string dataName
         );
         DEBUG(adapterInfo("Added writer: Temperature."));
     }
-
-    if (dataName.compare("Heat-Flux") == 0)
+    else if (dataName.find("Heat-Flux") == 0)
     {
         if (solverType_.compare("compressible") == 0)
         {
@@ -239,8 +247,7 @@ void preciceAdapter::CHT::ConjugateHeatTransfer::addWriters(std::string dataName
                 "error");
         }
     }
-
-    if (dataName.find("Heat-Transfer-Coefficient") == 0)
+    else if (dataName.find("Heat-Transfer-Coefficient") == 0)
     {
         if (solverType_.compare("compressible") == 0)
         {
@@ -275,15 +282,9 @@ void preciceAdapter::CHT::ConjugateHeatTransfer::addWriters(std::string dataName
                 "error");
         }
     }
-
-    if (dataName.find("Sink-Temperature") == 0)
+    else
     {
-        interface->addCouplingDataWriter
-        (
-            dataName,
-            new SinkTemperature(mesh_, nameT_)
-        );
-        DEBUG(adapterInfo("Added writer: Sink Temperature."));
+        adapterInfo("Unknown data type - cannot add " + dataName +".", "error");
     }
 
     // NOTE: If you want to couple another variable, you need
@@ -295,7 +296,16 @@ void preciceAdapter::CHT::ConjugateHeatTransfer::addWriters(std::string dataName
 
 void preciceAdapter::CHT::ConjugateHeatTransfer::addReaders(std::string dataName, Interface * interface)
 {
-    if (dataName.compare("Temperature") == 0)
+    if (dataName.find("Sink-Temperature") == 0)
+    {
+        interface->addCouplingDataReader
+        (
+            dataName,
+            new SinkTemperature(mesh_, nameT_)
+        );
+        DEBUG(adapterInfo("Added reader: Sink Temperature."));
+    }
+    else if (dataName.find("Temperature") == 0)
     {
         interface->addCouplingDataReader
         (
@@ -304,8 +314,7 @@ void preciceAdapter::CHT::ConjugateHeatTransfer::addReaders(std::string dataName
         );
         DEBUG(adapterInfo("Added reader: Temperature."));
     }
-
-    if (dataName.compare("Heat-Flux") == 0)
+    else if (dataName.find("Heat-Flux") == 0)
     {
         if (solverType_.compare("compressible") == 0)
         {
@@ -340,8 +349,7 @@ void preciceAdapter::CHT::ConjugateHeatTransfer::addReaders(std::string dataName
                 "error");
         }
     }
-
-    if (dataName.find("Heat-Transfer-Coefficient") == 0)
+    else if (dataName.find("Heat-Transfer-Coefficient") == 0)
     {
         if (solverType_.compare("compressible") == 0)
         {
@@ -376,15 +384,9 @@ void preciceAdapter::CHT::ConjugateHeatTransfer::addReaders(std::string dataName
                 "error");
         }
     }
-
-    if (dataName.find("Sink-Temperature") == 0)
+    else
     {
-        interface->addCouplingDataReader
-        (
-            dataName,
-            new SinkTemperature(mesh_, nameT_)
-        );
-        DEBUG(adapterInfo("Added reader: Sink Temperature."));
+        adapterInfo("Unknown data type - cannot add " + dataName +".", "error");
     }
 
     // NOTE: If you want to couple another variable, you need
