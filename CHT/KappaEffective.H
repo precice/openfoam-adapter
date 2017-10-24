@@ -70,6 +70,15 @@ protected:
     //- Name of the turbulent thermal diffusivity field
     const std::string nameAlphat_;
 
+    //- Density
+    Foam::dimensionedScalar rho_;
+
+    //- Heat capacity
+    Foam::dimensionedScalar Cp_;
+
+    //- Prandtl number
+    Foam::dimensionedScalar Pr_;
+
 public:
 
     //- Constructor
@@ -102,7 +111,7 @@ protected:
     const Foam::fvMesh& mesh_;
 
     //- Effective conductivity (the same for each cell)
-    Foam::scalar kappaEff_;
+    Foam::dimensionedScalar kappaEff_;
 
     //- Name of the transportProperties dictionary
     const std::string nameTransportProperties_;

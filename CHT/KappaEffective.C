@@ -59,6 +59,70 @@ nameAlphat_(nameAlphat)
         DEBUG(adapterInfo("  Name of heat capacity: " + nameCp_));
         DEBUG(adapterInfo("  Name of Prandl number: " + namePr_));
         DEBUG(adapterInfo("  Name of turbulent thermal diffusivity: " + nameAlphat_));
+
+        // Make sure that the transportProperties exists.
+        if (!mesh_.foundObject<IOdictionary>(nameTransportProperties_))
+        {
+            FatalErrorInFunction
+                << "The transportProperties dictionary needs "
+                << "to exist and to contain Pr, rho, and Cp."
+                << exit(FatalError);
+        }
+
+        // Get the transportProperties dictionary
+        const dictionary & transportProperties =
+            &mesh_.lookupObject<IOdictionary>(nameTransportProperties_);
+
+        // Read the Prandtl number
+        if (!transportProperties.readIfPresent<dimensionedScalar>(namePr_, Pr_))
+        {
+            adapterInfo
+            (
+                "Cannot find the Prandtl number in " +
+                nameTransportProperties_ +
+                " using the name " +
+                namePr_,
+                "error"
+            );
+        }
+        else
+        {
+            DEBUG(adapterInfo("  Pr = " + std::to_string(Pr_.value())));
+        }
+
+        // Read the density
+        if (!transportProperties.readIfPresent<dimensionedScalar>(nameRho_, rho_))
+        {
+            adapterInfo
+            (
+                "Cannot find the density in " +
+                nameTransportProperties_ +
+                " using the name " +
+                nameRho_,
+                "error"
+            );
+        }
+        else
+        {
+            DEBUG(adapterInfo("  rho = " + std::to_string(rho_.value())));
+        }
+
+        // Read the heat capacity
+        if (!transportProperties.readIfPresent<dimensionedScalar>(nameCp_, Cp_))
+        {
+            adapterInfo
+            (
+                "Cannot find the heat capacity in " +
+                nameTransportProperties_ +
+                " using the name " +
+                nameCp_,
+                "error"
+            );
+        }
+        else
+        {
+            DEBUG(adapterInfo("  Cp = " + std::to_string(Cp_.value())));
+        }
 }
 
 void preciceAdapter::CHT::KappaEff_Incompressible::extract(uint patchID)
@@ -68,25 +132,6 @@ void preciceAdapter::CHT::KappaEff_Incompressible::extract(uint patchID)
     // Get the laminar viscosity from the turbulence model
     // TODO: Do we really need turbulence at the end?
     const scalarField & nu = turbulence_.nu() ().boundaryField()[patchID];
-
-    // Make sure that the transportProperties exists.
-    if (!mesh_.foundObject<IOdictionary>(nameTransportProperties_))
-    {
-        FatalErrorInFunction
-            << "The transportProperties dictionary needs "
-            << "to exist and to contain Pr, rho, and Cp."
-            << exit(FatalError);
-    }
-
-    // Get the transportProperties dictionary
-    const dictionary & transportProperties =
-        &mesh_.lookupObject<IOdictionary>(nameTransportProperties_);
-
-    // Get the Prandl number from the transportProperties.
-    // If it does not exist, an error is thrown automatically.
-    // TODO: Read this value only once
-    const scalar & Pr =
-        transportProperties.lookupType<dimensionedScalar>(namePr_).value();
 
     // Compute the effective thermal diffusivity
     // (alphaEff = alpha + alphat = nu / Pr + nut / Prt)
@@ -99,7 +144,7 @@ void preciceAdapter::CHT::KappaEff_Incompressible::extract(uint patchID)
         const scalarField & alphat =
             mesh_.lookupObject<volScalarField>(nameAlphat_).boundaryField()[patchID];
 
-        alphaEff = nu / Pr + alphat;
+        alphaEff = nu / Pr_.value() + alphat;
     }
     else
     {
@@ -110,24 +155,11 @@ void preciceAdapter::CHT::KappaEff_Incompressible::extract(uint patchID)
             << "Assuming only the laminar part of the thermal diffusivity."
             << nl;
 
-        alphaEff = nu / Pr;
+        alphaEff = nu / Pr_.value();
     }
 
-    // Get the density from the transportProperties (must be provided and read).
-    // If it does not exist, an error is thrown automatically.
-    // TODO: Read this value only once
-    const scalar & rho =
-        transportProperties.lookupType<dimensionedScalar>(nameRho_).value();
-
-    // Get the specific heat capacity from the transportProperties
-    // (must be provided and read).
-    // If it does not exist, an error is thrown automatically.
-    // TODO: Read this value only once
-    const scalar & Cp =
-        transportProperties.lookupType<dimensionedScalar>(nameCp_).value();
-
     // Compute the effective thermal conductivity
-    kappaEff_ = alphaEff * rho * Cp;
+    kappaEff_ = alphaEff * rho_.value() * Cp_.value();
 
 }
 
@@ -152,11 +184,6 @@ nameKappa_(nameKappa)
     DEBUG(adapterInfo("Constructed KappaEff_Basic."));
     DEBUG(adapterInfo("  Name of transportProperties: " + nameTransportProperties_));
     DEBUG(adapterInfo("  Name of conductivity: " + nameKappa_));
-}
-
-void preciceAdapter::CHT::KappaEff_Basic::extract(uint patchID)
-{
-    // Extract kappaEff_ as a parameter from the transportProperties file
 
     // Make sure that the transportProperties exists.
     if (!mesh_.foundObject<IOdictionary>(nameTransportProperties_))
@@ -168,12 +195,30 @@ void preciceAdapter::CHT::KappaEff_Basic::extract(uint patchID)
     }
 
     // Get the transportProperties dictionary
-    const dictionary& transportProperties =
-        mesh_.lookupObject<IOdictionary>(nameTransportProperties_);
+    const dictionary & transportProperties =
+        &mesh_.lookupObject<IOdictionary>(nameTransportProperties_);
 
-    // Get the conductivity from the file
-    // TODO: Read this value only once
-    kappaEff_ = transportProperties.lookupType<dimensionedScalar>(nameKappa_).value();
+    // Read the conductivity
+    if (!transportProperties.readIfPresent<dimensionedScalar>(nameKappa_, kappaEff_))
+    {
+        adapterInfo
+        (
+            "Cannot find the conductivity in " +
+            nameTransportProperties_ +
+            " using the name " +
+            nameKappa_,
+            "error"
+        );
+    }
+    else
+    {
+        DEBUG(adapterInfo(  "k = " + std::to_string(kappaEff_.value())));
+    }
+}
+
+void preciceAdapter::CHT::KappaEff_Basic::extract(uint patchID)
+{
+    // Already extracted in the constructor
 }
 
 scalar preciceAdapter::CHT::KappaEff_Basic::getAt(int i)
@@ -182,5 +227,5 @@ scalar preciceAdapter::CHT::KappaEff_Basic::getAt(int i)
     // Therefore, return the same value all the time.
     // This is done so that the same write() and read() can be used
     // for all the subclasses of HeatFlux (or other coupling data users).
-    return kappaEff_;
+    return kappaEff_.value();
 }
