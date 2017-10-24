@@ -233,23 +233,9 @@ try{
 
     // Initialize preCICE
     DEBUG(adapterInfo("Creating the preCICE solver interface..."));
-    int MPIEnabled = 0;
-    int MPIRank = 0;
-    int MPISize = 1;
-
-    MPI_Initialized(&MPIEnabled);
-    DEBUG(adapterInfo("  MPI used: " + std::to_string(MPIEnabled)));
-
-    if (MPIEnabled)
-    {
-        MPI_Comm_rank(MPI_COMM_WORLD, &MPIRank);
-        DEBUG(adapterInfo("  MPI rank: " + std::to_string(MPIRank)));
-
-        MPI_Comm_size(MPI_COMM_WORLD, &MPISize);
-        DEBUG(adapterInfo("  MPI size: " + std::to_string(MPISize)));
-    }
-
-    precice_ = new precice::SolverInterface(participantName_, MPIRank, MPISize);
+    DEBUG(adapterInfo("  Number of processes: " + std::to_string(Pstream::nProcs())));
+    DEBUG(adapterInfo("  MPI rank: " + std::to_string(Pstream::myProcNo())));
+    precice_ = new precice::SolverInterface(participantName_, Pstream::myProcNo(), Pstream::nProcs());
     DEBUG(adapterInfo("  preCICE solver interface was created."));
 
     DEBUG(adapterInfo("Configuring preCICE..."));

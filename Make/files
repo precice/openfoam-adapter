@@ -16,4 +16,4 @@ Adapter.C
 
 preciceAdapterFunctionObject.C
 
-LIB = $(FOAM_USER_LIBBIN)/libpreciceAdapterFunctionObject
+LIB = $(TARGET_DIR)/libpreciceAdapterFunctionObject

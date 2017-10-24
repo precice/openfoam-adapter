@@ -1,0 +1,53 @@
+#!/bin/sh
+cd ${0%/*} || exit 1    # Run from this directory
+
+########## CONFIGURATION - You may need to change these ########################
+# YAML-CPP include path - the parent of yaml-cpp/ (try running "locate yaml.h")
+YAML_CPP_INC="/usr/include/"
+# YAML-CPP library path (try running "locate libyaml-cpp")
+YAML_CPP_LIB="/usr/lib/x86_64-linux-gnu/"
+
+# preCICE include path (try running "locate SolverInterface.hpp")
+PRECICE_INC="${PRECICE_ROOT}/src/precice"
+# preCICE library path (try tunning "locate libprecice")
+PRECICE_LIB="${PRECICE_ROOT}/build/last"
+
+# C++ Boost library path - required from preCICE (try running "locate libboost")
+BOOST_LIB="/usr/local/lib"
+
+# PETSc library path - if required from preCICE (try running "locate libpetsc")
+PETSC_LIB="${PETSC_DIR}/${PETSC_ARCH}/lib"
+
+# preCICE dependencies (see the preCICE documentation)
+PRECICE_DEP="-lpetsc -lboost_system -lboost_filesystem -lboost_log -lboost_log_setup -lboost_thread -lboost_program_options -lpthread -lpython2.7"
+
+# Preprocessor flags (add -DADAPTER_DEBUG_MODE to enable debug messages)
+PREP_FLAGS=""
+
+# Where should the adapter be built? Default: "${FOAM_USER_LIBBIN}"
+TARGET_DIR="${FOAM_USER_LIBBIN}"
+
+# Flags used by wmake.
+# In order to compile with multiple threads, add e.g. "-j 4".
+# Make sure that these options are supported by your OpenFOAM version.
+WMAKE_OPTIONS=""
+################################################################################
+
+export YAML_CPP_INC
+export YAML_CPP_LIB
+export PRECICE_INC
+export PRECICE_LIB
+export PETSC_LIB
+export BOOST_LIB
+export PRECICE_DEP
+export PREP_FLAGS
+export TARGET_DIR
+
+wmake ${WMAKE_OPTIONS} libso
+if [ $? -ne 0 ]; then
+echo "Failed to build the openfoam-adapter for preCICE."
+exit
+fi
+
+echo ""
+echo "Building completed successfully!"

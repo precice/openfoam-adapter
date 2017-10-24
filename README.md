@@ -1,39 +1,23 @@
 # preCICE-adapter for the CFD code OpenFOAM
 
-_**Note:** This adapter is under development but it is functional.
-This README file also corresponds to the current development of the adapter._
+_**Note:** This adapter is currently under active development / not stable_
 
 This adapter is developed as part of Gerasimos Chourdakis' master's thesis.
 It is based on [previous work](https://github.com/ludcila/CHT-preCICE) by Lucia Cheung ([master's thesis](https://www5.in.tum.de/pub/Cheung2016_Thesis.pdf), in cooperation with [SimScale](https://www.simscale.com/)).
 
 ## Build
-In order to build this adapter, we need to use an MPI C++ compiler.
-To do so, let's create a new target for WMake (build tool used by OpenFOAM):
+In order to build this adapter, simply run the `Allwmake` script.
+The respective `Allclean` script cleans up the build targets.
 
-```bash
-cd $WM_DIR/rules
-sudo cp -r ${WM_ARCH}${WM_COMPILER} ${WM_ARCH}Mpicc
-cd ${WM_ARCH}Mpicc
-```
+You may need to adjust the location of some libraries and headers
+in the `Allwmake` file. The following dependencies are required:
 
-Edit the file `c++` and change the compiler to `mpic++`. For example:
+* [yaml-cpp](https://github.com/jbeder/yaml-cpp) headers and library.
+* preCICE headers and library, as well as the dependencies described in its [Building wiki page](https://github.com/precice/precice/wiki/Building).
 
-```make
-CC          = mpic++ -std=c++11 -m64
-```
+You may provide the `-DADAPTER_DEBUG_MODE` flag inside `PREP_FLAGS` to get additional debug messages.
+You may also change the target directory or specify the number of threads to use for the compilation.
 
-Note: If your MPI library triggers many "old style cast" warnings, you may
-want to change the `-Wold-style-cast` flag to the `-Wno-old-style-cast`.
-
-Now that we have the new target, we have to specify that we want to use it.
-For this, run (or put in your `~/.bashrc`) the following:
-
-```bash
-export WM_COMPILER=Mpicc
-```
-
-Next, simply run `wmake libso` inside the `openfoam-adapter` directory.
-The respective command to clean is `wclean`.
 
 ## Run
 To run this adapter, you must include the following in
@@ -107,28 +91,37 @@ TODO: Tutorials and examples will be added later.
 
 ### Compatible OpenFOAM versions
 
-The following OpenFOAM versions and solvers have been tested to work with this adapter:
+The following OpenFOAM versions have been tested and are known to work with this adapter:
 
 * OpenFOAM 5.0 - openfoam.org
-* OpenFOAM 4.1 - openfoam.org (TODO: last check was a while ago)
+* OpenFOAM 4.1 - openfoam.org
+
+The following OpenFOAM versions can compile with
+this adapter but have not been tested:
+
+* OpenFOAM+ v1706 - openfoam.com
 
 The following versions are known to be currently _incompatible_:
 
-* OpenFOAM 3.0.1 - openfoam.org (differences in the `functionObject`)
-* OpenFOAM 2.3.1 - openfoam.org (differences in the `functionObject`)
+* OpenFOAM 3.0.1 - openfoam.org (planed to support)
+* OpenFOAM 2.3.1 - openfoam.org (planned to support)
 
 ### Compatible OpenFOAM solvers
 
 The following OpenFOAM solvers (in the respective OpenFOAM versions) are known to work with the adapter. However, more solvers may be compatible.
-
-#### Basic
-
-* laplacianFoam (modified to read `k`, `rho`, and `Cp`) (OF4, OF5)
+See also the section "Solver requirements".
 
 #### Heat Transfer
 
-* buoyantPimpleFoam (OF4, OF5)
-* buoyantBoussinesqPimpleFoam (modified to read `rho`, and `Cp`) (OF4, OF5)
+#### Compressible
+
+* buoyantPimpleFoam (OF4.1, OF5.0)
+* buoyantSimpleFoam (OF4.1, OF5.0)
+* buoyantBoussinesqPimpleFoam (OF4.1, OF5.0)
+
+#### Basic
+
+* laplacianFoam (OF4.1, OF5.0)
 
 ### Solver requirements
 
@@ -157,7 +150,7 @@ are provided.
 For example `buoyantBoussinesqPimpleFoam` or `buoyantBoussinesqSimpleFoam`.
 These solvers simulate heat transfer but do not compute the effective thermal
 conductivity, as they don't know the density of the fluid or the
-specific heat capacity. Therefore, values for these need to be provided.
+heat capacity. Therefore, values for these need to be provided.
 The adapter looks for them in the `transportProperties` dictionary.
 
 For example, the following lines need to be added in the `constant/transportProperties`
@@ -173,7 +166,7 @@ Assumptions:
 * Temperature is a registered IOObject named `T`.
 * The dictionaries `turbulenceProperties` and `transportProperties`
 are provided.
-* `transportProperties` contains density `rho` and specific heat capacity `Cp`.
+* `transportProperties` contains density `rho` and heat capacity `Cp`.
 * The turbulent thermal diffusivity is a registered IOObject named `alphat`.
 If it is not found, then only the laminar part of the thermal diffusivity is
 used (a warning is triggered in this case).
@@ -181,8 +174,7 @@ used (a warning is triggered in this case).
 #### Basic solvers
 For example `laplacianFoam` can simulate heat transfer, using a
 thermal diffusion parameter `DT`.
-The adapter additionally expects values for conductivity `k`,
-density `rho` and specific heat capacity `Cp` in the `transportProperties`
+The adapter additionally expects a value for the conductivity `k` in the `transportProperties`
 dictionary.
 
 For example, the following lines need to be present in the `constant/transportProperties`
@@ -190,19 +182,17 @@ file for the `laplacianFoam`:
 ```c++
 DT               DT  [ 0  2 -1  0 0 0 0 ] 1;
 k                k   [ 1  1 -3 -1 0 0 0 ] 100;
-rho              rho [ 1 -3  0  0 0 0 0 ] 1;
-Cp               Cp  [ 0  2 -2 -1 0 0 0 ] 100;
 ```
 
-Do not delete the, already provided in the pure solver, `DT`, as `laplacianFoam` expects it. Specify the values
-for `k`, `rho`, and `Cp` and then calculate the `DT` as `k / rho / Cp`.
-The solver itself does not need to read the additional parameters.
+Do not delete the, already provided in the pure solver, `DT`, as `laplacianFoam` expects it.
+The value of `k` is connected to the one of `DT`
+and depends on the density (`rho [ 1 -3  0  0 0 0 0 ]`) and heat capacity (`Cp  [ 0  2 -2 -1 0 0 0 ]`). It needs to hold `DT = k / rho / Cp`.
+The solver itself does not need to read the additional parameter.
 
 Assumptions:
 * Temperature is a registered IOObject named `T`.
-* The dictionariy `transportProperties` is provided.
-* `transportProperties` contains conductivity `k`, density `rho`,
-and specific heat capacity `Cp`.
+* The dictionary `transportProperties` is provided.
+* `transportProperties` contains the conductivity `k`.
 
 #### Parameters and fields with different names
 
@@ -220,7 +210,7 @@ nameTransportProperties: transportProperties
 nameKappa: k
 # density
 nameRho: rho
-# specific heat capacity for constant pressure
+# heat capacity for constant pressure
 nameCp: Cp
 # Prandtl number
 namePr: Pr
@@ -364,12 +354,7 @@ either (`Temperature`, `Heat-Flux`) or (`Heat-Flux`, `Temperature`).
 For a Robin-Robin coupling, they can be either (`Heat-Transfer-Coefficient`, `Sink-Temperature`)
 or (`Sink-Temperature`, `Heat-Transfer-Coefficient`).
 
-#### Debug mode
-
-Additional debug messages can be printed. For performance reasons, these
-messages are disabled at compile-time. In order to activate them,
-the adapter needs to be built with the `ADAPTER_DEBUG_MODE` defined.
-For this, comment-out the respective line in the beginning of the `Utilities.H` file.
+Note that these strings need to be present but not necessarily exact. You may also use names like `Sink-Temperature-Domain1` and `Sink-Temperature-Domain2` in more complex coupling scenarios.
 
 ### How to couple a different variable?
 
@@ -379,7 +364,7 @@ Then you need to add an option for it in the configuration part
 to add objects of it into the `couplingDataWriters` and `couplingDataReaders`
 whenever requested.
 
-There are some `NOTE`s in the files `Adapter.H`, `Adapter.C` and
+There are some `NOTE`s in the files `Adapter.H`, `Adapter.C`, and
 `CHT/Temperature.H` to guide you through the process.
 
 _Note:_ make sure to include any additional required libraries in the `LIB_LIBS`

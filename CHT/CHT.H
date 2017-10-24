@@ -43,7 +43,7 @@ protected:
     //- Name of the density for an incompressible solver
     std::string nameRho_ = "rho";
 
-    //- Name of the specific heat for an incompressible solver
+    //- Name of the heat capacity for an incompressible solver
     std::string nameCp_ = "Cp";
 
     //- Name of the Prandtl number for an incompressible solver
