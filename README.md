@@ -7,7 +7,7 @@ It is based on [previous work](https://github.com/ludcila/CHT-preCICE) by Lucia 
 
 ## Build
 In order to build this adapter, simply run the `Allwmake` script.
-The respective `Allclean` script cleans up the build targets.
+The respective `Allclean` script cleans up.
 
 You may need to adjust the location of some libraries and headers
 in the `Allwmake` file. The following dependencies are required:
@@ -103,7 +103,7 @@ this adapter but have not been tested:
 
 The following versions are known to be currently _incompatible_:
 
-* OpenFOAM 3.0.1 - openfoam.org (planed to support)
+* OpenFOAM 3.0.1 - openfoam.org (planned to support)
 * OpenFOAM 2.3.1 - openfoam.org (planned to support)
 
 ### Compatible OpenFOAM solvers
@@ -243,7 +243,7 @@ in an implicit coupling scenario the solver may schedule its exit
 See [how function objects are called](https://cpp.openfoam.org/v5/Time_8C_source.html#l00781)
 for more details on this.
 
-In order to prevent early exits from the solver, the solver's endTime
+In order to prevent early exits from the solver, the solver's `endTime`
 is set to infinity and it is later set to the current time when
 the simulation needs to end. This has the side effect of not calling
 any function object's `end()` method normally, so these are triggered
@@ -344,6 +344,21 @@ The nearest-projection mapping is currently not supported by the OpenFOAM adapte
 as topological information is not yet provided to preCICE. This will be
 implemented in future releases.
 
+#### Checkpointing
+
+In the case of implicit coupling, the participants are required to store
+checkpoints of their state. The adapter tracks all the registered objects
+of type `volScalarField`, `volVectorField`, `surfaceScalarField` and `surfaceVectorField`.
+After reading a checkpoint, the boundaries are evaluated again for all the
+tracked `volScalarField` and `volVectorField` objects, to improve the stability.
+
+However, there is a known bug in the current implementation, where trying to
+evaluate the boundaries after reading a checkpoint, for some fields, will lead 
+to an error. This is currently known to happen only for the
+`epsilon` field of the kEpsilon turbulence model. In case this field is
+available, it is not tracked and a warning is reported. Please let us
+know if this happens in any other case.
+
 ### Notes on configuration
 
 #### Valid combinations of `write-data` and `read-data`
@@ -354,7 +369,7 @@ either (`Temperature`, `Heat-Flux`) or (`Heat-Flux`, `Temperature`).
 For a Robin-Robin coupling, they can be either (`Heat-Transfer-Coefficient`, `Sink-Temperature`)
 or (`Sink-Temperature`, `Heat-Transfer-Coefficient`).
 
-Note that these strings need to be present but not necessarily exact. You may also use names like `Sink-Temperature-Domain1` and `Sink-Temperature-Domain2` in more complex coupling scenarios.
+Note that these strings need to be present but the names can also contain more characters. You may also use names like `Sink-Temperature-Domain1` and `Sink-Temperature-Domain2` in more complex coupling scenarios.
 
 ### How to couple a different variable?
 
