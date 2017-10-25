@@ -32,7 +32,7 @@ Description
     version, you may create a new function object with the same name and type,
     using the template for functionObjects that you can usually find in the
     $FOAM_ETC/codeTemplates/ directory. This is only a wrapper to the
-    adapter's methods.
+    adapter's methods (see preciceAdapterFunctionObject.C).
 
     Example of function object specification:
     \verbatim
@@ -129,6 +129,18 @@ public:
 
         //- Called at the end of Time::adjustDeltaT() if adjustTime is true
         virtual bool adjustTimeStep();
+
+    /*
+        // NOTE: If you add a new module that needs to execute methods
+        // whenever the mesh is updated or its points moved,
+        // you may put your calls inside the following methods.
+
+        // Update for changes of mesh
+        virtual void updateMesh(const mapPolyMesh& mpm);
+
+        // Update for changes of mesh
+        virtual void movePoints(const polyMesh& mesh);
+    */
 };
 
 

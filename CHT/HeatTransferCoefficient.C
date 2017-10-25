@@ -37,7 +37,6 @@ void preciceAdapter::CHT::HeatTransferCoefficient::write(double * buffer)
         // Extract the effective conductivity on the patch
         extractKappaEff(patchID);
 
-        // TODO: The implementation is a bit different than before. Validate.
         // Get the face-cell distance coefficients on the patch
         const scalarField & delta = mesh_.boundary()[patchID].deltaCoeffs();
 
@@ -66,7 +65,6 @@ void preciceAdapter::CHT::HeatTransferCoefficient::read(double * buffer)
         // Extract the effective conductivity on the patch
         extractKappaEff(patchID);
 
-        // TODO: The implementation is a bit different than before. Validate.
         // Get the face-cell distance coefficients on the patch
         const scalarField & delta = mesh_.boundary()[patchID].deltaCoeffs();
 

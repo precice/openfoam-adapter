@@ -52,7 +52,7 @@ private:
 
     // Configuration parameters used in the Adapter
 
-        //- Note if there were errors in the read() method
+        //- Remember if there were errors in the read() method
         bool errorsInConfigure = false;
 
         //- preCICE participant name
@@ -136,6 +136,8 @@ private:
 
             //- Checkpointed surfaceVectorField fields (copies)
             std::vector<Foam::surfaceVectorField*> surfaceVectorFieldCopies_;
+
+            // NOTE: Declare additional vectors for any other types required.
 
     // Configuration
 

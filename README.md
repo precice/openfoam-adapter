@@ -353,7 +353,7 @@ After reading a checkpoint, the boundaries are evaluated again for all the
 tracked `volScalarField` and `volVectorField` objects, to improve the stability.
 
 However, there is a known bug in the current implementation, where trying to
-evaluate the boundaries after reading a checkpoint, for some fields, will lead 
+evaluate the boundaries after reading a checkpoint, for some fields, will lead
 to an error. This is currently known to happen only for the
 `epsilon` field of the kEpsilon turbulence model. In case this field is
 available, it is not tracked and a warning is reported. Please let us
@@ -379,7 +379,7 @@ Then you need to add an option for it in the configuration part
 to add objects of it into the `couplingDataWriters` and `couplingDataReaders`
 whenever requested.
 
-There are some `NOTE`s in the files `Adapter.H`, `Adapter.C`, and
+There are some `NOTE`s in the files `Adapter.H`, `Adapter.C`, `CHT/CHT.C`, and
 `CHT/Temperature.H` to guide you through the process.
 
 _Note:_ make sure to include any additional required libraries in the `LIB_LIBS`

@@ -190,14 +190,12 @@ bool preciceAdapter::Adapter::configFileRead()
     {
         CHT_ = new CHT::ConjugateHeatTransfer(mesh_);
         if (!CHT_->configure(adapterConfig_)) return false;
-    }
+    } // NOTE: Create your module and read any options specific to it here
     else
     {
-        adapterInfo("Only the CHT module is currently available. It cannot be disabled.", "warning");
+        adapterInfo("No module is enabled.", "warning");
         return false;
     }
-
-    // NOTE: Create your module and read any options specific to it here
 
     return true;
 }

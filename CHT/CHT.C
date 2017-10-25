@@ -19,6 +19,9 @@ bool preciceAdapter::CHT::ConjugateHeatTransfer::configure(const YAML::Node adap
     // Read the CHT-specific options from the adapter's configuration file
     if (!readConfig(adapterConfig)) return false;
 
+    // NOTE: If you want to add a new solver type, which you can manually
+    // specify in the configuration, add it here. See also the methods
+    // addWriters() and addReaders().
     // Check the solver type and determine it if needed
     if (
         solverType_.compare("compressible") == 0 ||
@@ -106,7 +109,7 @@ bool preciceAdapter::CHT::ConjugateHeatTransfer::readConfig(const YAML::Node ada
 std::string preciceAdapter::CHT::ConjugateHeatTransfer::determineSolverType()
 {
     // NOTE: When coupling a different variable, you may want to
-    // add more cases here.
+    // add more cases here. Or you may provide the solverType in the config.
 
     std::string solverType;
 
