@@ -177,6 +177,20 @@ bool preciceAdapter::Adapter::configFileRead()
     }
     DEBUG(adapterInfo("    prevent early exit : " + std::to_string(preventEarlyExit_)));
 
+    // Set the evaluateBoundaries_ switch
+    if (adapterConfig_["evaluateBoundaries"])
+    {
+        evaluateBoundaries_ = adapterConfig_["evaluateBoundaries"].as<bool>();
+    }
+    DEBUG(adapterInfo("    evaluate boundaries : " + std::to_string(evaluateBoundaries_)));
+
+    // Set the disableCheckpointing_ switch
+    if (adapterConfig_["disableCheckpointing"])
+    {
+        disableCheckpointing_ = adapterConfig_["disableCheckpointing"].as<bool>();
+    }
+    DEBUG(adapterInfo("    disable checkpointing : " + std::to_string(disableCheckpointing_)));
+
     // Set the CHTenabled_ switch
     if (adapterConfig_["CHTenabled"])
     {
@@ -290,7 +304,10 @@ try{
         checkpointing_ = true;
 
         // Setup the checkpointing (find and add fields to checkpoint)
-        setupCheckpointing();
+        if (!disableCheckpointing_)
+        {
+            setupCheckpointing();
+        }
 
         // Write checkpoint (for the first iteration)
         writeCheckpoint();
@@ -904,18 +921,20 @@ void preciceAdapter::Adapter::readCheckpoint()
         // Load the volume field
         *(volScalarFields_.at(i)) == *(volScalarFieldCopies_.at(i));
         // Evaluate the boundaries, if supported
-        try{
-            if ("epsilon" != volScalarFields_.at(i)->name())
-            {
-                volScalarFields_.at(i)->correctBoundaryConditions();
+        if (evaluateBoundaries_)
+        {
+            try{
+                if ("epsilon" != volScalarFields_.at(i)->name())
+                {
+                    volScalarFields_.at(i)->correctBoundaryConditions();
+                }
+                // TODO: Known bug: cannot find "volScalarField::Internal kEpsilon:G"
+                // Currently it is skipped. Before it was not corrected at all.
+                // A warning for this is thrown when adding epsilon to the checkpoint.
+            } catch (Foam::error) {
+                DEBUG(adapterInfo("Could not evaluate the boundary for" + volScalarFields_.at(i)->name(), "warning"));
             }
-            // TODO: Known bug: cannot find "volScalarField::Internal kEpsilon:G"
-            // Currently it is skipped. Before it was not corrected at all.
-            // A warning for this is thrown when adding epsilon to the checkpoint.
-        } catch (Foam::error) {
-            DEBUG(adapterInfo("Could not evaluate the boundary for" + volScalarFields_.at(i)->name(), "warning"));
         }
-
     }
 
     // Reload all the fields of type volVectorField

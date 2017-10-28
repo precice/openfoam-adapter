@@ -22,7 +22,7 @@ PETSC_LIB="${PETSC_DIR}/${PETSC_ARCH}/lib"
 PRECICE_DEP="-lpetsc -lboost_system -lboost_filesystem -lboost_log -lboost_log_setup -lboost_thread -lboost_program_options -lpthread -lpython2.7"
 
 # Preprocessor flags (add -DADAPTER_DEBUG_MODE to enable debug messages)
-PREP_FLAGS=""
+PREP_FLAGS="-DADAPTER_DEBUG_MODE"
 
 # Where should the adapter be built? Default: "${FOAM_USER_LIBBIN}"
 TARGET_DIR="${FOAM_USER_LIBBIN}"

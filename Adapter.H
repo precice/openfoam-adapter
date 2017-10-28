@@ -71,6 +71,12 @@ private:
         //  the coupling is complete.
         bool preventEarlyExit_ = true;
 
+        //- Switch for evaluating the boundaries after reading a checkpoint.
+        bool evaluateBoundaries_ = true;
+
+        //- Switch to disable the checkpointing
+        bool disableCheckpointing_ = false;
+
         //- Type of timestep (fixed, adjustable)
         bool adjustableTimestep_;
 

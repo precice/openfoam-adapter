@@ -12,7 +12,7 @@ The respective `Allclean` script cleans up.
 You may need to adjust the location of some libraries and headers
 in the `Allwmake` file. The following dependencies are required:
 
-* [yaml-cpp](https://github.com/jbeder/yaml-cpp) headers and library.
+* [yaml-cpp](https://github.com/jbeder/yaml-cpp) headers and shared library.
 * preCICE headers and library, as well as the dependencies described in its [Building wiki page](https://github.com/precice/precice/wiki/Building).
 
 You may provide the `-DADAPTER_DEBUG_MODE` flag inside `PREP_FLAGS` to get additional debug messages.
@@ -48,7 +48,7 @@ following form:
 ```yaml
 participant: Fluid
 
-precice-config-file: ../precice-config.xml
+precice-config-file: /path/to/precice-config.xml
 
 interfaces:
 - mesh: Fluid-Mesh
@@ -58,9 +58,10 @@ interfaces:
 
 # Optional, use in special cases
 #
-# preventEarlyExit: No # Default: yes
-#
-# subcycling: No # Default: yes
+# preventEarlyExit: No      # Default: yes
+# evaluateBoundaries: No    # Default: yes
+# subcycling: No            # Default: yes
+# disableCheckpointing: Yes # Default: no
 
 ```
 
@@ -95,6 +96,8 @@ The following OpenFOAM versions have been tested and are known to work with this
 
 * OpenFOAM 5.0 - openfoam.org
 * OpenFOAM 4.1 - openfoam.org
+
+OpenFOAM-dev from openfoam.org, build dev-c2ea77a4b856 (24/10/2017) is also known to work.
 
 The following OpenFOAM versions can compile with
 this adapter but have not been tested:
@@ -358,6 +361,14 @@ to an error. This is currently known to happen only for the
 `epsilon` field of the kEpsilon turbulence model. In case this field is
 available, it is not tracked and a warning is reported. Please let us
 know if this happens in any other case.
+
+You may also disable the evaluation of the boundaries after
+reading a checkpoint, by using the `evaluateBoundaries: No` option.
+Additionally, you may disable the checkpointing completely,
+by using the `disableCheckpointing: Yes` option. This tricks preCICE
+by not adding adding any fields to the checkpoints. You may use this only
+for development purposes, as implicit coupling should always be used
+with checkpointing.
 
 ### Notes on configuration
 
