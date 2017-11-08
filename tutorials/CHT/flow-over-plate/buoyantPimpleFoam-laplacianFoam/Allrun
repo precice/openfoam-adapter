@@ -1,0 +1,27 @@
+ #!/bin/bash
+
+# Prepare the Fluid participant
+echo "Preparing the Fluid participant..."
+blockMesh -case Fluid
+
+# Run the Fluid participant and get the process id
+echo "Starting the Fluid participant..."
+buoyantPimpleFoam -case Fluid > Fluid.log 2>&1 &
+PIDFluid=$!
+
+# Prepare the Solid participant
+echo "Preparing the Solid participant..."
+blockMesh -case Solid
+
+# Run the Solid participant and get the process id
+echo "Starting the Solid participant..."
+laplacianFoam -case Solid > Solid.log 2>&1 &
+PIDSolid=$!
+
+# Wait for all the participants to finish
+echo "Waiting for the participants to exit..."
+echo "(you may run 'tail -f Fluid.log' in another terminal to check the progress)"
+wait $PIDFluid
+wait $PIDSolid
+echo "The simulation completed!"
+echo "You may now open 'Fluid/Fluid.OpenFOAM' and 'Solid/Solid.OpenFOAM' in ParaView."

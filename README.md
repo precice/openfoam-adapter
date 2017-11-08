@@ -94,9 +94,24 @@ The rest of the parameters are optional and expect a `yes` or a `no`. Use them o
 * `subcycling: No` disallows the subcycling and an error is reported in that case.
 * `disableCheckpointing: Yes` prevents the adapter from adding any fields into the list of checkpointed fields.
 
-## Setup an example
+## Tutorials
 
-TODO: Tutorials and examples will be added later.
+In the `tutorials/` directory, you may find ready-to-run examples for OpenFOAM 5.0.
+
+### CHT: Flow over a heated plate
+
+This scenario consists of one fluid and one solid participant,
+in this case the solvers `buoyantPimpleFoam` and `laplacianFoam`.
+A fluid enters on a channel with temperature 300K, where it comes in contact
+with a solid plate, which is heated from below on a constant temperature 310K.
+
+A serial-implicit coupling is used, where the fluid participant reads heat fluxes
+and the solid participant reads temperatures. Both participants are executed in
+serial. The simulated time is 1s and results are written every 0.2s.
+
+In order to run the example, execute the script `Allrun`. In order to clean
+the results, use the script `Allclean`. An example of the visualized
+expected results can be found in `overview.png`.
 
 ## Compatibility
 

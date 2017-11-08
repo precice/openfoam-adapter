@@ -1,0 +1,10 @@
+participant: Fluid
+
+precice-config-file: precice-config.xml
+
+interfaces:
+- mesh: Fluid-Mesh
+  patches:
+  - interface
+  write-data: Temperature
+  read-data: Heat-Flux

@@ -1,0 +1,36 @@
+#!/bin/sh
+cd ${0%/*} || exit 1    # Run from this directory
+
+echo "Cleaning..."
+
+# Source tutorial clean functions
+. $WM_PROJECT_DIR/bin/tools/CleanFunctions
+
+# Fluid participant
+cd Fluid/
+    # Clean the case
+    cleanCase
+    # Create an empty .OpenFOAM file for ParaView
+    touch Fluid.OpenFOAM
+cd ..
+# Remove the log file
+rm -f Fluid.log
+
+# Solid participant
+cd Solid/
+    # Clean the case
+    cleanCase
+    # Create an empty .OpenFOAM file for ParaView
+    touch Solid.OpenFOAM
+cd ..
+rm -f Solid.log
+
+# Remove the preCICE-related log files
+rm -f convergence-*.log convergence-*.txt
+rm -f EventTimings-*.log EventTimings-*.txt
+rm -f iterations-*.log iterations-*.txt
+rm -f dummy
+rm -f spooles.out
+
+echo "Cleaning complete!"
+#------------------------------------------------------------------------------
