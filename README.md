@@ -66,7 +66,9 @@ interfaces:
 ```
 
 The `participant` needs to be the same as the one specified in the `precice-config-file`,
-which is the main preCICE configuration file.
+which is the main preCICE configuration file. If the path is omitted,
+precice-config.xml must be in the parent directory of the cases, where preCICE
+is started from.
 
 In the `interfaces`, a list with the coupled interfaces is provided.
 The `mesh` needs to be the same as the one specified in the `precice-config-file`.
