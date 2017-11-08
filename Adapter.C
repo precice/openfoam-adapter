@@ -406,13 +406,18 @@ void preciceAdapter::Adapter::execute()
     //     watch -n 0.1 -d ls --full-time Fluid/0.01/T.gz
     if (checkpointing_ && isCouplingTimestepComplete())
     {
-        adapterInfo
-        (
-            "The coupling timestep completed. "
-            "Writing the updated results.",
-            "info"
-       );
-        const_cast<Time&>(runTime_).writeNow();
+        // Check if the time directory already exists
+        // (i.e. the solver wrote results that need to be updated)
+        if (runTime_.timePath().type() == fileName::DIRECTORY)
+        {
+            adapterInfo
+            (
+                "The coupling timestep completed. "
+                "Writing the updated results.",
+                "info"
+           );
+            const_cast<Time&>(runTime_).writeNow();
+        }
     }
 
     // If the coupling is not going to continue, tear down everything
