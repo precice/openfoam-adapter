@@ -78,16 +78,43 @@ or `Heat-Transfer-Coefficient`.
 
 The type of the `read-data` needs to be in accordance with the respective boundary
 conditions set for each field in the `0/` directory of the case:
+
 * For `read-data: Temperature`, use `type: fixedValue` for the `interface` in `0/T`.
 OpenFOAM requires that you also give a `value`, but the adapter
-will overwrite it. ParaView uses this value for the initial time.
+will overwrite it. ParaView uses this value for the initial time. As a placeholder, you can e.g. use the value from the internalField.
+```c++
+interface
+{
+    type            fixedValue;
+    value           $internalField;
+}
+```
+
 * For `read-data: Heat-Flux`, use `type: fixedGradient` for the `interface` in `0/T`.
 OpenFOAM requires that you also give a `gradient`, but the adapter will overwrite it.
+```c++
+interface
+{
+    type            fixedGradient;
+    gradient        0;
+}
+```
 * For `read-data: Sink-Temperature` or `Heat-Transfer-Coefficient`, use
 `type: mixed` for the `interface` in `0/T`. OpenFOAM requires that you also give
 a `refValue`, a `refGradient`, and a `valueFraction`, but the adapter will overwrite them.
+```c++
+interface
+{
+    type            mixed;
+    refValue		uniform 293;
+    valueFraction	uniform 0.5;
+    refGradient		uniform 0;
+}
+```
 
-The rest of the parameters are optional and expect a `yes` or a `no`. Use them only in special cases (e.g. debugging or developing).
+Read the [OpenFOAM User Guide](https://cfd.direct/openfoam/user-guide/boundaries/) for more on boundary conditions.
+
+The rest of the parameters are optional and expect a `yes` or a `no`. Use them only in special cases (e.g. debugging or developing). Some or all of these options may be removed in the future.
 
 * `preventEarlyExit: No` prevents the adapter from setting the solver's `endTime` to infinity.
 * `evaluateBoundaries: No` prevents the adapter from computing the values on the faces (from the values on the cell centers) after reading a checkpoint.
@@ -98,24 +125,24 @@ The rest of the parameters are optional and expect a `yes` or a `no`. Use them o
 
 In the `tutorials/` directory, you may find ready-to-run examples for OpenFOAM 5.0.
 
-### CHT: Flow over a heated plate
+### Tutorial for CHT: Flow over a heated plate
 
 This scenario consists of one fluid and one solid participant,
 in this case the solvers `buoyantPimpleFoam` and `laplacianFoam`.
-A fluid enters on a channel with temperature 300K, where it comes in contact
-with a solid plate, which is heated from below on a constant temperature 310K.
+A fluid enters in a channel with temperature 300K, where it comes in contact
+with a solid plate, which is heated from below at a constant temperature of 310K.
 
 A serial-implicit coupling is used, where the fluid participant reads heat fluxes
 and the solid participant reads temperatures. Both participants are executed in
 serial. The simulated time is 1s and results are written every 0.2s.
 
-In order to run the example, execute the script `Allrun`. In order to clean
+In order to run the example, execute the script `Allrun`. You may see the progress by inspecting the files `Fluid.los` and `Solid.log`. At the end (or after the first write), execute `paraFoam -case Fluid &` to visualize the channel and add the `Solid.FOAM` file from the ParaView menu. In order to clean
 the results, use the script `Allclean`. An example of the visualized
 expected results can be found in `overview.png`.
 
 ## Compatibility
 
-### Compatible OpenFOAM versions
+### Compatible (tested) OpenFOAM versions
 
 The following OpenFOAM versions have been tested and are known to work with this adapter:
 
@@ -145,6 +172,9 @@ See also the section "Solver requirements".
 
 * buoyantPimpleFoam (OF4.1, OF5.0)
 * buoyantSimpleFoam (OF4.1, OF5.0)
+
+#### Incompressible
+
 * buoyantBoussinesqPimpleFoam (OF4.1, OF5.0)
 
 #### Basic
