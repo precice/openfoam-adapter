@@ -72,17 +72,27 @@ In the `interfaces`, a list with the coupled interfaces is provided.
 The `mesh` needs to be the same as the one specified in the `precice-config-file`.
 The `patches` specifies a list of the names of the OpenFOAM boundary patches that are
 participating in the coupled simulation. These need to be defined in the files
-included in the `0/` directory. The values for `write-data` and `read-data` are
-currently placeholders.
+included in the `0/` directory. The values for `write-data` and `read-data`
+can be strings that contain the sequences `Temperature`, `Heat-Flux`, `Sink-Temperature`,
+or `Heat-Transfer-Coefficient`.
 
-The parameters `preventEarlyExit` and
-`subcycling` expect a `Yes` or a `No`.
-The first one gives the complete control
-of the simulation's end to the adapter,
-while the second one disables the
-subcycling. Both may be used in special
-situation, in which these features may cause problems.
+The type of the `read-data` needs to be in accordance with the respective boundary
+conditions set for each field in the `0/` directory of the case:
+* For `read-data: Temperature`, use `type: fixedValue` for the `interface` in `0/T`.
+OpenFOAM requires that you also give a `value`, but the adapter
+will overwrite it. ParaView uses this value for the initial time.
+* For `read-data: Heat-Flux`, use `type: fixedGradient` for the `interface` in `0/T`.
+OpenFOAM requires that you also give a `gradient`, but the adapter will overwrite it.
+* For `read-data: Sink-Temperature` or `Heat-Transfer-Coefficient`, use
+`type: mixed` for the `interface` in `0/T`. OpenFOAM requires that you also give
+a `refValue`, a `refGradient`, and a `valueFraction`, but the adapter will overwrite them.
 
+The rest of the parameters are optional and expect a `yes` or a `no`. Use them only in special cases (e.g. debugging or developing).
+
+* `preventEarlyExit: No` prevents the adapter from setting the solver's `endTime` to infinity.
+* `evaluateBoundaries: No` prevents the adapter from computing the values on the faces (from the values on the cell centers) after reading a checkpoint.
+* `subcycling: No` disallows the subcycling and an error is reported in that case.
+* `disableCheckpointing: Yes` prevents the adapter from adding any fields into the list of checkpointed fields.
 
 ## Setup an example
 
@@ -94,10 +104,10 @@ TODO: Tutorials and examples will be added later.
 
 The following OpenFOAM versions have been tested and are known to work with this adapter:
 
-* OpenFOAM 5.0 - openfoam.org
+* OpenFOAM 5.0 - openfoam.org, build 5.x-197d9d3bf20a (30/10/2017)
 * OpenFOAM 4.1 - openfoam.org
 
-OpenFOAM-dev from openfoam.org, build dev-c2ea77a4b856 (24/10/2017) is also known to work.
+OpenFOAM-dev from openfoam.org, build dev-6c8102bd9ad3 (04/11/2017) is also known to work.
 
 The following OpenFOAM versions can compile with
 this adapter but have not been tested:
@@ -331,7 +341,7 @@ not affect the timestep used. A warning will be shown in this case.
 
 ### Compatible preCICE versions
 
-The preCICE version corresponding to the commit [e05fbc0](https://github.com/precice/precice/commit/e05fbc0101021c12eff0c41ef58c16ec75acba54) (October 11, 2017) is known to work with the adapter. Newer versions should also be compatible.
+The preCICE version corresponding to the commit [5034762](https://github.com/precice/precice/commit/5034762c86ca92ee6f3f0edf2d2a78f75d9b805d) (November 3, 2017) is known to work with the adapter. Newer versions should also be compatible.
 
 Please note that, if you are using preCICE as a shared library, you need
 to have it added in your `LD_LIBRARY_PATH`.
@@ -366,7 +376,7 @@ You may also disable the evaluation of the boundaries after
 reading a checkpoint, by using the `evaluateBoundaries: No` option.
 Additionally, you may disable the checkpointing completely,
 by using the `disableCheckpointing: Yes` option. This tricks preCICE
-by not adding adding any fields to the checkpoints. You may use this only
+by not adding any fields to the checkpoints. You may use this only
 for development purposes, as implicit coupling should always be used
 with checkpointing.
 
