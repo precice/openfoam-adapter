@@ -388,7 +388,7 @@ not affect the timestep used. A warning will be shown in this case.
 
 ### Compatible preCICE versions
 
-The preCICE version corresponding to the commit [5034762](https://github.com/precice/precice/commit/5034762c86ca92ee6f3f0edf2d2a78f75d9b805d) (November 3, 2017) is known to work with the adapter. Newer versions should also be compatible.
+[preCICE 1.0.0](https://github.com/precice/precice/releases/tag/v1.0.0) (November 9, 2017) is known to work with the adapter. Newer versions should also be compatible.
 
 Please note that, if you are using preCICE as a shared library, you need
 to have it added in your `LD_LIBRARY_PATH`.
