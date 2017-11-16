@@ -36,7 +36,7 @@
         <mapping:nearest-neighbor direction="write" from="Solid-Mesh" to="Fluid-Mesh" constraint="consistent" timing="initial"/>
     </participant>
 
-    <m2n:sockets from="Fluid" to="Solid" network="lo" distribution-type="gather-scatter"/>
+    <m2n:sockets from="Fluid" to="Solid" distribution-type="gather-scatter"/>
 
     <coupling-scheme:serial-implicit>
         <timestep-length value="0.01"/>
@@ -45,7 +45,7 @@
         <participants first="Fluid" second="Solid"/>
         <exchange data="Temperature" mesh="Fluid-Mesh" from="Fluid" to="Solid"/>
         <exchange data="Heat-Flux" mesh="Fluid-Mesh" from="Solid" to="Fluid"/>
-        <relative-convergence-measure limit="1.0e-6" data="Temperature" mesh="Fluid-Mesh" suffices="0"/>
+        <relative-convergence-measure limit="1.0e-6" data="Temperature" mesh="Fluid-Mesh"/>
         <extrapolation-order value="2"/>
         <post-processing:IQN-ILS>
             <data mesh="Fluid-Mesh" name="Heat-Flux" />
