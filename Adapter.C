@@ -340,7 +340,7 @@ try{
             "Only preCICE will control the simulation's endTime. "
             "Any functionObject's end() method will be triggered by the adapter. "
             "You may disable this behavior in the adapter's configuration.",
-            "warning"
+            "info"
        );
         const_cast<Time&>(runTime_).setEndTime(GREAT);
     }
@@ -525,7 +525,7 @@ void preciceAdapter::Adapter::finalize()
 
 void preciceAdapter::Adapter::advance()
 {
-    adapterInfo("Advancing preCICE...", "info");
+    DEBUG(adapterInfo("Advancing preCICE..."));
 
     timestepPrecice_ = precice_->advance(timestepSolver_);
 

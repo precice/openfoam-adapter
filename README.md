@@ -299,7 +299,9 @@ for the respective type.
 
 #### End of the simulation
 
-Both the solver and preCICE try to control when the simulation should end.
+The adapter (by default) ignores the `endTime` set in the `controlDict` and stops the simulation when preCICE says so.
+
+Let's see this with more details. During the simulation, both the solver and preCICE try to control when the simulation should end.
 While in an explicit coupling scenario this is clearly defined,
 in an implicit coupling scenario the solver may schedule its exit
 (and therefore the last call to the adapter) before the coupling is complete.
