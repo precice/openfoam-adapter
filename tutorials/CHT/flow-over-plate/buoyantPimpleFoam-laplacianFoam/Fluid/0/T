@@ -23,7 +23,7 @@ boundaryField
     interface
     {
         type            fixedGradient;
-        gradient        0;
+        gradient        uniform 0;
     }
     inlet
     {
