@@ -6,31 +6,35 @@ echo "Cleaning..."
 # Source tutorial clean functions
 . $WM_PROJECT_DIR/bin/tools/CleanFunctions
 
-# Fluid participant
-cd Fluid/
+# Participant 1: Fluid
+Participant1="Fluid"
+cd ${Participant1}
     # Clean the case
     cleanCase
-    # Create an empty .OpenFOAM file for ParaView
-    touch Fluid.OpenFOAM
+    # Create an empty .foam file for ParaView
+    # Note: ".foam" triggers the native OpenFOAM reader of ParaView.
+    # Change to ".OpenFOAM" to use the OpenFOAM reader provided with OpenFOAM.
+    touch ${Participant1}.foam
 cd ..
 # Remove the log file
-rm -f Fluid.log
+rm -f ${Participant1}.log
 
-# Solid participant
-cd Solid/
+# Participant 2: Solid
+Participant2="Solid"
+cd ${Participant2}
     # Clean the case
     cleanCase
-    # Create an empty .OpenFOAM file for ParaView
-    touch Solid.OpenFOAM
+    # Create an empty .foam file for ParaView
+    # Note: ".foam" triggers the native OpenFOAM reader of ParaView.
+    # Change to ".OpenFOAM" to use the OpenFOAM reader provided with OpenFOAM.
+    touch ${Participant2}.foam
 cd ..
-rm -f Solid.log
+rm -f ${Participant2}.log
 
 # Remove the preCICE-related log files
 rm -f convergence-*.log convergence-*.txt
 rm -f EventTimings-*.log EventTimings-*.txt
 rm -f iterations-*.log iterations-*.txt
-rm -f dummy
-rm -f spooles.out
 
 echo "Cleaning complete!"
 #------------------------------------------------------------------------------
