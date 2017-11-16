@@ -1,6 +1,8 @@
 # preCICE-adapter for the CFD code OpenFOAM
 
-_**Note:** This adapter is currently under active development / not stable_
+_**Note:** This adapter is currently in a testing phase. Please report any issues and give us feedback through the [preCICE mailing list](https://mailman.informatik.uni-stuttgart.de/mailman/listinfo/precice)._
+
+_**Note:** Currently the adapter supports conjugate heat transfer simulations. The adapter is easily extensible and support for mechanical fluid-structure interaction is planned._
 
 This adapter is developed as part of Gerasimos Chourdakis' master's thesis.
 It is based on [previous work](https://github.com/ludcila/CHT-preCICE) by Lucia Cheung ([master's thesis](https://www5.in.tum.de/pub/Cheung2016_Thesis.pdf), in cooperation with [SimScale](https://www.simscale.com/)).
@@ -10,10 +12,11 @@ In order to build this adapter, simply run the `Allwmake` script.
 The respective `Allclean` script cleans up.
 
 You may need to adjust the location of some libraries and headers
-in the `Allwmake` file. The following dependencies are required:
+in the beginning of the `Allwmake` file. The following dependencies are required:
 
-* [yaml-cpp](https://github.com/jbeder/yaml-cpp) headers and shared library.
-* preCICE headers and library, as well as the dependencies described in its [Building wiki page](https://github.com/precice/precice/wiki/Building).
+* [yaml-cpp](https://github.com/jbeder/yaml-cpp) headers and shared library. Version 0.5.3 is known to be compatible. Install it from your Linux distribution's repositories or build it from source and set its location in the `Allwmake` file.
+* preCICE headers and library, as well as the dependencies described in its ["Building" wiki page](https://github.com/precice/precice/wiki/Building). [preCICE 1.0.0](https://github.com/precice/precice/releases/tag/v1.0.0) is known to be compatible (read below for more).
+* An OpenFOAM distribution. [OpenFOAM 5](https://openfoam.org/version/5-0/) is known to be compatible (read below for more).
 
 You may provide the `-DADAPTER_DEBUG_MODE` flag inside `PREP_FLAGS` to get additional debug messages.
 You may also change the target directory or specify the number of threads to use for the compilation.
@@ -36,7 +39,7 @@ functions
 This directs the solver to use the `preciceAdapterFunctionObject` function object,
 which is part of the `libpreciceAdapterFunctionObject.so` shared library
 (which you built as shown above).
-The name `preCICE_Adapter` can be different.
+The name `preCICE_Adapter` can be arbitrary.
 
 You must also provide a configuration file (see below).
 
@@ -75,14 +78,14 @@ The `mesh` needs to be the same as the one specified in the `precice-config-file
 The `patches` specifies a list of the names of the OpenFOAM boundary patches that are
 participating in the coupled simulation. These need to be defined in the files
 included in the `0/` directory. The values for `write-data` and `read-data`
-can be strings that contain the sequences `Temperature`, `Heat-Flux`, `Sink-Temperature`,
-or `Heat-Transfer-Coefficient`.
+can be `Temperature`, `Heat-Flux`, `Sink-Temperature`,
+or `Heat-Transfer-Coefficient`. Values like `Sink-Temperature-Domain1` are also allowed.
 
 The type of the `read-data` needs to be in accordance with the respective boundary
 conditions set for each field in the `0/` directory of the case:
 
 * For `read-data: Temperature`, use `type: fixedValue` for the `interface` in `0/T`.
-OpenFOAM requires that you also give a `value`, but the adapter
+OpenFOAM requires that you also give a (redundant) `value`, but the adapter
 will overwrite it. ParaView uses this value for the initial time. As a placeholder, you can e.g. use the value from the internalField.
 ```c++
 interface
@@ -93,7 +96,7 @@ interface
 ```
 
 * For `read-data: Heat-Flux`, use `type: fixedGradient` for the `interface` in `0/T`.
-OpenFOAM requires that you also give a `gradient`, but the adapter will overwrite it.
+OpenFOAM requires that you also give a (redundant) `gradient`, but the adapter will overwrite it.
 ```c++
 interface
 {
@@ -102,15 +105,15 @@ interface
 }
 ```
 * For `read-data: Sink-Temperature` or `Heat-Transfer-Coefficient`, use
-`type: mixed` for the `interface` in `0/T`. OpenFOAM requires that you also give
-a `refValue`, a `refGradient`, and a `valueFraction`, but the adapter will overwrite them.
+`type: mixed` for the `interface` in `0/T`. OpenFOAM requires that you also give (redundant) values for
+`refValue`, `refGradient`, and `valueFraction`, but the adapter will overwrite them.
 ```c++
 interface
 {
     type            mixed;
-    refValue		uniform 293;
-    valueFraction	uniform 0.5;
-    refGradient		uniform 0;
+    refValue        uniform 293;
+    valueFraction   uniform 0.5;
+    refGradient     uniform 0;
 }
 ```
 
@@ -138,7 +141,7 @@ A serial-implicit coupling is used, where the fluid participant reads heat fluxe
 and the solid participant reads temperatures. Both participants are executed in
 serial. The simulated time is 1s and results are written every 0.2s.
 
-In order to run the example, execute the script `Allrun`. You may see the progress by inspecting the files `Fluid.los` and `Solid.log`. At the end (or after the first write), execute `paraFoam -case Fluid &` to visualize the channel and add the `Solid.FOAM` file from the ParaView menu. In order to clean
+In order to run the example, execute the script `Allrun`. You may see the progress by inspecting the files `Fluid.log` and `Solid.log`. At the end (or after the first write), execute `paraFoam -case Fluid &` to visualize the channel and add the `Solid.FOAM` file from the ParaView menu. In order to clean
 the results, use the script `Allclean`. An example of the visualized
 expected results can be found in `overview.png`.
 
@@ -186,7 +189,7 @@ See also the section "Solver requirements".
 ### Solver requirements
 
 The adapter can be loaded by any official OpenFOAM solver, but there are some
-requirements to use the specific solver for conjugate heat transfer simulations.
+requirements to use a solver for conjugate heat transfer simulations.
 
 First of all, the solver needs to be able to simulate heat transfer. This means
 that the solver should create a Temperature field (named `T`) and provide
