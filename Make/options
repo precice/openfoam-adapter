@@ -7,20 +7,21 @@ EXE_INC = \
     -I$(LIB_SRC)/TurbulenceModels/turbulenceModels/lnInclude \
 	-I$(LIB_SRC)/TurbulenceModels/compressible/lnInclude \
 	-I$(LIB_SRC)/TurbulenceModels/incompressible/lnInclude \
-    -I${PRECICE_INC} \
-    -I$(YAML_CPP_INC) \
+    -I$(ADAPTER_PRECICE_ROOT)/src/precice \
+    -I$(ADAPTER_YAML_CPP_INC) \
     -I../ \
-    $(PREP_FLAGS)
+    $(ADAPTER_PREP_FLAGS)
 
 LIB_LIBS = \
     -lfiniteVolume \
     -lmeshTools \
     -lcompressibleTurbulenceModels \
     -lincompressibleTurbulenceModels \
-    -L$(PRECICE_LIB) \
-    -L$(PETSC_LIB) \
-    -L${BOOST_LIB} \
+    $(ADAPTER_GLOBAL_LIBRARY_PATHS) \
+    -L$(ADAPTER_PRECICE_ROOT) \
+    -L$(ADAPTER_PETSC_LIB) \
+    -L$(ADAPTER_BOOST_LIB) \
     -lprecice \
-    $(PRECICE_DEP) \
-    -L$(YAML_CPP_LIB) \
+    $(ADAPTER_PRECICE_DEP) \
+    -L$(ADAPTER_YAML_CPP_LIB) \
     -lyaml-cpp

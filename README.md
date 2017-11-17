@@ -8,19 +8,17 @@ This adapter is developed as part of Gerasimos Chourdakis' master's thesis.
 It is based on [previous work](https://github.com/ludcila/CHT-preCICE) by Lucia Cheung ([master's thesis](https://www5.in.tum.de/pub/Cheung2016_Thesis.pdf), in cooperation with [SimScale](https://www.simscale.com/)).
 
 ## Build
-In order to build this adapter, simply run the `Allwmake` script.
-The respective `Allclean` script cleans up.
+The script `Allwmake` builds the adapter and the respective `Allclean` cleans up.
 
-You may need to adjust the location of some libraries and headers
-in the beginning of the `Allwmake` file. The following dependencies are required:
+You may need to adjust the location of some libraries and headers in the beginning of the `Allwmake` file. The following dependencies need to be installed:
 
-* [yaml-cpp](https://github.com/jbeder/yaml-cpp) headers and shared library. Version 0.5.3 is known to be compatible. Install it from your Linux distribution's repositories or build it from source and set its location in the `Allwmake` file.
-* preCICE headers and library, as well as the dependencies described in its ["Building" wiki page](https://github.com/precice/precice/wiki/Building). [preCICE 1.0.0](https://github.com/precice/precice/releases/tag/v1.0.0) is known to be compatible (read below for more).
+* [yaml-cpp](https://github.com/jbeder/yaml-cpp) headers and shared library. Version 0.5.3 is known to be compatible. Install it from your Linux distribution's repositories or build it from source and **set its location in the `Allwmake` file**.
+* preCICE headers and library, as well as the dependencies described in its ["Building" wiki page](https://github.com/precice/precice/wiki/Building).
 * An OpenFOAM distribution. [OpenFOAM 5](https://openfoam.org/version/5-0/) is known to be compatible (read below for more).
 
-You may provide the `-DADAPTER_DEBUG_MODE` flag inside `PREP_FLAGS` to get additional debug messages.
-You may also change the target directory or specify the number of threads to use for the compilation.
+You may provide the `-DADAPTER_DEBUG_MODE` flag inside `ADAPTER_PREP_FLAGS` to get additional debug messages. You may also change the target directory or specify the number of threads to use for the compilation.
 
+If you are using preCICE as a static library, it also has some extra dependencies. The `Allwmake` sets these libraries in the `ADAPTER_PRECICE_DEP` and looks for them in the `LD_LIBRARY_PATH`. In case their paths are not defined globally, or you want to override them, you may define them in the script (uncomment the `ADAPTER_BOOST_LIB` and/or `ADAPTER_PETSC_LIB`).
 
 ## Run
 To run this adapter, you must include the following in

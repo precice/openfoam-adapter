@@ -1,53 +1,82 @@
 #!/bin/sh
 cd ${0%/*} || exit 1    # Run from this directory
 
-########## CONFIGURATION - You may need to change these ########################
+########## BASIC CONFIGURATION - You probbaly need to change these #############
 # YAML-CPP include path - the parent of yaml-cpp/ (try running "locate yaml.h")
-YAML_CPP_INC="/usr/include/"
-# YAML-CPP library path (try running "locate libyaml-cpp")
-YAML_CPP_LIB="/usr/lib/x86_64-linux-gnu/"
+ADAPTER_YAML_CPP_INC="/usr/include/"
+# YAML-CPP library path (try running "locate libyaml-cpp.")
+ADAPTER_YAML_CPP_LIB="/usr/lib/x86_64-linux-gnu/"
 
-# preCICE include path (try running "locate SolverInterface.hpp")
-PRECICE_INC="${PRECICE_ROOT}/src/precice"
-# preCICE library path (try tunning "locate libprecice")
-PRECICE_LIB="${PRECICE_ROOT}/build/last"
 
-# C++ Boost library path - required from preCICE (try running "locate libboost")
-BOOST_LIB="/usr/local/lib"
 
-# PETSc library path - if required from preCICE (try running "locate libpetsc")
-PETSC_LIB="${PETSC_DIR}/${PETSC_ARCH}/lib"
+########## ADVANCED CONFIGURATION - You may want to change these ###############
+# preCICE root path (should be already globally set)
+ADAPTER_PRECICE_ROOT="${PRECICE_ROOT}"
 
-# preCICE dependencies (see the preCICE documentation)
-PRECICE_DEP="-lpetsc -lboost_system -lboost_filesystem -lboost_log -lboost_log_setup -lboost_thread -lboost_program_options -lpthread -lpython2.7"
+## preCICE as a static library?
+# If you use preCICE as a static library, then you also need to
+# specify its dependncies. If they are not defined in your LD_LIBRARY_PATH,
+# you may as well specify them here (optional).
+# For an up-to-date list of dependencies,
+# look at https://github.com/precice/precice/wiki/Building
+ADAPTER_PRECICE_DEP="-lpetsc -lmpi_cxx -lboost_system -lboost_filesystem -lboost_log -lboost_log_setup -lboost_thread -lboost_program_options -lpthread -lpython2.7"
 
-# Preprocessor flags (add -DADAPTER_DEBUG_MODE to enable debug messages)
-PREP_FLAGS="-DADAPTER_DEBUG_MODE"
+# Optional: C++ Boost library path - required from preCICE (try running "locate libboost_log.")
+# ADAPTER_BOOST_LIB="/usr/local/lib"
 
-# Where should the adapter be built? Default: "${FOAM_USER_LIBBIN}"
-TARGET_DIR="${FOAM_USER_LIBBIN}"
+# Optional: PETSc library path - if required from preCICE (try running "locate libpetsc.")
+# ADAPTER_PETSC_LIB="${PETSC_DIR}/${PETSC_ARCH}/lib"
 
-# Flags used by wmake.
+# Optional: Preprocessor flags ("-DADAPTER_DEBUG_MODE" enables debug messages)
+ADAPTER_PREP_FLAGS="-DADAPTER_DEBUG_MODE"
+
+# Optional: Flags used by wmake.
 # In order to compile with multiple threads, add e.g. "-j 4".
 # Make sure that these options are supported by your OpenFOAM version.
-WMAKE_OPTIONS=""
+ADAPTER_WMAKE_OPTIONS=""
+
+# Where should the adapter be built? Default: "${FOAM_USER_LIBBIN}"
+ADAPTER_TARGET_DIR="${FOAM_USER_LIBBIN}"
 ################################################################################
 
-export YAML_CPP_INC
-export YAML_CPP_LIB
-export PRECICE_INC
-export PRECICE_LIB
-export PETSC_LIB
-export BOOST_LIB
-export PRECICE_DEP
-export PREP_FLAGS
-export TARGET_DIR
+# Extract the paths from LD_LIBRARY_PATH list and convert them to a sequence of "-L/path/ \"
+ADAPTER_GLOBAL_LIBRARY_PATHS=$(echo $LD_LIBRARY_PATH | tr ':' '\n' | sed 's/^/-L/' | tr '\n' ' \\')
 
-wmake ${WMAKE_OPTIONS} libso
+# Export the environment variables
+export ADAPTER_GLOBAL_LIBRARY_PATHS
+export ADAPTER_YAML_CPP_INC
+export ADAPTER_YAML_CPP_LIB
+export ADAPTER_PRECICE_ROOT
+export ADAPTER_PETSC_LIB
+export ADAPTER_BOOST_LIB
+export ADAPTER_PRECICE_DEP
+export ADAPTER_PREP_FLAGS
+export ADAPTER_TARGET_DIR
+
+# Inform the user about the environment
+echo "Building the OpenFOAM adapter for preCICE..."
+echo "Make sure that you have set all the required paths (especially for yaml-cpp) in the script or globally."
+echo ""
+echo "Using the following environment variables:"
+echo "  ADAPTER_YAML_CPP_INC  = ${ADAPTER_YAML_CPP_INC}"
+echo "  ADAPTER_YAML_CPP_LIB  = ${ADAPTER_YAML_CPP_LIB}"
+echo "  ADAPTER_PRECICE_ROOT  = ${ADAPTER_PRECICE_ROOT}"
+echo "  ADAPTER_BOOST_LIB     = ${ADAPTER_BOOST_LIB}"
+echo "  ADAPTER_PETSC_LIB     = ${ADAPTER_PETSC_LIB}"
+echo "  ADAPTER_PRECICE_DEP   = ${ADAPTER_PRECICE_DEP}"
+echo "  ADAPTER_PREP_FLAGS    = ${ADAPTER_PREP_FLAGS}"
+echo "  ADAPTER_TARGET_DIR    = ${ADAPTER_TARGET_DIR}"
+echo "  ADAPTER_WMAKE_OPTIONS = ${ADAPTER_WMAKE_OPTIONS}"
+echo "  ADAPTER_GLOBAL_LIBRARY_PATHS = ${ADAPTER_GLOBAL_LIBRARY_PATHS}"
+echo ""
+
+# Run wmake (build the adapter) and check the exit code
+wmake ${ADAPTER_WMAKE_OPTIONS} libso
 if [ $? -ne 0 ]; then
-echo "Failed to build the openfoam-adapter for preCICE."
+echo ""
+echo "Building failed."
 exit
 fi
-
 echo ""
 echo "Building completed successfully!"
+echo "Next step: Run an example from the tutorials/ directory."
