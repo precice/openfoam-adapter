@@ -12,13 +12,13 @@ The script `Allwmake` builds the adapter and the respective `Allclean` cleans up
 
 You may need to adjust the location of some libraries and headers in the beginning of the `Allwmake` file. The following dependencies need to be installed:
 
-* [yaml-cpp](https://github.com/jbeder/yaml-cpp) headers and shared library. Version 0.5.3 is known to be compatible. Install it from your Linux distribution's repositories or build it from source and **set its location in the `Allwmake` file**.
+* [yaml-cpp](https://github.com/jbeder/yaml-cpp) headers and shared library. Version 0.5.3 is known to be compatible. Install it from your Linux distribution's repositories or build it from source and **set its location in the `Allwmake` file**. The script also looks for headers in the `CPLUS_INCLUDE_PATH` and for libraries in the `LD_LIBRARY_PATH` and `LIBRARY_PATH`.
 * preCICE headers and library, as well as the dependencies described in its ["Building" wiki page](https://github.com/precice/precice/wiki/Building).
 * An OpenFOAM distribution. [OpenFOAM 5](https://openfoam.org/version/5-0/) is known to be compatible (read below for more).
 
 You may provide the `-DADAPTER_DEBUG_MODE` flag inside `ADAPTER_PREP_FLAGS` to get additional debug messages. You may also change the target directory or specify the number of threads to use for the compilation.
 
-If you are using preCICE as a static library, it also has some extra dependencies. The `Allwmake` sets these libraries in the `ADAPTER_PRECICE_DEP` and looks for them in the `LD_LIBRARY_PATH`. In case their paths are not defined globally, or you want to override them, you may define them in the script (uncomment the `ADAPTER_BOOST_LIB` and/or `ADAPTER_PETSC_LIB`).
+If you are using preCICE as a static library, it also has some extra dependencies. The `Allwmake` sets these libraries in the `ADAPTER_PRECICE_DEP` and looks for them in the `LD_LIBRARY_PATH` and `LIBRARY_PATH`. In case their paths are not defined globally, or you want to override them, you may define them in the script (uncomment the `ADAPTER_BOOST_LIB` and/or `ADAPTER_PETSC_LIB`).
 
 ## Run
 To run this adapter, you must include the following in

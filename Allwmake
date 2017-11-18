@@ -39,10 +39,24 @@ ADAPTER_WMAKE_OPTIONS=""
 ADAPTER_TARGET_DIR="${FOAM_USER_LIBBIN}"
 ################################################################################
 
-# Extract the paths from LD_LIBRARY_PATH list and convert them to a sequence of "-L/path/ \"
-ADAPTER_GLOBAL_LIBRARY_PATHS=$(echo $LD_LIBRARY_PATH | tr ':' '\n' | sed 's/^/-L/' | tr '\n' ' \\')
+# Extract the paths from the CPLUS_INCLUDE_PATH list and convert them to a sequence of "-I/path/ \"
+if [ "${CPLUS_INCLUDE_PATH}" ]; then
+    ADAPTER_GLOBAL_CPLUS_INC_PATHS=$(echo $CPLUS_INCLUDE_PATH | tr ':' '\n' | sed 's/^/-I/' | tr '\n' ' \\')
+fi
+
+# Extract the paths from the LD_LIBRARY_PATH list and convert them to a sequence of "-L/path/ \"
+if [ "${LD_LIBRARY_PATH}" ]; then
+    ADAPTER_GLOBAL_LD_LIBRARY_PATHS=$(echo $LD_LIBRARY_PATH | tr ':' '\n' | sed 's/^/-L/' | tr '\n' ' \\')
+fi
+
+# Extract the paths from the LIBRARY_PATH list and convert them to a sequence of "-L/path/ \"
+if [ "${LIBRARY_PATH}" ]; then
+    ADAPTER_GLOBAL_LIBRARY_PATHS=$(echo $LIBRARY_PATH | tr ':' '\n' | sed 's/^/-L/' | tr '\n' ' \\')
+fi
 
 # Export the environment variables
+export ADAPTER_GLOBAL_CPLUS_INC_PATHS
+export ADAPTER_GLOBAL_LD_LIBRARY_PATHS
 export ADAPTER_GLOBAL_LIBRARY_PATHS
 export ADAPTER_YAML_CPP_INC
 export ADAPTER_YAML_CPP_LIB
@@ -67,6 +81,8 @@ echo "  ADAPTER_PRECICE_DEP   = ${ADAPTER_PRECICE_DEP}"
 echo "  ADAPTER_PREP_FLAGS    = ${ADAPTER_PREP_FLAGS}"
 echo "  ADAPTER_TARGET_DIR    = ${ADAPTER_TARGET_DIR}"
 echo "  ADAPTER_WMAKE_OPTIONS = ${ADAPTER_WMAKE_OPTIONS}"
+echo "  ADAPTER_GLOBAL_CPLUS_INC_PATHS = ${ADAPTER_GLOBAL_CPLUS_INC_PATHS}"
+echo "  ADAPTER_GLOBAL_LD_LIBRARY_PATHS = ${ADAPTER_GLOBAL_LD_LIBRARY_PATHS}"
 echo "  ADAPTER_GLOBAL_LIBRARY_PATHS = ${ADAPTER_GLOBAL_LIBRARY_PATHS}"
 echo ""
 
