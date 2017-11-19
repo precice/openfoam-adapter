@@ -1,11 +1,13 @@
 #!/bin/sh
 cd ${0%/*} || exit 1    # Run from this directory
 
-########## BASIC CONFIGURATION - You probbaly need to change these #############
+########## BASIC CONFIGURATION - You may need to change these #############
 # YAML-CPP include path - the parent of yaml-cpp/ (try running "locate yaml.h")
-ADAPTER_YAML_CPP_INC="/usr/include/"
+# Use "auto" to determine it automatically, leave it empty to only use CPLUS_INCLUDE_PATH.
+ADAPTER_YAML_CPP_INC="auto"
 # YAML-CPP library path (try running "locate libyaml-cpp.")
-ADAPTER_YAML_CPP_LIB="/usr/lib/x86_64-linux-gnu/"
+# Use "auto" to determine it automatically, leave it empty to only use LD_LIBRARY_PATH.
+ADAPTER_YAML_CPP_LIB="auto"
 
 
 
@@ -39,6 +41,8 @@ ADAPTER_WMAKE_OPTIONS=""
 ADAPTER_TARGET_DIR="${FOAM_USER_LIBBIN}"
 ################################################################################
 
+
+
 # Extract the paths from the CPLUS_INCLUDE_PATH list and convert them to a sequence of "-I/path/ \"
 if [ "${CPLUS_INCLUDE_PATH}" ]; then
     ADAPTER_GLOBAL_CPLUS_INC_PATHS=$(echo $CPLUS_INCLUDE_PATH | tr ':' '\n' | sed 's/^/-I/' | tr '\n' ' \\')
@@ -52,6 +56,16 @@ fi
 # Extract the paths from the LIBRARY_PATH list and convert them to a sequence of "-L/path/ \"
 if [ "${LIBRARY_PATH}" ]; then
     ADAPTER_GLOBAL_LIBRARY_PATHS=$(echo $LIBRARY_PATH | tr ':' '\n' | sed 's/^/-L/' | tr '\n' ' \\')
+fi
+
+# If the include path to the yaml.h is not set, try to determine it
+if [ "${ADAPTER_YAML_CPP_INC}" = "auto" ]; then
+    ADAPTER_YAML_CPP_INC=$(dirname $(dirname $(find / -type f -name "yaml.h" 2>/dev/null) | head -n 1))
+fi
+
+# If the library path to the yaml-cpp is not set, try to determine it
+if [ "${ADAPTER_YAML_CPP_LIB}" = "auto" ]; then
+    ADAPTER_YAML_CPP_LIB=$(dirname $(find / -type l -name "libyaml-cpp.so" 2>/dev/null) | head -n 1)
 fi
 
 # Export the environment variables
@@ -72,18 +86,44 @@ echo "Building the OpenFOAM adapter for preCICE..."
 echo "Make sure that you have set all the required paths (especially for yaml-cpp) in the script or globally."
 echo ""
 echo "Using the following environment variables:"
-echo "  ADAPTER_YAML_CPP_INC  = ${ADAPTER_YAML_CPP_INC}"
-echo "  ADAPTER_YAML_CPP_LIB  = ${ADAPTER_YAML_CPP_LIB}"
-echo "  ADAPTER_PRECICE_ROOT  = ${ADAPTER_PRECICE_ROOT}"
-echo "  ADAPTER_BOOST_LIB     = ${ADAPTER_BOOST_LIB}"
-echo "  ADAPTER_PETSC_LIB     = ${ADAPTER_PETSC_LIB}"
+
+if [ "${ADAPTER_YAML_CPP_INC}" ]; then
+    echo "  ADAPTER_YAML_CPP_INC  = ${ADAPTER_YAML_CPP_INC}"
+else
+    echo "  ADAPTER_YAML_CPP_INC  = (use CPLUS_INCLUDE_PATH)"
+fi
+
+if [ "${ADAPTER_YAML_CPP_LIB}" ]; then
+    echo "  ADAPTER_YAML_CPP_LIB  = ${ADAPTER_YAML_CPP_LIB}"
+else
+    echo "  ADAPTER_YAML_CPP_LIB  = (use LD_LIBRARY_PATH)"
+fi
+
+if [ "${ADAPTER_PRECICE_ROOT}" ]; then
+    echo "  ADAPTER_PRECICE_ROOT  = ${ADAPTER_PRECICE_ROOT}"
+else
+    echo "  ADAPTER_PRECICE_ROOT  = (use LD_LIBRARY_PATH / LIBRARY_PATH)"
+fi
+
+if [ "${ADAPTER_BOOST_LIB}" ]; then
+    echo "  ADAPTER_BOOST_LIB     = ${ADAPTER_BOOST_LIB}"
+else
+    echo "  ADAPTER_BOOST_LIB     = (use LD_LIBRARY_PATH / LIBRARY_PATH)"
+fi
+
+if [ "${ADAPTER_PETSC_LIB}" ]; then
+    echo "  ADAPTER_PETSC_LIB     = ${ADAPTER_PETSC_LIB}"
+else
+    echo "  ADAPTER_PETSC_LIB     = (use LD_LIBRARY_PATH / LIBRARY_PATH)"
+fi
+
 echo "  ADAPTER_PRECICE_DEP   = ${ADAPTER_PRECICE_DEP}"
 echo "  ADAPTER_PREP_FLAGS    = ${ADAPTER_PREP_FLAGS}"
 echo "  ADAPTER_TARGET_DIR    = ${ADAPTER_TARGET_DIR}"
 echo "  ADAPTER_WMAKE_OPTIONS = ${ADAPTER_WMAKE_OPTIONS}"
-echo "  ADAPTER_GLOBAL_CPLUS_INC_PATHS = ${ADAPTER_GLOBAL_CPLUS_INC_PATHS}"
+echo "  ADAPTER_GLOBAL_CPLUS_INC_PATHS  = ${ADAPTER_GLOBAL_CPLUS_INC_PATHS}"
 echo "  ADAPTER_GLOBAL_LD_LIBRARY_PATHS = ${ADAPTER_GLOBAL_LD_LIBRARY_PATHS}"
-echo "  ADAPTER_GLOBAL_LIBRARY_PATHS = ${ADAPTER_GLOBAL_LIBRARY_PATHS}"
+echo "  ADAPTER_GLOBAL_LIBRARY_PATHS    = ${ADAPTER_GLOBAL_LIBRARY_PATHS}"
 echo ""
 
 # Run wmake (build the adapter) and check the exit code

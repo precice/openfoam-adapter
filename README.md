@@ -8,11 +8,11 @@ This adapter is developed as part of Gerasimos Chourdakis' master's thesis.
 It is based on [previous work](https://github.com/ludcila/CHT-preCICE) by Lucia Cheung ([master's thesis](https://www5.in.tum.de/pub/Cheung2016_Thesis.pdf), in cooperation with [SimScale](https://www.simscale.com/)).
 
 ## Build
-The script `Allwmake` builds the adapter and the respective `Allclean` cleans up.
+To build the adapter, just run the script `Allwmake`. The respective script `Allclean` cleans up.
 
-You may need to adjust the location of some libraries and headers in the beginning of the `Allwmake` file. The following dependencies need to be installed:
+You may adjust the paths for the required libraries and headers in the beginning of the `Allwmake` file. The following dependencies need to be installed:
 
-* [yaml-cpp](https://github.com/jbeder/yaml-cpp) headers and shared library. Version 0.5.3 is known to be compatible. Install it from your Linux distribution's repositories or build it from source and **set its location in the `Allwmake` file**. The script also looks for headers in the `CPLUS_INCLUDE_PATH` and for libraries in the `LD_LIBRARY_PATH` and `LIBRARY_PATH`.
+* [yaml-cpp](https://github.com/jbeder/yaml-cpp) headers and shared library. Version 0.5.3 is known to be compatible. Install it from your Linux distribution's repositories or build it from source. The script tries to locate it automatically and it also looks for headers in the `CPLUS_INCLUDE_PATH` and for libraries in the `LD_LIBRARY_PATH` and `LIBRARY_PATH`. However, you may set the respective paths in `Allwmake`.
 * preCICE headers and library, as well as the dependencies described in its ["Building" wiki page](https://github.com/precice/precice/wiki/Building).
 * An OpenFOAM distribution. [OpenFOAM 5](https://openfoam.org/version/5-0/) is known to be compatible (read below for more).
 
@@ -152,7 +152,7 @@ The following OpenFOAM versions have been tested and are known to work with this
 * OpenFOAM 5.0 - openfoam.org, build 5.x-197d9d3bf20a (30/10/2017)
 * OpenFOAM 4.1 - openfoam.org
 
-OpenFOAM-dev from openfoam.org, build dev-6c8102bd9ad3 (04/11/2017) is also known to work.
+OpenFOAM-dev from openfoam.org, build dev-9c48042e85a73 (19/11/2017) is also known to work.
 
 The following OpenFOAM versions can compile with
 this adapter but have not been tested:
