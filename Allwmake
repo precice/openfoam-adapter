@@ -41,7 +41,9 @@ ADAPTER_WMAKE_OPTIONS=""
 ADAPTER_TARGET_DIR="${FOAM_USER_LIBBIN}"
 ################################################################################
 
-
+# Information header
+echo "Building the OpenFOAM adapter for preCICE..."
+echo "Make sure that you have set all the required paths (especially for yaml-cpp) in the script or globally."
 
 # Extract the paths from the CPLUS_INCLUDE_PATH list and convert them to a sequence of "-I/path/ \"
 if [ "${CPLUS_INCLUDE_PATH}" ]; then
@@ -60,13 +62,17 @@ fi
 
 # If the include path to the yaml.h is not set, try to determine it
 if [ "${ADAPTER_YAML_CPP_INC}" = "auto" ]; then
+    echo "Trying to automatically find yaml.h..."
     ADAPTER_YAML_CPP_INC=$(dirname $(dirname $(find / -type f -name "yaml.h" 2>/dev/null) | head -n 1))
 fi
 
 # If the library path to the yaml-cpp is not set, try to determine it
 if [ "${ADAPTER_YAML_CPP_LIB}" = "auto" ]; then
+    echo "Trying to automatically find libyaml-cpp.so..."
     ADAPTER_YAML_CPP_LIB=$(dirname $(find / -type l -name "libyaml-cpp.so" 2>/dev/null) | head -n 1)
 fi
+
+echo ""
 
 # Export the environment variables
 export ADAPTER_GLOBAL_CPLUS_INC_PATHS
@@ -82,9 +88,6 @@ export ADAPTER_PREP_FLAGS
 export ADAPTER_TARGET_DIR
 
 # Inform the user about the environment
-echo "Building the OpenFOAM adapter for preCICE..."
-echo "Make sure that you have set all the required paths (especially for yaml-cpp) in the script or globally."
-echo ""
 echo "Using the following environment variables:"
 
 if [ "${ADAPTER_YAML_CPP_INC}" ]; then
