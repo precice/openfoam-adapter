@@ -4,21 +4,23 @@ _**Note:** This adapter is currently in a testing phase. Please report any issue
 
 _**Note:** Currently the adapter supports conjugate heat transfer simulations. The adapter is easily extensible and support for mechanical fluid-structure interaction is planned._
 
-This adapter is developed as part of Gerasimos Chourdakis' master's thesis.
+This adapter was developed as part of Gerasimos Chourdakis' master's thesis.
 It is based on [previous work](https://github.com/ludcila/CHT-preCICE) by Lucia Cheung ([master's thesis](https://www5.in.tum.de/pub/Cheung2016_Thesis.pdf), in cooperation with [SimScale](https://www.simscale.com/)).
 
 ## Build
-To build the adapter, just run the script `Allwmake`. The respective script `Allclean` cleans up.
+To build the adapter, you need to install a few dependencies and then execute the `Allwmake` script:
 
-You may adjust the paths for the required libraries and headers in the beginning of the `Allwmake` file. The following dependencies need to be installed:
+1. Install the [yaml-cpp](https://github.com/jbeder/yaml-cpp) headers and shared library, preferably from your Linux distribution's repository.
+    1. If you want to build yaml-cpp from source, you need to build it as a _shared_ library.
+    2. If you build yaml-cpp from source, remember to include the paths for the header and library in the `CPLUS_INCLUDE_PATH` and `LD_LIBRARY_PATH` environment variables.
+2. Install the [preCICE](http://www.precice.org/) headers and library, following its [building instructions](https://github.com/precice/precice/wiki/Building).
+    1. If you want to use preCICE as a static library, remember to setup the paths for the dependencies in the `LD_LIBRARY_PATH`. If the dependencies have changed, you may adjust them in `Allwmake`.
+3. Install an OpenFOAM distribution. [OpenFOAM 5](https://openfoam.org/version/5-0/) is known to be compatible (read below for more).
+4. Execute `./Allwmake`. If everything goes well, you will receive a success message.
 
-* [yaml-cpp](https://github.com/jbeder/yaml-cpp) headers and shared library. Version 0.5.3 is known to be compatible. Install it from your Linux distribution's repositories or build it from source. The script tries to locate it automatically and it also looks for headers in the `CPLUS_INCLUDE_PATH` and for libraries in the `LD_LIBRARY_PATH` and `LIBRARY_PATH`. However, you may set the respective paths in `Allwmake`.
-* preCICE headers and library, as well as the dependencies described in its ["Building" wiki page](https://github.com/precice/precice/wiki/Building).
-* An OpenFOAM distribution. [OpenFOAM 5](https://openfoam.org/version/5-0/) is known to be compatible (read below for more).
+The `-DADAPTER_DEBUG_MODE` flag inside `ADAPTER_PREP_FLAGS` activates additional debug messages. You may also change the target directory or specify the number of threads to use for the compilation. See the comments in `Allwmake` for more.
 
-You may provide the `-DADAPTER_DEBUG_MODE` flag inside `ADAPTER_PREP_FLAGS` to get additional debug messages. You may also change the target directory or specify the number of threads to use for the compilation.
-
-If you are using preCICE as a static library, it also has some extra dependencies. The `Allwmake` sets these libraries in the `ADAPTER_PRECICE_DEP` and looks for them in the `LD_LIBRARY_PATH` and `LIBRARY_PATH`. In case their paths are not defined globally, or you want to override them, you may define them in the script (uncomment the `ADAPTER_BOOST_LIB` and/or `ADAPTER_PETSC_LIB`).
+In order to upgrade the adapter, or before you build for another OpenFOAM version, run `./Allclean` first.
 
 ## Run
 To run this adapter, you must include the following in

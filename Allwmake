@@ -1,17 +1,7 @@
 #!/bin/sh
 cd ${0%/*} || exit 1    # Run from this directory
 
-########## BASIC CONFIGURATION - You may need to change these #############
-# YAML-CPP include path - the parent of yaml-cpp/ (try running "locate yaml.h")
-# Use "auto" to determine it automatically, leave it empty to only use CPLUS_INCLUDE_PATH.
-ADAPTER_YAML_CPP_INC="auto"
-# YAML-CPP library path (try running "locate libyaml-cpp.")
-# Use "auto" to determine it automatically, leave it empty to only use LD_LIBRARY_PATH.
-ADAPTER_YAML_CPP_LIB="auto"
-
-
-
-########## ADVANCED CONFIGURATION - You may want to change these ###############
+########## CONFIGURATION - You may want to change these ########################
 # preCICE root path (should be already globally set)
 ADAPTER_PRECICE_ROOT="${PRECICE_ROOT}"
 
@@ -22,12 +12,6 @@ ADAPTER_PRECICE_ROOT="${PRECICE_ROOT}"
 # For an up-to-date list of dependencies,
 # look at https://github.com/precice/precice/wiki/Building
 ADAPTER_PRECICE_DEP="-lpetsc -lmpi_cxx -lboost_system -lboost_filesystem -lboost_log -lboost_log_setup -lboost_thread -lboost_program_options -lpthread -lpython2.7"
-
-# Optional: C++ Boost library path - required from preCICE (try running "locate libboost_log.")
-# ADAPTER_BOOST_LIB="/usr/local/lib"
-
-# Optional: PETSc library path - if required from preCICE (try running "locate libpetsc.")
-# ADAPTER_PETSC_LIB="${PETSC_DIR}/${PETSC_ARCH}/lib"
 
 # Optional: Preprocessor flags ("-DADAPTER_DEBUG_MODE" enables debug messages)
 ADAPTER_PREP_FLAGS="-DADAPTER_DEBUG_MODE"
@@ -43,7 +27,7 @@ ADAPTER_TARGET_DIR="${FOAM_USER_LIBBIN}"
 
 # Information header
 echo "Building the OpenFOAM adapter for preCICE..."
-echo "Make sure that you have set all the required paths (especially for yaml-cpp) in the script or globally."
+echo "Make sure that all the required dependencies (mainly yaml-cpp and preCICE) are installed.\n"
 
 # Extract the paths from the CPLUS_INCLUDE_PATH list and convert them to a sequence of "-I/path/ \"
 if [ "${CPLUS_INCLUDE_PATH}" ]; then
@@ -60,66 +44,18 @@ if [ "${LIBRARY_PATH}" ]; then
     ADAPTER_GLOBAL_LIBRARY_PATHS=$(echo $LIBRARY_PATH | tr ':' '\n' | sed 's/^/-L/' | tr '\n' ' \\')
 fi
 
-# If the include path to the yaml.h is not set, try to determine it
-if [ "${ADAPTER_YAML_CPP_INC}" = "auto" ]; then
-    echo "Trying to automatically find yaml.h..."
-    ADAPTER_YAML_CPP_INC=$(dirname $(dirname $(find / -type f -name "yaml.h" 2>/dev/null) | head -n 1))
-fi
-
-# If the library path to the yaml-cpp is not set, try to determine it
-if [ "${ADAPTER_YAML_CPP_LIB}" = "auto" ]; then
-    echo "Trying to automatically find libyaml-cpp.so..."
-    ADAPTER_YAML_CPP_LIB=$(dirname $(find / -type l -name "libyaml-cpp.so" 2>/dev/null) | head -n 1)
-fi
-
-echo ""
-
 # Export the environment variables
 export ADAPTER_GLOBAL_CPLUS_INC_PATHS
 export ADAPTER_GLOBAL_LD_LIBRARY_PATHS
 export ADAPTER_GLOBAL_LIBRARY_PATHS
-export ADAPTER_YAML_CPP_INC
-export ADAPTER_YAML_CPP_LIB
 export ADAPTER_PRECICE_ROOT
-export ADAPTER_PETSC_LIB
-export ADAPTER_BOOST_LIB
 export ADAPTER_PRECICE_DEP
 export ADAPTER_PREP_FLAGS
 export ADAPTER_TARGET_DIR
 
 # Inform the user about the environment
 echo "Using the following environment variables:"
-
-if [ "${ADAPTER_YAML_CPP_INC}" ]; then
-    echo "  ADAPTER_YAML_CPP_INC  = ${ADAPTER_YAML_CPP_INC}"
-else
-    echo "  ADAPTER_YAML_CPP_INC  = (use CPLUS_INCLUDE_PATH)"
-fi
-
-if [ "${ADAPTER_YAML_CPP_LIB}" ]; then
-    echo "  ADAPTER_YAML_CPP_LIB  = ${ADAPTER_YAML_CPP_LIB}"
-else
-    echo "  ADAPTER_YAML_CPP_LIB  = (use LD_LIBRARY_PATH)"
-fi
-
-if [ "${ADAPTER_PRECICE_ROOT}" ]; then
-    echo "  ADAPTER_PRECICE_ROOT  = ${ADAPTER_PRECICE_ROOT}"
-else
-    echo "  ADAPTER_PRECICE_ROOT  = (use LD_LIBRARY_PATH / LIBRARY_PATH)"
-fi
-
-if [ "${ADAPTER_BOOST_LIB}" ]; then
-    echo "  ADAPTER_BOOST_LIB     = ${ADAPTER_BOOST_LIB}"
-else
-    echo "  ADAPTER_BOOST_LIB     = (use LD_LIBRARY_PATH / LIBRARY_PATH)"
-fi
-
-if [ "${ADAPTER_PETSC_LIB}" ]; then
-    echo "  ADAPTER_PETSC_LIB     = ${ADAPTER_PETSC_LIB}"
-else
-    echo "  ADAPTER_PETSC_LIB     = (use LD_LIBRARY_PATH / LIBRARY_PATH)"
-fi
-
+echo "  ADAPTER_PRECICE_ROOT  = ${ADAPTER_PRECICE_ROOT}"
 echo "  ADAPTER_PRECICE_DEP   = ${ADAPTER_PRECICE_DEP}"
 echo "  ADAPTER_PREP_FLAGS    = ${ADAPTER_PREP_FLAGS}"
 echo "  ADAPTER_TARGET_DIR    = ${ADAPTER_TARGET_DIR}"

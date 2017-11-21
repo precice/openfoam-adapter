@@ -1,4 +1,4 @@
- #!/bin/bash
+#!/bin/bash
 
 # This script prepares and runs all the participants in one terminal,
 # forwarding the solvers' output to log files.
