@@ -71,5 +71,12 @@ echo "Building failed."
 exit
 fi
 echo ""
-echo "Building completed successfully!"
-echo "Next step: Run an example from the tutorials/ directory."
+
+ADAPTER_UNDEFINED_SYMBOLS=$(ldd -r ${ADAPTER_TARGET_DIR}/libpreciceAdapterFunctionObject.so | grep "undefined" -c)
+if [ "${ADAPTER_UNDEFINED_SYMBOLS}" -gt 0 ]; then
+    echo "Attention: there were ${ADAPTER_UNDEFINED_SYMBOLS} undefined symbols."
+    echo "Run 'ldd -r ${ADAPTER_TARGET_DIR}/libpreciceAdapterFunctionObject.so' to see them."
+else
+    echo "Building completed successfully!"
+    echo "Next step: Run an example from the tutorials/ directory."
+fi
