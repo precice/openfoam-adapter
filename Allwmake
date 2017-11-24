@@ -2,6 +2,11 @@
 cd ${0%/*} || exit 1    # Run from this directory
 
 ########## CONFIGURATION - You may want to change these ########################
+# YAML-CPP include path - the parent of yaml-cpp/ (try running "locate yaml.h")
+ADAPTER_YAML_CPP_INC="/usr/include/"
+# YAML-CPP library path (try running "locate libyaml-cpp.")
+ADAPTER_YAML_CPP_LIB="/usr/lib/x86_64-linux-gnu/"
+
 # preCICE root path (should be already globally set)
 ADAPTER_PRECICE_ROOT="${PRECICE_ROOT}"
 
@@ -11,7 +16,14 @@ ADAPTER_PRECICE_ROOT="${PRECICE_ROOT}"
 # you may as well specify them here (optional).
 # For an up-to-date list of dependencies,
 # look at https://github.com/precice/precice/wiki/Building
-ADAPTER_PRECICE_DEP="-lpetsc -lmpi_cxx -lboost_system -lboost_filesystem -lboost_log -lboost_log_setup -lboost_thread -lboost_program_options -lpthread -lpython2.7"
+# ADAPTER_PRECICE_DEP="-lpetsc -lmpi_cxx -lboost_system -lboost_filesystem -lboost_log -lboost_log_setup -lboost_thread -lboost_program_options -lpthread -lpython2.7"
+
+# Optional: C++ Boost library path - required from preCICE (try running "locate libboost_log.")
+# ADAPTER_BOOST_LIB="/usr/local/lib"
+
+# Optional: PETSc library path - if required from preCICE (try running "locate libpetsc.")
+# ADAPTER_PETSC_LIB="${PETSC_DIR}/${PETSC_ARCH}/lib"
+
 
 # Optional: Preprocessor flags ("-DADAPTER_DEBUG_MODE" enables debug messages)
 ADAPTER_PREP_FLAGS="-DADAPTER_DEBUG_MODE"
@@ -29,40 +41,27 @@ ADAPTER_TARGET_DIR="${FOAM_USER_LIBBIN}"
 echo "Building the OpenFOAM adapter for preCICE..."
 echo "Make sure that all the required dependencies (mainly yaml-cpp and preCICE) are installed.\n"
 
-# Extract the paths from the CPLUS_INCLUDE_PATH list and convert them to a sequence of "-I/path/ \"
-if [ "${CPLUS_INCLUDE_PATH}" ]; then
-    ADAPTER_GLOBAL_CPLUS_INC_PATHS=$(echo $CPLUS_INCLUDE_PATH | tr ':' '\n' | sed 's/^/-I/' | tr '\n' ' \\')
-fi
-
-# Extract the paths from the LD_LIBRARY_PATH list and convert them to a sequence of "-L/path/ \"
-if [ "${LD_LIBRARY_PATH}" ]; then
-    ADAPTER_GLOBAL_LD_LIBRARY_PATHS=$(echo $LD_LIBRARY_PATH | tr ':' '\n' | sed 's/^/-L/' | tr '\n' ' \\')
-fi
-
-# Extract the paths from the LIBRARY_PATH list and convert them to a sequence of "-L/path/ \"
-if [ "${LIBRARY_PATH}" ]; then
-    ADAPTER_GLOBAL_LIBRARY_PATHS=$(echo $LIBRARY_PATH | tr ':' '\n' | sed 's/^/-L/' | tr '\n' ' \\')
-fi
-
 # Export the environment variables
-export ADAPTER_GLOBAL_CPLUS_INC_PATHS
-export ADAPTER_GLOBAL_LD_LIBRARY_PATHS
-export ADAPTER_GLOBAL_LIBRARY_PATHS
+export ADAPTER_YAML_CPP_INC
+export ADAPTER_YAML_CPP_LIB
 export ADAPTER_PRECICE_ROOT
+export ADAPTER_PETSC_LIB
+export ADAPTER_BOOST_LIB
 export ADAPTER_PRECICE_DEP
 export ADAPTER_PREP_FLAGS
 export ADAPTER_TARGET_DIR
 
 # Inform the user about the environment
 echo "Using the following environment variables:"
+echo "  ADAPTER_YAML_CPP_INC  = ${ADAPTER_YAML_CPP_INC}"
+echo "  ADAPTER_YAML_CPP_LIB  = ${ADAPTER_YAML_CPP_LIB}"
 echo "  ADAPTER_PRECICE_ROOT  = ${ADAPTER_PRECICE_ROOT}"
+echo "  ADAPTER_PETSC_LIB     = ${ADAPTER_PETSC_LIB}"
+echo "  ADAPTER_BOOST_LIB     = ${ADAPTER_BOOST_LIB}"
 echo "  ADAPTER_PRECICE_DEP   = ${ADAPTER_PRECICE_DEP}"
 echo "  ADAPTER_PREP_FLAGS    = ${ADAPTER_PREP_FLAGS}"
 echo "  ADAPTER_TARGET_DIR    = ${ADAPTER_TARGET_DIR}"
 echo "  ADAPTER_WMAKE_OPTIONS = ${ADAPTER_WMAKE_OPTIONS}"
-echo "  ADAPTER_GLOBAL_CPLUS_INC_PATHS  = ${ADAPTER_GLOBAL_CPLUS_INC_PATHS}"
-echo "  ADAPTER_GLOBAL_LD_LIBRARY_PATHS = ${ADAPTER_GLOBAL_LD_LIBRARY_PATHS}"
-echo "  ADAPTER_GLOBAL_LIBRARY_PATHS    = ${ADAPTER_GLOBAL_LIBRARY_PATHS}"
 echo ""
 
 # Run wmake (build the adapter) and check the exit code

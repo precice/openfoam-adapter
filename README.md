@@ -8,13 +8,14 @@ This adapter was developed as part of Gerasimos Chourdakis' master's thesis.
 It is based on [previous work](https://github.com/ludcila/CHT-preCICE) by Lucia Cheung ([master's thesis](https://www5.in.tum.de/pub/Cheung2016_Thesis.pdf), in cooperation with [SimScale](https://www.simscale.com/)).
 
 ## Build
-To build the adapter, you need to install a few dependencies and then execute the `Allwmake` script:
+To build the adapter, you need to install a few dependencies and then execute the `Allwmake` script. See and adjust the configuration in the beginning of the script, if needed (particularly the location of yaml-cpp).
 
 1. Install the [yaml-cpp](https://github.com/jbeder/yaml-cpp) headers and shared library, preferably from your Linux distribution's repository.
-    1. If you want to build yaml-cpp from source, you need to build it as a _shared_ library.
-    2. If you build yaml-cpp from source, remember to include the paths for the header and library in the `CPLUS_INCLUDE_PATH` and `LD_LIBRARY_PATH` environment variables.
+    * If you are using Ubuntu, you are looking for the package `libyaml-cpp-dev`.
+    * If you want to build yaml-cpp from source, you need to build it as a _shared_ library.
+    * In both cases, you need to set its paths in `Allwmake`.
 2. Install the [preCICE](http://www.precice.org/) headers and library, following its [building instructions](https://github.com/precice/precice/wiki/Building).
-    1. If you want to use preCICE as a static library, remember to setup the paths for the dependencies in the `LD_LIBRARY_PATH`. If the dependencies have changed, you may adjust them in `Allwmake`.
+    * If you want to use preCICE as a static library, remember to setup its dependencies and their paths in `Allwmake`.
 3. Install an OpenFOAM distribution. [OpenFOAM 5](https://openfoam.org/version/5-0/) is known to be compatible (read below for more).
 4. Execute `./Allwmake`. If everything goes well, you will receive a success message.
 
