@@ -17,7 +17,8 @@ To build the adapter, you need to install a few dependencies and then execute th
 2. Install the [preCICE](http://www.precice.org/) headers and library, following its [building instructions](https://github.com/precice/precice/wiki/Building).
     * If you want to use preCICE as a static library, remember to setup its dependencies and their paths in `Allwmake`. You need to set the path to PETSc and Boost (if needed) and uncomment the `ADAPTER_PRECICE_DEP="..."` line.
 3. Install an OpenFOAM distribution. [OpenFOAM 5](https://openfoam.org/version/5-0/) is known to be compatible (read below for more).
-4. Execute `./Allwmake`. If everything goes well, you will receive a success message.
+4. Inspect and adjust the `Allwmake` script.
+5. Execute `./Allwmake`. If everything goes well, you will receive a success message.
 
 The `-DADAPTER_DEBUG_MODE` flag inside `ADAPTER_PREP_FLAGS` activates additional debug messages. You may also change the target directory or specify the number of threads to use for the compilation. See the comments in `Allwmake` for more.
 
