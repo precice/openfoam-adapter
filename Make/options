@@ -18,8 +18,6 @@ LIB_LIBS = \
     -lcompressibleTurbulenceModels \
     -lincompressibleTurbulenceModels \
     -L$(ADAPTER_PRECICE_ROOT)/build/last \
-    -L${ADAPTER_PETSC_LIB} \
-    -L${ADAPTER_BOOST_LIB} \
     -lprecice \
     ${ADAPTER_PRECICE_DEP} \
     -L${ADAPTER_YAML_CPP_LIB} \

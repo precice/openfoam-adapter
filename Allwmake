@@ -16,13 +16,12 @@ ADAPTER_PRECICE_ROOT="${PRECICE_ROOT}"
 # you may as well specify them here (optional).
 # For an up-to-date list of dependencies,
 # look at https://github.com/precice/precice/wiki/Building
-# ADAPTER_PRECICE_DEP="-lpetsc -lmpi_cxx -lboost_system -lboost_filesystem -lboost_log -lboost_log_setup -lboost_thread -lboost_program_options -lpthread -lpython2.7"
-
-# Optional: C++ Boost library path - required from preCICE (try running "locate libboost_log.")
-# ADAPTER_BOOST_LIB="/usr/local/lib"
-
-# Optional: PETSc library path - if required from preCICE (try running "locate libpetsc.")
-# ADAPTER_PETSC_LIB="${PETSC_DIR}/${PETSC_ARCH}/lib"
+# C++ Boost library path - required from preCICE (try running "locate libboost_log.")
+ADAPTER_BOOST_LIB="/usr/local/lib"
+# PETSc library path - if required from preCICE (try running "locate libpetsc.")
+ADAPTER_PETSC_LIB="${PETSC_DIR}/${PETSC_ARCH}/lib"
+# Uncomment to use preCICE as a static library: preCICE dependencies
+# ADAPTER_PRECICE_DEP="-L${ADAPTER_PETSC_LIB} -lpetsc -lmpi_cxx -L${ADAPTER_BOOST_LIB} -lboost_system -lboost_filesystem -lboost_log -lboost_log_setup -lboost_thread -lboost_program_options -lpthread -lpython2.7"
 
 
 # Optional: Preprocessor flags ("-DADAPTER_DEBUG_MODE" enables debug messages)
@@ -45,8 +44,6 @@ echo "Make sure that all the required dependencies (mainly yaml-cpp and preCICE)
 export ADAPTER_YAML_CPP_INC
 export ADAPTER_YAML_CPP_LIB
 export ADAPTER_PRECICE_ROOT
-export ADAPTER_PETSC_LIB
-export ADAPTER_BOOST_LIB
 export ADAPTER_PRECICE_DEP
 export ADAPTER_PREP_FLAGS
 export ADAPTER_TARGET_DIR
@@ -56,9 +53,11 @@ echo "Using the following environment variables:"
 echo "  ADAPTER_YAML_CPP_INC  = ${ADAPTER_YAML_CPP_INC}"
 echo "  ADAPTER_YAML_CPP_LIB  = ${ADAPTER_YAML_CPP_LIB}"
 echo "  ADAPTER_PRECICE_ROOT  = ${ADAPTER_PRECICE_ROOT}"
-echo "  ADAPTER_PETSC_LIB     = ${ADAPTER_PETSC_LIB}"
-echo "  ADAPTER_BOOST_LIB     = ${ADAPTER_BOOST_LIB}"
-echo "  ADAPTER_PRECICE_DEP   = ${ADAPTER_PRECICE_DEP}"
+if [ ${ADAPTER_PRECICE_DEP} ]; then
+    echo "  ADAPTER_PETSC_LIB     = ${ADAPTER_PETSC_LIB}"
+    echo "  ADAPTER_BOOST_LIB     = ${ADAPTER_BOOST_LIB}"
+    echo "  ADAPTER_PRECICE_DEP   = ${ADAPTER_PRECICE_DEP}"
+fi
 echo "  ADAPTER_PREP_FLAGS    = ${ADAPTER_PREP_FLAGS}"
 echo "  ADAPTER_TARGET_DIR    = ${ADAPTER_TARGET_DIR}"
 echo "  ADAPTER_WMAKE_OPTIONS = ${ADAPTER_WMAKE_OPTIONS}"
