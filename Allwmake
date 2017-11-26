@@ -41,7 +41,7 @@ ADAPTER_TARGET_DIR="${FOAM_USER_LIBBIN}"
 
 # Information header
 echo "Building the OpenFOAM adapter for preCICE..."
-echo "Make sure that all the required dependencies (mainly yaml-cpp and preCICE) are installed.\n"
+echo "Make sure that all the required dependencies (mainly yaml-cpp and preCICE) are installed and their paths set in this file are correct. System paths such as LD_LIBRARY_PATH are NOT searched.\n"
 
 # Export the environment variables
 export ADAPTER_YAML_CPP_INC
@@ -56,10 +56,13 @@ echo "Using the following environment variables:"
 echo "  ADAPTER_YAML_CPP_INC  = ${ADAPTER_YAML_CPP_INC}"
 echo "  ADAPTER_YAML_CPP_LIB  = ${ADAPTER_YAML_CPP_LIB}"
 echo "  ADAPTER_PRECICE_ROOT  = ${ADAPTER_PRECICE_ROOT}"
-if [ ${ADAPTER_PRECICE_DEP} ]; then
-    echo "  ADAPTER_PETSC_LIB     = ${ADAPTER_PETSC_LIB}"
-    echo "  ADAPTER_BOOST_LIB     = ${ADAPTER_BOOST_LIB}"
-    echo "  ADAPTER_PRECICE_DEP   = ${ADAPTER_PRECICE_DEP}"
+if [ "${ADAPTER_PRECICE_DEP}" ]; then
+    echo "      preCICE dependencies:"
+    echo "      ADAPTER_PETSC_LIB     = ${ADAPTER_PETSC_LIB}"
+    echo "      ADAPTER_BOOST_LIB     = ${ADAPTER_BOOST_LIB}"
+    echo "      ADAPTER_PRECICE_DEP   = ${ADAPTER_PRECICE_DEP}"
+else
+    echo "      preCICE dependencies: not specified (ok if shared library)"
 fi
 echo "  ADAPTER_PREP_FLAGS    = ${ADAPTER_PREP_FLAGS}"
 echo "  ADAPTER_TARGET_DIR    = ${ADAPTER_TARGET_DIR}"
