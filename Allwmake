@@ -15,8 +15,7 @@ ADAPTER_PRECICE_ROOT="${PRECICE_ROOT}"
 
 ## preCICE as a static library?
 # If you use preCICE as a static library, then you also need to
-# specify its dependncies. If they are not defined in your LD_LIBRARY_PATH,
-# you may as well specify them here (optional).
+# specify its dependncies.
 # For an up-to-date list of dependencies,
 # look at https://github.com/precice/precice/wiki/Building
 # C++ Boost library path - required from preCICE (try running "locate libboost_log.")
