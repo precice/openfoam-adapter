@@ -3,9 +3,10 @@ cd ${0%/*} || exit 1    # Run from this directory
 
 ########## CONFIGURATION - You may want to change these ########################
 # Note: system paths such as LD_LIBRARY_PATH, LIBRARY_PATH, or CPLUS_INCLUDE_PATH
-# are currently NOT searched.
+# are currently NOT searched. Using these variables here also does not work.
+# You need to specify the exact directories, without any list separators.
 
-# YAML-CPP include path - the parent of yaml-cpp/ (try running "locate yaml.h")
+# YAML-CPP include path - the PARENT of yaml-cpp/ (try running "locate yaml.h")
 ADAPTER_YAML_CPP_INC="/usr/include/"
 # YAML-CPP library path (try running "locate libyaml-cpp.")
 ADAPTER_YAML_CPP_LIB="/usr/lib/x86_64-linux-gnu/"
