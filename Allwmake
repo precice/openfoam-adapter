@@ -29,6 +29,13 @@ ADAPTER_TARGET_DIR="${FOAM_USER_LIBBIN}"
 echo "Building the OpenFOAM adapter for preCICE..."
 echo "Make sure that all the required dependencies (mainly yaml-cpp and preCICE) are installed.\n"
 
+# What is going on here:
+# 1. get the colon-separated paths (e.g. the CPLUS_INCLUDE_PATH),
+# 2. translate all the colons to new line characters, i.e. move each entry to a new line,
+# 3. remove the empty lines. These would result from ":path" or "path:" or "path::path".
+# 4. add the respective "-I" or "-L" in the beginning of the line,
+# 5. translate the new line characters to "\", i.e. make everything again one line.
+
 # Extract the paths from the CPLUS_INCLUDE_PATH list and convert them to a sequence of "-I/path/ \"
 if [ "${CPLUS_INCLUDE_PATH}" ]; then
     ADAPTER_GLOBAL_CPLUS_INC_PATHS=$(echo $CPLUS_INCLUDE_PATH | tr ':' '\n' |  sed '/^$/d' | sed 's/^/-I/' | tr '\n' ' \\')
