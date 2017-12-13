@@ -31,17 +31,17 @@ echo "Make sure that all the required dependencies (mainly yaml-cpp and preCICE)
 
 # Extract the paths from the CPLUS_INCLUDE_PATH list and convert them to a sequence of "-I/path/ \"
 if [ "${CPLUS_INCLUDE_PATH}" ]; then
-    ADAPTER_GLOBAL_CPLUS_INC_PATHS=$(echo $CPLUS_INCLUDE_PATH | tr ':' '\n' | sed 's/^/-I/' | tr '\n' ' \\')
+    ADAPTER_GLOBAL_CPLUS_INC_PATHS=$(echo $CPLUS_INCLUDE_PATH | tr ':' '\n' |  sed '/^$/d' | sed 's/^/-I/' | tr '\n' ' \\')
 fi
 
 # Extract the paths from the LD_LIBRARY_PATH list and convert them to a sequence of "-L/path/ \"
 if [ "${LD_LIBRARY_PATH}" ]; then
-    ADAPTER_GLOBAL_LD_LIBRARY_PATHS=$(echo $LD_LIBRARY_PATH | tr ':' '\n' | sed 's/^/-L/' | tr '\n' ' \\')
+    ADAPTER_GLOBAL_LD_LIBRARY_PATHS=$(echo $LD_LIBRARY_PATH | tr ':' '\n' |  sed '/^$/d' | sed 's/^/-L/' | tr '\n' ' \\')
 fi
 
 # Extract the paths from the LIBRARY_PATH list and convert them to a sequence of "-L/path/ \"
 if [ "${LIBRARY_PATH}" ]; then
-    ADAPTER_GLOBAL_LIBRARY_PATHS=$(echo $LIBRARY_PATH | tr ':' '\n' | sed 's/^/-L/' | tr '\n' ' \\')
+    ADAPTER_GLOBAL_LIBRARY_PATHS=$(echo $LIBRARY_PATH | tr ':' '\n' |  sed '/^$/d' | sed 's/^/-L/' | tr '\n' ' \\')
 fi
 
 # Export the environment variables
