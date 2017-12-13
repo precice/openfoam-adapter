@@ -7,12 +7,10 @@ EXE_INC = \
     -I$(LIB_SRC)/TurbulenceModels/turbulenceModels/lnInclude \
     -I$(LIB_SRC)/TurbulenceModels/compressible/lnInclude \
     -I$(LIB_SRC)/TurbulenceModels/incompressible/lnInclude \
+    $(ADAPTER_GLOBAL_CPLUS_INC_PATHS) \
     -I$(ADAPTER_PRECICE_ROOT)/src/precice \
     -I../ \
     $(ADAPTER_PREP_FLAGS)
-
-SYS_INC += \
-    $(ADAPTER_GLOBAL_CPLUS_INC_PATHS)
 
 LIB_LIBS = \
     -lfiniteVolume \
