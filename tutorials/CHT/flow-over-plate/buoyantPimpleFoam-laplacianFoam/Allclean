@@ -35,6 +35,7 @@ rm -f ${Participant2}.log
 rm -f convergence-*.log convergence-*.txt
 rm -f EventTimings-*.log EventTimings-*.txt
 rm -f iterations-*.log iterations-*.txt
+rm -f .Fluid-Solid.address
 
 echo "Cleaning complete!"
 #------------------------------------------------------------------------------
