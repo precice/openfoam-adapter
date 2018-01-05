@@ -11,7 +11,7 @@ ADAPTER_PRECICE_ROOT="${PRECICE_ROOT}"
 # For an up-to-date list of dependencies,
 # look at https://github.com/precice/precice/wiki/Building
 # Uncomment to use preCICE as a static library: preCICE dependencies
-ADAPTER_PRECICE_DEP="-lpetsc -lmpi_cxx -lboost_system -lboost_filesystem -lboost_log -lboost_log_setup -lboost_thread -lboost_program_options -lpthread -lpython2.7 -lxml2"
+# ADAPTER_PRECICE_DEP="-lpetsc -lmpi_cxx -lboost_system -lboost_filesystem -lboost_log -lboost_log_setup -lboost_thread -lboost_program_options -lpthread -lpython2.7 -lxml2"
 
 # Optional: Preprocessor flags ("-DADAPTER_DEBUG_MODE" enables debug messages)
 ADAPTER_PREP_FLAGS="-DADAPTER_DEBUG_MODE"
