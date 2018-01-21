@@ -105,9 +105,13 @@ void preciceAdapter::Interface::addCouplingDataWriter
     // Add the CouplingDataUser to the list of writers
     couplingDataWriters_.push_back(couplingDataWriter);
 
-    // TODO: Resize buffer for vector data (if not already resized)
+    // Resize buffer for vector data.
+    // TODO: This resizing is hard coded for 3 dimensional simulations.
+    // I should get the number of dimensions of the simulation from somewhere, but I don't know where.
     if (couplingDataWriter->hasVectorData())
-    {}
+    {
+    	couplingDataWriter->setBufferSize(3*numDataLocations_);
+    }
 }
 
 
@@ -124,9 +128,13 @@ void preciceAdapter::Interface::addCouplingDataReader
     couplingDataReader->setPatchIDs(patchIDs_);
     couplingDataReaders_.push_back(couplingDataReader);
 
-    // TODO: Resize buffer for vector data (if not already resized)
+    // Resize buffer for vector data.
+    // TODO: This resizing is hard coded for 3 dimensional simulations.
+    // I should get the number of dimensions of the simulation from somewhere, but I don't know where.
     if (couplingDataReader->hasVectorData())
-    {}
+    {
+    	couplingDataReader->setBufferSize(3*numDataLocations_);
+    }
 }
 
 

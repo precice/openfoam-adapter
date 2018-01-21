@@ -7,7 +7,7 @@ cd ${0%/*} || exit 1    # Run from this directory
 # You need to specify the exact directories, without any list separators.
 
 # YAML-CPP include path - the PARENT of yaml-cpp/ (try running "locate yaml.h")
-ADAPTER_YAML_CPP_INC="/usr/include/"
+ADAPTER_YAML_CPP_INC="/usr/include/yaml-cpp"
 # YAML-CPP library path (try running "locate libyaml-cpp.")
 ADAPTER_YAML_CPP_LIB="/usr/lib/x86_64-linux-gnu/"
 
