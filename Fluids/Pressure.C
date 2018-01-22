@@ -8,7 +8,7 @@ preciceAdapter::Fluids::Pressure::Pressure
     const std::string nameT
 )
 :
-T_(
+P_(
     const_cast<volScalarField*>
     (
         &mesh.lookupObject<volScalarField>(nameT)

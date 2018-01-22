@@ -5,6 +5,8 @@
 
 // Conjugate Heat Transfer module
 #include "CHT/CHT.H"
+// Fluids module
+#include "Fluids/Fluids.H"
 
 // NOTE: If you want to couple a new variable, include your module's header here.
 // You also need to include it in the Make/files file.
@@ -83,8 +85,10 @@ private:
         //- Should the (fixed) timestep be stored and used?
         bool useStoredTimestep_ = false;
 
-        //- Switch to enable the ConjugateHeatTransfer module
-        bool CHTenabled_ = true;
+        //- Switches to enable the different modules
+        bool CHTenabled_ = false;
+        bool FluidsEnabled_ = false;
+
 
     //- Interfaces
     std::vector<Interface*> interfaces_;
@@ -97,6 +101,8 @@ private:
 
     //- Conjugate Heat Transfer module object
     CHT::ConjugateHeatTransfer * CHT_ = NULL;
+    //- Fluids modules object
+    Fluids::VelocityAndPressure * Fluids_ = NULL;
 
     // Timesteps
 

@@ -198,13 +198,25 @@ bool preciceAdapter::Adapter::configFileRead()
     }
     DEBUG(adapterInfo("    CHT module enabled : " + std::to_string(CHTenabled_)));
 
-    // If the CHT module is enabled, read create it, read the
-    // CHT-specific options and configure it.
+    // Set the Fluidsenabled_ switch
+	if (adapterConfig_["Fluidsenabled"])
+	{
+		FluidsEnabled_ = adapterConfig_["Fluidsenabled"].as<bool>();
+	}
+	DEBUG(adapterInfo("    Fluids module enabled : " + std::to_string(FluidsEnabled_)));
+
+    // Check which modules are active, create them and read
+    // Their specific options and configure them.
     if (CHTenabled_)
     {
         CHT_ = new CHT::ConjugateHeatTransfer(mesh_);
         if (!CHT_->configure(adapterConfig_)) return false;
     } // NOTE: Create your module and read any options specific to it here
+    else if (FluidsEnabled_)
+    {
+    	Fluids_ = new Fluids::VelocityAndPressure(mesh_);
+    	if (!Fluids_->configure(adapterConfig_)) return false;
+    }
     else
     {
         adapterInfo("No module is enabled.", "warning");
@@ -273,6 +285,11 @@ try{
                 CHT_->addWriters(dataName, interface);
             }
 
+            if (FluidsEnabled_)
+            {
+            	Fluids_->addWriters(dataName, interface);
+            }
+
             // NOTE: Add any coupling data writers for your module here.
         } // end add coupling data writers
 
@@ -285,6 +302,11 @@ try{
             if (CHTenabled_)
             {
                 CHT_->addReaders(dataName, interface);
+            }
+
+            if (FluidsEnabled_)
+            {
+            	Fluids_->addReaders(dataName, interface);
             }
 
             // NOTE: Add any coupling data readers for your module here.
@@ -1083,12 +1105,18 @@ void preciceAdapter::Adapter::teardown()
         checkpointing_ = false;
     }
 
-    // Delete the CHT module
+    // Delete the modules
     if(NULL != CHT_)
     {
         DEBUG(adapterInfo("Destroying the CHT module..."));
         delete CHT_;
         CHT_ = NULL;
+    }
+    if(NULL != Fluids_)
+    {
+    	DEBUG(adapterInfo("Destroying the Fluids module..."));
+    	delete Fluids_;
+    	Fluids_ = NULL;
     }
 
     return;

@@ -12,6 +12,11 @@ CHT/SinkTemperature.C
 
 CHT/CHT.C
 
+Fluids/Pressure.C
+Fluids/Velocity.C
+
+Fluids/Fluids.C
+
 Adapter.C
 
 preciceAdapterFunctionObject.C
