@@ -1,24 +1,24 @@
-#include "Temperature.H"
+#include "Velocity.H"
 
 using namespace Foam;
 
-preciceAdapter::CHT::Temperature::Temperature
+preciceAdapter::Fluids::Velocity::Velocity
 (
     const Foam::fvMesh& mesh,
     const std::string nameT
 )
 :
-T_(
-    const_cast<volScalarField*>
+U_(
+    const_cast<volVectorField*>
     (
-        &mesh.lookupObject<volScalarField>(nameT)
+        &mesh.lookupObject<volVectorField>(nameT)
     )
 )
 {
-    dataType_ = scalar;
+    dataType_ = vector;
 }
 
-void preciceAdapter::CHT::Temperature::write(double * buffer)
+void preciceAdapter::Fluids::Velocity::write(double * buffer)
 {
     int bufferIndex = 0;
 
@@ -28,17 +28,17 @@ void preciceAdapter::CHT::Temperature::write(double * buffer)
         int patchID = patchIDs_.at(j);
 
         // For every cell of the patch
-        forAll(T_->boundaryFieldRef()[patchID], i)
+        forAll(U_->boundaryFieldRef()[patchID], i)
         {
-            // Copy the temperature into the buffer
-            buffer[bufferIndex++]
-            =
-            T_->boundaryFieldRef()[patchID][i];
+            // Copy the three components of the velocity into the buffer
+            buffer[bufferIndex++] = U_->boundaryFieldRef()[patchID][i].x();
+            buffer[bufferIndex++] = U_->boundaryFieldRef()[patchID][i].y();
+            buffer[bufferIndex++] = U_->boundaryFieldRef()[patchID][i].z();
         }
     }
 }
 
-void preciceAdapter::CHT::Temperature::read(double * buffer)
+void preciceAdapter::Fluids::Velocity::read(double * buffer)
 {
     int bufferIndex = 0;
 
@@ -48,12 +48,12 @@ void preciceAdapter::CHT::Temperature::read(double * buffer)
         int patchID = patchIDs_.at(j);
 
         // For every cell of the patch
-        forAll(T_->boundaryFieldRef()[patchID], i)
+        forAll(U_->boundaryFieldRef()[patchID], i)
         {
-            // Set the temperature as the buffer value
-            T_->boundaryFieldRef()[patchID][i]
-            =
-            buffer[bufferIndex++];
+            // Set the velocity as the buffer value
+            U_->boundaryFieldRef()[patchID][i].x() = buffer[bufferIndex++];
+            U_->boundaryFieldRef()[patchID][i].y() = buffer[bufferIndex++];
+            U_->boundaryFieldRef()[patchID][i].z() = buffer[bufferIndex++];
         }
     }
 }

@@ -1,5 +1,5 @@
-#ifndef CHT_TEMPERATURE_H
-#define CHT_TEMPERATURE_H
+#ifndef FLUIDS_VELOCITY_H
+#define FLUIDS_VELOCITY_H
 
 #include "CouplingDataUser.H"
 
@@ -7,22 +7,22 @@
 
 namespace preciceAdapter
 {
-namespace CHT
+namespace Fluids
 {
 
 //- Class that writes and reads temperature.
-class Temperature : public CouplingDataUser
+class Velocity : public CouplingDataUser
 {
 
 private:
 
-    //- Temperature field
-    Foam::volScalarField * T_;
+    //- Velocity field
+    Foam::volVectorField * U_;
 
 public:
 
     //- Constructor
-    Temperature
+    Velocity
     (
         const Foam::fvMesh& mesh,
         const std::string nameT

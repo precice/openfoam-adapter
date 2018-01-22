@@ -50,7 +50,7 @@ void preciceAdapter::Fluids::Pressure::read(double * buffer)
         // For every cell of the patch
         forAll(P_->boundaryFieldRef()[patchID], i)
         {
-            // Set the temperature as the buffer value
+            // Set the pressure as the buffer value
             P_->boundaryFieldRef()[patchID][i]
             =
             buffer[bufferIndex++];
