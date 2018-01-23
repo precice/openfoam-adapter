@@ -5,8 +5,6 @@
 
 #include "Fluids/Pressure.H"
 #include "Fluids/Velocity.H"
-// #include "CHT/SinkTemperature.H"
-// #include "CHT/HeatTransferCoefficient.H"
 
 #include "fvCFD.H"
 

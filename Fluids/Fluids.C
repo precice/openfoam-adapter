@@ -120,37 +120,42 @@ std::string preciceAdapter::Fluids::VelocityAndPressure::determineSolverType()
     bool turbulencePropertiesExists = false;
     bool thermophysicalPropertiesExists = false;
 
-    if (mesh_.foundObject<IOdictionary>(nameTransportProperties_))
-    {
-        transportPropertiesExists = true;
-        DEBUG(adapterInfo("Found the transportProperties dictionary."));
-    }
-    else
-    {
-        DEBUG(adapterInfo("Did not find the transportProperties dictionary."));
-    }
+//    if (mesh_.foundObject<IOdictionary>(nameTransportProperties_))
+//    {
+//        transportPropertiesExists = true;
+//        DEBUG(adapterInfo("Found the transportProperties dictionary."));
+//    }
+//    else
+//    {
+//        DEBUG(adapterInfo("Did not find the transportProperties dictionary."));
+//    }
+//
+//    if (mesh_.foundObject<IOdictionary>(turbulenceModel::propertiesName))
+//    {
+//        turbulencePropertiesExists = true;
+//        DEBUG(adapterInfo("Found the " + turbulenceModel::propertiesName
+//            + " dictionary."));
+//    }
+//    else
+//    {
+//        DEBUG(adapterInfo("Did not find the " + turbulenceModel::propertiesName
+//            + " dictionary."));
+//    }
+//
+//    if (mesh_.foundObject<IOdictionary>("thermophysicalProperties"))
+//    {
+//        thermophysicalPropertiesExists = true;
+//        DEBUG(adapterInfo("Found the thermophysicalProperties dictionary."));
+//    }
+//    else
+//    {
+//        DEBUG(adapterInfo("Did not find the thermophysicalProperties dictionary."));
+//    }
 
-    if (mesh_.foundObject<IOdictionary>(turbulenceModel::propertiesName))
-    {
-        turbulencePropertiesExists = true;
-        DEBUG(adapterInfo("Found the " + turbulenceModel::propertiesName
-            + " dictionary."));
-    }
-    else
-    {
-        DEBUG(adapterInfo("Did not find the " + turbulenceModel::propertiesName
-            + " dictionary."));
-    }
-
-    if (mesh_.foundObject<IOdictionary>("thermophysicalProperties"))
-    {
-        thermophysicalPropertiesExists = true;
-        DEBUG(adapterInfo("Found the thermophysicalProperties dictionary."));
-    }
-    else
-    {
-        DEBUG(adapterInfo("Did not find the thermophysicalProperties dictionary."));
-    }
+    // I hack this so it works for the only solver I'm going to use for the moment.
+    turbulencePropertiesExists = true;
+    thermophysicalPropertiesExists = false;
+    transportPropertiesExists = true;
 
     if (turbulencePropertiesExists)
     {
@@ -202,7 +207,7 @@ void preciceAdapter::Fluids::VelocityAndPressure::addWriters(std::string dataNam
         interface->addCouplingDataWriter
         (
             dataName,
-            new Pressure(mesh_, nameT_)
+            new Pressure(mesh_, nameP_)
         );
         DEBUG(adapterInfo("Added writer: Pressure."));
     }
@@ -211,7 +216,7 @@ void preciceAdapter::Fluids::VelocityAndPressure::addWriters(std::string dataNam
         interface->addCouplingDataWriter
         (
             dataName,
-            new Velocity(mesh_, nameT_)
+            new Velocity(mesh_, nameU_)
         );
         DEBUG(adapterInfo("Added writer: Velocity."));
     }
@@ -237,7 +242,7 @@ void preciceAdapter::Fluids::VelocityAndPressure::addReaders(std::string dataNam
         interface->addCouplingDataReader
         (
             dataName,
-            new Pressure(mesh_, nameT_)
+            new Pressure(mesh_, nameP_)
         );
         DEBUG(adapterInfo("Added reader: Pressure."));
     }
@@ -246,7 +251,7 @@ void preciceAdapter::Fluids::VelocityAndPressure::addReaders(std::string dataNam
         interface->addCouplingDataReader
         (
             dataName,
-            new Velocity(mesh_, nameT_)
+            new Velocity(mesh_, nameU_)
         );
         DEBUG(adapterInfo("Added reader: Velocity."));
     }
