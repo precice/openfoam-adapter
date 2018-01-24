@@ -202,7 +202,7 @@ std::string preciceAdapter::Fluids::VelocityAndPressure::determineSolverType()
 
 void preciceAdapter::Fluids::VelocityAndPressure::addWriters(std::string dataName, Interface * interface)
 {
-    if (dataName.find("Pressure") == 0)
+    if (dataName.find("p") == 0)
     {
         interface->addCouplingDataWriter
         (
@@ -211,7 +211,7 @@ void preciceAdapter::Fluids::VelocityAndPressure::addWriters(std::string dataNam
         );
         DEBUG(adapterInfo("Added writer: Pressure."));
     }
-    else if (dataName.find("Velocity") == 0)
+    else if (dataName.find("U") == 0)
     {
         interface->addCouplingDataWriter
         (

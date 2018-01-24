@@ -33,7 +33,7 @@ protected:
     std::string nameTransportProperties_ = "transportProperties";
 
     //- Name of the pressure field
-    std::string nameP_ = "P";
+    std::string nameP_ = "p";
 
     //- Name of the velocity field
     std::string nameU_ = "U";
