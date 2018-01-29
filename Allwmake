@@ -85,10 +85,10 @@ if [ $? -ne 0 ]; then
     echo "Building failed. See wmake.log for more."
 else
     ADAPTER_WMAKE_UNDEFINED_SYMBOLS=$(grep -c -E "undefined|not defined" wmake.log)
-    ADAPTER_LD_UNDEFINED_SYMBOLS=$(ldd -r ${ADAPTER_TARGET_DIR}/libpreciceAdapterFunctionObject.so | grep "undefined" -c)
+    ldd -r ${ADAPTER_TARGET_DIR}/libpreciceAdapterFunctionObject.so > ld.log 2>&1
+    ADAPTER_LD_UNDEFINED_SYMBOLS=$(grep -c -E "undefined|not defined" ld.log)
     if [ "${ADAPTER_WMAKE_UNDEFINED_SYMBOLS}" -gt 0 ] || [ "${ADAPTER_LD_UNDEFINED_SYMBOLS}" -gt 0 ]; then
-        echo "Building completed with linking problems: there were undefined symbols."
-        echo "Run 'ldd -r ${ADAPTER_TARGET_DIR}/libpreciceAdapterFunctionObject.so' to see them."
+        echo "Building completed with linking problems: there were undefined symbols. See wmake.log and ld.log for more."
     else
         echo "Building completed successfully!"
         echo "Next step: Run an example from the tutorials/ directory."
