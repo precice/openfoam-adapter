@@ -1,4 +1,8 @@
 #!/bin/sh
 cd ${0%/*} || exit 1    # Run from this directory
 
+# Cleanup the targets
 wclean
+
+# Delete the log file
+rm -f wmake.log

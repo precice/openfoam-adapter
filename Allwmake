@@ -67,7 +67,7 @@ if [ "${ADAPTER_PRECICE_DEP}" ]; then
     echo "      preCICE dependencies:"
     echo "      ADAPTER_PRECICE_DEP   = ${ADAPTER_PRECICE_DEP}"
 else
-    echo "      preCICE dependencies: not specified (ok if shared library)"
+    echo "      preCICE dependencies: not specified (ok if preCICE is built as a shared library)"
 fi
 echo "  ADAPTER_PREP_FLAGS    = ${ADAPTER_PREP_FLAGS}"
 echo "  ADAPTER_TARGET_DIR    = ${ADAPTER_TARGET_DIR}"
@@ -78,14 +78,16 @@ echo "  ADAPTER_GLOBAL_LIBRARY_PATHS    = ${ADAPTER_GLOBAL_LIBRARY_PATHS}"
 echo ""
 
 # Run wmake (build the adapter) and check the exit code
-wmake ${ADAPTER_WMAKE_OPTIONS} libso
+echo "Building with WMake (see the wmake.log log file)..."
+wmake ${ADAPTER_WMAKE_OPTIONS} libso > wmake.log 2>&1
 echo ""
 if [ $? -ne 0 ]; then
-    echo "Building failed."
+    echo "Building failed. See wmake.log for more."
 else
-    ADAPTER_UNDEFINED_SYMBOLS=$(ldd -r ${ADAPTER_TARGET_DIR}/libpreciceAdapterFunctionObject.so | grep "undefined" -c)
-    if [ "${ADAPTER_UNDEFINED_SYMBOLS}" -gt 0 ]; then
-        echo "Building completed with linking problems: there were ${ADAPTER_UNDEFINED_SYMBOLS} undefined symbols."
+    ADAPTER_WMAKE_UNDEFINED_SYMBOLS=$(grep -c -E "undefined|not defined" wmake.log)
+    ADAPTER_LD_UNDEFINED_SYMBOLS=$(ldd -r ${ADAPTER_TARGET_DIR}/libpreciceAdapterFunctionObject.so | grep "undefined" -c)
+    if [ "${ADAPTER_WMAKE_UNDEFINED_SYMBOLS}" -gt 0 ] || [ "${ADAPTER_LD_UNDEFINED_SYMBOLS}" -gt 0 ]; then
+        echo "Building completed with linking problems: there were undefined symbols."
         echo "Run 'ldd -r ${ADAPTER_TARGET_DIR}/libpreciceAdapterFunctionObject.so' to see them."
     else
         echo "Building completed successfully!"
