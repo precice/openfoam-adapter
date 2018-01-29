@@ -11,7 +11,9 @@ ADAPTER_PRECICE_ROOT="${PRECICE_ROOT}"
 # For an up-to-date list of dependencies,
 # look at https://github.com/precice/precice/wiki/Building
 # Uncomment to use preCICE as a static library: preCICE dependencies
-# ADAPTER_PRECICE_DEP="-lpetsc -lmpi_cxx -lboost_system -lboost_filesystem -lboost_log -lboost_log_setup -lboost_thread -lboost_program_options -lpthread -lpython2.7 -lxml2"
+# ADAPTER_PRECICE_DEP="-lmpi_cxx -lboost_system -lboost_filesystem -lboost_log -lboost_log_setup -lboost_thread -lboost_program_options -lpthread -lxml2"
+# ADAPTER_PRECICE_DEP="${ADAPTER_PRECICE_DEP} -lpetsc"
+# ADAPTER_PRECICE_DEP="${ADAPTER_PRECICE_DEP} -lpython2.7"
 
 # Optional: Preprocessor flags ("-DADAPTER_DEBUG_MODE" enables debug messages)
 ADAPTER_PREP_FLAGS="-DADAPTER_DEBUG_MODE"
@@ -89,6 +91,7 @@ else
     ADAPTER_LD_UNDEFINED_SYMBOLS=$(grep -c -E "undefined|not defined" ld.log)
     if [ "${ADAPTER_WMAKE_UNDEFINED_SYMBOLS}" -gt 0 ] || [ "${ADAPTER_LD_UNDEFINED_SYMBOLS}" -gt 0 ]; then
         echo "Building completed with linking problems: there were undefined symbols. See wmake.log and ld.log for more."
+        echo "If preCICE is only build as a static library, please set the ADAPTER_PRECICE_DEP in this script appropriately (see comments)."
     else
         echo "Building completed successfully!"
         echo "Next step: Run an example from the tutorials/ directory."
