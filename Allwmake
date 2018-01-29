@@ -30,7 +30,7 @@ ADAPTER_TARGET_DIR="${FOAM_USER_LIBBIN}"
 
 # Information header
 echo "Building the OpenFOAM adapter for preCICE..."
-echo "Make sure that all the required dependencies (mainly yaml-cpp and preCICE) are installed.\n"
+echo "Make sure that all the required dependencies (mainly yaml-cpp and preCICE) are installed."
 
 # What is going on here:
 # 1. get the colon-separated paths (e.g. the CPLUS_INCLUDE_PATH),
