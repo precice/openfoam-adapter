@@ -111,6 +111,7 @@ void preciceAdapter::Interface::addCouplingDataWriter
     if (couplingDataWriter->hasVectorData())
     {
     	couplingDataWriter->setBufferSize(3*numDataLocations_);
+    	dataBuffer_ = (double*)realloc(dataBuffer_, (3*numDataLocations_)*sizeof(double));
     }
 }
 
@@ -134,6 +135,7 @@ void preciceAdapter::Interface::addCouplingDataReader
     if (couplingDataReader->hasVectorData())
     {
     	couplingDataReader->setBufferSize(3*numDataLocations_);
+    	dataBuffer_ = (double*)realloc(dataBuffer_, (3*numDataLocations_)*sizeof(double));
     }
 }
 
@@ -195,9 +197,15 @@ void preciceAdapter::Interface::writeCouplingData()
             // Write the data into the adapter's buffer
             couplingDataWriter->write(dataBuffer_);
 
+
             // Make preCICE write vector or scalar data
             if (couplingDataWriter->hasVectorData())
             {
+            	//std::cout << "DataID =  " << couplingDataWriter->dataID()  << std::endl;
+            	//std::cout << "Number of points =  " << numDataLocations_  << std::endl;
+            	//for (int point = 0 ; point < numDataLocations_*3; point++)
+            		//std::cout << "Data point " << point << " = " << dataBuffer_[point]  << std::endl;
+
                 precice_.writeBlockVectorData
                 (
                     couplingDataWriter->dataID(),
@@ -205,6 +213,7 @@ void preciceAdapter::Interface::writeCouplingData()
                     vertexIDs_,
                     dataBuffer_
                 );
+
             }
             else
             {
@@ -215,6 +224,7 @@ void preciceAdapter::Interface::writeCouplingData()
                     vertexIDs_,
                     dataBuffer_
                 );
+
             }
         }
     // }

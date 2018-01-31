@@ -36,6 +36,7 @@ void preciceAdapter::Fluids::Velocity::write(double * buffer)
             buffer[bufferIndex++] = U_->boundaryFieldRef()[patchID][i].z();
         }
     }
+
 }
 
 void preciceAdapter::Fluids::Velocity::read(double * buffer)
