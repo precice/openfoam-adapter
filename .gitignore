@@ -1,3 +1,6 @@
+# Project-specific files
+*.log
+
 # Prerequisites
 *.d
 

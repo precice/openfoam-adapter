@@ -1,0 +1,64 @@
+<?xml version="1.0"?>
+
+<precice-configuration>
+
+    <log>
+        <sink type="stream" output="stdout" filter="%Severity% > debug" enabled="true"/>
+    </log>
+
+    <solver-interface dimensions="3">
+
+    <data:scalar name="Temperature"/>
+    <data:scalar name="Heat-Flux"/>
+
+    <mesh name="Fluid-Mesh">
+        <use-data name="Temperature"/>
+        <use-data name="Heat-Flux"/>
+    </mesh>
+
+    <mesh name="Solid-Mesh">
+        <use-data name="Temperature"/>
+        <use-data name="Heat-Flux"/>
+    </mesh>
+
+    <participant name="Fluid">
+        <master:mpi-single/>
+        <use-mesh name="Fluid-Mesh" provide="yes"/>
+        <use-mesh name="Solid-Mesh" from="Solid"/>
+        <read-data name="Heat-Flux" mesh="Fluid-Mesh"/>
+        <write-data name="Temperature" mesh="Fluid-Mesh"/>
+        <mapping:nearest-neighbor direction="read" from="Solid-Mesh" to="Fluid-Mesh" constraint="consistent" timing="initial"/>
+    </participant>
+
+    <participant name="Solid">
+        <master:mpi-single/>
+        <use-mesh name="Fluid-Mesh" from="Fluid"/>
+        <use-mesh name="Solid-Mesh" provide="yes"/>
+        <read-data name="Temperature" mesh="Solid-Mesh"/>
+        <write-data name="Heat-Flux" mesh="Solid-Mesh"/>
+        <mapping:nearest-neighbor direction="read" from="Fluid-Mesh" to="Solid-Mesh" constraint="consistent" timing="initial"/>
+    </participant>
+
+    <m2n:sockets from="Fluid" to="Solid" distribution-type="gather-scatter"/>
+
+    <coupling-scheme:serial-implicit>
+        <timestep-length value="0.01"/>
+        <max-time value="1"/>
+        <max-iterations value="200"/>
+        <participants first="Fluid" second="Solid"/>
+        <exchange data="Temperature" mesh="Fluid-Mesh" from="Fluid" to="Solid"/>
+        <exchange data="Heat-Flux" mesh="Solid-Mesh" from="Solid" to="Fluid"/>
+        <relative-convergence-measure limit="1.0e-6" data="Temperature" mesh="Fluid-Mesh"/>
+        <extrapolation-order value="2"/>
+        <post-processing:IQN-ILS>
+            <data mesh="Solid-Mesh" name="Heat-Flux" />
+            <initial-relaxation value="0.01" />
+            <max-used-iterations value="80" />
+            <timesteps-reused value="10" />
+            <filter type="QR1" limit="1e-8" />
+        </post-processing:IQN-ILS>
+    </coupling-scheme:serial-implicit>
+
+    </solver-interface>
+
+</precice-configuration>

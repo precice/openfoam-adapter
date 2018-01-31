@@ -1,15 +1,16 @@
 #!/bin/bash
 
 # This script prepares and runs all the participants in one terminal,
+# in parallel (MPI),
 # forwarding the solvers' output to log files.
 # Alternatively, you may execute the scripts "runSolid" and "runFluid"
 # in separate terminals.
 
 # The script "Allclean" cleans-up the result and log files.
 
-# Copy the precice-config for the serial run
-echo "Setting up the preCICE configuration file for a serial simulation..."
-cp precice-config_serial.xml precice-config.xml
+# Copy the precice-config for the parallel run
+echo "Setting up the preCICE configuration file for a parallel simulation..."
+cp precice-config_parallel.xml precice-config.xml
 
 # Participant 1: Fluid
 Participant1="Fluid"
@@ -20,9 +21,12 @@ Solver1="buoyantPimpleFoam"
     blockMesh -case ${Participant1} > ${Participant1}_blockMesh.log 2>&1
     checkMesh -case ${Participant1} > ${Participant1}_checkMesh.log 2>&1
 
+    # Decompose the mesh
+    decomposePar -case ${Participant1} > ${Participant1}_decomposePar.log 2>&1
+
     # Run and get the process id
     echo "Starting the ${Participant1} participant..."
-    ${Solver1} -case ${Participant1} > ${Participant1}.log 2>&1 &
+    mpirun -np 2 ${Solver1} -parallel -case ${Participant1} > ${Participant1}.log 2>&1 &
     PIDParticipant1=$!
 
 # Participant 2: Solid
@@ -34,9 +38,12 @@ Solver2="laplacianFoam"
     blockMesh -case ${Participant2} > ${Participant2}_blockMesh.log 2>&1
     checkMesh -case ${Participant2} > ${Participant2}_checkMesh.log 2>&1
 
+    # Decompose the mesh
+    decomposePar -case ${Participant2} > ${Participant2}_decomposePar.log 2>&1
+
     # Run and get the process id
     echo "Starting the ${Participant2} participant..."
-    ${Solver2} -case ${Participant2} > ${Participant2}.log 2>&1 &
+    mpirun -np 2 ${Solver2} -parallel -case ${Participant2} > ${Participant2}.log 2>&1 &
     PIDParticipant2=$!
 
 # Wait for all the participants to finish
@@ -50,6 +57,13 @@ if [ $? -ne 0 ] || [ "$(grep -c -E "error:" ${Participant1}.log)" -ne 0 ] || [ "
 else
     echo ""
     echo "The simulation completed!"
+
+    # Reconstruct the cases
+    echo "Reconstructing case ${Participant1}..."
+    reconstructPar -case ${Participant1} > ${Participant1}_reconstructPar.log 2>&1
+    echo "Reconstructing case ${Participant2}..."
+    reconstructPar -case ${Participant2} > ${Participant2}_reconstructPar.log 2>&1
+
     echo "You may now open '${Participant1}/${Participant1}.foam' and '${Participant2}/${Participant2}.foam' in ParaView."
     # Note: ".foam" triggers the native OpenFOAM reader of ParaView.
     # Change to ".OpenFOAM" to use the OpenFOAM reader provided with OpenFOAM.

@@ -16,8 +16,12 @@ cd ${Participant1}
     # Change to ".OpenFOAM" to use the OpenFOAM reader provided with OpenFOAM.
     touch ${Participant1}.foam
 cd ..
-# Remove the log file
+# Remove the log files
+rm -f ${Participant1}_blockMesh.log
+rm -f ${Participant1}_checkMesh.log
+rm -f ${Participant1}_decomposePar.log
 rm -f ${Participant1}.log
+rm -f ${Participant1}_reconstructPar.log
 
 # Participant 2: Solid
 Participant2="Solid"
@@ -29,13 +33,23 @@ cd ${Participant2}
     # Change to ".OpenFOAM" to use the OpenFOAM reader provided with OpenFOAM.
     touch ${Participant2}.foam
 cd ..
+# Remove the log files
+rm -f ${Participant2}_blockMesh.log
+rm -f ${Participant2}_checkMesh.log
+rm -f ${Participant2}_decomposePar.log
 rm -f ${Participant2}.log
+rm -f ${Participant2}_reconstructPar.log
 
 # Remove the preCICE-related log files
+echo "Deleting the preCICE log files..."
 rm -f convergence-*.log convergence-*.txt
 rm -f EventTimings-*.log EventTimings-*.txt
 rm -f iterations-*.log iterations-*.txt
 rm -f .Fluid-Solid.address
+
+# Remove the preCICE configuration file: it's only a copy
+echo "Deleting the (copied) preCICE configuration file..."
+rm -f precice-config.xml
 
 echo "Cleaning complete!"
 #------------------------------------------------------------------------------
