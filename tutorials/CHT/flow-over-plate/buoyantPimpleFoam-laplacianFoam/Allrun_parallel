@@ -10,7 +10,7 @@
 
 # Copy the precice-config for the parallel run
 echo "Setting up the preCICE configuration file for a parallel simulation..."
-cp precice-config_parallel.xml precice-config.xml
+ln -s -f precice-config_parallel.xml precice-config.xml
 
 # Participant 1: Fluid
 Participant1="Fluid"

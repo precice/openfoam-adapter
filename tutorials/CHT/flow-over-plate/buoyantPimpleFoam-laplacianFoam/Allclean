@@ -47,9 +47,5 @@ rm -f EventTimings-*.log EventTimings-*.txt
 rm -f iterations-*.log iterations-*.txt
 rm -f .Fluid-Solid.address
 
-# Remove the preCICE configuration file: it's only a copy
-echo "Deleting the (copied) preCICE configuration file..."
-rm -f precice-config.xml
-
 echo "Cleaning complete!"
 #------------------------------------------------------------------------------
