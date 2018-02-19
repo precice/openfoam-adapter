@@ -1,4 +1,5 @@
 #include "Interface.H"
+//#include "patchPointToCell/patchPointToCell.H"
 
 using namespace Foam;
 
@@ -44,7 +45,6 @@ patchNames_(patchNames)
     //  CouplingDataUsers.
     //  The initial allocation assumes scalar data.
     //  If CouplingDataUsers have vector data, it is resized.
-    // TODO: Implement the resizing for vector data (used in mechanical FSI)
     dataBuffer_ = new double[numDataLocations_]();
 }
 
@@ -53,8 +53,9 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh)
     // Count the data locations for all the patches
     for (uint j = 0; j < patchIDs_.size(); j++)
     {
+    	// numDataLocations is multiplied by two to add the coordinates of the cell centre corresponding to each boundary face.
         numDataLocations_ +=
-            mesh.boundaryMesh()[patchIDs_.at(j)].faceCentres().size();
+            mesh.boundaryMesh()[patchIDs_.at(j)].faceCentres().size()*2.f;
     }
 
     // Array of the mesh vertices.
@@ -83,7 +84,23 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh)
             vertices[verticesIndex++] = faceCenters[i].y();
             vertices[verticesIndex++] = faceCenters[i].z();
         }
+
+        // Get the cell centres associated with the face centres.
+        const labelList & cells = mesh.boundaryMesh()[patchIDs_.at(j)].faceCells();
+
+        // Get the coordinates of the cells associated with the face centres.
+        for (int i=0; i < cells.size(); i++)
+        {
+        	vertices[verticesIndex++] = mesh.C().internalField()[cells[i]].x();
+        	vertices[verticesIndex++] = mesh.C().internalField()[cells[i]].y();
+        	vertices[verticesIndex++] = mesh.C().internalField()[cells[i]].z();
+        }
+
     }
+
+    std::cout << numDataLocations_ << std::endl;
+    for (int i =0; i< (numDataLocations_); i++ )
+    	std::cout << vertices[3*i] << " " << vertices[3*i+1] << " " << vertices[3*i+2] << std::endl;
 
     // Pass the mesh vertices information to preCICE
     precice_.setMeshVertices(meshID_, numDataLocations_, vertices, vertexIDs_);
@@ -163,6 +180,12 @@ void preciceAdapter::Interface::readCouplingData()
                     vertexIDs_,
                     dataBuffer_
                 );
+
+                // DEBUG! WRITING OF THE DATA RECEIVED FROM LUMIS
+                std::cout << " Data received from LUMIS " << std::endl;
+                for (int i=0; i<numDataLocations_; i++)
+                	std::cout << dataBuffer_[3*i] << " " << dataBuffer_[3*i+1] << " " << dataBuffer_[3*i+2] << std::endl;
+
             }
             else
             {
@@ -201,10 +224,9 @@ void preciceAdapter::Interface::writeCouplingData()
             // Make preCICE write vector or scalar data
             if (couplingDataWriter->hasVectorData())
             {
-            	//std::cout << "DataID =  " << couplingDataWriter->dataID()  << std::endl;
-            	//std::cout << "Number of points =  " << numDataLocations_  << std::endl;
-            	//for (int point = 0 ; point < numDataLocations_*3; point++)
-            		//std::cout << "Data point " << point << " = " << dataBuffer_[point]  << std::endl;
+            	std::cout << "Data sent to LUMIS " << std::endl;
+            	for (int point = 0 ; point < numDataLocations_; point++)
+            		std::cout << dataBuffer_[3*point] << " " << dataBuffer_[3* point+1] << " " << dataBuffer_[3*point+2]  << std::endl;
 
                 precice_.writeBlockVectorData
                 (
