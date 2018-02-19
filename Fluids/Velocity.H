@@ -24,7 +24,7 @@ public:
     //- Constructor
     Velocity
     (
-        const Foam::fvMesh& mesh,
+        const Foam::fvMesh* mesh,
         const std::string nameT
     );
 

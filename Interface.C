@@ -53,9 +53,10 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh)
     // Count the data locations for all the patches
     for (uint j = 0; j < patchIDs_.size(); j++)
     {
-    	// numDataLocations is multiplied by two to add the coordinates of the cell centre corresponding to each boundary face.
+    	// The number of cells attached with the boundary patch is added to numDataLocations.
         numDataLocations_ +=
-            mesh.boundaryMesh()[patchIDs_.at(j)].faceCentres().size()*2.f;
+            mesh.boundaryMesh()[patchIDs_.at(j)].faceCentres().size() +
+            mesh.boundaryMesh()[patchIDs_.at(j)].faceCells().size();
     }
 
     // Array of the mesh vertices.

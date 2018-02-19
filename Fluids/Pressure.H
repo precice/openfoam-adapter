@@ -19,12 +19,13 @@ private:
     //- Pressure field
     Foam::volScalarField * P_;
 
+
 public:
 
     //- Constructor
     Pressure
     (
-        const Foam::fvMesh& mesh,
+        const Foam::fvMesh* mesh,
         const std::string nameT
     );
 

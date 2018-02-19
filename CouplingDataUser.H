@@ -2,6 +2,7 @@
 #define COUPLINGDATAUSER_H
 
 #include <vector>
+#include "fvCFD.H"
 
 namespace preciceAdapter
 {
@@ -21,6 +22,9 @@ protected:
 
     //- OpenFOAM patches that form the interface
     std::vector<int> patchIDs_;
+
+    //- OpenFOAM mesh
+    const Foam::fvMesh* mesh_;
 
     //- preCICE data ID
     int dataID_;
