@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# This script prepares and runs all the participants in one terminal,
+# This script prepares and runs all the participants in one terminal, in serial,
 # in parallel (MPI),
 # forwarding the solvers' output to log files.
 # Alternatively, you may execute the scripts "runSolid" and "runFluid"
@@ -8,7 +8,7 @@
 
 # The script "Allclean" cleans-up the result and log files.
 
-# Copy the precice-config for the parallel run
+# Link to the precice-config for the parallel run
 echo "Setting up the preCICE configuration file for a parallel simulation..."
 ln -s -f precice-config_parallel.xml precice-config.xml
 
