@@ -12,6 +12,8 @@ CHT/SinkTemperature.C
 
 CHT/CHT.C
 
+FSI/FSI.C
+
 Adapter.C
 
 preciceAdapterFunctionObject.C
