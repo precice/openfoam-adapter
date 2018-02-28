@@ -6,6 +6,9 @@
 // Conjugate Heat Transfer module
 #include "CHT/CHT.H"
 
+// Fluid-Structure Interaction module
+#include "FSI/FSI.H"
+
 // NOTE: If you want to couple a new variable, include your module's header here.
 // You also need to include it in the Make/files file.
 // In case you use additional OpenFOAM symbols, you may also need to specify
@@ -84,7 +87,12 @@ private:
         bool useStoredTimestep_ = false;
 
         //- Switch to enable the ConjugateHeatTransfer module
-        bool CHTenabled_ = true;
+        bool CHTenabled_ = false;
+
+        //- Switch to enable the FluidStructureInteraction module
+        bool FSIenabled_ = false;
+
+        // NOTE: Add a switch for your new module here
 
     //- Interfaces
     std::vector<Interface*> interfaces_;
@@ -97,6 +105,11 @@ private:
 
     //- Conjugate Heat Transfer module object
     CHT::ConjugateHeatTransfer * CHT_ = NULL;
+
+    //- Fluid-Structure Interaction module object
+    FSI::FluidStructureInteraction * FSI_ = NULL;
+
+    // NOTE: Add here a pointer for your new module object
 
     // Timesteps
 

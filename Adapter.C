@@ -198,14 +198,32 @@ bool preciceAdapter::Adapter::configFileRead()
     }
     DEBUG(adapterInfo("    CHT module enabled : " + std::to_string(CHTenabled_)));
 
+    // Set the FSIenabled_ switch
+    if (adapterConfig_["FSIenabled"])
+    {
+        FSIenabled_ = adapterConfig_["FSIenabled"].as<bool>();
+    }
+    DEBUG(adapterInfo("    FSI module enabled : " + std::to_string(FSIenabled_)));
+
+    // NOTE: set the switch for your new module here
+
     // If the CHT module is enabled, read create it, read the
     // CHT-specific options and configure it.
     if (CHTenabled_)
     {
         CHT_ = new CHT::ConjugateHeatTransfer(mesh_);
         if (!CHT_->configure(adapterConfig_)) return false;
-    } // NOTE: Create your module and read any options specific to it here
-    else
+    }
+
+    if (FSIenabled_)
+    {
+        FSI_ = new FSI::FluidStructureInteraction(mesh_);
+        if (!FSI_->configure(adapterConfig_)) return false;
+    }
+
+    // NOTE: Create your module and read any options specific to it here
+
+    if (!CHTenabled_ && !FSIenabled_) // NOTE: Add your new switch here
     {
         adapterInfo("No module is enabled.", "warning");
         return false;
@@ -273,6 +291,12 @@ try{
                 CHT_->addWriters(dataName, interface);
             }
 
+            // Add FSI-related coupling data writers
+            if (FSIenabled_)
+            {
+                FSI_->addWriters(dataName, interface);
+            }
+
             // NOTE: Add any coupling data writers for your module here.
         } // end add coupling data writers
 
@@ -285,6 +309,12 @@ try{
             if (CHTenabled_)
             {
                 CHT_->addReaders(dataName, interface);
+            }
+
+            // Add FSI-related coupling data readers
+            if (FSIenabled_)
+            {
+                FSI_->addReaders(dataName, interface);
             }
 
             // NOTE: Add any coupling data readers for your module here.
@@ -1090,6 +1120,16 @@ void preciceAdapter::Adapter::teardown()
         delete CHT_;
         CHT_ = NULL;
     }
+
+    // Delete the FSI module
+    if(NULL != FSI_)
+    {
+        DEBUG(adapterInfo("Destroying the FSI module..."));
+        delete FSI_;
+        FSI_ = NULL;
+    }
+
+    // NOTE: Delete your new module here
 
     return;
 }
