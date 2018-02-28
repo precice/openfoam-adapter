@@ -3,11 +3,8 @@
 
 #include "Interface.H"
 
-/* TODO: Include here the headers of the respective coupling data users.
-/  This should look like:
-    #include "FSI/Displacements.H"
-    #include "FSI/Forces.H"
-*/
+#include "FSI/Displacement.H"
+#include "FSI/Force.H"
 
 #include "fvCFD.H"
 

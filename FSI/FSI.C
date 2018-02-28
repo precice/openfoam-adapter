@@ -29,6 +29,11 @@ bool preciceAdapter::FSI::FluidStructureInteraction::configure(const YAML::Node 
 bool preciceAdapter::FSI::FluidStructureInteraction::readConfig(const YAML::Node adapterConfig)
 {
     /* TODO: Read the solver type, if needed.
+    /  If you want to determine it automatically, implement a method
+    /  as in CHT/CHT.C
+    */
+
+    /* TODO: Read the names of any needed fields and parameters.
     */
 
     return true;
@@ -41,6 +46,24 @@ void preciceAdapter::FSI::FluidStructureInteraction::addWriters(std::string data
     /  If different coupling data users per solver type are defined,
     /  we need to check for that here.
     */
+    if (dataName.find("Force") == 0)
+    {
+        interface->addCouplingDataWriter
+        (
+            dataName,
+            new Force(mesh_) /* TODO: Add any other arguments here */
+        );
+        DEBUG(adapterInfo("Added writer: Force."));
+    }
+    else if (dataName.find("Displacement") == 0)
+    {
+        interface->addCouplingDataWriter
+        (
+            dataName,
+            new Displacement(mesh_) /* TODO: Add any other arguments here */
+        );
+        DEBUG(adapterInfo("Added writer: Displacement."));
+    }
 
     // NOTE: If you want to couple another variable, you need
     // to add your new coupling data user as a coupling data
@@ -56,6 +79,24 @@ void preciceAdapter::FSI::FluidStructureInteraction::addReaders(std::string data
     /  If different coupling data users per solver type are defined,
     /  we need to check for that here.
     */
+    if (dataName.find("Force") == 0)
+    {
+        interface->addCouplingDataReader
+        (
+            dataName,
+            new Force(mesh_) /* TODO: Add any other arguments here */
+        );
+        DEBUG(adapterInfo("Added reader: Force."));
+    }
+    else if (dataName.find("Displacement") == 0)
+    {
+        interface->addCouplingDataReader
+        (
+            dataName,
+            new Displacement(mesh_) /* TODO: Add any other arguments here */
+        );
+        DEBUG(adapterInfo("Added reader: Displacement."));
+    }
 
     // NOTE: If you want to couple another variable, you need
     // to add your new coupling data user as a coupling data

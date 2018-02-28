@@ -229,6 +229,9 @@ bool preciceAdapter::Adapter::configFileRead()
         return false;
     }
 
+    // TODO: Loading modules should be implemented in more general way,
+    // in order to avoid code duplication. See issue #16 on GitHub.
+
     return true;
 }
 
