@@ -39,13 +39,6 @@ patchNames_(patchNames)
 
     // Configure the mesh (set the data locations)
     configureMesh(mesh);
-
-    //  An interface has only one data buffer, which is shared between several
-    //  CouplingDataUsers.
-    //  The initial allocation assumes scalar data.
-    //  If CouplingDataUsers have vector data, it is resized.
-    // TODO: Implement the resizing for vector data (used in mechanical FSI)
-    dataBuffer_ = new double[numDataLocations_]();
 }
 
 void preciceAdapter::Interface::configureMesh(const fvMesh& mesh)
@@ -104,10 +97,6 @@ void preciceAdapter::Interface::addCouplingDataWriter
 
     // Add the CouplingDataUser to the list of writers
     couplingDataWriters_.push_back(couplingDataWriter);
-
-    // TODO: Resize buffer for vector data (if not already resized)
-    if (couplingDataWriter->hasVectorData())
-    {}
 }
 
 
@@ -123,12 +112,51 @@ void preciceAdapter::Interface::addCouplingDataReader
     // Add the CouplingDataUser to the list of readers
     couplingDataReader->setPatchIDs(patchIDs_);
     couplingDataReaders_.push_back(couplingDataReader);
-
-    // TODO: Resize buffer for vector data (if not already resized)
-    if (couplingDataReader->hasVectorData())
-    {}
 }
 
+void preciceAdapter::Interface::createBuffer()
+{
+    // Will the interface buffer need to store 3D vector data?
+    bool needsVectorData = false;
+    int dataBufferSize = 0;
+
+    // Check all the coupling data readers
+    for (uint i = 0; i < couplingDataReaders_.size(); i++)
+    {
+        if (couplingDataReaders_.at(i)->hasVectorData())
+        {
+            needsVectorData = true;
+        }
+    }
+
+    // Check all the coupling data writers
+    for (uint i = 0; i < couplingDataWriters_.size(); i++)
+    {
+        if (couplingDataWriters_.at(i)->hasVectorData())
+        {
+            needsVectorData = true;
+        }
+    }
+
+    // Set the appropriate buffer size
+    if (needsVectorData)
+    {
+        dataBufferSize = 3*numDataLocations_;
+    }
+    else
+    {
+        dataBufferSize = numDataLocations_;
+    }
+
+    // Create the data buffer
+    // An interface has only one data buffer, which is shared between several
+    // CouplingDataUsers.
+    // TODO: Check (write tests) if this works properly when we have multiple
+    // scalar and vector coupling data users in an interface. With the current
+    // preCICE implementation, it should work as, when writing scalars,
+    // it should  only use the first 1/3 elements of the buffer.
+    dataBuffer_ = new double[dataBufferSize]();
+}
 
 void preciceAdapter::Interface::readCouplingData()
 {

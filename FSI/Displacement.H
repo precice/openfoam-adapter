@@ -34,15 +34,9 @@ public:
     );
 
     //- Write the displacement values into the buffer
-    /* TODO: The buffer should be a vector, how to approach this?
-    /  Apply any changes also to Displacement.C.
-    */
     void write(double * buffer);
 
     //- Read the displacement values from the buffer
-    /* TODO: The buffer should be a vector, how to approach this?
-    /  Apply any changes also to Displacement.C.
-    */
     void read(double * buffer);
 
 };

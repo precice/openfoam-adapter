@@ -76,6 +76,11 @@ public:
         CouplingDataUser * couplingDataWriter
     );
 
+    //- Allocate an appropriate buffer for scalar or vector data.
+    //  If at least one couplingDataUser has vector data, then
+    //  define a buffer for 3D data. Otherwise, for 1D data.
+    void createBuffer();
+
     //- Call read() on each registered couplingDataReader to read the coupling
     //  data from the buffer and apply the boundary conditions
     void readCouplingData();

@@ -20,11 +20,17 @@ preciceAdapter::FSI::Displacement::Displacement
 void preciceAdapter::FSI::Displacement::write(double * buffer)
 {
     /* TODO: Implement
+    * We need two nested for-loops for each patch,
+    * the outer for the locations and the inner for the dimensions.
+    * See the preCICE writeBlockVectorData() implementation.
     */
 }
 
 void preciceAdapter::FSI::Displacement::read(double * buffer)
 {
     /* TODO: Implement
+    * We need two nested for-loops for each patch,
+    * the outer for the locations and the inner for the dimensions.
+    * See the preCICE readBlockVectorData() implementation.
     */
 }

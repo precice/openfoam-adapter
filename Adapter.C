@@ -322,6 +322,9 @@ try{
 
             // NOTE: Add any coupling data readers for your module here.
         } // end add coupling data readers
+
+        // Create the interface's data buffer
+        interface->createBuffer();
     }
 
     // Initialize preCICE and exchange the first coupling data

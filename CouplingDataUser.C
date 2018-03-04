@@ -14,13 +14,6 @@ bool preciceAdapter::CouplingDataUser::hasVectorData()
     return dataType_ == vector;
 }
 
-void preciceAdapter::CouplingDataUser::setBufferSize(int size)
-{
-    bufferSize_ = size;
-
-    return;
-}
-
 void preciceAdapter::CouplingDataUser::setDataID(int dataID)
 {
     dataID_ = dataID;
