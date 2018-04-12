@@ -19,13 +19,20 @@ private:
     //- Velocity field
     Foam::volVectorField * U_;
 
+    //- Inlet volumetric flow rate (needed for mass correction)
+    double vDot_;
+
+    //- Calculate mass correction for the values a the interface.
+    double massCorrection(double * buffer, int patchID);
+
 public:
 
     //- Constructor
     Velocity
     (
         const Foam::fvMesh* mesh,
-        const std::string nameT
+        const std::string nameT,
+        const double vDot
     );
 
     //- Write the temperature values into the buffer

@@ -82,6 +82,13 @@ bool preciceAdapter::Fluids::VelocityAndPressure::readConfig(const YAML::Node ad
     }
     DEBUG(adapterInfo("    density name for incompressible solvers : " + nameRho_));
 
+    // Read the volumetric flow rate across the inlet (the correction will be deactivated if this value is not present)
+	if (adapterConfig["InletVdot"])
+	{
+		vDot_ = adapterConfig["InletVdot"].as<double>();
+	}
+	DEBUG(adapterInfo("    inlet volumetric flow rate : " + std::to_string(vDot_)));
+
     // // Read the name of the heat capacity parameter for incompressible solvers (if different)
     // if (adapterConfig["nameCp"])
     // {
@@ -216,7 +223,7 @@ void preciceAdapter::Fluids::VelocityAndPressure::addWriters(std::string dataNam
         interface->addCouplingDataWriter
         (
             dataName,
-            new Velocity(&mesh_, nameU_)
+            new Velocity(&mesh_, nameU_,vDot_)
         );
         DEBUG(adapterInfo("Added writer: Velocity."));
     }
@@ -251,7 +258,7 @@ void preciceAdapter::Fluids::VelocityAndPressure::addReaders(std::string dataNam
         interface->addCouplingDataReader
         (
             dataName,
-            new Velocity(&mesh_, nameU_)
+            new Velocity(&mesh_, nameU_,vDot_)
         );
         DEBUG(adapterInfo("Added reader: Velocity."));
     }

@@ -41,6 +41,10 @@ protected:
     //- Name of the density for an incompressible solver
     std::string nameRho_ = "rho";
 
+    //- Inlet volumetric flow rate. The value by default deactivates the mass correction
+    // TODO: Should I change this so that it could work with negative flow rates?
+    double vDot_ = -1;
+
     // //- Name of the heat capacity for an incompressible solver
     // std::string nameCp_ = "Cp";
 
@@ -55,7 +59,7 @@ protected:
     //- Determine the solver type
     std::string determineSolverType();
 
-    //- Read the CHT-related options from the adapter's configuraiton file
+    //- Read the Fluids-related options from the adapter's configuraiton file
     bool readConfig(const YAML::Node adapterConfig);
 
 public:
