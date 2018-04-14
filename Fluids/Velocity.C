@@ -103,11 +103,20 @@ void preciceAdapter::Fluids::Velocity::read(double * buffer)
             // Check that the mass flow has been corrected?
         }
 
-        // I only need to read the boundary patch, which is the first part of the buffer array.
-        // TODO: Maybe also read in the values of the cells associated with the boundaries?
+        // For every cell associated to the patch.
+        // TODO: I'm not applying the mass correction to this cells (anyway, their values will be overwritten by OF on the next time step)
+        // but not applying mass correction might affect the results.
+        const labelList & cells = mesh_->boundaryMesh()[patchID].faceCells();
+		for( int i=0; i < cells.size(); i++)
+		{
+			// Set the velocity to the buffer value
+			U_->ref()[cells[i]].x() = buffer[bufferIndex++];
+			U_->ref()[cells[i]].y() = buffer[bufferIndex++];
+			U_->ref()[cells[i]].z() = buffer[bufferIndex++];
+		}
 
         // Skip the cells associated with the patch (their information is not needed)
-        const labelList & cells = mesh_->boundaryMesh()[patchID].faceCells();
-        bufferIndex += cells.size()+1;
+        //const labelList & cells = mesh_->boundaryMesh()[patchID].faceCells();
+        //bufferIndex += cells.size()+1;
     }
 }
