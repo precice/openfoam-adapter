@@ -51,28 +51,33 @@ void preciceAdapter::Fluids::Pressure::write(double * buffer)
 
 void preciceAdapter::Fluids::Pressure::read(double * buffer)
 {
-    int bufferIndex = 0;
 
-    // For every boundary patch of the interface
-    for (uint j = 0; j < patchIDs_.size(); j++)
-    {
-        int patchID = patchIDs_.at(j);
 
-        // For every cell of the patch
-        forAll(P_->boundaryFieldRef()[patchID], i)
-        {
-            // Set the pressure as the buffer value
-            P_->boundaryFieldRef()[patchID][i]
-            =
-            buffer[bufferIndex++];
-        }
+	// Get the LB pressure at the centre of the overlapping region.
+	// I will get the LB pressure for the first patch only.
+	int patchID = patchIDs_.at(0);
+	// Ignore the boundary patch.
+	int numCells = mesh_->boundaryMesh()[patchID].faceCells().size();
+	int centralCell = numCells + numCells/2;
 
-        // I only need to read the boundary patch, which is the first part of the buffer array.
-        // TODO: Maybe also read in the values of the cells associated with the boundaries?
-        // Skip the cells associated with the patch (their information is not needed)
-        const labelList & cells = mesh_->boundaryMesh()[patchID].faceCells();
-        bufferIndex += cells.size()+1;
-    }
+	// Caclulate pressure difference in the central cell
+	const labelList & cells = mesh_->boundaryMesh()[patchID].faceCells();
+	double pDiff = buffer[centralCell] - P_->ref()[cells[numCells/2]];
 
+	std::cout << "Pressure difference: " << pDiff << std::endl;
+
+	// Set the overlapping region pressure values
+	for (uint j = 0; j < patchIDs_.size(); j++)
+	{
+		int patchID = patchIDs_.at(j);
+
+		 // For every cell associated to the patch
+		const labelList & cells = mesh_->boundaryMesh()[patchID].faceCells();
+		for( int i=0; i < cells.size(); i++)
+		{
+			// Correct the pressure value
+			P_->ref()[cells[i]] += pDiff;
+		}
+	}
 
 }
