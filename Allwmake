@@ -78,6 +78,15 @@ echo "  ADAPTER_WMAKE_OPTIONS = ${ADAPTER_WMAKE_OPTIONS}"
 echo "  ADAPTER_GLOBAL_CPLUS_INC_PATHS  = ${ADAPTER_GLOBAL_CPLUS_INC_PATHS}"
 echo "  ADAPTER_GLOBAL_LD_LIBRARY_PATHS = ${ADAPTER_GLOBAL_LD_LIBRARY_PATHS}"
 echo "  ADAPTER_GLOBAL_LIBRARY_PATHS    = ${ADAPTER_GLOBAL_LIBRARY_PATHS}"
+
+# Check if an OpenFOAM environment is available
+echo "  WM_PROJECT_VERSION = ${WM_PROJECT_VERSION}"
+if [ -z "${WM_PROJECT_VERSION}" ]; then
+    echo "  It looks like no OpenFOAM environment is available. Have you loaded the OpenFOAM etc/bashrc file?"
+    echo "Building failed."
+    exit 1
+fi
+
 echo ""
 
 # Run wmake (build the adapter) and check the exit code
@@ -86,6 +95,7 @@ wmake ${ADAPTER_WMAKE_OPTIONS} libso > wmake.log 2>&1
 echo ""
 if [ $? -ne 0 ] || [ "$(grep -c -E "error" wmake.log)" -ne 0 ]; then
     echo "Building failed. See wmake.log for more."
+    exit 1
 else
     ADAPTER_WMAKE_UNDEFINED_SYMBOLS=$(grep -c -E "undefined|not defined" wmake.log)
     ldd -r ${ADAPTER_TARGET_DIR}/libpreciceAdapterFunctionObject.so > ldd.log 2>&1
