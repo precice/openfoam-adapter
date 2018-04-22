@@ -39,6 +39,7 @@ private:
     {
         std::string meshName;
         std::vector<std::string> patchNames;
+        std::vector<std::string> cellSetNames;
         std::vector<std::string> writeData;
         std::vector<std::string> readData;
     };

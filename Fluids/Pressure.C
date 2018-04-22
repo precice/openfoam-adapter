@@ -1,22 +1,22 @@
 #include "Pressure.H"
+#include "cellSet.H"
 
 using namespace Foam;
 
 preciceAdapter::Fluids::Pressure::Pressure
 (
-    const Foam::fvMesh* mesh,
+    const Foam::fvMesh& mesh,
     const std::string nameT
 )
 :
 P_(
     const_cast<volScalarField*>
     (
-        &mesh->lookupObject<volScalarField>(nameT)
+        &mesh.lookupObject<volScalarField>(nameT)
     )
-)
+),mesh_(mesh)
 {
     dataType_ = scalar;
-    mesh_ = mesh;
 }
 
 void preciceAdapter::Fluids::Pressure::write(double * buffer)
@@ -37,8 +37,11 @@ void preciceAdapter::Fluids::Pressure::write(double * buffer)
             P_->boundaryFieldRef()[patchID][i];
         }
 
-        // For every cell associated to the patch
-        const labelList & cells = mesh_->boundaryMesh()[patchID].faceCells();
+        // For every cellSet associated to the patch
+        // TODO: Do I have to create the cellSet each time? Don't they have indices or something like patches do?
+		// Maybe I can store pointers to the cellSets?
+		cellSet overlapRegion(mesh_, cellSetNames_[j]);
+		const labelList & cells = overlapRegion.toc();
         for( int i=0; i < cells.size(); i++)
         {
         	// Copy the pressure into the buffer
@@ -56,12 +59,16 @@ void preciceAdapter::Fluids::Pressure::read(double * buffer)
 	// Get the LB pressure at the centre of the overlapping region.
 	// I will get the LB pressure for the first patch only.
 	int patchID = patchIDs_.at(0);
-	// Ignore the boundary patch.
-	int numCells = mesh_->boundaryMesh()[patchID].faceCells().size();
-	int centralCell = numCells + numCells/2;
+	cellSet overlapRegion(mesh_, cellSetNames_.at(0));
+
+	// Get the cell at the middle of the cellSet
+	const labelList & cells = overlapRegion.toc();
+	int numCells = cells.size();
+	int centralCell = P_->boundaryFieldRef()[patchID].size() + numCells/2;
+
+	std::cout << "Cells in patch: " << P_->boundaryFieldRef()[patchID].size() << std::endl;
 
 	// Caclulate pressure difference in the central cell
-	const labelList & cells = mesh_->boundaryMesh()[patchID].faceCells();
 	double pDiff = buffer[centralCell] - P_->ref()[cells[numCells/2]];
 
 	std::cout << "Pressure difference: " << pDiff << std::endl;
@@ -72,7 +79,7 @@ void preciceAdapter::Fluids::Pressure::read(double * buffer)
 		int patchID = patchIDs_.at(j);
 
 		 // For every cell associated to the patch
-		const labelList & cells = mesh_->boundaryMesh()[patchID].faceCells();
+		const labelList & cells = mesh_.boundaryMesh()[patchID].faceCells();
 		for( int i=0; i < cells.size(); i++)
 		{
 			// Correct the pressure value

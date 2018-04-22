@@ -19,6 +19,9 @@ private:
     //- Velocity field
     Foam::volVectorField * U_;
 
+    //- Associated mesh
+    const Foam::fvMesh& mesh_;
+
     //- Inlet volumetric flow rate (needed for mass correction)
     double vDot_;
 
@@ -30,7 +33,7 @@ public:
     //- Constructor
     Velocity
     (
-        const Foam::fvMesh* mesh,
+        const Foam::fvMesh& mesh,
         const std::string nameT,
         const double vDot
     );

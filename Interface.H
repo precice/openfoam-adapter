@@ -27,6 +27,9 @@ protected:
     //- Names of the OpenFOAM patches that form the interface
     std::vector<std::string> patchNames_;
 
+    //- Names of the OpenFOAM cellSets associated to the patches. The cellSets are the overlapping regions of each patch.
+    std::vector<std::string> cellSetNames_;
+
     //- OpenFOAM patches that form the interface
     std::vector<int> patchIDs_;
 
@@ -58,7 +61,8 @@ public:
         precice::SolverInterface & precice,
         const Foam::fvMesh& mesh,
         std::string meshName,
-        std::vector<std::string> patchNames
+        std::vector<std::string> patchNames,
+        std::vector<std::string> cellSetNames
     );
 
     //- Add a CouplingDataUser to read data from the interface

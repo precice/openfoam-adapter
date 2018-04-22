@@ -214,7 +214,7 @@ void preciceAdapter::Fluids::VelocityAndPressure::addWriters(std::string dataNam
         interface->addCouplingDataWriter
         (
             dataName,
-            new Pressure(&mesh_, nameP_)
+            new Pressure(mesh_, nameP_)
         );
         DEBUG(adapterInfo("Added writer: Pressure."));
     }
@@ -223,7 +223,7 @@ void preciceAdapter::Fluids::VelocityAndPressure::addWriters(std::string dataNam
         interface->addCouplingDataWriter
         (
             dataName,
-            new Velocity(&mesh_, nameU_,vDot_)
+            new Velocity(mesh_, nameU_,vDot_)
         );
         DEBUG(adapterInfo("Added writer: Velocity."));
     }
@@ -249,7 +249,7 @@ void preciceAdapter::Fluids::VelocityAndPressure::addReaders(std::string dataNam
         interface->addCouplingDataReader
         (
             dataName,
-            new Pressure(&mesh_, nameP_)
+            new Pressure(mesh_, nameP_)
         );
         DEBUG(adapterInfo("Added reader: Pressure."));
     }
@@ -258,7 +258,7 @@ void preciceAdapter::Fluids::VelocityAndPressure::addReaders(std::string dataNam
         interface->addCouplingDataReader
         (
             dataName,
-            new Velocity(&mesh_, nameU_,vDot_)
+            new Velocity(mesh_, nameU_,vDot_)
         );
         DEBUG(adapterInfo("Added reader: Velocity."));
     }

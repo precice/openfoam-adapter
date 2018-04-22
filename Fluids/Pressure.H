@@ -2,6 +2,7 @@
 #define FLUIDS_PRESSURE_H
 
 #include "CouplingDataUser.H"
+#include "fvMesh.H"
 
 #include "fvCFD.H"
 
@@ -19,13 +20,15 @@ private:
     //- Pressure field
     Foam::volScalarField * P_;
 
+    //- Associated mesh
+    const Foam::fvMesh& mesh_;
 
 public:
 
     //- Constructor
     Pressure
     (
-        const Foam::fvMesh* mesh,
+        const Foam::fvMesh& mesh,
         const std::string nameT
     );
 

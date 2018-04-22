@@ -23,8 +23,8 @@ protected:
     //- OpenFOAM patches that form the interface
     std::vector<int> patchIDs_;
 
-    //- OpenFOAM mesh
-    const Foam::fvMesh* mesh_;
+    //- OpenFOAM cellSets that form the overlapping region associated to each patch of the interface
+    std::vector<std::string> cellSetNames_;
 
     //- preCICE data ID
     int dataID_;
@@ -51,6 +51,9 @@ public:
 
     //- Set the patch IDs that form the interface
     void setPatchIDs(std::vector<int> patchIDs);
+
+    //- Set the cellSetNames that form the overlapping cells of the interface
+    void setCellSetNames(std::vector<std::string> cellSetNames);
 
     //- Write the coupling data to the buffer
     virtual void write(double * dataBuffer) = 0;

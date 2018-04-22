@@ -1,4 +1,5 @@
 #include "Interface.H"
+#include "cellSet.H"
 //#include "patchPointToCell/patchPointToCell.H"
 
 using namespace Foam;
@@ -8,12 +9,14 @@ preciceAdapter::Interface::Interface
     precice::SolverInterface & precice,
     const fvMesh& mesh,
     std::string meshName,
-    std::vector<std::string> patchNames
+    std::vector<std::string> patchNames,
+    std::vector<std::string> cellSetNames
 )
 :
 precice_(precice),
 meshName_(meshName),
-patchNames_(patchNames)
+patchNames_(patchNames),
+cellSetNames_(cellSetNames)
 {
     // Get the meshID from preCICE
     meshID_ = precice_.getMeshID(meshName_);
@@ -50,13 +53,37 @@ patchNames_(patchNames)
 
 void preciceAdapter::Interface::configureMesh(const fvMesh& mesh)
 {
+
+	// Get the cell labels of the overlapping region
+	std::vector<labelList> overlapCells;
+    // For every cellSet that participates in the coupling
+	for (uint j = 0; j < cellSetNames_.size(); j++)
+	{
+		// Create a cell set
+		cellSet overlapRegion(mesh, cellSetNames_[j]);
+
+		// Throw an error if the patch was not found
+//		if (overlapRegion == NULL)
+//		{
+//			FatalErrorInFunction
+//				 << "ERROR: CellSet'"
+//				 << cellSetNames.at(j)
+//				 << "' does not exist."
+//				 << exit(FatalError);
+//		}
+
+		// Add the cells ID's to the vector and count how many overlap cells does the interface has
+		overlapCells.push_back(overlapRegion.toc());
+		numDataLocations_ += overlapCells[j].size();
+	}
+
     // Count the data locations for all the patches
     for (uint j = 0; j < patchIDs_.size(); j++)
     {
     	// The number of cells attached with the boundary patch is added to numDataLocations.
         numDataLocations_ +=
-            mesh.boundaryMesh()[patchIDs_.at(j)].faceCentres().size() +
-            mesh.boundaryMesh()[patchIDs_.at(j)].faceCells().size();
+            mesh.boundaryMesh()[patchIDs_.at(j)].faceCentres().size();// +
+            //mesh.boundaryMesh()[patchIDs_.at(j)].faceCells().size();
     }
 
     // Array of the mesh vertices.
@@ -71,7 +98,7 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh)
     int verticesIndex = 0;
 
     // Get the locations of the mesh vertices (here: face centers)
-    // for all the patches
+    // for all the patches and the overlapping cells (cellSets)
     for (uint j = 0; j < patchIDs_.size(); j++)
     {
         // Get the face centers of the current patch
@@ -86,10 +113,10 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh)
             vertices[verticesIndex++] = faceCenters[i].z();
         }
 
-        // Get the cell centres associated with the face centres.
-        const labelList & cells = mesh.boundaryMesh()[patchIDs_.at(j)].faceCells();
+        // Get the cell centres of the current cellSet.
+        const labelList & cells = overlapCells.at(j);
 
-        // Get the coordinates of the cells associated with the face centres.
+        // Get the coordinates of the cells of the current cellSet.
         for (int i=0; i < cells.size(); i++)
         {
         	vertices[verticesIndex++] = mesh.C().internalField()[cells[i]].x();
@@ -120,6 +147,9 @@ void preciceAdapter::Interface::addCouplingDataWriter
     // Set the patchIDs of the patches that form the interface
     couplingDataWriter->setPatchIDs(patchIDs_);
 
+    // Set the names of the cellSets that form the overlapping regions of the interface
+    couplingDataWriter->setCellSetNames(cellSetNames_);
+
     // Add the CouplingDataUser to the list of writers
     couplingDataWriters_.push_back(couplingDataWriter);
 
@@ -145,6 +175,7 @@ void preciceAdapter::Interface::addCouplingDataReader
 
     // Add the CouplingDataUser to the list of readers
     couplingDataReader->setPatchIDs(patchIDs_);
+    couplingDataReader->setCellSetNames(cellSetNames_);
     couplingDataReaders_.push_back(couplingDataReader);
 
     // Resize buffer for vector data.

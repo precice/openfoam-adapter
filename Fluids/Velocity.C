@@ -1,10 +1,11 @@
 #include "Velocity.H"
+#include "cellSet.H"
 
 using namespace Foam;
 
 preciceAdapter::Fluids::Velocity::Velocity
 (
-    const Foam::fvMesh* mesh,
+    const Foam::fvMesh& mesh,
     const std::string nameT,
     const double vDot
 )
@@ -12,13 +13,11 @@ preciceAdapter::Fluids::Velocity::Velocity
 U_(
     const_cast<volVectorField*>
     (
-        &mesh->lookupObject<volVectorField>(nameT)
+        &mesh.lookupObject<volVectorField>(nameT)
     )
-)
+),mesh_(mesh),vDot_(vDot)
 {
     dataType_ = vector;
-    mesh_ = mesh;
-    vDot_ = vDot;
 }
 
 void preciceAdapter::Fluids::Velocity::write(double * buffer)
@@ -39,11 +38,14 @@ void preciceAdapter::Fluids::Velocity::write(double * buffer)
             buffer[bufferIndex++] = U_->boundaryFieldRef()[patchID][i].z();
         }
 
-        // For every cell associated to the patch
-		const labelList & cells = mesh_->boundaryMesh()[patchID].faceCells();
+        // For every cellSet associated to the patch
+        // TODO: Do I have to create the cellSet each time? Don't they have indices or something like patches do?
+        // Maybe I can store pointers to the cellSets?
+        cellSet overlapRegion(mesh_, cellSetNames_.at(j));
+		const labelList & cells = overlapRegion.toc();
 		for( int i=0; i < cells.size(); i++)
 		{
-			// Copy the pressure into the buffer
+			// Copy the three components of the velocity into the buffer
 			buffer[bufferIndex++] = U_->internalField()[cells[i]].x();
 			buffer[bufferIndex++] = U_->internalField()[cells[i]].y();
 			buffer[bufferIndex++] = U_->internalField()[cells[i]].z();
@@ -57,13 +59,13 @@ double preciceAdapter::Fluids::Velocity::massCorrection(double * buffer, int pat
 	// Calculate volumetric flow rate from the LUMIS data.
 	double flowRate = 0;
 
-	const polyPatch& cPatch = mesh_->boundaryMesh()[patchID];
+	const polyPatch& cPatch = mesh_.boundaryMesh()[patchID];
 
 	// For every cell of the patch
 	//double area = 0;
 	forAll(cPatch, i)
 	{
-		flowRate += buffer[3*i]*mesh_->magSf().boundaryField()[patchID][i];
+		flowRate += buffer[3*i]*mesh_.magSf().boundaryField()[patchID][i];
 
 		//area += mesh_->magSf().boundaryField()[patchID][i];
 	}
@@ -103,10 +105,14 @@ void preciceAdapter::Fluids::Velocity::read(double * buffer)
             // Check that the mass flow has been corrected?
         }
 
-        // For every cell associated to the patch.
+
+        // For every cellSet associated to the patch.
         // TODO: I'm not applying the mass correction to this cells (anyway, their values will be overwritten by OF on the next time step)
         // but not applying mass correction might affect the results.
-        const labelList & cells = mesh_->boundaryMesh()[patchID].faceCells();
+        // TODO: Do I have to create the cellSet each time? Don't they have indices or something like patches do?
+		// Maybe I can store pointers to the cellSets?
+		cellSet overlapRegion(mesh_, cellSetNames_.at(j));
+		const labelList & cells = overlapRegion.toc();
 		for( int i=0; i < cells.size(); i++)
 		{
 			// Set the velocity to the buffer value
@@ -115,8 +121,5 @@ void preciceAdapter::Fluids::Velocity::read(double * buffer)
 			U_->ref()[cells[i]].z() = buffer[bufferIndex++];
 		}
 
-        // Skip the cells associated with the patch (their information is not needed)
-        //const labelList & cells = mesh_->boundaryMesh()[patchID].faceCells();
-        //bufferIndex += cells.size()+1;
     }
 }

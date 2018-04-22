@@ -62,6 +62,11 @@ bool preciceAdapter::Adapter::configFileCheck(const std::string adapterConfigFil
                 adapterInfo("The 'patches' node is missing for the interface #" + std::to_string(i+1) + " in " + adapterConfigFileName + ".", "warning");
                 configErrors = true;
             }
+            if (!adapterConfig["interfaces"][i]["cellSets"])
+			{
+				adapterInfo("The 'cellSets' node is missing for the interface #" + std::to_string(i+1) + " in " + adapterConfigFileName + ".", "warning");
+				configErrors = true;
+			}
             if (!adapterConfig["interfaces"][i]["write-data"])
             {
                 adapterInfo("The 'write-data' node is missing for the interface #" + std::to_string(i+1) + " in " + adapterConfigFileName + ".", "warning");
@@ -71,6 +76,14 @@ bool preciceAdapter::Adapter::configFileCheck(const std::string adapterConfigFil
             {
                 adapterInfo("The 'read-data' node is missing for the interface #" + std::to_string(i+1) + " in " + adapterConfigFileName + ".", "warning");
                 configErrors = true;
+            }
+
+            // Check that there are as many patches as cellSets for the current interface.
+            if (adapterConfig["interfaces"][i]["cellSets"].size() != adapterConfig["interfaces"][i]["patches"].size())
+            {
+            	adapterInfo("The interface #" + std::to_string(i+1) + " has " + std::to_string(adapterConfig["interfaces"][i]["cellSets"].size())
+            			+ " cellSets and " + std::to_string(adapterConfig["interfaces"][i]["patches"].size()) + " patches. The number of cellSets and patches should match");
+            	configErrors = true;
             }
         }
     }
@@ -123,6 +136,13 @@ bool preciceAdapter::Adapter::configFileRead()
             interfaceConfig.patchNames.push_back(adapterConfigInterfaces[i]["patches"][j].as<std::string>());
             DEBUG(adapterInfo("      " + adapterConfigInterfaces[i]["patches"][j].as<std::string>()));
         }
+
+        DEBUG(adapterInfo("    cellSets   : "));
+		for (uint j = 0; j < adapterConfigInterfaces[i]["cellSets"].size(); j++)
+		{
+			interfaceConfig.cellSetNames.push_back(adapterConfigInterfaces[i]["cellSets"][j].as<std::string>());
+			DEBUG(adapterInfo("      " + adapterConfigInterfaces[i]["cellSets"][j].as<std::string>()));
+		}
 
         if (adapterConfigInterfaces[i]["write-data"])
         {
@@ -270,7 +290,7 @@ try{
     DEBUG(adapterInfo("Creating interfaces..."));
     for (uint i = 0; i < interfacesConfig_.size(); i++)
     {
-        Interface * interface = new Interface(*precice_, mesh_, interfacesConfig_.at(i).meshName, interfacesConfig_.at(i).patchNames);
+        Interface * interface = new Interface(*precice_, mesh_, interfacesConfig_.at(i).meshName, interfacesConfig_.at(i).patchNames, interfacesConfig_.at(i).cellSetNames);
         interfaces_.push_back(interface);
         DEBUG(adapterInfo("Interface created on mesh" + interfacesConfig_.at(i).meshName));
 
