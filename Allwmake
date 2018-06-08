@@ -95,7 +95,7 @@ echo ""
 echo "Building with WMake (see the wmake.log log file)..."
 wmake ${ADAPTER_WMAKE_OPTIONS} libso > wmake.log 2>&1
 echo ""
-if [ $? -ne 0 ] || [ "$(grep -c -E "error" wmake.log)" -ne 0 ]; then
+if [ $? -ne 0 ] || [ "$(grep -c -E "error:" wmake.log)" -ne 0 ]; then
     echo "Building failed. See wmake.log for more."
     exit 1
 else
