@@ -111,7 +111,7 @@ void preciceAdapter::Fluids::Velocity::read(double * buffer)
         // but not applying mass correction might affect the results.
         // TODO: Do I have to create the cellSet each time? Don't they have indices or something like patches do?
 		// Maybe I can store pointers to the cellSets?
-		cellSet overlapRegion(mesh_, cellSetNames_.at(j));
+		/*cellSet overlapRegion(mesh_, cellSetNames_.at(j));
 		const labelList & cells = overlapRegion.toc();
 		for( int i=0; i < cells.size(); i++)
 		{
@@ -119,7 +119,7 @@ void preciceAdapter::Fluids::Velocity::read(double * buffer)
 			U_->ref()[cells[i]].x() = buffer[bufferIndex++];
 			U_->ref()[cells[i]].y() = buffer[bufferIndex++];
 			U_->ref()[cells[i]].z() = buffer[bufferIndex++];
-		}
+		}*/
 
     }
 }
