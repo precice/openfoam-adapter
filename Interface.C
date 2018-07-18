@@ -8,11 +8,13 @@ preciceAdapter::Interface::Interface
     precice::SolverInterface & precice,
     const fvMesh& mesh,
     std::string meshName,
+    std::string locationsType,
     std::vector<std::string> patchNames
 )
 :
 precice_(precice),
 meshName_(meshName),
+locationsType_(locationsType),
 patchNames_(patchNames)
 {
     // Get the meshID from preCICE
@@ -39,17 +41,16 @@ patchNames_(patchNames)
     }
 
     // Configure the mesh (set the data locations)
-    // TODO: Read the type from the configuration
-    configureMesh(mesh, "faceNodes");
+    configureMesh(mesh);
 }
 
-void preciceAdapter::Interface::configureMesh(const fvMesh& mesh, std::string locationsType)
+void preciceAdapter::Interface::configureMesh(const fvMesh& mesh)
 {
     // The way we configure the mesh differs between meshes based on face centers
     // and meshes based on face nodes.
     // TODO: Reduce code duplication. In the meantime, take care to update
     // all the branches.
-    if (locationsType == "faceCenters" || locationsType == "faceCentres")
+    if (locationsType_ == "faceCenters" || locationsType_ == "faceCentres")
     {
         // Count the data locations for all the patches
         for (uint j = 0; j < patchIDs_.size(); j++)
@@ -90,7 +91,7 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh, std::string lo
         // Pass the mesh vertices information to preCICE
         precice_.setMeshVertices(meshID_, numDataLocations_, vertices, vertexIDs_);
     }
-    else if (locationsType == "faceNodes")
+    else if (locationsType_ == "faceNodes")
     {
         // Count the data locations for all the patches
         for (uint j = 0; j < patchIDs_.size(); j++)
@@ -123,6 +124,7 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh, std::string lo
                 mesh.boundaryMesh()[patchIDs_.at(j)].localPoints();
 
             // Assign the (x,y,z) locations to the vertices
+            // TODO: Ensure consistent order when writing/reading
             for (int i = 0; i < faceNodes.size(); i++)
             {
                 vertices[verticesIndex++] = faceNodes[i].x();
@@ -138,7 +140,7 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh, std::string lo
     {
         FatalErrorInFunction
              << "ERROR: interface points location type "
-             << locationsType
+             << locationsType_
              << " is invalid."
              << exit(FatalError);
     }

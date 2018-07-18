@@ -65,12 +65,10 @@ bool preciceAdapter::Adapter::configFileCheck(const std::string adapterConfigFil
             if (!adapterConfig["interfaces"][i]["write-data"])
             {
                 adapterInfo("The 'write-data' node is missing for the interface #" + std::to_string(i+1) + " in " + adapterConfigFileName + ".", "warning");
-                configErrors = true;
             }
             if (!adapterConfig["interfaces"][i]["read-data"])
             {
                 adapterInfo("The 'read-data' node is missing for the interface #" + std::to_string(i+1) + " in " + adapterConfigFileName + ".", "warning");
-                configErrors = true;
             }
         }
     }
@@ -116,6 +114,14 @@ bool preciceAdapter::Adapter::configFileRead()
         struct InterfaceConfig interfaceConfig;
         interfaceConfig.meshName = adapterConfigInterfaces[i]["mesh"].as<std::string>();
         DEBUG(adapterInfo("  - mesh      : " + interfaceConfig.meshName));
+
+        // By default, assume "faceCenters" as locationsType
+        interfaceConfig.locationsType = "faceCenters";
+        if (adapterConfigInterfaces[i]["locations"])
+        {
+            interfaceConfig.locationsType = adapterConfigInterfaces[i]["locations"].as<std::string>();
+        }
+        DEBUG(adapterInfo("  - locations : " + interfaceConfig.locationsType));
 
         DEBUG(adapterInfo("    patches   : "));
         for (uint j = 0; j < adapterConfigInterfaces[i]["patches"].size(); j++)
@@ -279,7 +285,7 @@ try{
     DEBUG(adapterInfo("Creating interfaces..."));
     for (uint i = 0; i < interfacesConfig_.size(); i++)
     {
-        Interface * interface = new Interface(*precice_, mesh_, interfacesConfig_.at(i).meshName, interfacesConfig_.at(i).patchNames);
+        Interface * interface = new Interface(*precice_, mesh_, interfacesConfig_.at(i).meshName, interfacesConfig_.at(i).locationsType, interfacesConfig_.at(i).patchNames);
         interfaces_.push_back(interface);
         DEBUG(adapterInfo("Interface created on mesh " + interfacesConfig_.at(i).meshName));
 
