@@ -45,10 +45,9 @@ protected:
     //- Vector of CouplingDataWriters
     std::vector<CouplingDataUser*> couplingDataWriters_;
 
-    //- Extracts the locations of the face centers and exposes them to preCICE
-    //  with setMeshVertices
-    //  TODO: Create a mesh of nodes instead of face centers?
-    void configureMesh(const Foam::fvMesh& mesh);
+    //- Extracts the locations of the face centers or face nodes
+    //  and exposes them to preCICE with setMeshVertices
+    void configureMesh(const Foam::fvMesh& mesh, std::string locationsType);
 
 public:
 

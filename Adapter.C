@@ -281,7 +281,7 @@ try{
     {
         Interface * interface = new Interface(*precice_, mesh_, interfacesConfig_.at(i).meshName, interfacesConfig_.at(i).patchNames);
         interfaces_.push_back(interface);
-        DEBUG(adapterInfo("Interface created on mesh" + interfacesConfig_.at(i).meshName));
+        DEBUG(adapterInfo("Interface created on mesh " + interfacesConfig_.at(i).meshName));
 
         DEBUG(adapterInfo("Adding coupling data writers..."));
         for (uint j = 0; j < interfacesConfig_.at(i).writeData.size(); j++)
