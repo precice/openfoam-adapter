@@ -16,16 +16,16 @@ class Force : public CouplingDataUser
 
 private:
 
-    /* TODO: We probably need to declare some fields here,
-    /  see CHT/Temperature.H.
-    */
+    //- Force field
+    Foam::volVectorField * Force_;
 
 public:
 
     //- Constructor
     Force
     (
-        const Foam::fvMesh& mesh
+        const Foam::fvMesh& mesh,
+        const fileName& timeName // We create an IOobject and we need the time directory
         /* TODO: We should add any required field names here.
         /  They would need to be vector fields.
         /  See CHT/Temperature.H for details.
@@ -38,6 +38,9 @@ public:
 
     //- Read the displacement values from the buffer
     void read(double * buffer);
+
+    //- Destructor
+    ~Force();
 
 };
 

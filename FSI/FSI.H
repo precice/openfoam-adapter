@@ -24,6 +24,9 @@ protected:
     //- OpenFOAM fvMesh object
     const Foam::fvMesh& mesh_;
 
+    //- Time directory name
+    const fileName& timeName_;
+
     /* TODO: Declare here any parameters that should be read from
     /  the configuration file. See CHT/CHT.H for reference.
     /  We want to support in-house solvers with different field names,
@@ -38,7 +41,7 @@ protected:
 public:
 
     //- Constructor
-    FluidStructureInteraction(const Foam::fvMesh& mesh);
+    FluidStructureInteraction(const Foam::fvMesh& mesh, const fileName& timeName); // We create an IOobject and we need the time directory
 
     //- Configure
     bool configure(const YAML::Node adapterConfig);

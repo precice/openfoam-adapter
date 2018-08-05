@@ -6,10 +6,12 @@ using namespace Foam;
 
 preciceAdapter::FSI::FluidStructureInteraction::FluidStructureInteraction
 (
-    const Foam::fvMesh& mesh
+    const Foam::fvMesh& mesh,
+    const fileName& timeName
 )
 :
-mesh_(mesh)
+mesh_(mesh),
+timeName_(timeName)
 {}
 
 bool preciceAdapter::FSI::FluidStructureInteraction::configure(const YAML::Node adapterConfig)
@@ -51,7 +53,7 @@ void preciceAdapter::FSI::FluidStructureInteraction::addWriters(std::string data
         interface->addCouplingDataWriter
         (
             dataName,
-            new Force(mesh_) /* TODO: Add any other arguments here */
+            new Force(mesh_, timeName_) /* TODO: Add any other arguments here */
         );
         DEBUG(adapterInfo("Added writer: Force."));
     }
@@ -84,7 +86,7 @@ void preciceAdapter::FSI::FluidStructureInteraction::addReaders(std::string data
         interface->addCouplingDataReader
         (
             dataName,
-            new Force(mesh_) /* TODO: Add any other arguments here */
+            new Force(mesh_, timeName_) /* TODO: Add any other arguments here */
         );
         DEBUG(adapterInfo("Added reader: Force."));
     }
