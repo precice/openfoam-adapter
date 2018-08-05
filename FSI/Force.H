@@ -19,6 +19,12 @@ private:
     //- Force field
     Foam::volVectorField * Force_;
 
+    //- OpenFOAM fvMesh object (we need to access the objects' registry multiple times)
+    const Foam::fvMesh& mesh_;
+
+    //- Stress tensor (see the OpenFOAM "Forces" function object)
+    Foam::tmp<Foam::volSymmTensorField> devRhoReff() const;
+
 public:
 
     //- Constructor
