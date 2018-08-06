@@ -7,13 +7,12 @@ using namespace Foam;
 preciceAdapter::FSI::FluidStructureInteraction::FluidStructureInteraction
 (
     const Foam::fvMesh& mesh,
-    const Foam::Time& runTime,
-    const fileName& timeName
+    const Foam::Time& runTime
 )
 :
 mesh_(mesh),
 runTime_(runTime),
-timeName_(timeName)
+timeName_(runTime.timeName())
 {}
 
 bool preciceAdapter::FSI::FluidStructureInteraction::configure(const YAML::Node adapterConfig)

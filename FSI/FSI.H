@@ -45,7 +45,8 @@ protected:
 public:
 
     //- Constructor
-    FluidStructureInteraction(const Foam::fvMesh& mesh, const Foam::Time& runTime, const fileName& timeName); // We create an IOobject and we need the time directory
+    //  We need also the runTime to access the timeName and the deltaT
+    FluidStructureInteraction(const Foam::fvMesh& mesh, const Foam::Time& runTime);
 
     //- Configure
     bool configure(const YAML::Node adapterConfig);

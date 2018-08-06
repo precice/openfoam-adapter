@@ -223,7 +223,7 @@ bool preciceAdapter::Adapter::configFileRead()
 
     if (FSIenabled_)
     {
-        FSI_ = new FSI::FluidStructureInteraction(mesh_, runTime_, runTime_.timeName());
+        FSI_ = new FSI::FluidStructureInteraction(mesh_, runTime_);
         if (!FSI_->configure(adapterConfig_)) return false;
     }
 
