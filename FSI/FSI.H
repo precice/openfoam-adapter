@@ -24,7 +24,11 @@ protected:
     //- OpenFOAM fvMesh object
     const Foam::fvMesh& mesh_;
 
+    //- OpenFOAM Time object (we need to access the timestep to compute the pointMotionU)
+    const Foam::Time& runTime_;
+
     //- Time directory name
+    // TODO: If we get the whole runTime, then we don't need a separate argument for this.
     const fileName& timeName_;
 
     /* TODO: Declare here any parameters that should be read from
@@ -41,7 +45,7 @@ protected:
 public:
 
     //- Constructor
-    FluidStructureInteraction(const Foam::fvMesh& mesh, const fileName& timeName); // We create an IOobject and we need the time directory
+    FluidStructureInteraction(const Foam::fvMesh& mesh, const Foam::Time& runTime, const fileName& timeName); // We create an IOobject and we need the time directory
 
     //- Configure
     bool configure(const YAML::Node adapterConfig);
