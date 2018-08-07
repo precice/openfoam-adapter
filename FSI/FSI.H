@@ -27,10 +27,6 @@ protected:
     //- OpenFOAM Time object (we need to access the timestep to compute the pointMotionU)
     const Foam::Time& runTime_;
 
-    //- Time directory name
-    // TODO: If we get the whole runTime, then we don't need a separate argument for this.
-    const fileName& timeName_;
-
     /* TODO: Declare here any parameters that should be read from
     /  the configuration file. See CHT/CHT.H for reference.
     /  We want to support in-house solvers with different field names,

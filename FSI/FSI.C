@@ -11,8 +11,7 @@ preciceAdapter::FSI::FluidStructureInteraction::FluidStructureInteraction
 )
 :
 mesh_(mesh),
-runTime_(runTime),
-timeName_(runTime.timeName())
+runTime_(runTime)
 {}
 
 bool preciceAdapter::FSI::FluidStructureInteraction::configure(const YAML::Node adapterConfig)
@@ -54,7 +53,7 @@ void preciceAdapter::FSI::FluidStructureInteraction::addWriters(std::string data
         interface->addCouplingDataWriter
         (
             dataName,
-            new Force(mesh_, timeName_) /* TODO: Add any other arguments here */
+            new Force(mesh_, runTime_.timeName()) /* TODO: Add any other arguments here */
         );
         DEBUG(adapterInfo("Added writer: Force."));
     }
@@ -87,7 +86,7 @@ void preciceAdapter::FSI::FluidStructureInteraction::addReaders(std::string data
         interface->addCouplingDataReader
         (
             dataName,
-            new Force(mesh_, timeName_) /* TODO: Add any other arguments here */
+            new Force(mesh_, runTime_.timeName()) /* TODO: Add any other arguments here */
         );
         DEBUG(adapterInfo("Added reader: Force."));
     }
