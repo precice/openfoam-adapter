@@ -121,7 +121,7 @@ bool preciceAdapter::Adapter::configFileRead()
         {
             interfaceConfig.locationsType = adapterConfigInterfaces[i]["locations"].as<std::string>();
         }
-        DEBUG(adapterInfo("  - locations : " + interfaceConfig.locationsType));
+        DEBUG(adapterInfo("    locations : " + interfaceConfig.locationsType));
 
         DEBUG(adapterInfo("    patches   : "));
         for (uint j = 0; j < adapterConfigInterfaces[i]["patches"].size(); j++)
