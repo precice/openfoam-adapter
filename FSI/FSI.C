@@ -62,7 +62,8 @@ void preciceAdapter::FSI::FluidStructureInteraction::addWriters(std::string data
         interface->addCouplingDataWriter
         (
             dataName,
-            new Displacement(mesh_, runTime_) /* TODO: Add any other arguments here */
+            // TODO: Hard-coded number of locations! Fix!!!
+            new Displacement(mesh_, runTime_, 68) /* TODO: Add any other arguments here */
         );
         DEBUG(adapterInfo("Added writer: Displacement."));
     }
@@ -95,7 +96,8 @@ void preciceAdapter::FSI::FluidStructureInteraction::addReaders(std::string data
         interface->addCouplingDataReader
         (
             dataName,
-            new Displacement(mesh_, runTime_) /* TODO: Add any other arguments here */
+            // TODO: Hard-coded number of locations! Fix!!!
+            new Displacement(mesh_, runTime_, 68) /* TODO: Add any other arguments here */
         );
         DEBUG(adapterInfo("Added reader: Displacement."));
     }

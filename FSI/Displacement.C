@@ -5,7 +5,8 @@ using namespace Foam;
 preciceAdapter::FSI::Displacement::Displacement
 (
     const Foam::fvMesh& mesh,
-    const Foam::Time& runTime
+    const Foam::Time& runTime,
+    int numDataLocations
     /* TODO: We should add any required field names here.
     /  They would need to be vector fields.
     /  See CHT/Temperature.C for details.
@@ -13,24 +14,18 @@ preciceAdapter::FSI::Displacement::Displacement
 )
 :
 mesh_(mesh),
-runTime_(runTime)
+runTime_(runTime),
+Displ_(),
+numDataLocations_(numDataLocations)
 /* TODO: We probably need to initialize some fields here,
 /  see CHT/Temperature.C.
 */
 {
     dataType_ = vector;
 
-    // Count the data locations for all the patches
-    numDataLocations_ = 0;
-    for (uint j = 0; j < patchIDs_.size(); j++)
-    {
-        numDataLocations_ +=
-            mesh.boundaryMesh()[patchIDs_.at(j)].localPoints().size();
-    }
-
-    // Initialize displacements arrays
-    vectorField Displ_(3*numDataLocations_, Foam::vector::zero);
-    vectorField DisplOld_(3*numDataLocations_, Foam::vector::zero);
+    // Initialize the displacements arrays to zero vectors
+    Displ_ = new vectorField(numDataLocations_, Foam::vector::zero);
+    DisplOld_ = new vectorField(numDataLocations_, Foam::vector::zero);
 }
 
 void preciceAdapter::FSI::Displacement::write(double * buffer)
@@ -54,7 +49,8 @@ void preciceAdapter::FSI::Displacement::read(double * buffer)
     */
 
     // Store the previous displacements
-    DisplOld_ = Displ_;
+    // TODO: Check this
+    *DisplOld_ = *Displ_;
 
     // For every element in the buffer
     // TODO: Check if this works correctly with multiple patches
@@ -64,9 +60,10 @@ void preciceAdapter::FSI::Displacement::read(double * buffer)
     for (int i = 0; i < numDataLocations_; i++)
     {
         // TODO: Is there a x,y,z notation?
-        Displ_[i][0] = buffer[bufferIndex++];
-        Displ_[i][1] = buffer[bufferIndex++];
-        Displ_[i][2] = buffer[bufferIndex++];
+        // TODO: Why is the first [0] needed?
+        Displ_[0][i][0] = buffer[bufferIndex++];
+        Displ_[0][i][1] = buffer[bufferIndex++];
+        Displ_[0][i][2] = buffer[bufferIndex++];
     }
 
     // Get the pointMotionU
@@ -84,6 +81,6 @@ void preciceAdapter::FSI::Displacement::read(double * buffer)
         );
 
     motionUFluidPatch ==
-        (Displ_ - DisplOld_) /  runTime_.deltaT().value();
+        (Displ_[0] - DisplOld_[0]) /  runTime_.deltaT().value();
 
 }

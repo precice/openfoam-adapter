@@ -120,6 +120,7 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh)
             // TODO: Check if this is correct.
             // TODO: Check if this behaves correctly in parallel.
             // TODO: Check if this behaves correctly with multiple, connected patches.
+            // TODO: Maybe this should be a pointVectorField?
             const pointField & faceNodes =
                 mesh.boundaryMesh()[patchIDs_.at(j)].localPoints();
 

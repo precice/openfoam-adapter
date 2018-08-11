@@ -27,11 +27,15 @@ private:
     const Foam::Time& runTime_;
 
     //- Displacements
-    vectorField Displ_;
+    //  TODO: Maybe make this a pointVectorField?
+    //  TODO: Maybe make this an autoPtr?
+    vectorField * Displ_;
 
     //- Displacements from the previous timestep
     //  We need them to compute and set the pointMotionU
-    vectorField DisplOld_;
+    //  TODO: Maybe make this a pointVectorField?
+    //  TODO: Maybe make this an autoPtr?
+    vectorField * DisplOld_;
 
     // TODO: We have this information already in the Interface,
     // implement it in a better way.
@@ -43,7 +47,8 @@ public:
     Displacement
     (
         const Foam::fvMesh& mesh,
-        const Foam::Time& runTime
+        const Foam::Time& runTime,
+        int numDataLocations
         /* TODO: We should add any required field names here.
         /  They would need to be vector fields.
         /  See CHT/Temperature.H for details.
