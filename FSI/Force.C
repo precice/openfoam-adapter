@@ -48,15 +48,18 @@ Foam::tmp<Foam::volSymmTensorField> preciceAdapter::FSI::Force::devRhoReff() con
     const dictionary& transportProperties =
         mesh_.lookupObject<IOdictionary>("transportProperties");
 
+    // TODO: In the pimpleDyMFoam tutorial (v1712), this is just a double,
+    // which makes it fail.
+    // TODO: Make this more general
     dimensionedScalar nu(transportProperties.lookup("nu"));
+
+    // Get the density
+    // TODO: Make this more general
+    // TODO: This is needed also in write, reduce redundancy...
+    dimensionedScalar rho(transportProperties.lookup("rho"));
 
     // Get the velocity
     const volVectorField& U = mesh_.lookupObject<volVectorField>("U");
-
-    // Get the density
-    // TODO Check
-    // TODO This probably only works with compressible solvers
-    const volScalarField& rho = mesh_.lookupObject<volScalarField>("rho");
 
     return -rho * nu * dev(twoSymm(fvc::grad(U)));
 
@@ -87,8 +90,12 @@ void preciceAdapter::FSI::Force::write(double * buffer)
 
     // Density
     // TODO Check
-    // TODO This probably only works with compressible solvers
-    const volScalarField& rho = mesh_.lookupObject<volScalarField>("rho");
+    // TODO UGLY! BAD! STINKS!
+    /*
+    const dictionary& transportProperties =
+        mesh_.lookupObject<IOdictionary>("transportProperties");
+    dimensionedScalar rho(transportProperties.lookup("rho"));
+    */
 
     int bufferIndex = 0;
 
@@ -98,8 +105,9 @@ void preciceAdapter::FSI::Force::write(double * buffer)
         int patchID = patchIDs_.at(j);
 
         // Pressure forces
+        // TODO: HARD-CODED! FIX!!!!1!1!
         Force_->boundaryFieldRef()[patchID] =
-            Sfb[patchID] * p.boundaryField()[patchID] * rho;
+            Sfb[patchID] * p.boundaryField()[patchID] * 1; //rho;
 
         // Viscous forces
         Force_->boundaryFieldRef()[patchID] +=
