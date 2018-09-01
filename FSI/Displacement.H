@@ -6,6 +6,12 @@
 #include "fvCFD.H"
 #include "fixedValuePointPatchFields.H"
 
+// Add classes here?
+#include "pointFields.H"
+#include "vectorField.H"
+
+
+
 namespace preciceAdapter
 {
 namespace FSI
@@ -20,26 +26,9 @@ private:
     /* TODO: We probably need to declare some fields here,
     /  see CHT/Temperature.H.
     */
-    //- OpenFOAM fvMesh object (we need to access the objects' registry multiple times)
-    const Foam::fvMesh& mesh_;
-
-    //- OpenFOAM Time object (we need to access the timestep to compute the pointMotionU)
-    const Foam::Time& runTime_;
-
-    //- Displacements
-    //  TODO: Maybe make this a pointVectorField?
-    //  TODO: Maybe make this an autoPtr?
-    vectorField * Displ_;
-
-    //- Displacements from the previous timestep
-    //  We need them to compute and set the pointMotionU
-    //  TODO: Maybe make this a pointVectorField?
-    //  TODO: Maybe make this an autoPtr?
-    vectorField * DisplOld_;
-
-    // TODO: We have this information already in the Interface,
-    // implement it in a better way.
-    int numDataLocations_;
+   
+    // Displacement pointVectorField
+    Foam::pointVectorField * pointDisplacement_;
 
 public:
 
@@ -47,8 +36,7 @@ public:
     Displacement
     (
         const Foam::fvMesh& mesh,
-        const Foam::Time& runTime,
-        int numDataLocations
+        const std::string namePointDisplacement
         /* TODO: We should add any required field names here.
         /  They would need to be vector fields.
         /  See CHT/Temperature.H for details.
@@ -62,6 +50,9 @@ public:
     //- Read the displacement values from the buffer
     void read(double * buffer);
 
+    // TODO. needs destructor?
+    //- Destructor???
+    // ~Displacment();
 };
 
 }

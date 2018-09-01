@@ -58,8 +58,10 @@ Foam::tmp<Foam::volSymmTensorField> preciceAdapter::FSI::Force::devRhoReff() con
     // TODO: This is needed also in write, reduce redundancy...
     dimensionedScalar rho(transportProperties.lookup("rho"));
 
+
     // Get the velocity
     const volVectorField& U = mesh_.lookupObject<volVectorField>("U");
+    // Info<< endl << "The shear is " << -rho * nu * dev(twoSymm(fvc::grad(U))) << endl << endl;
 
     return -rho * nu * dev(twoSymm(fvc::grad(U)));
 
@@ -83,10 +85,11 @@ void preciceAdapter::FSI::Force::write(double * buffer)
     // Stress tensor boundary field
     const volSymmTensorField::Boundary& devRhoReffb =
         tdevRhoReff().boundaryField();
-
+   
     // Pressure
     const volScalarField& p =
         mesh_.lookupObject<volScalarField>("p");
+
 
     // Density
     // TODO Check
@@ -99,6 +102,8 @@ void preciceAdapter::FSI::Force::write(double * buffer)
 
     int bufferIndex = 0;
 
+    // Info<<  Force_->boundaryFieldRef()[patchIDs_[0]]<< endl;
+    
     // For every boundary patch of the interface
     for (uint j = 0; j < patchIDs_.size(); j++)
     {
@@ -106,12 +111,14 @@ void preciceAdapter::FSI::Force::write(double * buffer)
 
         // Pressure forces
         // TODO: HARD-CODED! FIX!!!!1!1!
+            // ACTUALLY, THE ONE IS CORRECT. THE PRESSURE IS THE PRESSURE TIMES Sfb
         Force_->boundaryFieldRef()[patchID] =
-            Sfb[patchID] * p.boundaryField()[patchID] * 1; //rho;
+            Sfb[patchID] * p.boundaryField()[patchID]; //rho;
 
         // Viscous forces
+            // PUT TO ZERO FOR NOW. 
         Force_->boundaryFieldRef()[patchID] +=
-            Sfb[patchID] & devRhoReffb[patchID];
+            Sfb[patchID] & devRhoReffb[patchID]; // * 0.;
 
         // Write the forces to the preCICE buffer
         // For every cell of the patch
