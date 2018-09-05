@@ -46,15 +46,6 @@ bool preciceAdapter::FSI::FluidStructureInteraction::readConfig(const YAML::Node
     DEBUG(adapterInfo("    pointDisplacement field name : " + namePointDisplacement_));
 
 
-           // Read the name of the velocity field (if different)
-    if (adapterConfig["nameU"])
-    {
-        nameU_ = adapterConfig["nameU"].as<std::string>();
-    }
-    DEBUG(adapterInfo("    Velocity field name : " + nameU_));
-
-
-
     return true;
 }
 
@@ -115,8 +106,6 @@ void preciceAdapter::FSI::FluidStructureInteraction::addReaders(std::string data
         interface->addCouplingDataReader
         (
             dataName,
-            // TODO: Hard-coded number of locations! Fix!!!
-            // new Displacement(mesh_, runTime_, 162) /* TODO: Add any other arguments here */
             new Displacement(mesh_, namePointDisplacement_) /* TODO: Add any other arguments here */
         );
         DEBUG(adapterInfo("Added reader: Displacement."));

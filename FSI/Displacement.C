@@ -69,7 +69,8 @@ void preciceAdapter::FSI::Displacement::read(double * buffer)
         int patchID = patchIDs_.at(j);
 
 
-        fixedValuePointPatchVectorField& pointDisplacementFluidPatch = refCast<fixedValuePointPatchVectorField>
+        fixedValuePointPatchVectorField& pointDisplacementFluidPatch = 
+            refCast<fixedValuePointPatchVectorField>
             (
                 pointDisplacement_->boundaryFieldRef()[patchID]
             );
