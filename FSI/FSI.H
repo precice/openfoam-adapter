@@ -31,7 +31,7 @@ protected:
     std::string namePointDisplacement_ = "pointDisplacement";
 
     //- Name of the velocity field
-    std::string nameU_ = "U";
+    std::string nameVelocity_ = "U";
 
     /* TODO: Declare here any parameters that should be read from
     /  the configuration file. See CHT/CHT.H for reference.
@@ -41,7 +41,7 @@ protected:
 
 protected:
 
-    //- Read the FSI-related options from the adapter's configuraiton file
+    //- Read the FSI-related options from the adapter's configuration file
     bool readConfig(const YAML::Node adapterConfig);
 
 public:

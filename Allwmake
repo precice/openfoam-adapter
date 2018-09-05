@@ -5,6 +5,7 @@ cd ${0%/*} || exit 1    # Run from this directory
 # preCICE root path (should be already globally set)
 ADAPTER_PRECICE_ROOT="${PRECICE_ROOT}"
 
+source .sourceYAML
 ## preCICE as a static library?
 # If you use preCICE as a static library, then you also need to
 # specify its dependncies.
@@ -25,6 +26,7 @@ ADAPTER_PREP_FLAGS="-DADAPTER_DEBUG_MODE"
 ADAPTER_WMAKE_OPTIONS=""
 
 # Where should the adapter be built? Default: "${FOAM_USER_LIBBIN}"
+# ADAPTER_TARGET_DIR="/home/derek/dummy-openfoam-adapter/lib" 
 ADAPTER_TARGET_DIR="${FOAM_USER_LIBBIN}"
 ################################################################################
 
@@ -82,19 +84,19 @@ echo ""
 
 # Run wmake (build the adapter) and check the exit code
 echo "Building with WMake (see the wmake.log log file)..."
-wmake ${ADAPTER_WMAKE_OPTIONS} libso > wmake.log 2>&1
-echo ""
-if [ $? -ne 0 ] || [ "$(grep -c -E "error" wmake.log)" -ne 0 ]; then
-    echo "Building failed. See wmake.log for more."
-else
-    ADAPTER_WMAKE_UNDEFINED_SYMBOLS=$(grep -c -E "undefined|not defined" wmake.log)
-    ldd -r ${ADAPTER_TARGET_DIR}/libpreciceAdapterFunctionObject.so > ldd.log 2>&1
-    ADAPTER_LD_UNDEFINED_SYMBOLS=$(grep -c -E "undefined|not defined" ldd.log)
-    if [ "${ADAPTER_WMAKE_UNDEFINED_SYMBOLS}" -gt 0 ] || [ "${ADAPTER_LD_UNDEFINED_SYMBOLS}" -gt 0 ]; then
-        echo "Building completed with linking problems: there were undefined symbols. See wmake.log and ldd.log for more."
-        echo "If preCICE is only build as a static library, please set the ADAPTER_PRECICE_DEP in this script appropriately (see comments)."
-    else
-        echo "Building completed successfully!"
-        echo "Next step: Run an example from the tutorials/ directory."
-    fi
-fi
+wmake ${ADAPTER_WMAKE_OPTIONS} libso # > wmake.log 2>&1
+# echo ""
+# if [ $? -ne 0 ] || [ "$(grep -c -E "error" wmake.log)" -ne 0 ]; then
+#     echo "Building failed. See wmake.log for more."
+# else
+#     ADAPTER_WMAKE_UNDEFINED_SYMBOLS=$(grep -c -E "undefined|not defined" wmake.log)
+#     ldd -r ${ADAPTER_TARGET_DIR}/libpreciceAdapterFunctionObject.so > ldd.log 2>&1
+#     ADAPTER_LD_UNDEFINED_SYMBOLS=$(grep -c -E "undefined|not defined" ldd.log)
+#     if [ "${ADAPTER_WMAKE_UNDEFINED_SYMBOLS}" -gt 0 ] || [ "${ADAPTER_LD_UNDEFINED_SYMBOLS}" -gt 0 ]; then
+#         echo "Building completed with linking problems: there were undefined symbols. See wmake.log and ldd.log for more."
+#         echo "If preCICE is only build as a static library, please set the ADAPTER_PRECICE_DEP in this script appropriately (see comments)."
+#     else
+#         echo "Building completed successfully!"
+#         echo "Next step: Run an example from the tutorials/ directory."
+#     fi
+# fi

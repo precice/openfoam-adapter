@@ -47,11 +47,11 @@ bool preciceAdapter::FSI::FluidStructureInteraction::readConfig(const YAML::Node
 
 
            // Read the name of the velocity field (if different)
-    if (adapterConfig["nameU"])
+    if (adapterConfig["nameVelocity"])
     {
-        nameU_ = adapterConfig["nameU"].as<std::string>();
+        nameVelocity_ = adapterConfig["nameVelocity"].as<std::string>();
     }
-    DEBUG(adapterInfo("    Velocity field name : " + nameU_));
+    DEBUG(adapterInfo("    Velocity field name : " + nameVelocity_));
 
 
 
@@ -85,6 +85,15 @@ void preciceAdapter::FSI::FluidStructureInteraction::addWriters(std::string data
         );
         DEBUG(adapterInfo("Added writer: Displacement."));
     }
+    else if (dataName.find("Velocity") == 0)
+    {
+        interface->addCouplingDataWriter
+        (
+            dataName,
+            new Force(mesh_, nameVelocity_) /* TODO: Add any other arguments here */
+        );
+        DEBUG(adapterInfo("Added writer: Velocity."));
+    }
     
 
     // NOTE: If you want to couple another variable, you need
@@ -115,13 +124,22 @@ void preciceAdapter::FSI::FluidStructureInteraction::addReaders(std::string data
         interface->addCouplingDataReader
         (
             dataName,
-            // TODO: Hard-coded number of locations! Fix!!!
-            // new Displacement(mesh_, runTime_, 162) /* TODO: Add any other arguments here */
             new Displacement(mesh_, namePointDisplacement_) /* TODO: Add any other arguments here */
         );
         DEBUG(adapterInfo("Added reader: Displacement."));
     }
-    
+    else if (dataName.find("Velocity") == 0)
+    {
+        interface->addCouplingDataReader
+        (
+            dataName,
+            // TODO: Hard-coded number of locations! Fix!!!
+            // new Displacement(mesh_, runTime_, 162) /* TODO: Add any other arguments here */
+            new Displacement(mesh_, nameVelocity_) /* TODO: Add any other arguments here */
+        );
+        DEBUG(adapterInfo("Added reader: Velocity."));
+    }
+
     // NOTE: If you want to couple another variable, you need
     // to add your new coupling data user as a coupling data
     // writer here (and as a writer above).
