@@ -49,7 +49,7 @@ void preciceAdapter::FSI::Displacement::write(double * buffer)
         << exit(FatalError);
 }
 
-
+// return the displacement to use later in the velocity?
 void preciceAdapter::FSI::Displacement::read(double * buffer)
 {
     /* TODO: Implement

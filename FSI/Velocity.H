@@ -4,7 +4,9 @@
 #include "CouplingDataUser.H"
 
 #include "fvCFD.H"
-
+#include "primitivePatchInterpolation.H"
+#include "fixedValuePointPatchFields.H"
+// #include "Displacement.H"
 
 namespace preciceAdapter
 {
@@ -22,19 +24,49 @@ private:
     */
     
     //- OpenFOAM fvMesh object (we need to access the objects' registry multiple times)
-    // const Foam::fvMesh& mesh_;
+    const Foam::fvMesh& mesh_;
 
     // Get the runTime
     const Foam::Time& runTime_;
 
     // Displacement
-    double * Displ_;
+    // double * Displ_;
 
     //- displacement from the previous timestep
-    double * DisplOld_;
+    // double * DisplOld_;
+    
+    Foam::pointVectorField * pointDisplacement_;
 
+    Foam::vectorField * faceDisplacement_;
+
+    Foam::vectorField * faceDisplacementOld_;
+    // mutable autoPtr<PrimitivePatchInterpolation<primitivePatch>> patchInterpolatorPointer_;
+
+    // //- Owner side patch interpolation
+    // const PrimitivePatchInterpolation<primitivePatch>& patchInterpolator() const
+    // {
+    //     patchInterpolatorPointer_.reset
+    //     (
+    //         new PrimitivePatchInterpolation<primitivePatch>
+    //         (
+    //             pointDisplacement_->boundaryFieldRef()
+    //         )
+    //     );
+    //     return patchInterpolatorPointer_();
+    // }
+    
     // Velocity volVectorField
-    Foam::volVectorField * Velocity_;
+    Foam::volVectorField * velocity_;
+
+    // mutable autoPtr<PrimitivePatchInterpolation<pointVectorField>> ppiPtr_;
+    // const PrimitivePatchInterpolation<pointVectorField>& ppi() const
+    // {
+    //     new PrimitivePatchInterpolation<pointVectorField>
+    //         (
+    //             pointDisplacement_.boundaryField()
+    //         )
+    //     return ppiPtr_();
+    // }
 
 
 public:

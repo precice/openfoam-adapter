@@ -31,7 +31,7 @@ private:
     Foam::pointVectorField * pointDisplacement_;
 
 public:
-
+    
     //- Constructor
     Displacement
     (

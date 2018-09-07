@@ -112,7 +112,7 @@ void preciceAdapter::FSI::Force::write(double * buffer)
         // Pressure forces
         // TODO: HARD-CODED! FIX!!!!1!1!
         Force_->boundaryFieldRef()[patchID] =
-            Sfb[patchID] * p.boundaryField()[patchID]* 1; //rho;
+            Sfb[patchID] * p.boundaryField()[patchID]* 1.; //rho;
 
         // Viscous forces
         Force_->boundaryFieldRef()[patchID] +=
