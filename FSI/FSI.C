@@ -38,6 +38,14 @@ bool preciceAdapter::FSI::FluidStructureInteraction::readConfig(const YAML::Node
     /* TODO: Read the names of any needed fields and parameters.
     */
 
+           // Read the name of the pointDisplacement field (if different)
+    if (adapterConfig["namePointDisplacement"])
+    {
+        namePointDisplacement_ = adapterConfig["namePointDisplacement"].as<std::string>();
+    }
+    DEBUG(adapterInfo("    pointDisplacement field name : " + namePointDisplacement_));
+
+
     return true;
 }
 
@@ -63,10 +71,12 @@ void preciceAdapter::FSI::FluidStructureInteraction::addWriters(std::string data
         (
             dataName,
             // TODO: Hard-coded number of locations! Fix!!!
-            new Displacement(mesh_, runTime_, 68) /* TODO: Add any other arguments here */
+            // new Displacement(mesh_, runTime_, 162) /* TODO: Add any other arguments here */
+            new Displacement(mesh_, namePointDisplacement_) /* TODO: Add any other arguments here */
         );
         DEBUG(adapterInfo("Added writer: Displacement."));
     }
+    
 
     // NOTE: If you want to couple another variable, you need
     // to add your new coupling data user as a coupling data
@@ -96,12 +106,11 @@ void preciceAdapter::FSI::FluidStructureInteraction::addReaders(std::string data
         interface->addCouplingDataReader
         (
             dataName,
-            // TODO: Hard-coded number of locations! Fix!!!
-            new Displacement(mesh_, runTime_, 68) /* TODO: Add any other arguments here */
+            new Displacement(mesh_, namePointDisplacement_) /* TODO: Add any other arguments here */
         );
         DEBUG(adapterInfo("Added reader: Displacement."));
     }
-
+    
     // NOTE: If you want to couple another variable, you need
     // to add your new coupling data user as a coupling data
     // writer here (and as a writer above).
