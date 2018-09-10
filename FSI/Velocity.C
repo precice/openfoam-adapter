@@ -14,8 +14,8 @@ preciceAdapter::FSI::Velocity::Velocity
     */
 )
 :
-runTime_(runTime),
 mesh_(mesh),
+runTime_(runTime),
 velocity_(
     const_cast<volVectorField*>
     (
@@ -102,7 +102,6 @@ void preciceAdapter::FSI::Velocity::read(double * buffer)
             patchInterpolator.pointToFaceInterpolate(pointDisplacementPatch);
 
 
-       
         // This displacement only works without subcycling
         // For subcycling this function must be called every timestep with some approximation. 
         // loop over the cells of the patch

@@ -35,7 +35,7 @@ private:
     //- displacement from the previous timestep
     // double * DisplOld_;
     
-    Foam::pointVectorField * pointDisplacement_;
+    // Foam::pointVectorField * pointDisplacement_;
 
     Foam::vectorField * faceDisplacement_;
 
