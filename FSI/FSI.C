@@ -79,8 +79,6 @@ void preciceAdapter::FSI::FluidStructureInteraction::addWriters(std::string data
         interface->addCouplingDataWriter
         (
             dataName,
-            // TODO: Hard-coded number of locations! Fix!!!
-            // new Displacement(mesh_, runTime_, 162) /* TODO: Add any other arguments here */
             new Displacement(mesh_, namePointDisplacement_) /* TODO: Add any other arguments here */
         );
         DEBUG(adapterInfo("Added writer: Displacement."));
@@ -90,7 +88,7 @@ void preciceAdapter::FSI::FluidStructureInteraction::addWriters(std::string data
         interface->addCouplingDataWriter
         (
             dataName,
-            new Force(mesh_, nameVelocity_) /* TODO: Add any other arguments here */
+            new Velocity(mesh_, runTime_, nameVelocity_) /* TODO: Add any other arguments here */
         );
         DEBUG(adapterInfo("Added writer: Velocity."));
     }
@@ -110,6 +108,7 @@ void preciceAdapter::FSI::FluidStructureInteraction::addReaders(std::string data
     /  If different coupling data users per solver type are defined,
     /  we need to check for that here.
     */
+
     if (dataName.find("Force") == 0)
     {
         interface->addCouplingDataReader
@@ -133,9 +132,7 @@ void preciceAdapter::FSI::FluidStructureInteraction::addReaders(std::string data
         interface->addCouplingDataReader
         (
             dataName,
-            // TODO: Hard-coded number of locations! Fix!!!
-            // new Displacement(mesh_, runTime_, 162) /* TODO: Add any other arguments here */
-            new Displacement(mesh_, nameVelocity_) /* TODO: Add any other arguments here */
+            new Velocity(mesh_, runTime_, nameVelocity_) /* TODO: Add any other arguments here */
         );
         DEBUG(adapterInfo("Added reader: Velocity."));
     }

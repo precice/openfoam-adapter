@@ -51,15 +51,18 @@ void preciceAdapter::FSI::Velocity::read(double * buffer)
     * FOR NOW ONLY WORKS IF THE DISPLACEMENT FIELD IS ALREADY UPDATED. 
     * Make this function not dependent on the buffer, but rather on the faceDisplacement
     * This can be a function in the displacement.C
-    * Create velocity interpolation
     */
+
+    // check if the function needs to be called. 
+
+    Info<< endl << "Velocity computation" << endl << endl;
+
 
     *faceDisplacementOld_ = *faceDisplacement_; 
 
-    // TODO: Check this
-    // DisplOld_ = Displ_;
-    // *Displ_ = *buffer;      // write for next timestep
-
+    // Save the time at the faceDisplacement time
+    // *timeOld_ = *time_
+    
     // For every element in the buffer
     // TODO: Check if this works correctly with multiple patches
     

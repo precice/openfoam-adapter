@@ -5,6 +5,7 @@
 
 #include "FSI/Displacement.H"
 #include "FSI/Force.H"
+#include "FSI/Velocity.H"
 
 #include "fvCFD.H"
 
