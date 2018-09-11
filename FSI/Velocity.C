@@ -16,6 +16,8 @@ preciceAdapter::FSI::Velocity::Velocity
 :
 mesh_(mesh),
 runTime_(runTime),
+time_(0.0),
+timeOld_(0.0),
 velocity_(
     const_cast<volVectorField*>
     (
@@ -26,8 +28,46 @@ velocity_(
     dataType_ = vector;
 
     // Initialize the Displacement arrays to zero vectors. This is still quite ugly
-    faceDisplacement_ = new vectorField(velocity_->boundaryFieldRef().size()*3, Foam::vector::zero);
-    faceDisplacementOld_ = new vectorField(velocity_->boundaryFieldRef().size()*3, Foam::vector::zero);
+    // faceDisplacement_ = new vectorField(velocity_->boundaryFieldRef().size()*3, Foam::vector::zero);
+    // faceDisplacementOld_ = new vectorField(velocity_->boundaryFieldRef().size()*3, Foam::vector::zero);
+
+    faceDisplacement_ = new volVectorField
+    (
+        IOobject
+        (
+            "faceDisplacement",
+            runTime_.timeName(),
+            mesh,
+            IOobject::NO_READ,
+            IOobject::NO_WRITE
+        ),
+        mesh,
+        dimensionedVector
+        (
+            "lengthdim",
+            dimensionSet(0,1,0,0,0,0,0),
+            Foam::vector::zero
+        )
+    );
+
+    faceDisplacementOld_ =  new volVectorField
+    (
+        IOobject
+        (
+            "faceDisplacement",
+            runTime_.timeName(),
+            mesh,
+            IOobject::NO_READ,
+            IOobject::NO_WRITE
+        ),
+        mesh,
+        dimensionedVector
+        (
+            "lengthdim",
+            dimensionSet(0,1,0,0,0,0,0),
+            Foam::vector::zero
+        )
+    );
 }
 
 
@@ -49,29 +89,23 @@ void preciceAdapter::FSI::Velocity::read(double * buffer)
 {
     /* TODO: Implement
     * FOR NOW ONLY WORKS IF THE DISPLACEMENT FIELD IS ALREADY UPDATED. 
-    * Make this function not dependent on the buffer, but rather on the faceDisplacement
-    * This can be a function in the displacement.C
+    * check $FOAM_SRC/finiteVolume/fields/fvPatchFields/derived/movingWallVelocity
     */
 
     // check if the function needs to be called. 
-
-    Info<< endl << "Velocity computation" << endl << endl;
-
+    timeOld_ = time_; 
+    time_ = runTime_.value();
+   
+    Info << nl << "times" << timeOld_ << " " << time_ << endl << endl;
 
     *faceDisplacementOld_ = *faceDisplacement_; 
 
     // Save the time at the faceDisplacement time
-    // *timeOld_ = *time_
-    
-    // For every element in the buffer
-    // TODO: Check if this works correctly with multiple patches
-    
-    // int bufferIndex = 0;
 
     // Use the following function
     //tmp<Field<Type>> PrimitivePatchInterpolation<Patch>::pointToFaceInterpolate
 
-        // Get the pointdisplacement (HACK)
+    // Get the pointdisplacement (preferably get this in another way.)
     pointVectorField& pointDisplacement_ =
         const_cast<pointVectorField&>
         (
@@ -83,72 +117,50 @@ void preciceAdapter::FSI::Velocity::read(double * buffer)
     {
         int patchID = patchIDs_.at(j);
 
-
-        // Get the pointMotionU
-        volVectorField& velocityPatch =
-           refCast<volVectorField>
+        // Get the patchvelocity . (fixedValueFvPatchVectorField)
+        vectorField& velocityPatch =
+           refCast<vectorField>
             (
                 velocity_->boundaryFieldRef()[patchID]
             );
 
-        fixedValuePointPatchVectorField& pointDisplacementPatch = 
-            refCast<fixedValuePointPatchVectorField>
+        // get the pointPatchDisplacement. (fixedValuePointPatchVectorField)
+        vectorField& pointPatchDisplacement_ = 
+            refCast<vectorField>
             (
                 pointDisplacement_.boundaryFieldRef()[patchID]
             );
+ 
+        // get the facePatchDisplacement (fixedValueFvPatchVectorField)
+        vectorField& facePatchDisplacement_ = 
+            refCast<vectorField>
+            (
+                faceDisplacement_->boundaryFieldRef()[patchID]
+            );
 
+        // get the old facePatchDisplacement (fixedValueFvPatchVectorField)
+        vectorField& facePatchDisplacementOld_ = 
+            refCast<vectorField>
+            (
+                faceDisplacementOld_->boundaryFieldRef()[patchID]
+            );
 
+        // Define interpolator: patchInterpolator
         primitivePatchInterpolation patchInterpolator(mesh_.boundaryMesh()[patchID] );
 
-        faceDisplacement_[patchID]
+        // Interpolate from the points to the faces. 
+        facePatchDisplacement_
             =
-            patchInterpolator.pointToFaceInterpolate(pointDisplacementPatch);
-
+            patchInterpolator.pointToFaceInterpolate(pointPatchDisplacement_);
 
         // This displacement only works without subcycling
         // For subcycling this function must be called every timestep with some approximation. 
         // loop over the cells of the patch
         forAll(velocity_->boundaryFieldRef()[patchID], i)
         {
-            velocityPatch[i][0] = (faceDisplacement_[patchID][i][0] - faceDisplacementOld_[patchID][i][0]) / runTime_.deltaT().value();
-            velocityPatch[i][1] = (faceDisplacement_[patchID][i][1] - faceDisplacementOld_[patchID][i][1]) / runTime_.deltaT().value();
-            velocityPatch[i][2] = (faceDisplacement_[patchID][i][2] - faceDisplacementOld_[patchID][i][2]) / runTime_.deltaT().value();
+            velocityPatch[i][0] = (facePatchDisplacement_[i][0] - facePatchDisplacementOld_[i][0]) / (time_ - timeOld_);
+            velocityPatch[i][1] = (facePatchDisplacement_[i][1] - facePatchDisplacementOld_[i][1]) / (time_ - timeOld_);
+            velocityPatch[i][2] = (facePatchDisplacement_[i][2] - facePatchDisplacementOld_[i][2]) / (time_ - timeOld_);
         }
-        
-
-
-
-        // Field<fixedValuePointPatchVectorField> velocityPatch(ppi().pointToFaceInterpolate(pointDisplacementFluidPatch));
-       
-        // velocity_->boundaryFieldRef()[patchID]
-        //     =
-        //     PrimitivePatchInterpolation<primitivePatch>::faceToPointInterpolate
-        //         (
-        //             const <fixedValuePointPatchVectorField> 
-        //              pointDisplacementFluidPatch
-        //         );
-            // tmp<pointDisplacementFluidPatch<fixedValuePointPatchVectorField>> 
-
-
-        // velocity_->boundaryFieldRef()[patchID]
-        //     (
-        //         patchInterpolator().pointToFaceInterpolate
-        //         (            (
-        //             pointDisplacement_.boundaryFieldRef()[patchID]
-        //         )
-        //      );
-
-
-            // Set the buffer as the pointdisplacement value
-            // velocityPatch[i][0] = (Displ_[bufferIndex] - DisplOld_[bufferIndex]) 
-            // / runTime_.deltaT().value();
-            // bufferIndex++;
-            // velocityPatch[i][1] = (Displ_[bufferIndex] - DisplOld_[bufferIndex]) / runTime_.deltaT().value();
-            // bufferIndex++;
-            // velocityPatch[i][2] = (Displ_[bufferIndex] - DisplOld_[bufferIndex]) / runTime_.deltaT().value();
-            // bufferIndex++;
-        // }
-    
-
     }
 }

@@ -10,7 +10,7 @@
 #include "pointFields.H"
 #include "vectorField.H"
 
-
+#include "Velocity.H"
 
 namespace preciceAdapter
 {

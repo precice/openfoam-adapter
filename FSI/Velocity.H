@@ -5,7 +5,12 @@
 
 #include "fvCFD.H"
 #include "primitivePatchInterpolation.H"
+
 #include "fixedValuePointPatchFields.H"
+#include "fvPatchFields.H"
+#include "fixedValueFvPatchFields.H"
+#include "fixedValueFvPatchFields.H"
+
 // #include "Displacement.H"
 
 namespace preciceAdapter
@@ -37,9 +42,9 @@ private:
     
     // Foam::pointVectorField * pointDisplacement_;
 
-    Foam::vectorField * faceDisplacement_;
+    Foam::volVectorField * faceDisplacement_;
 
-    Foam::vectorField * faceDisplacementOld_;
+    Foam::volVectorField * faceDisplacementOld_;
     // mutable autoPtr<PrimitivePatchInterpolation<primitivePatch>> patchInterpolatorPointer_;
 
     // //- Owner side patch interpolation
@@ -54,9 +59,13 @@ private:
     //     );
     //     return patchInterpolatorPointer_();
     // }
-    
+    Foam::scalar time_;
+    Foam::scalar timeOld_;
     // Velocity volVectorField
     Foam::volVectorField * velocity_;
+
+
+
 
     // mutable autoPtr<PrimitivePatchInterpolation<pointVectorField>> ppiPtr_;
     // const PrimitivePatchInterpolation<pointVectorField>& ppi() const

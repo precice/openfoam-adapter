@@ -126,9 +126,9 @@ void preciceAdapter::FSI::FluidStructureInteraction::addReaders(std::string data
             new Displacement(mesh_, namePointDisplacement_) /* TODO: Add any other arguments here */
         );
         DEBUG(adapterInfo("Added reader: Displacement."));
-    }
-    else if (dataName.find("Velocity") == 0)
-    {
+    // }
+    // else if (dataName.find("Velocity") == 0)
+    // {
         interface->addCouplingDataReader
         (
             dataName,

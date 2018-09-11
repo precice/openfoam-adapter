@@ -28,15 +28,6 @@ pointDisplacement_(
 }
 
 
-/*    (mesh),
-runTime_(runTime),
-Displ_(),
-numDataLocations_(numDataLocations)
-*//* TODO: We probably need to initialize some fields here,
-/  see CHT/Temperature.C.
-*/
-
-
 void preciceAdapter::FSI::Displacement::write(double * buffer)
 {
     /* TODO: Implement

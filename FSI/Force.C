@@ -107,6 +107,7 @@ void preciceAdapter::FSI::Force::write(double * buffer)
     {
         int patchID = patchIDs_.at(j);
 
+        Info<< endl << "force patchID " << patchID << endl << endl;
         // Pressure forces
         // TODO: HARD-CODED! FIX!!!!1!1!
         Force_->boundaryFieldRef()[patchID] =
