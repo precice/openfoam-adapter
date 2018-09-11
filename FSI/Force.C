@@ -89,8 +89,6 @@ void preciceAdapter::FSI::Force::write(double * buffer)
     const volScalarField& p =
         mesh_.lookupObject<volScalarField>("p");
 
-    Info<< endl << "Force computation" << endl << endl;
-
     // Density
     // TODO Check
     // TODO UGLY! BAD! STINKS!
@@ -107,7 +105,6 @@ void preciceAdapter::FSI::Force::write(double * buffer)
     {
         int patchID = patchIDs_.at(j);
 
-        Info<< endl << "force patchID " << patchID << endl << endl;
         // Pressure forces
         // TODO: HARD-CODED! FIX!!!!1!1!
         Force_->boundaryFieldRef()[patchID] =

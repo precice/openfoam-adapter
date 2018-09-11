@@ -95,8 +95,6 @@ void preciceAdapter::FSI::Velocity::read(double * buffer)
     // check if the function needs to be called. 
     timeOld_ = time_; 
     time_ = runTime_.value();
-   
-    Info << nl << "times" << timeOld_ << " " << time_ << endl << endl;
 
     *faceDisplacementOld_ = *faceDisplacement_; 
 

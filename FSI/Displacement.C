@@ -49,8 +49,6 @@ void preciceAdapter::FSI::Displacement::read(double * buffer)
     * See the preCICE readBlockVectorData() implementation.
     */
 
-    Info<< endl << "Displacement computation" << endl << endl;
-
     // For every element in the buffer
     // TODO: Check if this works correctly with multiple patches
     int bufferIndex = 0;
