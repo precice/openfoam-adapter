@@ -54,7 +54,7 @@ velocity_(
     (
         IOobject
         (
-            "faceDisplacement",
+            "faceDisplacement_old",
             runTime_.timeName(),
             mesh,
             IOobject::NO_READ,
@@ -69,8 +69,6 @@ velocity_(
         )
     );
 }
-
-
 
 void preciceAdapter::FSI::Velocity::write(double * buffer)
 {
