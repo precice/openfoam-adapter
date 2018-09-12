@@ -5,6 +5,7 @@
 
 #include "FSI/Displacement.H"
 #include "FSI/Force.H"
+#include "FSI/Velocity.H"
 
 #include "fvCFD.H"
 
@@ -27,6 +28,12 @@ protected:
     //- OpenFOAM Time object (we need to access the timestep to compute the pointMotionU)
     const Foam::Time& runTime_;
 
+    //- Name of the pointDisplacement field
+    std::string namePointDisplacement_ = "pointDisplacement";
+
+    //- Name of the velocity field
+    std::string nameVelocity_ = "U";
+
     /* TODO: Declare here any parameters that should be read from
     /  the configuration file. See CHT/CHT.H for reference.
     /  We want to support in-house solvers with different field names,
@@ -35,7 +42,7 @@ protected:
 
 protected:
 
-    //- Read the FSI-related options from the adapter's configuraiton file
+    //- Read the FSI-related options from the adapter's configuration file
     bool readConfig(const YAML::Node adapterConfig);
 
 public:

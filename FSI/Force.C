@@ -58,6 +58,7 @@ Foam::tmp<Foam::volSymmTensorField> preciceAdapter::FSI::Force::devRhoReff() con
     // TODO: This is needed also in write, reduce redundancy...
     dimensionedScalar rho(transportProperties.lookup("rho"));
 
+
     // Get the velocity
     const volVectorField& U = mesh_.lookupObject<volVectorField>("U");
 
@@ -83,7 +84,7 @@ void preciceAdapter::FSI::Force::write(double * buffer)
     // Stress tensor boundary field
     const volSymmTensorField::Boundary& devRhoReffb =
         tdevRhoReff().boundaryField();
-
+   
     // Pressure
     const volScalarField& p =
         mesh_.lookupObject<volScalarField>("p");
@@ -107,7 +108,7 @@ void preciceAdapter::FSI::Force::write(double * buffer)
         // Pressure forces
         // TODO: HARD-CODED! FIX!!!!1!1!
         Force_->boundaryFieldRef()[patchID] =
-            Sfb[patchID] * p.boundaryField()[patchID] * 1; //rho;
+            Sfb[patchID] * p.boundaryField()[patchID]* 1.; //rho;
 
         // Viscous forces
         Force_->boundaryFieldRef()[patchID] +=
