@@ -159,3 +159,11 @@ void preciceAdapter::FSI::Velocity::read(double * buffer)
         }
     }
 }
+
+
+preciceAdapter::FSI::Velocity::~Velocity()
+{
+    // TODO: Is this enough?
+    delete faceDisplacement_;
+    delete faceDisplacementOld_;
+}

@@ -67,8 +67,8 @@ public:
     void read(double * buffer);
 
     // TODO. needs destructor?
-    //- Destructor???
-    // ~Velocity();
+    // virtual or nothing in front
+    virtual ~Velocity();
 
 };
 
