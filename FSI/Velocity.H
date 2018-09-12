@@ -33,50 +33,17 @@ private:
 
     // Get the runTime
     const Foam::Time& runTime_;
-
-    // Displacement
-    // double * Displ_;
-
-    //- displacement from the previous timestep
-    // double * DisplOld_;
     
-    // Foam::pointVectorField * pointDisplacement_;
-
+    // set up te displacement at the faces.
     Foam::volVectorField * faceDisplacement_;
-
     Foam::volVectorField * faceDisplacementOld_;
-    // mutable autoPtr<PrimitivePatchInterpolation<primitivePatch>> patchInterpolatorPointer_;
 
-    // //- Owner side patch interpolation
-    // const PrimitivePatchInterpolation<primitivePatch>& patchInterpolator() const
-    // {
-    //     patchInterpolatorPointer_.reset
-    //     (
-    //         new PrimitivePatchInterpolation<primitivePatch>
-    //         (
-    //             pointDisplacement_->boundaryFieldRef()
-    //         )
-    //     );
-    //     return patchInterpolatorPointer_();
-    // }
+    // object to save the times of faceDisplacement
     Foam::scalar time_;
     Foam::scalar timeOld_;
+
     // Velocity volVectorField
     Foam::volVectorField * velocity_;
-
-
-
-
-    // mutable autoPtr<PrimitivePatchInterpolation<pointVectorField>> ppiPtr_;
-    // const PrimitivePatchInterpolation<pointVectorField>& ppi() const
-    // {
-    //     new PrimitivePatchInterpolation<pointVectorField>
-    //         (
-    //             pointDisplacement_.boundaryField()
-    //         )
-    //     return ppiPtr_();
-    // }
-
 
 public:
 
@@ -98,6 +65,10 @@ public:
 
     //- Read the Velocity values from the buffer
     void read(double * buffer);
+
+    // TODO. needs destructor?
+    //- Destructor???
+    // ~Velocity();
 
 };
 

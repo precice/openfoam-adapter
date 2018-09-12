@@ -36,6 +36,7 @@ bool preciceAdapter::FSI::FluidStructureInteraction::readConfig(const YAML::Node
     */
 
     /* TODO: Read the names of any needed fields and parameters.
+    * Include the force here?
     */
 
            // Read the name of the pointDisplacement field (if different)
@@ -74,6 +75,7 @@ void preciceAdapter::FSI::FluidStructureInteraction::addWriters(std::string data
         );
         DEBUG(adapterInfo("Added writer: Force."));
     }
+    // TODO Do we need to include the displacement and velocity? They will never be written...  
     else if (dataName.find("Displacement") == 0)
     {
         interface->addCouplingDataWriter
@@ -83,6 +85,7 @@ void preciceAdapter::FSI::FluidStructureInteraction::addWriters(std::string data
         );
         DEBUG(adapterInfo("Added writer: Displacement."));
     }
+    // TODO perform a similar strategy here as in the 
     else if (dataName.find("Velocity") == 0)
     {
         interface->addCouplingDataWriter
@@ -109,6 +112,7 @@ void preciceAdapter::FSI::FluidStructureInteraction::addReaders(std::string data
     /  we need to check for that here.
     */
 
+    // TODO do we need to include the force here, since it will not be read by openFOAM?
     if (dataName.find("Force") == 0)
     {
         interface->addCouplingDataReader
@@ -126,9 +130,10 @@ void preciceAdapter::FSI::FluidStructureInteraction::addReaders(std::string data
             new Displacement(mesh_, namePointDisplacement_) /* TODO: Add any other arguments here */
         );
         DEBUG(adapterInfo("Added reader: Displacement."));
-    // }
-    // else if (dataName.find("Velocity") == 0)
-    // {
+    // 
+    // TODO evaluate this. 
+    // The velocity is not in the dataNames, because it is not exchanged. In the case a displacement mesh
+    // motion solver is used, it needs to be created, therefore it is listed in the same if-statement.
         interface->addCouplingDataReader
         (
             dataName,

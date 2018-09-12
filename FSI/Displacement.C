@@ -21,10 +21,6 @@ pointDisplacement_(
 )
 {
     dataType_ = vector;
-
-    // Initialize the displacements arrays to zero vectors
-    // Displ_ = new vectorField(numDataLocations_, Foam::vector::zero);
-    // DisplOld_ = new vectorField(numDataLocations_, Foam::vector::zero);
 }
 
 
@@ -50,7 +46,6 @@ void preciceAdapter::FSI::Displacement::read(double * buffer)
     */
 
     // For every element in the buffer
-    // TODO: Check if this works correctly with multiple patches
     int bufferIndex = 0;
 
     // For every boundary patch of the interface
@@ -58,7 +53,7 @@ void preciceAdapter::FSI::Displacement::read(double * buffer)
     {
         int patchID = patchIDs_.at(j);
 
-
+        // get the displacement on the patch
         fixedValuePointPatchVectorField& pointDisplacementFluidPatch = 
             refCast<fixedValuePointPatchVectorField>
             (

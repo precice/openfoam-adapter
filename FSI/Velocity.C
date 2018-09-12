@@ -27,10 +27,8 @@ velocity_(
 {
     dataType_ = vector;
 
-    // Initialize the Displacement arrays to zero vectors. This is still quite ugly
-    // faceDisplacement_ = new vectorField(velocity_->boundaryFieldRef().size()*3, Foam::vector::zero);
-    // faceDisplacementOld_ = new vectorField(velocity_->boundaryFieldRef().size()*3, Foam::vector::zero);
-
+    // Initialize the current and old face displacement as two IOOBJECTS. 
+    // Maybe this is not required, and can be solved in another way. 
     faceDisplacement_ = new volVectorField
     (
         IOobject
@@ -90,18 +88,19 @@ void preciceAdapter::FSI::Velocity::read(double * buffer)
     * check $FOAM_SRC/finiteVolume/fields/fvPatchFields/derived/movingWallVelocity
     */
 
+    if (mesh_.moving())
+    {
+        Info << endl << "Mesh is moving at time " << runTime_.timeName() << nl << endl;
+    }
     // check if the function needs to be called. 
     timeOld_ = time_; 
     time_ = runTime_.value();
 
+    // save the old displaement at the faceCentres.
     *faceDisplacementOld_ = *faceDisplacement_; 
 
-    // Save the time at the faceDisplacement time
-
-    // Use the following function
-    //tmp<Field<Type>> PrimitivePatchInterpolation<Patch>::pointToFaceInterpolate
-
-    // Get the pointdisplacement (preferably get this in another way.)
+    // Get the pointdisplacement.
+    // TODO check if only the boundary field can be loaded?
     pointVectorField& pointDisplacement_ =
         const_cast<pointVectorField&>
         (
