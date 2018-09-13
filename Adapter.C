@@ -912,6 +912,82 @@ void preciceAdapter::Adapter::setupCheckpointing()
         }
     }
 
+    /* Find and add all the registered objects in the mesh_
+       of type pointScalarField
+    */
+
+    #ifdef ADAPTER_DEBUG_MODE
+        // Print the available objects of type pointScalarField
+        adapterInfo("Available objects of type pointScalarField : ");
+        Info << mesh_.lookupClass<pointScalarField>() << nl << nl;
+    #endif
+
+    objectNames_ = mesh_.lookupClass<pointScalarField>().toc();
+
+    forAll(objectNames_, i)
+    {
+        if (mesh_.foundObject<pointScalarField>(objectNames_[i]))
+        {
+            addCheckpointField
+            (
+                const_cast<pointScalarField&>
+                (
+                    mesh_.lookupObject<pointScalarField>(objectNames_[i])
+               )
+           );
+
+            #ifdef ADAPTER_DEBUG_MODE
+            adapterInfo
+            (
+                "Added " + objectNames_[i] +
+                " in the list of checkpointed fields."
+           );
+            #endif
+        }
+        else
+        {
+            adapterInfo("Could not checkpoint " + objectNames_[i], "warning");
+        }
+    }
+
+    /* Find and add all the registered objects in the mesh_
+       of type pointVectorField
+    */
+
+    #ifdef ADAPTER_DEBUG_MODE
+        // Print the available objects of type pointVectorField
+        adapterInfo("Available objects of type pointVectorField : ");
+        Info << mesh_.lookupClass<pointVectorField>() << nl << nl;
+    #endif
+
+    objectNames_ = mesh_.lookupClass<pointVectorField>().toc();
+
+    forAll(objectNames_, i)
+    {
+        if (mesh_.foundObject<pointVectorField>(objectNames_[i]))
+        {
+            addCheckpointField
+            (
+                const_cast<pointVectorField&>
+                (
+                    mesh_.lookupObject<pointVectorField>(objectNames_[i])
+               )
+           );
+
+            #ifdef ADAPTER_DEBUG_MODE
+            adapterInfo
+            (
+                "Added " + objectNames_[i] +
+                " in the list of checkpointed fields."
+           );
+            #endif
+        }
+        else
+        {
+            adapterInfo("Could not checkpoint " + objectNames_[i], "warning");
+        }
+    }
+
     // NOTE: Add here other object types to checkpoint, if needed.
 
     return;
@@ -951,6 +1027,20 @@ void preciceAdapter::Adapter::addCheckpointField(surfaceVectorField & field)
     surfaceVectorFieldCopies_.push_back(copy);
 
     return;
+}
+
+void preciceAdapter::Adapter::addCheckpointField(pointScalarField & field)
+{
+    pointScalarField * copy = new pointScalarField(field);
+    pointScalarFields_.push_back(&field);
+    pointScalarFieldCopies_.push_back(copy);
+}
+
+void preciceAdapter::Adapter::addCheckpointField(pointVectorField & field)
+{
+    pointVectorField * copy = new pointVectorField(field);
+    pointVectorFields_.push_back(&field);
+    pointVectorFieldCopies_.push_back(copy);
 }
 
 // NOTE: Add here methods to add other object types to checkpoint, if needed.
@@ -1009,6 +1099,18 @@ void preciceAdapter::Adapter::readCheckpoint()
         *(surfaceVectorFields_.at(i)) == *(surfaceVectorFieldCopies_.at(i));
     }
 
+    // Reload all the fields of type pointScalarField
+    for (uint i = 0; i < pointScalarFields_.size(); i++)
+    {
+        *(pointScalarFields_.at(i)) == *(pointScalarFieldCopies_.at(i));
+    }
+
+    // Reload all the fields of type pointVectorField
+    for (uint i = 0; i < pointVectorFields_.size(); i++)
+    {
+        *(pointVectorFields_.at(i)) == *(pointVectorFieldCopies_.at(i));
+    }
+
     // NOTE: Add here other field types to read, if needed.
 
     #ifdef ADAPTER_DEBUG_MODE
@@ -1050,6 +1152,18 @@ void preciceAdapter::Adapter::writeCheckpoint()
     for (uint i = 0; i < surfaceVectorFields_.size(); i++)
     {
         *(surfaceVectorFieldCopies_.at(i)) == *(surfaceVectorFields_.at(i));
+    }
+
+    // Store all the fields of type pointScalarField
+    for (uint i = 0; i < pointScalarFields_.size(); i++)
+    {
+        *(pointScalarFieldCopies_.at(i)) == *(pointScalarFields_.at(i));
+    }
+
+    // Store all the fields of type pointVectorField
+    for (uint i = 0; i < pointVectorFields_.size(); i++)
+    {
+        *(pointVectorFieldCopies_.at(i)) == *(pointVectorFields_.at(i));
     }
 
     // NOTE: Add here other types to write, if needed.
