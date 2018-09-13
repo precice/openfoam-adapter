@@ -23,7 +23,7 @@ private:
     Foam::volVectorField * Force_;
 
     //- Stress tensor (see the OpenFOAM "Forces" function object)
-    Foam::tmp<Foam::volSymmTensorField> devRhoReff() const;
+    Foam::tmp<Foam::volSymmTensorField> devRhoReff(dimensionedScalar rho) const;
 
 public:
 

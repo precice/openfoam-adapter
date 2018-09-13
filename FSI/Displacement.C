@@ -21,20 +21,8 @@ pointDisplacement_(
 )
 {
     dataType_ = vector;
-
-    // Initialize the displacements arrays to zero vectors
-    // Displ_ = new vectorField(numDataLocations_, Foam::vector::zero);
-    // DisplOld_ = new vectorField(numDataLocations_, Foam::vector::zero);
 }
 
-
-/*    (mesh),
-runTime_(runTime),
-Displ_(),
-numDataLocations_(numDataLocations)
-*//* TODO: We probably need to initialize some fields here,
-/  see CHT/Temperature.C.
-*/
 
 
 void preciceAdapter::FSI::Displacement::write(double * buffer)
@@ -49,7 +37,7 @@ void preciceAdapter::FSI::Displacement::write(double * buffer)
         << exit(FatalError);
 }
 
-
+// return the displacement to use later in the velocity?
 void preciceAdapter::FSI::Displacement::read(double * buffer)
 {
     /* TODO: Implement
@@ -58,9 +46,7 @@ void preciceAdapter::FSI::Displacement::read(double * buffer)
     * See the preCICE readBlockVectorData() implementation.
     */
 
-
     // For every element in the buffer
-    // TODO: Check if this works correctly with multiple patches
     int bufferIndex = 0;
 
     // For every boundary patch of the interface
@@ -69,6 +55,7 @@ void preciceAdapter::FSI::Displacement::read(double * buffer)
         int patchID = patchIDs_.at(j);
 
 
+        // get the displacement on the patch
         fixedValuePointPatchVectorField& pointDisplacementFluidPatch = 
             refCast<fixedValuePointPatchVectorField>
             (

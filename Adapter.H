@@ -157,6 +157,18 @@ private:
             //- Checkpointed surfaceVectorField fields (copies)
             std::vector<Foam::surfaceVectorField*> surfaceVectorFieldCopies_;
 
+            //- Checkpointed pointScalarField fields
+            std::vector<Foam::pointScalarField*> pointScalarFields_;
+
+            //- Checkpointed pointScalarField fields (copies)
+            std::vector<Foam::pointScalarField*> pointScalarFieldCopies_;
+
+            //- Checkpointed pointVectorField fields
+            std::vector<Foam::pointVectorField*> pointVectorFields_;
+
+            //- Checkpointed pointVectorField fields (copies)
+            std::vector<Foam::pointVectorField*> pointVectorFieldCopies_;
+
             // NOTE: Declare additional vectors for any other types required.
 
     // Configuration
@@ -229,6 +241,12 @@ private:
 
             //- Add a surfaceVectorField to checkpoint
             void addCheckpointField(surfaceVectorField & field);
+
+            //- Add a pointScalarField to checkpoint
+            void addCheckpointField(pointScalarField & field);
+
+            //- Add a pointVectorField to checkpoint
+            void addCheckpointField(pointVectorField & field);
 
             // NOTE: Add here methods to add other object types to checkpoint,
             // if needed.

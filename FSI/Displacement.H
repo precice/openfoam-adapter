@@ -10,7 +10,7 @@
 #include "pointFields.H"
 #include "vectorField.H"
 
-
+#include "Velocity.H"
 
 namespace preciceAdapter
 {
@@ -31,7 +31,7 @@ private:
     Foam::pointVectorField * pointDisplacement_;
 
 public:
-
+    
     //- Constructor
     Displacement
     (
