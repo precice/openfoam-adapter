@@ -37,7 +37,7 @@ mesh_(mesh)
     );
 }
 
-Foam::tmp<Foam::volSymmTensorField> preciceAdapter::FSI::Force::devRhoReff() const
+Foam::tmp<Foam::volSymmTensorField> preciceAdapter::FSI::Force::devRhoReff(dimensionedScalar rho) const
 {
     // TODO: Only works for laminar flows at the moment.
     // See the OpenFOAM Forces function object, where an extended
@@ -52,12 +52,6 @@ Foam::tmp<Foam::volSymmTensorField> preciceAdapter::FSI::Force::devRhoReff() con
     // which makes it fail.
     // TODO: Make this more general
     dimensionedScalar nu(transportProperties.lookup("nu"));
-
-    // Get the density
-    // TODO: Make this more general
-    // TODO: This is needed also in write, reduce redundancy...
-    dimensionedScalar rho(transportProperties.lookup("rho"));
-
 
     // Get the velocity
     const volVectorField& U = mesh_.lookupObject<volVectorField>("U");
@@ -78,25 +72,20 @@ void preciceAdapter::FSI::Force::write(double * buffer)
     const surfaceVectorField::Boundary& Sfb =
         mesh_.Sf().boundaryField();
 
+    // Density
+    // TODO: Extend to cover also compressible solvers
+    dimensionedScalar rho = mesh_.lookupObject<IOdictionary>("transportProperties").lookup("rho");
+
     // Stress tensor
-    tmp<volSymmTensorField> tdevRhoReff = devRhoReff();
+    tmp<volSymmTensorField> tdevRhoReff = devRhoReff(rho);
 
     // Stress tensor boundary field
     const volSymmTensorField::Boundary& devRhoReffb =
         tdevRhoReff().boundaryField();
-   
+
     // Pressure
     const volScalarField& p =
         mesh_.lookupObject<volScalarField>("p");
-
-    // Density
-    // TODO Check
-    // TODO UGLY! BAD! STINKS!
-    /*
-    const dictionary& transportProperties =
-        mesh_.lookupObject<IOdictionary>("transportProperties");
-    dimensionedScalar rho(transportProperties.lookup("rho"));
-    */
 
     int bufferIndex = 0;
 
@@ -106,9 +95,9 @@ void preciceAdapter::FSI::Force::write(double * buffer)
         int patchID = patchIDs_.at(j);
 
         // Pressure forces
-        // TODO: HARD-CODED! FIX!!!!1!1!
+        // TODO: Extend to cover also compressible solvers
         Force_->boundaryFieldRef()[patchID] =
-            Sfb[patchID] * p.boundaryField()[patchID]* 1.; //rho;
+            Sfb[patchID] * p.boundaryField()[patchID]* rho.value();
 
         // Viscous forces
         Force_->boundaryFieldRef()[patchID] +=
