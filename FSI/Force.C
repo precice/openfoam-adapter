@@ -55,6 +55,7 @@ Foam::tmp<Foam::volSymmTensorField> preciceAdapter::FSI::Force::devRhoReff(dimen
 
     // Get the velocity
     const volVectorField& U = mesh_.lookupObject<volVectorField>("U");
+    // Info<< endl << "The shear is " << -rho * nu * dev(twoSymm(fvc::grad(U))) << endl << endl;
 
     return -rho * nu * dev(twoSymm(fvc::grad(U)));
 
@@ -82,13 +83,16 @@ void preciceAdapter::FSI::Force::write(double * buffer)
     // Stress tensor boundary field
     const volSymmTensorField::Boundary& devRhoReffb =
         tdevRhoReff().boundaryField();
-
+   
     // Pressure
     const volScalarField& p =
         mesh_.lookupObject<volScalarField>("p");
 
+
     int bufferIndex = 0;
 
+    // Info<<  Force_->boundaryFieldRef()[patchIDs_[0]]<< endl;
+    
     // For every boundary patch of the interface
     for (uint j = 0; j < patchIDs_.size(); j++)
     {

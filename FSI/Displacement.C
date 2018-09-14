@@ -24,6 +24,7 @@ pointDisplacement_(
 }
 
 
+
 void preciceAdapter::FSI::Displacement::write(double * buffer)
 {
     /* TODO: Implement
@@ -52,6 +53,7 @@ void preciceAdapter::FSI::Displacement::read(double * buffer)
     for (uint j = 0; j < patchIDs_.size(); j++)
     {
         int patchID = patchIDs_.at(j);
+
 
         // get the displacement on the patch
         fixedValuePointPatchVectorField& pointDisplacementFluidPatch = 
