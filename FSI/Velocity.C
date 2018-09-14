@@ -87,17 +87,23 @@ void preciceAdapter::FSI::Velocity::read(double * buffer)
     * FOR NOW ONLY WORKS IF THE DISPLACEMENT FIELD IS ALREADY UPDATED. 
     * check $FOAM_SRC/finiteVolume/fields/fvPatchFields/derived/movingWallVelocity
     */
-
-    if (mesh_.moving())
+       
+    if (time_!=runTime_.value())
     {
-        Info << endl << "Mesh is moving at time " << runTime_.timeName() << nl << endl;
-    }
-    // check if the function needs to be called. 
-    timeOld_ = time_; 
-    time_ = runTime_.value();
+        // check if the function needs to be called. 
+        timeOld_ = time_; 
+        time_ = runTime_.value();
 
-    // save the old displaement at the faceCentres.
-    *faceDisplacementOld_ = *faceDisplacement_; 
+        // save the old displaement at the faceCentres.
+        *faceDisplacementOld_ = *faceDisplacement_;
+    }
+    if (time_==0)
+    {
+        timeOld_=-1.;
+    }
+
+    Info << endl << "Mesh runTime, time_ and timeOld_ " << runTime_.value() << ", " << time_ << " and " << timeOld_ << nl << endl;
+  
 
     // Get the pointdisplacement.
     // TODO check if only the boundary field can be loaded?
