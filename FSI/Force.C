@@ -55,7 +55,6 @@ Foam::tmp<Foam::volSymmTensorField> preciceAdapter::FSI::Force::devRhoReff(dimen
 
     // Get the velocity
     const volVectorField& U = mesh_.lookupObject<volVectorField>("U");
-    // Info<< endl << "The shear is " << -rho * nu * dev(twoSymm(fvc::grad(U))) << endl << endl;
 
     return -rho * nu * dev(twoSymm(fvc::grad(U)));
 
