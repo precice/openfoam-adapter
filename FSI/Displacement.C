@@ -71,5 +71,6 @@ void preciceAdapter::FSI::Displacement::read(double * buffer)
             pointDisplacementFluidPatch[i][1] = buffer[bufferIndex++];
             pointDisplacementFluidPatch[i][2] = buffer[bufferIndex++];
         }
+        // Info << endl << "Disp Displacement at random point: " << pointDisplacementFluidPatch[0][0] << endl << endl;
     }
 }
