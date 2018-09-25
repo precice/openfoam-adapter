@@ -21,6 +21,9 @@ protected:
     //- Mesh name used in the preCICE configuration
     std::string meshName_;
 
+    //- Point locations type (faceCenters vs faceNodes)
+    std::string locationsType_;
+
     //- Mesh ID assigned by preCICE to the interface
     int meshID_;
 
@@ -45,9 +48,8 @@ protected:
     //- Vector of CouplingDataWriters
     std::vector<CouplingDataUser*> couplingDataWriters_;
 
-    //- Extracts the locations of the face centers and exposes them to preCICE
-    //  with setMeshVertices
-    //  TODO: Create a mesh of nodes instead of face centers?
+    //- Extracts the locations of the face centers or face nodes
+    //  and exposes them to preCICE with setMeshVertices
     void configureMesh(const Foam::fvMesh& mesh);
 
 public:
@@ -58,6 +60,7 @@ public:
         precice::SolverInterface & precice,
         const Foam::fvMesh& mesh,
         std::string meshName,
+        std::string locationsType,
         std::vector<std::string> patchNames
     );
 

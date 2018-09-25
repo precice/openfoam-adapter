@@ -65,12 +65,10 @@ bool preciceAdapter::Adapter::configFileCheck(const std::string adapterConfigFil
             if (!adapterConfig["interfaces"][i]["write-data"])
             {
                 adapterInfo("The 'write-data' node is missing for the interface #" + std::to_string(i+1) + " in " + adapterConfigFileName + ".", "warning");
-                configErrors = true;
             }
             if (!adapterConfig["interfaces"][i]["read-data"])
             {
                 adapterInfo("The 'read-data' node is missing for the interface #" + std::to_string(i+1) + " in " + adapterConfigFileName + ".", "warning");
-                configErrors = true;
             }
         }
     }
@@ -116,6 +114,14 @@ bool preciceAdapter::Adapter::configFileRead()
         struct InterfaceConfig interfaceConfig;
         interfaceConfig.meshName = adapterConfigInterfaces[i]["mesh"].as<std::string>();
         DEBUG(adapterInfo("  - mesh      : " + interfaceConfig.meshName));
+
+        // By default, assume "faceCenters" as locationsType
+        interfaceConfig.locationsType = "faceCenters";
+        if (adapterConfigInterfaces[i]["locations"])
+        {
+            interfaceConfig.locationsType = adapterConfigInterfaces[i]["locations"].as<std::string>();
+        }
+        DEBUG(adapterInfo("    locations : " + interfaceConfig.locationsType));
 
         DEBUG(adapterInfo("    patches   : "));
         for (uint j = 0; j < adapterConfigInterfaces[i]["patches"].size(); j++)
@@ -217,7 +223,7 @@ bool preciceAdapter::Adapter::configFileRead()
 
     if (FSIenabled_)
     {
-        FSI_ = new FSI::FluidStructureInteraction(mesh_);
+        FSI_ = new FSI::FluidStructureInteraction(mesh_, runTime_);
         if (!FSI_->configure(adapterConfig_)) return false;
     }
 
@@ -279,9 +285,9 @@ try{
     DEBUG(adapterInfo("Creating interfaces..."));
     for (uint i = 0; i < interfacesConfig_.size(); i++)
     {
-        Interface * interface = new Interface(*precice_, mesh_, interfacesConfig_.at(i).meshName, interfacesConfig_.at(i).patchNames);
+        Interface * interface = new Interface(*precice_, mesh_, interfacesConfig_.at(i).meshName, interfacesConfig_.at(i).locationsType, interfacesConfig_.at(i).patchNames);
         interfaces_.push_back(interface);
-        DEBUG(adapterInfo("Interface created on mesh" + interfacesConfig_.at(i).meshName));
+        DEBUG(adapterInfo("Interface created on mesh " + interfacesConfig_.at(i).meshName));
 
         DEBUG(adapterInfo("Adding coupling data writers..."));
         for (uint j = 0; j < interfacesConfig_.at(i).writeData.size(); j++)
@@ -518,7 +524,7 @@ void preciceAdapter::Adapter::writeCouplingData()
 
 void preciceAdapter::Adapter::initialize()
 {
-    DEBUG(adapterInfo("Iniializing the preCICE solver interface..."));
+    DEBUG(adapterInfo("Initalizing the preCICE solver interface..."));
     timestepPrecice_ = precice_->initialize();
 
     preciceInitialized_ = true;
@@ -741,6 +747,21 @@ void preciceAdapter::Adapter::reloadCheckpointTime()
     return;
 }
 
+void preciceAdapter::Adapter::storeMeshPoints()
+{
+    DEBUG(adapterInfo("Storing mesh points..."));
+    // TODO: In foam-extend, we would need "allPoints()". Check if this gives the same data.
+    meshPoints_ = mesh_.points();
+    DEBUG(adapterInfo("Stored mesh points."));
+}
+
+void preciceAdapter::Adapter::reloadMeshPoints()
+{
+    DEBUG(adapterInfo("Moving mesh points to their previous locations..."));
+    const_cast<fvMesh&>(mesh_).movePoints(meshPoints_);
+    DEBUG(adapterInfo("Moved mesh points to their previous locations."));
+}
+
 void preciceAdapter::Adapter::setupCheckpointing()
 {
     // Add fields in the checkpointing list
@@ -906,6 +927,82 @@ void preciceAdapter::Adapter::setupCheckpointing()
         }
     }
 
+    /* Find and add all the registered objects in the mesh_
+       of type pointScalarField
+    */
+
+    #ifdef ADAPTER_DEBUG_MODE
+        // Print the available objects of type pointScalarField
+        adapterInfo("Available objects of type pointScalarField : ");
+        Info << mesh_.lookupClass<pointScalarField>() << nl << nl;
+    #endif
+
+    objectNames_ = mesh_.lookupClass<pointScalarField>().toc();
+
+    forAll(objectNames_, i)
+    {
+        if (mesh_.foundObject<pointScalarField>(objectNames_[i]))
+        {
+            addCheckpointField
+            (
+                const_cast<pointScalarField&>
+                (
+                    mesh_.lookupObject<pointScalarField>(objectNames_[i])
+               )
+           );
+
+            #ifdef ADAPTER_DEBUG_MODE
+            adapterInfo
+            (
+                "Added " + objectNames_[i] +
+                " in the list of checkpointed fields."
+           );
+            #endif
+        }
+        else
+        {
+            adapterInfo("Could not checkpoint " + objectNames_[i], "warning");
+        }
+    }
+
+    /* Find and add all the registered objects in the mesh_
+       of type pointVectorField
+    */
+
+    #ifdef ADAPTER_DEBUG_MODE
+        // Print the available objects of type pointVectorField
+        adapterInfo("Available objects of type pointVectorField : ");
+        Info << mesh_.lookupClass<pointVectorField>() << nl << nl;
+    #endif
+
+    objectNames_ = mesh_.lookupClass<pointVectorField>().toc();
+
+    forAll(objectNames_, i)
+    {
+        if (mesh_.foundObject<pointVectorField>(objectNames_[i]))
+        {
+            addCheckpointField
+            (
+                const_cast<pointVectorField&>
+                (
+                    mesh_.lookupObject<pointVectorField>(objectNames_[i])
+               )
+           );
+
+            #ifdef ADAPTER_DEBUG_MODE
+            adapterInfo
+            (
+                "Added " + objectNames_[i] +
+                " in the list of checkpointed fields."
+           );
+            #endif
+        }
+        else
+        {
+            adapterInfo("Could not checkpoint " + objectNames_[i], "warning");
+        }
+    }
+
     // NOTE: Add here other object types to checkpoint, if needed.
 
     return;
@@ -947,6 +1044,20 @@ void preciceAdapter::Adapter::addCheckpointField(surfaceVectorField & field)
     return;
 }
 
+void preciceAdapter::Adapter::addCheckpointField(pointScalarField & field)
+{
+    pointScalarField * copy = new pointScalarField(field);
+    pointScalarFields_.push_back(&field);
+    pointScalarFieldCopies_.push_back(copy);
+}
+
+void preciceAdapter::Adapter::addCheckpointField(pointVectorField & field)
+{
+    pointVectorField * copy = new pointVectorField(field);
+    pointVectorFields_.push_back(&field);
+    pointVectorFieldCopies_.push_back(copy);
+}
+
 // NOTE: Add here methods to add other object types to checkpoint, if needed.
 
 void preciceAdapter::Adapter::readCheckpoint()
@@ -955,6 +1066,12 @@ void preciceAdapter::Adapter::readCheckpoint()
 
     // Reload the runTime
     reloadCheckpointTime();
+
+    // Reload the meshPoints (if FSI is enabled)
+    if (FSIenabled_)
+    {
+        reloadMeshPoints();
+    }
 
     // Reload all the fields of type volScalarField
     for (uint i = 0; i < volScalarFields_.size(); i++)
@@ -1003,6 +1120,18 @@ void preciceAdapter::Adapter::readCheckpoint()
         *(surfaceVectorFields_.at(i)) == *(surfaceVectorFieldCopies_.at(i));
     }
 
+    // Reload all the fields of type pointScalarField
+    for (uint i = 0; i < pointScalarFields_.size(); i++)
+    {
+        *(pointScalarFields_.at(i)) == *(pointScalarFieldCopies_.at(i));
+    }
+
+    // Reload all the fields of type pointVectorField
+    for (uint i = 0; i < pointVectorFields_.size(); i++)
+    {
+        *(pointVectorFields_.at(i)) == *(pointVectorFieldCopies_.at(i));
+    }
+
     // NOTE: Add here other field types to read, if needed.
 
     #ifdef ADAPTER_DEBUG_MODE
@@ -1021,6 +1150,12 @@ void preciceAdapter::Adapter::writeCheckpoint()
 
     // Store the runTime
     storeCheckpointTime();
+
+    // Store the meshPoints (if FSI is enabled)
+    if (FSIenabled_)
+    {
+        storeMeshPoints();
+    }
 
     // Store all the fields of type volScalarField
     for (uint i = 0; i < volScalarFields_.size(); i++)
@@ -1044,6 +1179,18 @@ void preciceAdapter::Adapter::writeCheckpoint()
     for (uint i = 0; i < surfaceVectorFields_.size(); i++)
     {
         *(surfaceVectorFieldCopies_.at(i)) == *(surfaceVectorFields_.at(i));
+    }
+
+    // Store all the fields of type pointScalarField
+    for (uint i = 0; i < pointScalarFields_.size(); i++)
+    {
+        *(pointScalarFieldCopies_.at(i)) == *(pointScalarFields_.at(i));
+    }
+
+    // Store all the fields of type pointVectorField
+    for (uint i = 0; i < pointVectorFields_.size(); i++)
+    {
+        *(pointVectorFieldCopies_.at(i)) == *(pointVectorFields_.at(i));
     }
 
     // NOTE: Add here other types to write, if needed.

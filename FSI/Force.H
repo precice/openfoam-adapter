@@ -16,16 +16,22 @@ class Force : public CouplingDataUser
 
 private:
 
-    /* TODO: We probably need to declare some fields here,
-    /  see CHT/Temperature.H.
-    */
+    //- OpenFOAM fvMesh object (we need to access the objects' registry multiple times)
+    const Foam::fvMesh& mesh_;
+
+    //- Force field
+    Foam::volVectorField * Force_;
+
+    //- Stress tensor (see the OpenFOAM "Forces" function object)
+    Foam::tmp<Foam::volSymmTensorField> devRhoReff(dimensionedScalar rho) const;
 
 public:
 
     //- Constructor
     Force
     (
-        const Foam::fvMesh& mesh
+        const Foam::fvMesh& mesh,
+        const fileName& timeName // We create an IOobject and we need the time directory
         /* TODO: We should add any required field names here.
         /  They would need to be vector fields.
         /  See CHT/Temperature.H for details.
@@ -38,6 +44,9 @@ public:
 
     //- Read the displacement values from the buffer
     void read(double * buffer);
+
+    //- Destructor
+    ~Force();
 
 };
 

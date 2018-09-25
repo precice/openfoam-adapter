@@ -1,4 +1,5 @@
 #include "Interface.H"
+#include "Utilities.H"
 
 using namespace Foam;
 
@@ -7,11 +8,13 @@ preciceAdapter::Interface::Interface
     precice::SolverInterface & precice,
     const fvMesh& mesh,
     std::string meshName,
+    std::string locationsType,
     std::vector<std::string> patchNames
 )
 :
 precice_(precice),
 meshName_(meshName),
+locationsType_(locationsType),
 patchNames_(patchNames)
 {
     // Get the meshID from preCICE
@@ -43,43 +46,105 @@ patchNames_(patchNames)
 
 void preciceAdapter::Interface::configureMesh(const fvMesh& mesh)
 {
-    // Count the data locations for all the patches
-    for (uint j = 0; j < patchIDs_.size(); j++)
+    // The way we configure the mesh differs between meshes based on face centers
+    // and meshes based on face nodes.
+    // TODO: Reduce code duplication. In the meantime, take care to update
+    // all the branches.
+    if (locationsType_ == "faceCenters" || locationsType_ == "faceCentres")
     {
-        numDataLocations_ +=
-            mesh.boundaryMesh()[patchIDs_.at(j)].faceCentres().size();
-    }
-
-    // Array of the mesh vertices.
-    // One mesh is used for all the patches and each vertex has 3D coordinates.
-    double vertices[3 * numDataLocations_];
-
-    // Array of the indices of the mesh vertices.
-    // Each vertex has one index, but three coordinates.
-    vertexIDs_ = new int[numDataLocations_];
-
-    // Initialize the index of the vertices array
-    int verticesIndex = 0;
-
-    // Get the locations of the mesh vertices (here: face centers)
-    // for all the patches
-    for (uint j = 0; j < patchIDs_.size(); j++)
-    {
-        // Get the face centers of the current patch
-        const vectorField & faceCenters =
-            mesh.boundaryMesh()[patchIDs_.at(j)].faceCentres();
-
-        // Assign the (x,y,z) locations to the vertices
-        for (int i = 0; i < faceCenters.size(); i++)
+        // Count the data locations for all the patches
+        for (uint j = 0; j < patchIDs_.size(); j++)
         {
-            vertices[verticesIndex++] = faceCenters[i].x();
-            vertices[verticesIndex++] = faceCenters[i].y();
-            vertices[verticesIndex++] = faceCenters[i].z();
+            numDataLocations_ +=
+                mesh.boundaryMesh()[patchIDs_.at(j)].faceCentres().size();
         }
-    }
+        DEBUG(adapterInfo("Number of face centres: " + std::to_string(numDataLocations_)));
 
-    // Pass the mesh vertices information to preCICE
-    precice_.setMeshVertices(meshID_, numDataLocations_, vertices, vertexIDs_);
+        // Array of the mesh vertices.
+        // One mesh is used for all the patches and each vertex has 3D coordinates.
+        double vertices[3 * numDataLocations_];
+
+        // Array of the indices of the mesh vertices.
+        // Each vertex has one index, but three coordinates.
+        vertexIDs_ = new int[numDataLocations_];
+
+        // Initialize the index of the vertices array
+        int verticesIndex = 0;
+
+        // Get the locations of the mesh vertices (here: face centers)
+        // for all the patches
+        for (uint j = 0; j < patchIDs_.size(); j++)
+        {
+            // Get the face centers of the current patch
+            const vectorField & faceCenters =
+                mesh.boundaryMesh()[patchIDs_.at(j)].faceCentres();
+
+            // Assign the (x,y,z) locations to the vertices
+            for (int i = 0; i < faceCenters.size(); i++)
+            {
+                vertices[verticesIndex++] = faceCenters[i].x();
+                vertices[verticesIndex++] = faceCenters[i].y();
+                vertices[verticesIndex++] = faceCenters[i].z();
+            }
+        }
+
+        // Pass the mesh vertices information to preCICE
+        precice_.setMeshVertices(meshID_, numDataLocations_, vertices, vertexIDs_);
+    }
+    else if (locationsType_ == "faceNodes")
+    {
+        // Count the data locations for all the patches
+        for (uint j = 0; j < patchIDs_.size(); j++)
+        {
+            numDataLocations_ +=
+                mesh.boundaryMesh()[patchIDs_.at(j)].localPoints().size();
+        }
+        DEBUG(adapterInfo("Number of face nodes: " + std::to_string(numDataLocations_)));
+
+        // Array of the mesh vertices.
+        // One mesh is used for all the patches and each vertex has 3D coordinates.
+        double vertices[3 * numDataLocations_];
+
+        // Array of the indices of the mesh vertices.
+        // Each vertex has one index, but three coordinates.
+        vertexIDs_ = new int[numDataLocations_];
+
+        // Initialize the index of the vertices array
+        int verticesIndex = 0;
+
+        // Get the locations of the mesh vertices (here: face nodes)
+        // for all the patches
+        for (uint j = 0; j < patchIDs_.size(); j++)
+        {
+            // Get the face nodes of the current patch
+            // TODO: Check if this is correct.
+            // TODO: Check if this behaves correctly in parallel.
+            // TODO: Check if this behaves correctly with multiple, connected patches.
+            // TODO: Maybe this should be a pointVectorField?
+            const pointField & faceNodes =
+                mesh.boundaryMesh()[patchIDs_.at(j)].localPoints();
+
+            // Assign the (x,y,z) locations to the vertices
+            // TODO: Ensure consistent order when writing/reading
+            for (int i = 0; i < faceNodes.size(); i++)
+            {
+                vertices[verticesIndex++] = faceNodes[i].x();
+                vertices[verticesIndex++] = faceNodes[i].y();
+                vertices[verticesIndex++] = faceNodes[i].z();
+            }
+        }
+
+        // Pass the mesh vertices information to preCICE
+        precice_.setMeshVertices(meshID_, numDataLocations_, vertices, vertexIDs_);
+    }
+    else
+    {
+        FatalErrorInFunction
+             << "ERROR: interface points location type "
+             << locationsType_
+             << " is invalid."
+             << exit(FatalError);
+    }
 }
 
 
