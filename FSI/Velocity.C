@@ -86,6 +86,7 @@ void preciceAdapter::FSI::Velocity::read(double * buffer)
     /* TODO: Implement
     * FOR NOW ONLY WORKS IF THE DISPLACEMENT FIELD IS ALREADY UPDATED. 
     * check $FOAM_SRC/finiteVolume/fields/fvPatchFields/derived/movingWallVelocity
+    * Or myMovingWallVelocity from David blom for a second order interpolation.
     */
        
     if (time_!=runTime_.value())
