@@ -82,9 +82,17 @@ echo "  ADAPTER_GLOBAL_LD_LIBRARY_PATHS = ${ADAPTER_GLOBAL_LD_LIBRARY_PATHS}"
 echo "  ADAPTER_GLOBAL_LIBRARY_PATHS    = ${ADAPTER_GLOBAL_LIBRARY_PATHS}"
 
 # Check if an OpenFOAM environment is available
+echo "  WM_PROJECT = ${WM_PROJECT}"
 echo "  WM_PROJECT_VERSION = ${WM_PROJECT_VERSION}"
-if [ -z "${WM_PROJECT_VERSION}" ]; then
+if [ -z "${WM_PROJECT}" ]; then
     echo "  It looks like no OpenFOAM environment is available. Have you loaded the OpenFOAM etc/bashrc file?"
+    echo "Building failed."
+    exit 1
+fi
+# Check if this is a compatible OpenFOAM environment
+# For now, only check if it is not foam-extend, the main incompatible variant.
+if [ "${WM_PROJECT}" = "foam" ]; then
+    echo "  foam-extend is not compatible with the adapter. Please refer to the adapter's wiki for notes on compatibility."
     echo "Building failed."
     exit 1
 fi
