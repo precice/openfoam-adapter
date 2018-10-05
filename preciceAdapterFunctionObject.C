@@ -102,7 +102,7 @@ bool Foam::functionObjects::preciceAdapterFunctionObject::write()
     return true;
 }
 
-bool Foam::functionObjects::preciceAdapterFunctionObject::adjustTimeStep()
+bool Foam::functionObjects::preciceAdapterFunctionObject::setTimeStep()
 {
     adapter_.adjustTimeStep();
 
