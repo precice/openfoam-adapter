@@ -391,7 +391,7 @@ public:
         //- Called by the functionObject's execute()
         void execute();
 
-        //- Called by the functionObject's adjustTimeStep()
+        //- Called by the functionObject's setTimeStep()
         void adjustTimeStep();
 
         //- Called by the functionObject's end()
