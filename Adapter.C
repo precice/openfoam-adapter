@@ -512,7 +512,7 @@ void preciceAdapter::Adapter::execute()
     {
         // Check if the time directory already exists
         // (i.e. the solver wrote results that need to be updated)
-        if (runTime_.timePath().type() == fileName::DIRECTORY)
+        if (runTime_.timePath().type() == fileType::directory)
         {
             adapterInfo
                     (
