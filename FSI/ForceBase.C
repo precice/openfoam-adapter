@@ -25,28 +25,27 @@ preciceAdapter::FSI::ForceBase::ForceBase(
 Foam::tmp<Foam::volSymmTensorField> preciceAdapter::FSI::ForceBase::devRhoReff() const
 {
     //For turbulent flows
-    typedef compressible::turbulenceModel cmpTurbModel;
-    typedef incompressible::turbulenceModel icoTurbModel;
+    typedef compressible::momentumTransportModel cmpTurbModel;
+    typedef incompressible::momentumTransportModel icoTurbModel;
 
-    if (mesh_.foundObject<cmpTurbModel>(cmpTurbModel::propertiesName))
+    if (mesh_.foundObject<cmpTurbModel>(cmpTurbModel::typeName))
     {
-        const cmpTurbModel& turb(
-            mesh_.lookupObject<cmpTurbModel>(cmpTurbModel::propertiesName));
+        const cmpTurbModel& turb =
+            mesh_.lookupObject<cmpTurbModel>(cmpTurbModel::typeName);
 
-        return turb.devRhoReff();
+        return turb.devTau();
     }
-    else if (mesh_.foundObject<icoTurbModel>(icoTurbModel::propertiesName))
+    else if (mesh_.foundObject<icoTurbModel>(icoTurbModel::typeName))
     {
-        const incompressible::turbulenceModel& turb(
-            mesh_.lookupObject<icoTurbModel>(icoTurbModel::propertiesName));
+        const incompressible::momentumTransportModel& turb =
+            mesh_.lookupObject<icoTurbModel>(icoTurbModel::typeName);
 
-        return rho() * turb.devReff();
+        return rho() * turb.devSigma();
     }
     else
     {
         // For laminar flows get the velocity
-        const volVectorField& U(
-            mesh_.lookupObject<volVectorField>("U"));
+        const volVectorField& U = mesh_.lookupObject<volVectorField>("U");
 
         return -mu() * dev(twoSymm(fvc::grad(U)));
     }
@@ -94,13 +93,12 @@ Foam::tmp<Foam::volScalarField> preciceAdapter::FSI::ForceBase::mu() const
 
     if (solverType_.compare("incompressible") == 0)
     {
-        typedef immiscibleIncompressibleTwoPhaseMixture iitpMixture;
-        if (mesh_.foundObject<iitpMixture>("mixture"))
+        if (mesh_.foundObject<fluidThermo>(basicThermo::dictName))
         {
-            const iitpMixture& mixture(
-                mesh_.lookupObject<iitpMixture>("mixture"));
+            const fluidThermo& thermo =
+                mesh_.lookupObject<fluidThermo>(basicThermo::dictName);
 
-            return mixture.mu();
+            return thermo.mu();
         }
         else
         {
