@@ -10,7 +10,7 @@
 #include "pointFields.H"
 #include "vectorField.H"
 
-#include "Velocity.H"
+
 
 namespace preciceAdapter
 {
@@ -53,9 +53,14 @@ public:
     // TODO. needs destructor?
     //- Destructor???
     // ~Displacment();
+
+    
+    
 };
 
 }
 }
+// Velocity must be updated after the displacment. 
+#include "Velocity.H"
 
 #endif
