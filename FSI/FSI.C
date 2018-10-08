@@ -39,7 +39,7 @@ bool preciceAdapter::FSI::FluidStructureInteraction::readConfig(const YAML::Node
     * Include the force here?
     */
 
-           // Read the name of the pointDisplacement field (if different)
+    // Read the name of the pointDisplacement field (if different)
     if (adapterConfig["namePointDisplacement"])
     {
         namePointDisplacement_ = adapterConfig["namePointDisplacement"].as<std::string>();
@@ -47,14 +47,12 @@ bool preciceAdapter::FSI::FluidStructureInteraction::readConfig(const YAML::Node
     DEBUG(adapterInfo("    pointDisplacement field name : " + namePointDisplacement_));
 
 
-           // Read the name of the velocity field (if different)
+    // Read the name of the velocity field (if different)
     if (adapterConfig["nameVelocity"])
     {
         nameVelocity_ = adapterConfig["nameVelocity"].as<std::string>();
     }
     DEBUG(adapterInfo("    Velocity field name : " + nameVelocity_));
-
-
 
     return true;
 }
@@ -75,7 +73,7 @@ void preciceAdapter::FSI::FluidStructureInteraction::addWriters(std::string data
         );
         DEBUG(adapterInfo("Added writer: Force."));
     }
-    // TODO Do we need to include the displacement and velocity? They will never be written...  
+    // TODO Do we need to include the displacement and velocity? They will never be written...
     else if (dataName.find("Displacement") == 0)
     {
         interface->addCouplingDataWriter
@@ -85,7 +83,7 @@ void preciceAdapter::FSI::FluidStructureInteraction::addWriters(std::string data
         );
         DEBUG(adapterInfo("Added writer: Displacement."));
     }
-    // TODO perform a similar strategy here as in the 
+    // TODO perform a similar strategy here as in the
     else if (dataName.find("Velocity") == 0)
     {
         interface->addCouplingDataWriter
@@ -95,7 +93,7 @@ void preciceAdapter::FSI::FluidStructureInteraction::addWriters(std::string data
         );
         DEBUG(adapterInfo("Added writer: Velocity."));
     }
-    
+
 
     // NOTE: If you want to couple another variable, you need
     // to add your new coupling data user as a coupling data
@@ -130,8 +128,8 @@ void preciceAdapter::FSI::FluidStructureInteraction::addReaders(std::string data
             new Displacement(mesh_, namePointDisplacement_) /* TODO: Add any other arguments here */
         );
         DEBUG(adapterInfo("Added reader: Displacement."));
-    // 
-    // TODO evaluate this. 
+    //
+    // TODO evaluate this.
     // The velocity is not in the dataNames, because it is not exchanged. In the case a displacement mesh
     // motion solver is used, it needs to be created, therefore it is listed in the same if-statement.
         interface->addCouplingDataReader
@@ -141,7 +139,7 @@ void preciceAdapter::FSI::FluidStructureInteraction::addReaders(std::string data
         );
         DEBUG(adapterInfo("Added reader: Velocity."));
     }
-    
+
     // NOTE: If you want to couple another variable, you need
     // to add your new coupling data user as a coupling data
     // writer here (and as a writer above).

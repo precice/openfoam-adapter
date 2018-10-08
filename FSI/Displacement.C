@@ -54,14 +54,12 @@ void preciceAdapter::FSI::Displacement::read(double * buffer)
     {
         int patchID = patchIDs_.at(j);
 
-
         // get the displacement on the patch
-        fixedValuePointPatchVectorField& pointDisplacementFluidPatch = 
+        fixedValuePointPatchVectorField& pointDisplacementFluidPatch =
             refCast<fixedValuePointPatchVectorField>
             (
                 pointDisplacement_->boundaryFieldRef()[patchID]
             );
-
 
         // For every cell of the patch
         forAll(pointDisplacement_->boundaryFieldRef()[patchID], i)
@@ -71,6 +69,5 @@ void preciceAdapter::FSI::Displacement::read(double * buffer)
             pointDisplacementFluidPatch[i][1] = buffer[bufferIndex++];
             pointDisplacementFluidPatch[i][2] = buffer[bufferIndex++];
         }
-        // Info << endl << "Disp Displacement at random point: " << pointDisplacementFluidPatch[0][0] << endl << endl;
     }
 }
