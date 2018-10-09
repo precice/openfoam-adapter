@@ -90,8 +90,6 @@ void preciceAdapter::FSI::Force::write(double * buffer)
 
 
     int bufferIndex = 0;
-
-    // Info<<  Force_->boundaryFieldRef()[patchIDs_[0]]<< endl;
     
     // For every boundary patch of the interface
     for (uint j = 0; j < patchIDs_.size(); j++)

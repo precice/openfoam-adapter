@@ -131,6 +131,9 @@ private:
         //- Checkpointed time (index)
         Foam::label couplingIterationTimeIndex_;
 
+        //- Checkpointed mesh points
+        Foam::pointField meshPoints_;
+
         // Vectors of pointers to the checkpointed fields and their copies
 
             //- Checkpointed volScalarField fields
@@ -227,6 +230,12 @@ private:
 
         //- Restore the copy of the runTime object
         void reloadCheckpointTime();
+
+        //- Store the locations of the mesh points
+        void storeMeshPoints();
+
+        //- Restore the locations of the mesh points
+        void reloadMeshPoints();
 
         // Add checkpoint fields, depending on the type
 

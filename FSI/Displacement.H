@@ -6,11 +6,8 @@
 #include "fvCFD.H"
 #include "fixedValuePointPatchFields.H"
 
-// Add classes here?
 #include "pointFields.H"
 #include "vectorField.H"
-
-#include "Velocity.H"
 
 namespace preciceAdapter
 {
@@ -26,12 +23,12 @@ private:
     /* TODO: We probably need to declare some fields here,
     /  see CHT/Temperature.H.
     */
-   
+
     // Displacement pointVectorField
     Foam::pointVectorField * pointDisplacement_;
 
 public:
-    
+
     //- Constructor
     Displacement
     (
@@ -50,12 +47,11 @@ public:
     //- Read the displacement values from the buffer
     void read(double * buffer);
 
-    // TODO. needs destructor?
-    //- Destructor???
-    // ~Displacment();
 };
 
 }
 }
+// Velocity must be updated after the displacment.
+#include "Velocity.H"
 
 #endif

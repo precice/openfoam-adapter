@@ -747,6 +747,21 @@ void preciceAdapter::Adapter::reloadCheckpointTime()
     return;
 }
 
+void preciceAdapter::Adapter::storeMeshPoints()
+{
+    DEBUG(adapterInfo("Storing mesh points..."));
+    // TODO: In foam-extend, we would need "allPoints()". Check if this gives the same data.
+    meshPoints_ = mesh_.points();
+    DEBUG(adapterInfo("Stored mesh points."));
+}
+
+void preciceAdapter::Adapter::reloadMeshPoints()
+{
+    DEBUG(adapterInfo("Moving mesh points to their previous locations..."));
+    const_cast<fvMesh&>(mesh_).movePoints(meshPoints_);
+    DEBUG(adapterInfo("Moved mesh points to their previous locations."));
+}
+
 void preciceAdapter::Adapter::setupCheckpointing()
 {
     // Add fields in the checkpointing list
@@ -1052,6 +1067,12 @@ void preciceAdapter::Adapter::readCheckpoint()
     // Reload the runTime
     reloadCheckpointTime();
 
+    // Reload the meshPoints (if FSI is enabled)
+    if (FSIenabled_)
+    {
+        reloadMeshPoints();
+    }
+
     // Reload all the fields of type volScalarField
     for (uint i = 0; i < volScalarFields_.size(); i++)
     {
@@ -1129,6 +1150,12 @@ void preciceAdapter::Adapter::writeCheckpoint()
 
     // Store the runTime
     storeCheckpointTime();
+
+    // Store the meshPoints (if FSI is enabled)
+    if (FSIenabled_)
+    {
+        storeMeshPoints();
+    }
 
     // Store all the fields of type volScalarField
     for (uint i = 0; i < volScalarFields_.size(); i++)

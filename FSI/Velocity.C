@@ -27,8 +27,8 @@ velocity_(
 {
     dataType_ = vector;
 
-    // Initialize the current and old face displacement as two IOOBJECTS. 
-    // Maybe this is not required, and can be solved in another way. 
+    // Initialize the current and old face displacement as two IOOBJECTS.
+    // Maybe this is not required, and can be solved in another way.
     faceDisplacement_ = new volVectorField
     (
         IOobject
@@ -71,7 +71,7 @@ velocity_(
 void preciceAdapter::FSI::Velocity::write(double * buffer)
 {
     /* TODO: Implement
-    * FOR NOW ONLY WORKS IF THE DISPLACEMENT FIELD IS ALREADY UPDATED. 
+    * FOR NOW ONLY WORKS IF THE DISPLACEMENT FIELD IS ALREADY UPDATED.
     * Make this function not dependent on the buffer, but rather on the faceDisplacement
     * This can be a function in the displacement.C
     * Create velocity interpolation
@@ -84,20 +84,23 @@ void preciceAdapter::FSI::Velocity::write(double * buffer)
 void preciceAdapter::FSI::Velocity::read(double * buffer)
 {
     /* TODO: Implement
-    * FOR NOW ONLY WORKS IF THE DISPLACEMENT FIELD IS ALREADY UPDATED. 
+    * FOR NOW ONLY WORKS IF THE DISPLACEMENT FIELD IS ALREADY UPDATED.
     * check $FOAM_SRC/finiteVolume/fields/fvPatchFields/derived/movingWallVelocity
+    * Or myMovingWallVelocity from David Blom for a second order interpolation.
     */
-
-    if (mesh_.moving())
+    if (time_!=runTime_.value())
     {
-        Info << endl << "Mesh is moving at time " << runTime_.timeName() << nl << endl;
-    }
-    // check if the function needs to be called. 
-    timeOld_ = time_; 
-    time_ = runTime_.value();
+        // check if the function needs to be called.
+        timeOld_ = time_;
+        time_ = runTime_.value();
 
-    // save the old displaement at the faceCentres.
-    *faceDisplacementOld_ = *faceDisplacement_; 
+        // save the old displaement at the faceCentres.
+        *faceDisplacementOld_ = *faceDisplacement_;
+    }
+    if ( time_ == 0 )
+    {
+        timeOld_ = -1.;
+    }
 
     // Get the pointdisplacement.
     // TODO check if only the boundary field can be loaded?
@@ -112,45 +115,45 @@ void preciceAdapter::FSI::Velocity::read(double * buffer)
     {
         int patchID = patchIDs_.at(j);
 
-        // Get the patchvelocity . (fixedValueFvPatchVectorField)
+        // Get the patchvelocity (fixedValueFvPatchVectorField)
         vectorField& velocityPatch =
            refCast<vectorField>
             (
                 velocity_->boundaryFieldRef()[patchID]
             );
 
-        // get the pointPatchDisplacement. (fixedValuePointPatchVectorField)
-        vectorField& pointPatchDisplacement_ = 
+        // Get the pointPatchDisplacement (fixedValuePointPatchVectorField)
+        vectorField& pointPatchDisplacement_ =
             refCast<vectorField>
             (
                 pointDisplacement_.boundaryFieldRef()[patchID]
             );
- 
-        // get the facePatchDisplacement (fixedValueFvPatchVectorField)
-        vectorField& facePatchDisplacement_ = 
+
+        // Get the facePatchDisplacement (fixedValueFvPatchVectorField)
+        vectorField& facePatchDisplacement_ =
             refCast<vectorField>
             (
                 faceDisplacement_->boundaryFieldRef()[patchID]
             );
 
-        // get the old facePatchDisplacement (fixedValueFvPatchVectorField)
-        vectorField& facePatchDisplacementOld_ = 
+        // Get the old facePatchDisplacement (fixedValueFvPatchVectorField)
+        vectorField& facePatchDisplacementOld_ =
             refCast<vectorField>
             (
                 faceDisplacementOld_->boundaryFieldRef()[patchID]
             );
 
         // Define interpolator: patchInterpolator
-        primitivePatchInterpolation patchInterpolator(mesh_.boundaryMesh()[patchID] );
+        primitivePatchInterpolation patchInterpolator(mesh_.boundaryMesh()[patchID]);
 
-        // Interpolate from the points to the faces. 
+        // Interpolate from the points to the faces.
         facePatchDisplacement_
             =
             patchInterpolator.pointToFaceInterpolate(pointPatchDisplacement_);
 
-        // This displacement only works without subcycling
-        // For subcycling this function must be called every timestep with some approximation. 
-        // loop over the cells of the patch
+        // TODO: This displacement only works without subcycling
+        // For subcycling this function must be called every timestep with some approximation.
+        // Loop over the cells of the patch
         forAll(velocity_->boundaryFieldRef()[patchID], i)
         {
             velocityPatch[i][0] = (facePatchDisplacement_[i][0] - facePatchDisplacementOld_[i][0]) / (time_ - timeOld_);
@@ -160,7 +163,7 @@ void preciceAdapter::FSI::Velocity::read(double * buffer)
     }
 }
 
-
+//- Destructor
 preciceAdapter::FSI::Velocity::~Velocity()
 {
     // TODO: Is this enough?
