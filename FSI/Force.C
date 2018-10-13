@@ -88,6 +88,11 @@ void preciceAdapter::FSI::Force::write(double * buffer)
     const volScalarField& p =
         mesh_.lookupObject<volScalarField>("p");
 
+    // TEMPORARY: GET THE VELOCITY TO SEE THE OLD VELOCITY
+    const volVectorField& U_ =
+        mesh_.lookupObject<volVectorField>("U");
+
+    // const Foam::Time& runTime_ = Foam::Time&;
 
     int bufferIndex = 0;
     
@@ -125,6 +130,8 @@ void preciceAdapter::FSI::Force::write(double * buffer)
             =
             Force_->boundaryFieldRef()[patchID][i].z();
         }
+
+        // Info << nl << "old pressure: " << max(p.oldTime().primitiveField()) << endl;
     }
 }
 

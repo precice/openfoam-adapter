@@ -1,5 +1,5 @@
-#ifndef FSI_DISPLACEMENT_H
-#define FSI_DISPLACEMENT_H
+#ifndef FSI_DISPLACEMENTDELTA_H
+#define FSI_DISPLACEMENTDELTA_H
 
 #include "CouplingDataUser.H"
 
@@ -15,7 +15,7 @@ namespace FSI
 {
 
 //- Class that writes and reads displacement
-class Displacement : public CouplingDataUser
+class DisplacementDelta : public CouplingDataUser
 {
 
 private:
@@ -30,14 +30,14 @@ private:
 public:
 
     //- Constructor
-    Displacement
+    DisplacementDelta
     (
         const Foam::fvMesh& mesh,
         const std::string namePointDisplacement
         /* TODO: We should add any required field names here.
         /  They would need to be vector fields.
         /  See CHT/Temperature.H for details.
-        /  Apply any changes also to Displacement.C.
+        /  Apply any changes also to DisplacementDelta.C.
         */
     );
 
