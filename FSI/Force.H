@@ -5,6 +5,11 @@
 
 #include "fvCFD.H"
 
+// TEMPORARY
+#include "pointFields.H"
+#include "vectorField.H"
+
+
 namespace preciceAdapter
 {
 namespace FSI

@@ -1005,6 +1005,138 @@ void preciceAdapter::Adapter::setupCheckpointing()
 
     // NOTE: Add here other object types to checkpoint, if needed.
 
+
+// ADDED BY DEREK
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+    /* Find and add all the registered objects in the mesh_
+       of type volTensorField
+    */
+
+    #ifdef ADAPTER_DEBUG_MODE
+        // Print the available objects of type volTensorField
+        adapterInfo("Available objects of type volTensorField : ");
+        Info << mesh_.lookupClass<volTensorField>() << nl << nl;
+    #endif
+
+    objectNames_ = mesh_.lookupClass<volTensorField>().toc();
+
+    forAll(objectNames_, i)
+    {
+        if (mesh_.foundObject<volTensorField>(objectNames_[i]))
+        {
+            addCheckpointField
+            (
+                const_cast<volTensorField&>
+                (
+                    mesh_.lookupObject<volTensorField>(objectNames_[i])
+               )
+           );
+
+            #ifdef ADAPTER_DEBUG_MODE
+            adapterInfo
+            (
+                "Added " + objectNames_[i] +
+                " in the list of checkpointed fields."
+           );
+            #endif
+        }
+        else
+        {
+            adapterInfo("Could not checkpoint " + objectNames_[i], "warning");
+        }
+    }
+
+
+
+    /* Find and add all the registered objects in the mesh_
+       of type surfaceTensorField
+    */
+
+    #ifdef ADAPTER_DEBUG_MODE
+        // Print the available objects of type surfaceTensorField
+        adapterInfo("Available objects of type surfaceTensorField : ");
+        Info << mesh_.lookupClass<surfaceTensorField>() << nl << nl;
+    #endif
+
+    objectNames_ = mesh_.lookupClass<surfaceTensorField>().toc();
+
+    forAll(objectNames_, i)
+    {
+        if (mesh_.foundObject<surfaceTensorField>(objectNames_[i]))
+        {
+            addCheckpointField
+            (
+                const_cast<surfaceTensorField&>
+                (
+                    mesh_.lookupObject<surfaceTensorField>(objectNames_[i])
+               )
+           );
+
+            #ifdef ADAPTER_DEBUG_MODE
+            adapterInfo
+            (
+                "Added " + objectNames_[i] +
+                " in the list of checkpointed fields."
+           );
+            #endif
+        }
+        else
+        {
+            adapterInfo("Could not checkpoint " + objectNames_[i], "warning");
+        }
+    }
+
+
+
+
+        /* Find and add all the registered objects in the mesh_
+       of type pointTensorField
+    */
+
+    #ifdef ADAPTER_DEBUG_MODE
+        // Print the available objects of type pointTensorField
+        adapterInfo("Available objects of type pointTensorField : ");
+        Info << mesh_.lookupClass<pointTensorField>() << nl << nl;
+    #endif
+
+    objectNames_ = mesh_.lookupClass<pointTensorField>().toc();
+
+    forAll(objectNames_, i)
+    {
+        if (mesh_.foundObject<pointTensorField>(objectNames_[i]))
+        {
+            addCheckpointField
+            (
+                const_cast<pointTensorField&>
+                (
+                    mesh_.lookupObject<pointTensorField>(objectNames_[i])
+               )
+           );
+
+            #ifdef ADAPTER_DEBUG_MODE
+            adapterInfo
+            (
+                "Added " + objectNames_[i] +
+                " in the list of checkpointed fields."
+           );
+            #endif
+        }
+        else
+        {
+            adapterInfo("Could not checkpoint " + objectNames_[i], "warning");
+        }
+    }
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+
+
+
     return;
 }
 
@@ -1057,6 +1189,40 @@ void preciceAdapter::Adapter::addCheckpointField(pointVectorField & field)
     pointVectorFields_.push_back(&field);
     pointVectorFieldCopies_.push_back(copy);
 }
+
+// ADDED BY DEREK
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+void preciceAdapter::Adapter::addCheckpointField(volTensorField & field)
+{
+    volTensorField * copy = new volTensorField(field);
+    volTensorFields_.push_back(&field);
+    volTensorFieldCopies_.push_back(copy);
+
+    return;
+}
+
+
+void preciceAdapter::Adapter::addCheckpointField(surfaceTensorField & field)
+{
+    surfaceTensorField * copy = new surfaceTensorField(field);
+    surfaceTensorFields_.push_back(&field);
+    surfaceTensorFieldCopies_.push_back(copy);
+
+    return;
+}
+
+void preciceAdapter::Adapter::addCheckpointField(pointTensorField & field)
+{
+    pointTensorField * copy = new pointTensorField(field);
+    pointTensorFields_.push_back(&field);
+    pointTensorFieldCopies_.push_back(copy);
+
+    return;
+}
+
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // NOTE: Add here methods to add other object types to checkpoint, if needed.
 
@@ -1129,11 +1295,45 @@ void preciceAdapter::Adapter::readCheckpoint()
     // Reload all the fields of type pointVectorField
     for (uint i = 0; i < pointVectorFields_.size(); i++)
     {
-        *(pointVectorFields_.at(i)) == *(pointVectorFieldCopies_.at(i));
+        try{
+            if ("pointDisplacement" != pointVectorFields_.at(i)->name())
+            {
+                *(pointVectorFields_.at(i)) == *(pointVectorFieldCopies_.at(i));
+            }
+            // TODO: Known bug: cannot find "volScalarField::Internal kEpsilon:G"
+            // Currently it is skipped. Before it was not corrected at all.
+            // A warning for this is thrown when adding epsilon to the checkpoint.
+        } catch (Foam::error) {
+            DEBUG(adapterInfo("Do not update the pointDisplacement field" + pointVectorFields_.at(i)->name(), "warning"));
+        }
+        // *(pointVectorFields_.at(i)) == *(pointVectorFieldCopies_.at(i));
     }
 
     // NOTE: Add here other field types to read, if needed.
 
+    // ADDED BY DEREK
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // Reload all the fields of type volTensorField
+    for (uint i = 0; i < volTensorFields_.size(); i++)
+    {
+        *(volTensorFields_.at(i)) == *(volTensorFieldCopies_.at(i));
+    }
+
+    // Reload all the fields of type surfaceTensorField
+    for (uint i = 0; i < surfaceTensorFields_.size(); i++)
+    {
+        *(surfaceTensorFields_.at(i)) == *(surfaceTensorFieldCopies_.at(i));
+    }
+
+    // Reload all the fields of type pointTensorField
+    for (uint i = 0; i < pointTensorFields_.size(); i++)
+    {
+        *(pointTensorFields_.at(i)) == *(pointTensorFieldCopies_.at(i));
+    }
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    
     #ifdef ADAPTER_DEBUG_MODE
         adapterInfo
         (

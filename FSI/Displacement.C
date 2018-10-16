@@ -49,6 +49,7 @@ void preciceAdapter::FSI::Displacement::read(double * buffer)
     // For every element in the buffer
     int bufferIndex = 0;
 
+
     // For every boundary patch of the interface
     for (uint j = 0; j < patchIDs_.size(); j++)
     {
@@ -62,6 +63,7 @@ void preciceAdapter::FSI::Displacement::read(double * buffer)
                 pointDisplacement_->boundaryFieldRef()[patchID]
             );
 
+        Info << nl << "Displacement of  old point: " << pointDisplacementFluidPatch[160] << endl; //33 for flap_perp., 153
         // For every cell of the patch
         forAll(pointDisplacement_->boundaryFieldRef()[patchID], i)
         {
@@ -70,6 +72,9 @@ void preciceAdapter::FSI::Displacement::read(double * buffer)
             pointDisplacementFluidPatch[i][1] = buffer[bufferIndex++];
             pointDisplacementFluidPatch[i][2] = buffer[bufferIndex++];
         }
+
         Info << nl << "Displacement of watchpoint: " << pointDisplacementFluidPatch[160] << endl; //33 for flap_perp., 153
+        // For every cell of the patch
+        Info << nl << "old value pointDisplacement: " << max(pointDisplacement_->oldTime().primitiveField()) << endl;
     }
 }

@@ -160,6 +160,7 @@ void preciceAdapter::FSI::Velocity::read(double * buffer)
             velocityPatch[i][1] = (facePatchDisplacement_[i][1] - facePatchDisplacementOld_[i][1]) / (time_ - timeOld_);
             velocityPatch[i][2] = (facePatchDisplacement_[i][2] - facePatchDisplacementOld_[i][2]) / (time_ - timeOld_);
         }
+        Info << "HALLO HIER BEN IK" << endl;
     }
 }
 

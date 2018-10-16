@@ -85,7 +85,7 @@ private:
         bool adjustableTimestep_;
 
         //- Should the (fixed) timestep be stored and used?
-        bool useStoredTimestep_ = false;
+        bool useStoredTimestep_ = false; 
 
         //- Switch to enable the ConjugateHeatTransfer module
         bool CHTenabled_ = false;
@@ -171,6 +171,25 @@ private:
 
             //- Checkpointed pointVectorField fields (copies)
             std::vector<Foam::pointVectorField*> pointVectorFieldCopies_;
+
+// ADDED BY DEREK
+            //- Checkpointed volTensorField fields
+            std::vector<Foam::volTensorField*> volTensorFields_;
+
+            //- Checkpointed volTensorField fields (copies)
+            std::vector<Foam::volTensorField*> volTensorFieldCopies_;
+
+            //- Checkpointed surfaceTensorField fields
+            std::vector<Foam::surfaceTensorField*> surfaceTensorFields_;
+
+            //- Checkpointed surfaceTensorField fields (copies)
+            std::vector<Foam::surfaceTensorField*> surfaceTensorFieldCopies_;
+
+            //- Checkpointed pointTensorField fields
+            std::vector<Foam::pointTensorField*> pointTensorFields_;
+
+            //- Checkpointed pointTensorField fields (copies)
+            std::vector<Foam::pointTensorField*> pointTensorFieldCopies_;
 
             // NOTE: Declare additional vectors for any other types required.
 
@@ -259,6 +278,16 @@ private:
 
             // NOTE: Add here methods to add other object types to checkpoint,
             // if needed.
+
+            // ADDED BY DEREK
+            //- Add a volTensorField to checkpoint
+            void addCheckpointField(volTensorField & field);
+
+            //- Add a surfaceTensorField to checkpoint
+            void addCheckpointField(surfaceTensorField & field);
+
+            //- Add a pointTensorField to checkpoint
+            void addCheckpointField(pointTensorField & field);
 
         //- Read the checkpoint - restore the fields and time
         void readCheckpoint();

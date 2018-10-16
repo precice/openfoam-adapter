@@ -73,6 +73,16 @@ void preciceAdapter::FSI::FluidStructureInteraction::addWriters(std::string data
         );
         DEBUG(adapterInfo("Added writer: Force."));
     }
+    // TODO MOVE THIS UP
+    else if (dataName.find("DisplacementDelta") == 0)
+    {
+        interface->addCouplingDataWriter
+        (
+            dataName,
+            new DisplacementDelta(mesh_, namePointDisplacement_) /* TODO: Add any other arguments here */
+        );
+        DEBUG(adapterInfo("Added writer: DisplacementDelta."));
+    }
     // TODO Do we need to include the displacement and velocity? They will never be written...
     else if (dataName.find("Displacement") == 0)
     {
@@ -83,16 +93,6 @@ void preciceAdapter::FSI::FluidStructureInteraction::addWriters(std::string data
         );
         DEBUG(adapterInfo("Added writer: Displacement."));
     }
-    else if (dataName.find("DisplacementDelta") == 0)
-    {
-        interface->addCouplingDataWriter
-        (
-            dataName,
-            new DisplacementDelta(mesh_, namePointDisplacement_) /* TODO: Add any other arguments here */
-        );
-        DEBUG(adapterInfo("Added writer: DisplacementDelta."));
-    }
-    // TODO perform a similar strategy here as in the
     else if (dataName.find("Velocity") == 0)
     {
         interface->addCouplingDataWriter
@@ -129,6 +129,25 @@ void preciceAdapter::FSI::FluidStructureInteraction::addReaders(std::string data
         );
         DEBUG(adapterInfo("Added reader: Force."));
     }
+    else if (dataName.find("DisplacementDelta") == 0)
+    {
+        interface->addCouplingDataReader
+        (
+            dataName,
+            new DisplacementDelta(mesh_, namePointDisplacement_) /* TODO: Add any other arguments here */
+        );
+        DEBUG(adapterInfo("Added reader: DisplacementDelta."));
+    //
+    // TODO evaluate this.
+    // The velocity is not in the dataNames, because it is not exchanged. In the case a displacement mesh
+    // motion solver is used, it needs to be created, therefore it is listed in the same if-statement.
+        interface->addCouplingDataReader
+        (
+            dataName,
+            new Velocity(mesh_, runTime_, nameVelocity_) /* TODO: Add any other arguments here */
+        );
+        DEBUG(adapterInfo("Added reader: Velocity."));
+    }
     else if (dataName.find("Displacement") == 0)
     {
         interface->addCouplingDataReader
@@ -141,33 +160,14 @@ void preciceAdapter::FSI::FluidStructureInteraction::addReaders(std::string data
     // TODO evaluate this.
     // The velocity is not in the dataNames, because it is not exchanged. In the case a displacement mesh
     // motion solver is used, it needs to be created, therefore it is listed in the same if-statement.
-        interface->addCouplingDataReader
-        (
-            dataName,
-            new Velocity(mesh_, runTime_, nameVelocity_) /* TODO: Add any other arguments here */
-        );
-        DEBUG(adapterInfo("Added reader: Velocity."));
-    }
-    // else if (dataName.find("DisplacementDelta") == 0)
-    // {
-    //     interface->addCouplingDataReader
-    //     (
-    //         dataName,
-    //         new DisplacementDelta(mesh_, namePointDisplacement_) /* TODO: Add any other arguments here */
-    //     );
-    //     DEBUG(adapterInfo("Added reader: DisplacementDelta."));
-    // //
-    // // TODO evaluate this.
-    // // The velocity is not in the dataNames, because it is not exchanged. In the case a displacement mesh
-    // // motion solver is used, it needs to be created, therefore it is listed in the same if-statement.
-    //     interface->addCouplingDataReader
-    //     (
-    //         dataName,
-    //         new Velocity(mesh_, runTime_, nameVelocity_) /* TODO: Add any other arguments here */
-    //     );
-    //     DEBUG(adapterInfo("Added reader: Velocity."));
-    // }
     
+        // interface->addCouplingDataReader
+        // (
+        //     dataName,
+        //     new Velocity(mesh_, runTime_, nameVelocity_) /* TODO: Add any other arguments here */
+        // );
+        // DEBUG(adapterInfo("Added reader: Velocity."));
+    }
     // NOTE: If you want to couple another variable, you need
     // to add your new coupling data user as a coupling data
     // writer here (and as a writer above).
