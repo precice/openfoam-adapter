@@ -1266,8 +1266,10 @@ void preciceAdapter::Adapter::readCheckpoint()
     {
         // Load the volume field
         *(volVectorFields_.at(i)) == *(volVectorFieldCopies_.at(i));
+        // TODO. Derek: Should the switch evaluateBoundaries not be implemented here?
         // Evaluate the boundaries
         try{
+            DEBUG(adapterInfo("Evaluating the volVector boundary conditions for " + volVectorFields_.at(i)->name()));
             volVectorFields_.at(i)->correctBoundaryConditions();
         } catch (...) {
             DEBUG(adapterInfo("Could not evaluate the boundary for" + volVectorFields_.at(i)->name(), "warning"));
@@ -1295,7 +1297,8 @@ void preciceAdapter::Adapter::readCheckpoint()
     // Reload all the fields of type pointVectorField
     for (uint i = 0; i < pointVectorFields_.size(); i++)
     {
-        try{
+        /*try
+        {
             if ("pointDisplacement" != pointVectorFields_.at(i)->name())
             {
                 *(pointVectorFields_.at(i)) == *(pointVectorFieldCopies_.at(i));
@@ -1305,8 +1308,21 @@ void preciceAdapter::Adapter::readCheckpoint()
             // A warning for this is thrown when adding epsilon to the checkpoint.
         } catch (Foam::error) {
             DEBUG(adapterInfo("Do not update the pointDisplacement field" + pointVectorFields_.at(i)->name(), "warning"));
-        }
+        }*/
         // *(pointVectorFields_.at(i)) == *(pointVectorFieldCopies_.at(i));
+        
+        // Load the volume field
+        *(pointVectorFields_.at(i)) == *(pointVectorFieldCopies_.at(i));
+        // TODO. Derek: Should the switch evaluateBoundaries not be implemented here?
+        // Evaluate the boundaries
+        try{
+            DEBUG(adapterInfo("Evaluating the pointVector boundary conditions for " + pointVectorFields_.at(i)->name()));
+            pointVectorFields_.at(i)->correctBoundaryConditions();
+        } catch (...) {
+            DEBUG(adapterInfo("Could not evaluate the boundary for" + pointVectorFields_.at(i)->name(), "warning"));
+        }
+
+
     }
 
     // NOTE: Add here other field types to read, if needed.
