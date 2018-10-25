@@ -46,12 +46,12 @@ public:
 
     //- Read the displacement values from the buffer
     void read(double * buffer);
-
 };
 
 }
 }
 // Velocity must be updated after the displacment.
 // #include "Velocity.H"
+
 
 #endif
