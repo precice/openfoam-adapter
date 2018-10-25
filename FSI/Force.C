@@ -128,10 +128,10 @@ void preciceAdapter::FSI::Force::write(double * buffer)
         // Info << nl << "old pressure: " << max(p.oldTime().primitiveField()) << endl;
 
     // TEMPORARY: GET THE FIELD TO SEE THE OLD ENTRIES.
-    const pointVectorField& pointDisplacement_ =
-        mesh_.lookupObject<pointVectorField>("pointDisplacement");
+    // const pointVectorField& pointDisplacement_ =
+    //     mesh_.lookupObject<pointVectorField>("pointDisplacement");
 
-        Info << nl << "old value: " << max(pointDisplacement_.oldTime().primitiveField()) << endl;
+    //     Info << nl << "old value: " << max(pointDisplacement_.oldTime().primitiveField()) << endl;
     }
 }
 

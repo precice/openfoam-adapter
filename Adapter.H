@@ -133,6 +133,8 @@ private:
 
         //- Checkpointed mesh points
         Foam::pointField meshPoints_;
+        Foam::pointField oldMeshPoints_;
+
 
         // Vectors of pointers to the checkpointed fields and their copies
 

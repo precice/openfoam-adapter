@@ -24,6 +24,8 @@ private:
     /  see CHT/Temperature.H.
     */
 
+    // TODO create a pointVectorField which follows the displacementDeltas over the iterationos. 
+
     // Displacement pointVectorField
     Foam::pointVectorField * pointDisplacement_;
 

@@ -752,13 +752,17 @@ void preciceAdapter::Adapter::storeMeshPoints()
     DEBUG(adapterInfo("Storing mesh points..."));
     // TODO: In foam-extend, we would need "allPoints()". Check if this gives the same data.
     meshPoints_ = mesh_.points();
+    oldMeshPoints_ = mesh_.oldPoints();
     DEBUG(adapterInfo("Stored mesh points."));
 }
 
 void preciceAdapter::Adapter::reloadMeshPoints()
 {
+    // In Foam::polyMesh::movePoints.
+    // TODO: This function overwrites the pointer to the old mesh. Therefore, if you revert the mesh, the oldpointer will be set to the points, which are the new values. 
     DEBUG(adapterInfo("Moving mesh points to their previous locations..."));
     const_cast<fvMesh&>(mesh_).movePoints(meshPoints_);
+    const_cast<pointField&>(mesh_.oldPoints()) = oldMeshPoints_;
     DEBUG(adapterInfo("Moved mesh points to their previous locations."));
 }
 
@@ -1181,6 +1185,8 @@ void preciceAdapter::Adapter::addCheckpointField(pointScalarField & field)
     pointScalarField * copy = new pointScalarField(field);
     pointScalarFields_.push_back(&field);
     pointScalarFieldCopies_.push_back(copy);
+
+    return;
 }
 
 void preciceAdapter::Adapter::addCheckpointField(pointVectorField & field)
@@ -1188,6 +1194,11 @@ void preciceAdapter::Adapter::addCheckpointField(pointVectorField & field)
     pointVectorField * copy = new pointVectorField(field);
     pointVectorFields_.push_back(&field);
     pointVectorFieldCopies_.push_back(copy);
+    // OLD LINE ADDED
+    // pointVectorField * copyOld = new pointVectorField(field.oldTime());
+    // pointVectorFieldsOld_.push_back(&(field.oldTime()));
+    // pointVectorFieldCopiesOld_.push_back(copyOld);
+    return;
 }
 
 // ADDED BY DEREK
@@ -1244,6 +1255,19 @@ void preciceAdapter::Adapter::readCheckpoint()
     {
         // Load the volume field
         *(volScalarFields_.at(i)) == *(volScalarFieldCopies_.at(i));
+
+        // ADDED BY DEREK ///////////////////////////////////////////////////////////////////////////////////
+        int nOldTimes(volScalarFields_.at(i)->nOldTimes());
+        if (nOldTimes >= 1)
+        {
+            volScalarFields_.at(i)->oldTime() == volScalarFieldCopies_.at(i)->oldTime();        
+        }
+        if (nOldTimes == 2)
+        {
+            volScalarFields_.at(i)->oldTime().oldTime() == volScalarFieldCopies_.at(i)->oldTime().oldTime();
+        }
+        //////////////////////////////////////////////////////////////////////////////////////////////////////
+
         // Evaluate the boundaries, if supported
         if (evaluateBoundaries_)
         {
@@ -1266,6 +1290,19 @@ void preciceAdapter::Adapter::readCheckpoint()
     {
         // Load the volume field
         *(volVectorFields_.at(i)) == *(volVectorFieldCopies_.at(i));
+
+        // ADDED BY DEREK ///////////////////////////////////////////////////////////////////////////////////
+        int nOldTimes(volVectorFields_.at(i)->nOldTimes());
+        if (nOldTimes >= 1)
+        {
+            volVectorFields_.at(i)->oldTime() == volVectorFieldCopies_.at(i)->oldTime();        
+        }
+        if (nOldTimes == 2)
+        {
+            volVectorFields_.at(i)->oldTime().oldTime() == volVectorFieldCopies_.at(i)->oldTime().oldTime();
+        }
+        //////////////////////////////////////////////////////////////////////////////////////////////////////
+
         // TODO. Derek: Should the switch evaluateBoundaries not be implemented here?
         // Evaluate the boundaries
         try{
@@ -1280,23 +1317,60 @@ void preciceAdapter::Adapter::readCheckpoint()
     for (uint i = 0; i < surfaceScalarFields_.size(); i++)
     {
         *(surfaceScalarFields_.at(i)) == *(surfaceScalarFieldCopies_.at(i));
+
+        // ADDED BY DEREK ///////////////////////////////////////////////////////////////////////////////////
+        int nOldTimes(surfaceScalarFields_.at(i)->nOldTimes());
+        if (nOldTimes >= 1)
+        {
+            surfaceScalarFields_.at(i)->oldTime() == surfaceScalarFieldCopies_.at(i)->oldTime();        
+        }
+        if (nOldTimes == 2)
+        {
+            surfaceScalarFields_.at(i)->oldTime().oldTime() == surfaceScalarFieldCopies_.at(i)->oldTime().oldTime();
+        }
+        //////////////////////////////////////////////////////////////////////////////////////////////////////        
     }
 
     // Reload all the fields of type surfaceVectorField
     for (uint i = 0; i < surfaceVectorFields_.size(); i++)
     {
         *(surfaceVectorFields_.at(i)) == *(surfaceVectorFieldCopies_.at(i));
+
+        // ADDED BY DEREK ///////////////////////////////////////////////////////////////////////////////////
+        int nOldTimes(surfaceVectorFields_.at(i)->nOldTimes());
+        if (nOldTimes >= 1)
+        {
+            surfaceVectorFields_.at(i)->oldTime() == surfaceVectorFieldCopies_.at(i)->oldTime();        
+        }
+        if (nOldTimes == 2)
+        {
+            surfaceVectorFields_.at(i)->oldTime().oldTime() == surfaceVectorFieldCopies_.at(i)->oldTime().oldTime();
+        }
+        //////////////////////////////////////////////////////////////////////////////////////////////////////
     }
 
     // Reload all the fields of type pointScalarField
     for (uint i = 0; i < pointScalarFields_.size(); i++)
     {
         *(pointScalarFields_.at(i)) == *(pointScalarFieldCopies_.at(i));
+
+        // ADDED BY DEREK ///////////////////////////////////////////////////////////////////////////////////
+        int nOldTimes(pointScalarFields_.at(i)->nOldTimes());
+        if (nOldTimes >= 1)
+        {
+            pointScalarFields_.at(i)->oldTime() == pointScalarFieldCopies_.at(i)->oldTime();        
+        }
+        if (nOldTimes == 2)
+        {
+            pointScalarFields_.at(i)->oldTime().oldTime() == pointScalarFieldCopies_.at(i)->oldTime().oldTime();
+        }
+        //////////////////////////////////////////////////////////////////////////////////////////////////////
     }
 
     // Reload all the fields of type pointVectorField
     for (uint i = 0; i < pointVectorFields_.size(); i++)
     {
+        // ADDED BY DEREK: Not updating the pointDisplacement can be used to update the displacement in steps. (not done anymore) 
         /*try
         {
             if ("pointDisplacement" != pointVectorFields_.at(i)->name())
@@ -1310,15 +1384,30 @@ void preciceAdapter::Adapter::readCheckpoint()
             DEBUG(adapterInfo("Do not update the pointDisplacement field" + pointVectorFields_.at(i)->name(), "warning"));
         }*/
         // *(pointVectorFields_.at(i)) == *(pointVectorFieldCopies_.at(i));
-        
+    
+
         // Load the volume field
         *(pointVectorFields_.at(i)) == *(pointVectorFieldCopies_.at(i));
+
+        int nOldTimes(pointVectorFields_.at(i)->nOldTimes());
+        if (nOldTimes >= 1)
+        {
+            pointVectorFields_.at(i)->oldTime() == pointVectorFieldCopies_.at(i)->oldTime();        
+        }
+        if (nOldTimes == 2)
+        {
+            pointVectorFields_.at(i)->oldTime().oldTime() == pointVectorFieldCopies_.at(i)->oldTime().oldTime();
+        }
+
         // TODO. Derek: Should the switch evaluateBoundaries not be implemented here?
         // Evaluate the boundaries
-        try{
+        try
+        {
             DEBUG(adapterInfo("Evaluating the pointVector boundary conditions for " + pointVectorFields_.at(i)->name()));
             pointVectorFields_.at(i)->correctBoundaryConditions();
-        } catch (...) {
+        } 
+        catch (...) 
+        {
             DEBUG(adapterInfo("Could not evaluate the boundary for" + pointVectorFields_.at(i)->name(), "warning"));
         }
 
@@ -1333,18 +1422,54 @@ void preciceAdapter::Adapter::readCheckpoint()
     for (uint i = 0; i < volTensorFields_.size(); i++)
     {
         *(volTensorFields_.at(i)) == *(volTensorFieldCopies_.at(i));
+
+        // ADDED BY DEREK ///////////////////////////////////////////////////////////////////////////////////
+        int nOldTimes(volTensorFields_.at(i)->nOldTimes());
+        if (nOldTimes >= 1)
+        {
+            volTensorFields_.at(i)->oldTime() == volTensorFieldCopies_.at(i)->oldTime();        
+        }
+        if (nOldTimes == 2)
+        {
+            volTensorFields_.at(i)->oldTime().oldTime() == volTensorFieldCopies_.at(i)->oldTime().oldTime();
+        }
+        //////////////////////////////////////////////////////////////////////////////////////////////////////
     }
 
     // Reload all the fields of type surfaceTensorField
     for (uint i = 0; i < surfaceTensorFields_.size(); i++)
     {
         *(surfaceTensorFields_.at(i)) == *(surfaceTensorFieldCopies_.at(i));
+
+        // ADDED BY DEREK ///////////////////////////////////////////////////////////////////////////////////
+        int nOldTimes(surfaceTensorFields_.at(i)->nOldTimes());
+        if (nOldTimes >= 1)
+        {
+            surfaceTensorFields_.at(i)->oldTime() == surfaceTensorFieldCopies_.at(i)->oldTime();        
+        }
+        if (nOldTimes == 2)
+        {
+            surfaceTensorFields_.at(i)->oldTime().oldTime() == surfaceTensorFieldCopies_.at(i)->oldTime().oldTime();
+        }
+        //////////////////////////////////////////////////////////////////////////////////////////////////////
     }
 
     // Reload all the fields of type pointTensorField
     for (uint i = 0; i < pointTensorFields_.size(); i++)
     {
         *(pointTensorFields_.at(i)) == *(pointTensorFieldCopies_.at(i));
+
+        // ADDED BY DEREK ///////////////////////////////////////////////////////////////////////////////////
+        int nOldTimes(pointTensorFields_.at(i)->nOldTimes());
+        if (nOldTimes >= 1)
+        {
+            pointTensorFields_.at(i)->oldTime() == pointTensorFieldCopies_.at(i)->oldTime();        
+        }
+        if (nOldTimes == 2)
+        {
+            pointTensorFields_.at(i)->oldTime().oldTime() == pointTensorFieldCopies_.at(i)->oldTime().oldTime();
+        }
+        //////////////////////////////////////////////////////////////////////////////////////////////////////
     }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1407,6 +1532,9 @@ void preciceAdapter::Adapter::writeCheckpoint()
     for (uint i = 0; i < pointVectorFields_.size(); i++)
     {
         *(pointVectorFieldCopies_.at(i)) == *(pointVectorFields_.at(i));
+        // OLD LINE ADDED
+        // *(pointVectorFieldCopiesOld_.at(i)) == (pointVectorFields_.at(i)->oldTime());
+        // Info << nl << "print some old field " << (pointVectorFields_.at(i))->oldTime() << nl  << endl;
     }
 
     // NOTE: Add here other types to write, if needed.
