@@ -244,7 +244,7 @@ void preciceAdapter::Fluids::VelocityAndPressure::addWriters(std::string dataNam
 
 void preciceAdapter::Fluids::VelocityAndPressure::addReaders(std::string dataName, Interface * interface)
 {
-    if (dataName.find("Pressure") == 0)
+    if (dataName.find("P") == 0)
     {
         interface->addCouplingDataReader
         (
@@ -253,7 +253,7 @@ void preciceAdapter::Fluids::VelocityAndPressure::addReaders(std::string dataNam
         );
         DEBUG(adapterInfo("Added reader: Pressure."));
     }
-    else if (dataName.find("Velocity") == 0)
+    else if (dataName.find("V") == 0)
     {
         interface->addCouplingDataReader
         (

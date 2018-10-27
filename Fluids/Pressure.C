@@ -1,5 +1,6 @@
 #include "Pressure.H"
 #include "cellSet.H"
+#include "/home/martacamps/OpenFOAM/martacamps-4.1/run/src/boundaryConditions/readGradient/readGradientFvPatchField.H"
 
 using namespace Foam;
 
@@ -55,36 +56,52 @@ void preciceAdapter::Fluids::Pressure::write(double * buffer)
 void preciceAdapter::Fluids::Pressure::read(double * buffer)
 {
 
+	int bufferIndex = 0;
 
-	// Get the LB pressure at the centre of the overlapping region.
-	// I will get the LB pressure for the first patch only.
-	int patchID = patchIDs_.at(0);
-	cellSet overlapRegion(mesh_, cellSetNames_.at(0));
-
-	// Get the cell at the middle of the cellSet
-	const labelList & cells = overlapRegion.toc();
-	int numCells = cells.size();
-	int centralCell = P_->boundaryFieldRef()[patchID].size() + numCells/2;
-
-	std::cout << "Cells in patch: " << P_->boundaryFieldRef()[patchID].size() << std::endl;
-
-	// Caclulate pressure difference in the central cell
-	double pDiff = buffer[centralCell] - P_->ref()[cells[numCells/2]];
-
-	std::cout << "Pressure difference: " << pDiff << std::endl;
-
+//	// Get the LB pressure at the centre of the overlapping region.
+//	// I will get the LB pressure for the first patch only.
+//	int patchID = patchIDs_.at(0);
+//	cellSet overlapRegion(mesh_, cellSetNames_.at(0));
+//
+//	// Get the cell at the middle of the cellSet
+//	const labelList & cells = ovint bufferIndex = 0;erlapRegion.toc();
+//	int numCells = cells.size();
+//	int centralCell = P_->boundaryFieldRef()[patchID].size() + numCells/2;
+//
+//	std::cout << "Cells in patch: " << P_->boundaryFieldRef()[patchID].size() << std::endl;
+//
+//	// Caclulate pressure difference in the central cell
+//	double pDiff = buffer[centralCell] - P_->ref()[cells[numCells/2]];
+//
+//	std::cout << "Pressure difference: " << pDiff << std::endl;
+//
 	// Set the overlapping region pressure values
 	for (uint j = 0; j < patchIDs_.size(); j++)
 	{
 		int patchID = patchIDs_.at(j);
 
-		 // For every cell associated to the patch
-		const labelList & cells = mesh_.boundaryMesh()[patchID].faceCells();
-		for( int i=0; i < cells.size(); i++)
-		{
-			// Correct the pressure value
-			P_->ref()[cells[i]] += pDiff;
-		}
+		//P_->boundaryFieldRef()[patchID].updateCoeffs();
+		Field<double> grad = P_->boundaryFieldRef()[patchID];
+        // For every cell of the patch
+        forAll(grad, i)
+        {
+            // Copy the pressure gradient into grad
+            grad[i] = buffer[bufferIndex++];
+        }
+		readGradientFvPatchField<double>* ue = dynamic_cast<readGradientFvPatchField<double>*>(&P_->boundaryFieldRef()[patchID]);
+		ue->setGradient(grad);
+
+		//std::cout << "Pressure gradient set from LUMIS data" << std::endl;
+		//for (int i =0; i< (grad.size()); i++ )
+		//	std::cout << ue->gradient()[i]  << std::endl;
+
+//		 // For every cell associated to the patch
+//		const labelList & cells = mesh_.boundaryMesh()[patchID].faceCells();
+//		for( int i=0; i < cells.size(); i++)
+//		{
+//			// Correct the pressure value
+//			P_->ref()[cells[i]] += pDiff;
+//		}
 	}
 
 }
