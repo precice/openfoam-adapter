@@ -103,6 +103,13 @@ void preciceAdapter::FSI::Force::write(double * buffer)
         Force_->boundaryFieldRef()[patchID] +=
             Sfb[patchID] & devRhoReffb[patchID];
 
+
+        fvPatchVectorField& ForcePatch =
+            refCast<fvPatchVectorField>
+            (
+                Force_->boundaryFieldRef()[patchID]
+            );
+
         // Write the forces to the preCICE buffer
         // For every cell of the patch
         forAll(Force_->boundaryFieldRef()[patchID], i)
@@ -122,9 +129,13 @@ void preciceAdapter::FSI::Force::write(double * buffer)
             buffer[bufferIndex++]
             =
             Force_->boundaryFieldRef()[patchID][i].z();
-        }
 
+            // checking for parallel runs. 
+            // Info << "Force boundary field " << Force_->boundaryFieldRef()[patchID] << endl;
+            // std::cout << "HALLO: " << buffer[bufferIndex] << nl << endl;
+        }
         // Info << nl << "old pressure: " << max(p.oldTime().primitiveField()) << endl;
+        // Info << "Force boundary field: " << ForcePatch.patchInternalField() << endl;
 
     // TEMPORARY: GET THE FIELD TO SEE THE OLD ENTRIES.
     // const pointVectorField& pointDisplacement_ =
