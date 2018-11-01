@@ -9,7 +9,6 @@ EXE_INC = \
     -I$(LIB_SRC)/TurbulenceModels/incompressible/lnInclude \
     -I$(ADAPTER_PRECICE_ROOT)/src/precice \
     -I${ADAPTER_YAML_CPP_INC} \
-    -I${WM_PROJECT_USER_DIR}/run/src/boundaryConditions/readGradient/ \
     -I../ \
     $(ADAPTER_PREP_FLAGS)
 

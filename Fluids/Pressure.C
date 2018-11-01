@@ -1,6 +1,6 @@
 #include "Pressure.H"
 #include "cellSet.H"
-#include "readGradientFvPatchField.H"
+//#include "readGradientFvPatchField.H"
 
 using namespace Foam;
 
@@ -64,7 +64,7 @@ void preciceAdapter::Fluids::Pressure::read(double * buffer)
 		int patchID = patchIDs_.at(j);
 
 		// Check that the boundary patch is of the correct type.
-		if ( P_->boundaryFieldRef()[patchID].type()=="readGradient")
+		if ( P_->boundaryFieldRef()[patchID].type()=="fixedGradient")
 		{
 			Field<double> grad = P_->boundaryFieldRef()[patchID];
 			// For every cell of the patch
@@ -73,8 +73,8 @@ void preciceAdapter::Fluids::Pressure::read(double * buffer)
 				// Copy the pressure gradient into grad
 				grad[i] = buffer[bufferIndex++];
 			}
-			readGradientFvPatchField<double>* pBoundary = dynamic_cast<readGradientFvPatchField<double>*>(&P_->boundaryFieldRef()[patchID]);
-			pBoundary->setGradient(grad);
+			fixedGradientFvPatchField<double>* pBoundary = dynamic_cast<fixedGradientFvPatchField<double>*>(&P_->boundaryFieldRef()[patchID]);
+			pBoundary->gradient() = grad;
 
 			//std::cout << "Pressure gradient set from LUMIS data" << std::endl;
 			//for (int i =0; i< (grad.size()); i++ )
