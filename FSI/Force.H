@@ -5,6 +5,10 @@
 
 #include "fvCFD.H"
 
+#include "turbulentFluidThermoModel.H"
+#include "turbulentTransportModel.H"
+
+
 namespace preciceAdapter
 {
 namespace FSI
@@ -18,12 +22,18 @@ private:
 
     //- OpenFOAM fvMesh object (we need to access the objects' registry multiple times)
     const Foam::fvMesh& mesh_;
+    
+    const std::string solverType_;
 
     //- Force field
     Foam::volVectorField * Force_;
 
     //- Stress tensor (see the OpenFOAM "Forces" function object)
-    Foam::tmp<Foam::volSymmTensorField> devRhoReff(dimensionedScalar rho) const;
+    Foam::tmp<Foam::volSymmTensorField> devRhoReff() const;
+    
+    Foam::tmp<Foam::volScalarField> rho() const;
+    
+    Foam::tmp<Foam::volScalarField> mu() const;
 
 public:
 
@@ -31,7 +41,9 @@ public:
     Force
     (
         const Foam::fvMesh& mesh,
-        const fileName& timeName // We create an IOobject and we need the time directory
+        const fileName& timeName,
+        const std::string solverType
+        // We create an IOobject and we need the time directory
         /* TODO: We should add any required field names here.
         /  They would need to be vector fields.
         /  See CHT/Temperature.H for details.

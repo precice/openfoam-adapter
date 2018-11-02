@@ -27,6 +27,12 @@ protected:
 
     //- OpenFOAM Time object (we need to access the timestep to compute the pointMotionU)
     const Foam::Time& runTime_;
+    
+    //- Solver type
+    std::string solverType_ = "none";
+    
+    //- Name of the transportProperties dictionary
+    std::string nameTransportProperties_ = "transportProperties";
 
     //- Name of the pointDisplacement field
     std::string namePointDisplacement_ = "pointDisplacement";
@@ -41,6 +47,9 @@ protected:
     */
 
 protected:
+    
+    //- Determine the solver type
+    std::string determineSolverType();
 
     //- Read the FSI-related options from the adapter's configuration file
     bool readConfig(const YAML::Node adapterConfig);
