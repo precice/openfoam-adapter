@@ -732,6 +732,7 @@ void preciceAdapter::Adapter::fulfilledWriteCheckpoint()
 
 void preciceAdapter::Adapter::storeCheckpointTime()
 {
+    // TODO also store old times for future?
     couplingIterationTimeIndex_ = runTime_.timeIndex();
     couplingIterationTimeValue_ = runTime_.value();
     DEBUG(adapterInfo("Stored time value t = " + std::to_string(runTime_.value())));
@@ -747,13 +748,72 @@ void preciceAdapter::Adapter::reloadCheckpointTime()
     return;
 }
 
+///// TODO          mesh checkpointing here. 
 void preciceAdapter::Adapter::storeMeshPoints()
 {
     DEBUG(adapterInfo("Storing mesh points..."));
     // TODO: In foam-extend, we would need "allPoints()". Check if this gives the same data.
     meshPoints_ = mesh_.points();
     oldMeshPoints_ = mesh_.oldPoints();
+
     DEBUG(adapterInfo("Stored mesh points."));
+    // Store the mesh fluxes. 
+    // TODO GET THIS PART WORKING
+
+
+    Info << nl << "Mesh moving: " << mesh_.moving() << endl;
+
+    meshFluxExist=false;
+
+    if (mesh_.moving())
+    {
+        // Add check to see if the field needs to be added. 
+        // if (mesh_phi() in meshSurfaceScalarFieldCopies_)
+        addMeshCheckpointField
+        (
+            const_cast<surfaceScalarField&>
+            (
+                mesh_.phi()
+            )
+        );
+
+        meshFluxExist=true;
+
+        #ifdef ADAPTER_DEBUG_MODE
+        adapterInfo
+        (
+            "Added " + mesh_.phi().name() +
+            " in the list of checkpointed fields."
+        );
+        #endif
+    }
+
+
+/*
+    // Attempt 2
+    if (mesh_.moving())
+    {
+        const surfaceScalarField tempMeshFlux = mesh_.phi();
+        meshFlux_ = &tempMeshFlux;
+
+        // Info << "mesh flux1 w " << (mesh_.phi()).name() << endl;
+        // Info << "mesh flux2 w " << (*meshFlux_).name() << endl;         // * Here this line works. 
+    }
+*/
+
+    // attempt 1
+    // surfaceScalarField * tempMeshFlux 
+    //     = 
+    //     new surfaceScalarField(
+    //         const_cast<surfaceScalarField&>(mesh_.phi()
+    //             )
+    //         );
+
+    // meshFlux_ = const_cast<surfaceScalarField&>(mesh_.phi());    // There is already a function called meshPhi    
+    // surfaceScalarField * 
+    // meshFlux_ = new surfaceScalarField(mesh_.phi());
+    // Store other fields too? Such ass cell volumes etc. 
+
 }
 
 void preciceAdapter::Adapter::reloadMeshPoints()
@@ -761,10 +821,123 @@ void preciceAdapter::Adapter::reloadMeshPoints()
     // In Foam::polyMesh::movePoints.
     // TODO: This function overwrites the pointer to the old mesh. Therefore, if you revert the mesh, the oldpointer will be set to the points, which are the new values. 
     DEBUG(adapterInfo("Moving mesh points to their previous locations..."));
+    // Switch oldpoints on for pure physics. (is this required?). Switch off for better mesh deformation capabilities. 
+    const_cast<pointField&>(mesh_.points()) = meshPoints_;
+    // const_cast<dynamicFvMesh&>(mesh_).update();
     const_cast<fvMesh&>(mesh_).movePoints(meshPoints_);
+
     const_cast<pointField&>(mesh_.oldPoints()) = oldMeshPoints_;
+
+    DEBUG(adapterInfo("Moved mesh points to their previous locations."));
+
+
+    // ADDED BY DEREK // do something like this.  //////////////////////////////////////////////////////    
+    if ( meshFluxExist ) // (meshFlux_)
+    {   
+        DEBUG(adapterInfo("Reloading the mesh flux of the previous timestep."));
+        // Info << "mesh flux1 " << const_cast<surfaceScalarField&>(mesh_.phi()).name() << endl;
+        // Info << "mesh flux2 " << (*meshFlux_) << endl;
+        // Info << "mesh flux" << *meshFlux_ << endl;               // * Here this does not work 
+
+        // const_cast<surfaceScalarField&>(mesh_.phi()) = *meshFlux_;
+
+        //        SOMETHING THE LIKE OF THIS
+        for (uint i = 0; i < meshSurfaceScalarFields_.size(); i++)
+        {
+            // Load the volume field
+            *(meshSurfaceScalarFields_.at(i)) == *(meshSurfaceScalarFieldCopies_.at(i));
+
+            // TODO, For the first timestep, set the phi.oldTime to zero! This is not checkpointed, because the mesh does
+            // not move initially. !!!
+            // ADDED BY DEREK ///////////////////////////////////////////////////////////////////////////////////
+            int nOldTimes(meshSurfaceScalarFields_.at(i)->nOldTimes());
+            if (nOldTimes >= 1)
+            {
+                meshSurfaceScalarFields_.at(i)->oldTime() == meshSurfaceScalarFieldCopies_.at(i)->oldTime();        
+            }
+            if (nOldTimes == 2)
+            {
+                meshSurfaceScalarFields_.at(i)->oldTime().oldTime() == meshSurfaceScalarFieldCopies_.at(i)->oldTime().oldTime();
+            }
+
+        }
+
+        
+        // if (mesh_.phi().nOldTimes() >= 1 )
+        // {
+        //     // const_cast<surfaceScalarField&>(mesh_.phi().oldTime()) = meshFlux_->oldTime();
+        //     const_cast<surfaceScalarField&>(mesh_.phi()).oldTime() = meshFlux_->oldTime();
+        // }
+        // if (mesh_.phi().nOldTimes() >= 2 )
+        // {
+        //      // const_cast<surfaceScalarField&>(mesh_.phi().oldTime().oldTime()) = meshFlux_->oldTime().oldTime();
+        //     // *mesh_.phi().oldTime().oldTime() == meshFlux_->oldTime().oldTime();
+        //     const_cast<surfaceScalarField&>(mesh_.phi()).oldTime().oldTime() = meshFlux_->oldTime().oldTime();
+        // }
+    }
+
+    Info << "print mesh flux " << meshFluxExist << runTime_.value() << endl;
+    // Info << "print phi   " << mesh_.phi().internalField()[2003] << endl;
+    // Info << "print phi0  " << mesh_.phi().oldTime().internalField()[2003] << endl;
+    // Info << "print phi00 " << mesh_.phi().oldTime().oldTime().internalField()[2003] << endl;
+
+
+    // *(pointScalarFields_.at(i)) == *(pointScalarFieldCopies_.at(i));
+
+    // int nOldTimes(pointScalarFields_.at(i)->nOldTimes());
+    // if (nOldTimes >= 1)
+    // {
+    //     pointScalarFields_.at(i)->oldTime() == pointScalarFieldCopies_.at(i)->oldTime();        
+    // }
+    // if (nOldTimes == 2)
+    // {
+    //     pointScalarFields_.at(i)->oldTime().oldTime() == pointScalarFieldCopies_.at(i)->oldTime().oldTime();
+    // }
+    //////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+}
+
+/*
+
+///// TODO          mesh checkpointing here. 
+void preciceAdapter::Adapter::storeMeshPoints()
+{
+    DEBUG(adapterInfo("Storing mesh points..."));
+    // TODO: In foam-extend, we would need "allPoints()". Check if this gives the same data.
+    meshPoints_ = mesh_.points();
+    oldMeshPoints_ = mesh_.oldPoints();
+    DEBUG(adapterInfo("Stored mesh points."));
+
+
+//     volume_         = mesh_.V();
+//     oldVolume_      = mesh_.V0();
+//     oldOldVolume_   = mesh_.V0();
+// }   
+
+void preciceAdapter::Adapter::reloadMeshPoints()
+{
+    // In Foam::polyMesh::movePoints.
+    // TODO: This function overwrites the pointer to the old mesh. Therefore, if you revert the mesh, the oldpointer will be set to the points, which are the new values. 
+    DEBUG(adapterInfo("Moving mesh points to their previous locations..."));
+    // Switch oldpoints on for pure physics. (is this required?). Switch off for better mesh deformation capabilities. 
+    const_cast<pointField&>(mesh_.points()) = meshPoints_;
+    const_cast<fvMesh&>(mesh_).movePoints(meshPoints_);
+
+    // update other fields too. 
+    const_cast<pointField&>(mesh_.oldPoints()) = oldMeshPoints_;
+    // const_cast<pointField&>(mesh_.oldPoints()) = oldMeshPoints_;
+    // const_cast<pointField&>(mesh_.oldPoints()) = oldMeshPoints_;
+    // const_cast<pointField&>(mesh_.oldPoints()) = oldMeshPoints_;     
+
+
+
+
     DEBUG(adapterInfo("Moved mesh points to their previous locations."));
 }
+
+*/
+
 
 void preciceAdapter::Adapter::setupCheckpointing()
 {
@@ -1133,16 +1306,23 @@ void preciceAdapter::Adapter::setupCheckpointing()
         }
     }
 
+    return;
+}
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
 
-
-
+void preciceAdapter::Adapter::addMeshCheckpointField(surfaceScalarField & field)
+{
+    surfaceScalarField * copy = new surfaceScalarField(field);
+    meshSurfaceScalarFields_.push_back(&field);
+    meshSurfaceScalarFieldCopies_.push_back(copy);
 
     return;
 }
+
+
 
 void preciceAdapter::Adapter::addCheckpointField(volScalarField & field)
 {

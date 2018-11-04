@@ -134,8 +134,16 @@ private:
         //- Checkpointed mesh points
         Foam::pointField meshPoints_;
         Foam::pointField oldMeshPoints_;
+        bool meshFluxExist = false; 
 
+        // const Foam::surfaceScalarField* meshFlux_; 
+        // const Foam::surfaceScalarField* meshFlux_; // This worked to create a pointer. 
 
+            std::vector<Foam::surfaceScalarField*> meshSurfaceScalarFields_;
+
+            //- Checkpointed volScalarField fields (copies)
+            std::vector<Foam::surfaceScalarField*> meshSurfaceScalarFieldCopies_;
+        
         // Vectors of pointers to the checkpointed fields and their copies
 
             //- Checkpointed volScalarField fields
@@ -257,6 +265,9 @@ private:
 
         //- Restore the locations of the mesh points
         void reloadMeshPoints();
+
+        // mesh checkpointed field 
+            void addMeshCheckpointField(surfaceScalarField & field);
 
         // Add checkpoint fields, depending on the type
 

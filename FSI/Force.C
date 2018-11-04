@@ -12,7 +12,10 @@ preciceAdapter::FSI::Force::Force
     */
 )
 :
-mesh_(mesh)
+mesh_(mesh),
+runTime_(mesh_.time()),         // TODO remove after testing
+time_(0.0),
+timeOld_(0.0)
 {
     dataType_ = vector;
 
@@ -104,11 +107,11 @@ void preciceAdapter::FSI::Force::write(double * buffer)
             Sfb[patchID] & devRhoReffb[patchID];
 
 
-        fvPatchVectorField& ForcePatch =
-            refCast<fvPatchVectorField>
-            (
-                Force_->boundaryFieldRef()[patchID]
-            );
+        // fvPatchVectorField& ForcePatch =
+        //     refCast<fvPatchVectorField>
+        //     (
+        //         Force_->boundaryFieldRef()[patchID]
+        //     );
 
         // Write the forces to the preCICE buffer
         // For every cell of the patch
@@ -117,7 +120,7 @@ void preciceAdapter::FSI::Force::write(double * buffer)
             // Copy the force into the buffer
             // x-dimension
             buffer[bufferIndex++]
-            =
+            = 
             Force_->boundaryFieldRef()[patchID][i].x();
 
             // y-dimension
@@ -129,19 +132,8 @@ void preciceAdapter::FSI::Force::write(double * buffer)
             buffer[bufferIndex++]
             =
             Force_->boundaryFieldRef()[patchID][i].z();
-
-            // checking for parallel runs. 
-            // Info << "Force boundary field " << Force_->boundaryFieldRef()[patchID] << endl;
-            // std::cout << "HALLO: " << buffer[bufferIndex] << nl << endl;
         }
-        // Info << nl << "old pressure: " << max(p.oldTime().primitiveField()) << endl;
-        // Info << "Force boundary field: " << ForcePatch.patchInternalField() << endl;
-
-    // TEMPORARY: GET THE FIELD TO SEE THE OLD ENTRIES.
-    // const pointVectorField& pointDisplacement_ =
-    //     mesh_.lookupObject<pointVectorField>("pointDisplacement");
-
-    //     Info << nl << "old value: " << max(pointDisplacement_.oldTime().primitiveField()) << endl;
+        testfunctions();
     }
 }
 
@@ -161,4 +153,40 @@ preciceAdapter::FSI::Force::~Force()
 {
     // TODO: Is this enough?
     delete Force_;
+}
+
+void  preciceAdapter::FSI::Force::testfunctions()
+{
+
+    if (time_!=runTime_.value())
+    {
+        // check if the function needs to be called.
+        timeOld_ = time_;
+
+        time_ = runTime_.value();
+    
+        // const volScalarField::Internal& oldVols = mesh_.V0();
+    }
+    if ( time_ == 0 )
+    {
+        timeOld_ = -1.;
+    }
+
+    Info << "cell volume   " << mesh_.V()[2003] << endl;
+    Info << "cell volume0  " << mesh_.V0()[2003] << endl;
+    Info << "cell volume00 " << mesh_.V00()[2003] << endl;
+
+    // Info << "cell volume00 " << norm(mesh_.V00()) << endl;
+
+
+    // How can I access this?
+    // Info << "subcycle volume   " << mesh_.Vsc().internalField()[2003] << endl;
+    // Info << "subcycle volume0  " << mesh_.Vsc0()[2003] << endl;
+
+    Info << "printpoints    " << mesh_.points()[2003] << endl;
+    Info << "printpoints0   " << mesh_.oldPoints()[2003] << endl;
+
+    Info << "print phi   " << mesh_.phi().internalField()[2003] << endl;
+    Info << "print phi0  " << mesh_.phi().oldTime().internalField()[2003] << endl;
+    Info << "print phi00 " << mesh_.phi().oldTime().oldTime().internalField()[2003] << endl;
 }
