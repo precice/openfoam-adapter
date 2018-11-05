@@ -16,7 +16,7 @@ preciceAdapter::FSI::Force::Force
 mesh_(mesh),
 solverType_(solverType)
 {
-    //What about "basic"?
+    //What about type "basic"?
     if (solverType_.compare("incompressible") != 0 && solverType_.compare("compressible") != 0) 
     {
         FatalErrorInFunction
@@ -48,6 +48,7 @@ solverType_(solverType)
     );
 }
 
+//Calculate viscous force
 Foam::tmp<Foam::volSymmTensorField> preciceAdapter::FSI::Force::devRhoReff() const
 {
     // TODO: Only works for laminar flows at the moment.
@@ -61,6 +62,7 @@ Foam::tmp<Foam::volSymmTensorField> preciceAdapter::FSI::Force::devRhoReff() con
 
 }
 
+//lookup correct rho
 Foam::tmp<Foam::volScalarField> preciceAdapter::FSI::Force::rho() const
 {
     // If volScalarField exists, read it from registry
@@ -93,11 +95,13 @@ Foam::tmp<Foam::volScalarField> preciceAdapter::FSI::Force::rho() const
     }       
 }
 
+//lookup correct mu
 Foam::tmp<Foam::volScalarField> preciceAdapter::FSI::Force::mu() const
 { 
     if (solverType_.compare("incompressible") == 0)
     {
         // TODO: Add multiphase support: interFoam uses mixture.mu()
+        // TODO: Add turbulent viscosities
         const dictionary& transportProperties =
             mesh_.lookupObject<IOdictionary>("transportProperties");
                
@@ -116,13 +120,8 @@ Foam::tmp<Foam::volScalarField> preciceAdapter::FSI::Force::mu() const
 
 void preciceAdapter::FSI::Force::write(double * buffer)
 {    
-    
-    /* TODO: Implement
-    * We need two nested for-loops for each patch,
-    * the outer for the locations and the inner for the dimensions.
-    * See the preCICE writeBlockVectorData() implementation.
-    */
     // Compute forces. See the Forces function object.
+    
     // Normal vectors on the boundary, multiplied with the face areas
     const surfaceVectorField::Boundary& Sfb =
         mesh_.Sf().boundaryField();
@@ -150,7 +149,6 @@ void preciceAdapter::FSI::Force::write(double * buffer)
         int patchID = patchIDs_.at(j);
 
         // Pressure forces
-        // TODO: Extend to cover also compressible solvers
         if (solverType_.compare("incompressible") == 0)
         {
             Force_->boundaryFieldRef()[patchID] =
