@@ -25,7 +25,9 @@ protected:
     std::string locationsType_;
 
     //- Mesh ID assigned by preCICE to the interface
-    int meshID_;
+    int NodemeshID_;
+    int CentermeshID_;
+
 
     //- Names of the OpenFOAM patches that form the interface
     std::vector<std::string> patchNames_;
@@ -34,10 +36,12 @@ protected:
     std::vector<int> patchIDs_;
 
     //- Number of data points (cell centers) on the interface
-    int numDataLocations_ = 0;
+    int numCenterLocations_ = 0;
+    int numNodeLocations_ = 0;
 
     //- Vertex IDs assigned by preCICE
-    int * vertexIDs_;
+    int * CenterIDs_;
+    int * NodeIDs_;
 
     //- Buffer for the coupling data
     double * dataBuffer_;

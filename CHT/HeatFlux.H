@@ -20,6 +20,8 @@ protected:
     //- Temperature field
     Foam::volScalarField * T_;
 
+    const Foam::fvMesh& mesh_;
+
     //- Wrapper for the extract() method of the corresponding KappaEff class
     virtual void extractKappaEff(uint patchID) = 0;
 

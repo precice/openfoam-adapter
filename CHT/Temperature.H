@@ -18,6 +18,7 @@ private:
 
     //- Temperature field
     Foam::volScalarField * T_;
+    const Foam::fvMesh& mesh_;
 
 public:
 

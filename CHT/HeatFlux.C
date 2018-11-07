@@ -1,4 +1,5 @@
 #include "HeatFlux.H"
+#include "primitivePatchInterpolation.H"
 
 #include "fvCFD.H"
 
@@ -8,18 +9,20 @@ using namespace Foam;
 
 preciceAdapter::CHT::HeatFlux::HeatFlux
 (
-    const Foam::fvMesh& mesh,
-    const std::string nameT
-)
-:
-T_(
-    const_cast<volScalarField*>
-    (
-        &mesh.lookupObject<volScalarField>(nameT)
-    )
-)
+        const Foam::fvMesh& mesh,
+        const std::string nameT
+        )
+    :
+      T_(
+          const_cast<volScalarField*>
+          (
+              &mesh.lookupObject<volScalarField>(nameT)
+              )
+          ),
+      mesh_(mesh)
 {
     dataType_ = scalar;
+
 }
 
 void preciceAdapter::CHT::HeatFlux::write(double * buffer)
@@ -31,25 +34,38 @@ void preciceAdapter::CHT::HeatFlux::write(double * buffer)
     {
         int patchID = patchIDs_.at(j);
 
+        //TODO: Ask for the locationsType, currently Triangles assumed
+
+        //Setup Interpolation object
+        primitivePatchInterpolation patchInterpolator(mesh_.boundaryMesh()[patchID]);
+
+
+        scalarField gradpatch=refCast<fixedValueFvPatchScalarField>
+                (T_->boundaryFieldRef()[patchID]
+                 ).snGrad();
+
+
+        Field<double>  gradpoint;
+
+        //Interpolate
+        gradpoint= patchInterpolator.faceToPointInterpolate(gradpatch);
+
+
         // Extract the effective conductivity on the patch
         extractKappaEff(patchID);
 
-        // Get the temperature gradient boundary patch
-        scalarField gradientPatch
-        =
-        refCast<fixedValueFvPatchScalarField>
-        (
-            T_->boundaryFieldRef()[patchID]
-        ).snGrad();
+
 
         // For every cell of the patch
-        forAll(gradientPatch, i)
+        forAll(gradpoint, i)
         {
             // Copy the heat flux into the buffer
             // Q = - k * gradient(T)
+            //TODO: Interpolate kappa in case of a turbulent calculation
             buffer[bufferIndex++]
-            =
-            -getKappaEffAt(i) * gradientPatch[i];
+                    =
+                    -getKappaEffAt(i) * gradpoint[i];
+
         }
     }
 }
@@ -63,16 +79,18 @@ void preciceAdapter::CHT::HeatFlux::read(double * buffer)
     {
         int patchID = patchIDs_.at(j);
 
+
+
         // Extract the effective conductivity on the patch
         extractKappaEff(patchID);
 
         // Get the temperature gradient boundary patch
         scalarField & gradientPatch
-        =
-        refCast<fixedGradientFvPatchScalarField>
-        (
-            T_->boundaryFieldRef()[patchID]
-        ).gradient();
+                =
+                refCast<fixedGradientFvPatchScalarField>
+                (
+                    T_->boundaryFieldRef()[patchID]
+                    ).gradient();
 
         // For every cell of the patch
         forAll(gradientPatch, i)
@@ -82,8 +100,8 @@ void preciceAdapter::CHT::HeatFlux::read(double * buffer)
             // as the buffer contains the flux that enters the boundary:
             // gradient(T) = -Q / -k
             gradientPatch[i]
-            =
-            buffer[bufferIndex++] / getKappaEffAt(i);
+                    =
+                    buffer[bufferIndex++] / getKappaEffAt(i);
         }
     }
 }
@@ -92,12 +110,12 @@ void preciceAdapter::CHT::HeatFlux::read(double * buffer)
 
 preciceAdapter::CHT::HeatFlux_Compressible::HeatFlux_Compressible
 (
-    const Foam::fvMesh& mesh,
-    const std::string nameT
-)
-:
-HeatFlux(mesh, nameT),
-Kappa_(new KappaEff_Compressible(mesh))
+        const Foam::fvMesh& mesh,
+        const std::string nameT
+        )
+    :
+      HeatFlux(mesh, nameT),
+      Kappa_(new KappaEff_Compressible(mesh))
 {
 }
 
@@ -120,17 +138,17 @@ scalar preciceAdapter::CHT::HeatFlux_Compressible::getKappaEffAt(int i)
 
 preciceAdapter::CHT::HeatFlux_Incompressible::HeatFlux_Incompressible
 (
-    const Foam::fvMesh& mesh,
-    const std::string nameT,
-    const std::string nameTransportProperties,
-    const std::string nameRho,
-    const std::string nameCp,
-    const std::string namePr,
-    const std::string nameAlphat
-)
-:
-HeatFlux(mesh, nameT),
-Kappa_(new KappaEff_Incompressible(mesh, nameTransportProperties, nameRho, nameCp, namePr, nameAlphat))
+        const Foam::fvMesh& mesh,
+        const std::string nameT,
+        const std::string nameTransportProperties,
+        const std::string nameRho,
+        const std::string nameCp,
+        const std::string namePr,
+        const std::string nameAlphat
+        )
+    :
+      HeatFlux(mesh, nameT),
+      Kappa_(new KappaEff_Incompressible(mesh, nameTransportProperties, nameRho, nameCp, namePr, nameAlphat))
 {
 }
 
@@ -153,14 +171,14 @@ scalar preciceAdapter::CHT::HeatFlux_Incompressible::getKappaEffAt(int i)
 
 preciceAdapter::CHT::HeatFlux_Basic::HeatFlux_Basic
 (
-    const Foam::fvMesh& mesh,
-    const std::string nameT,
-    const std::string nameTransportProperties,
-    const std::string nameKappa
-)
-:
-HeatFlux(mesh, nameT),
-Kappa_(new KappaEff_Basic(mesh, nameTransportProperties, nameKappa))
+        const Foam::fvMesh& mesh,
+        const std::string nameT,
+        const std::string nameTransportProperties,
+        const std::string nameKappa
+        )
+    :
+      HeatFlux(mesh, nameT),
+      Kappa_(new KappaEff_Basic(mesh, nameTransportProperties, nameKappa))
 {
 }
 
