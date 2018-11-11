@@ -12,10 +12,7 @@ preciceAdapter::FSI::Force::Force
     */
 )
 :
-mesh_(mesh),
-runTime_(mesh_.time()),         // TODO remove after testing
-time_(0.0),
-timeOld_(0.0)
+mesh_(mesh)
 {
     dataType_ = vector;
 
@@ -106,13 +103,6 @@ void preciceAdapter::FSI::Force::write(double * buffer)
         Force_->boundaryFieldRef()[patchID] +=
             Sfb[patchID] & devRhoReffb[patchID];
 
-
-        // fvPatchVectorField& ForcePatch =
-        //     refCast<fvPatchVectorField>
-        //     (
-        //         Force_->boundaryFieldRef()[patchID]
-        //     );
-
         // Write the forces to the preCICE buffer
         // For every cell of the patch
         forAll(Force_->boundaryFieldRef()[patchID], i)
@@ -133,7 +123,6 @@ void preciceAdapter::FSI::Force::write(double * buffer)
             =
             Force_->boundaryFieldRef()[patchID][i].z();
         }
-        testfunctions();
     }
 }
 
@@ -153,40 +142,4 @@ preciceAdapter::FSI::Force::~Force()
 {
     // TODO: Is this enough?
     delete Force_;
-}
-
-void  preciceAdapter::FSI::Force::testfunctions()
-{
-
-    if (time_!=runTime_.value())
-    {
-        // check if the function needs to be called.
-        timeOld_ = time_;
-
-        time_ = runTime_.value();
-    
-        // const volScalarField::Internal& oldVols = mesh_.V0();
-    }
-    if ( time_ == 0 )
-    {
-        timeOld_ = -1.;
-    }
-
-    Info << "cell volume   " << mesh_.V()[2003] << endl;
-    Info << "cell volume0  " << mesh_.V0()[2003] << endl;
-    Info << "cell volume00 " << mesh_.V00()[2003] << endl;
-
-    // Info << "cell volume00 " << norm(mesh_.V00()) << endl;
-
-
-    // How can I access this?
-    // Info << "subcycle volume   " << mesh_.Vsc().internalField()[2003] << endl;
-    // Info << "subcycle volume0  " << mesh_.Vsc0()[2003] << endl;
-
-    Info << "printpoints    " << mesh_.points()[2003] << endl;
-    Info << "printpoints0   " << mesh_.oldPoints()[2003] << endl;
-
-    Info << "print phi   " << mesh_.phi().internalField()[2003] << endl;
-    Info << "print phi0  " << mesh_.phi().oldTime().internalField()[2003] << endl;
-    Info << "print phi00 " << mesh_.phi().oldTime().oldTime().internalField()[2003] << endl;
 }

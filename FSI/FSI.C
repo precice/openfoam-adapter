@@ -46,14 +46,6 @@ bool preciceAdapter::FSI::FluidStructureInteraction::readConfig(const YAML::Node
     }
     DEBUG(adapterInfo("    pointDisplacement field name : " + namePointDisplacement_));
 
-
-    // Read the name of the velocity field (if different)
-    if (adapterConfig["nameVelocity"])
-    {
-        nameVelocity_ = adapterConfig["nameVelocity"].as<std::string>();
-    }
-    DEBUG(adapterInfo("    Velocity field name : " + nameVelocity_));
-
     return true;
 }
 
@@ -93,16 +85,6 @@ void preciceAdapter::FSI::FluidStructureInteraction::addWriters(std::string data
         );
         DEBUG(adapterInfo("Added writer: Displacement."));
     }
-    else if (dataName.find("Velocity") == 0)
-    {
-        interface->addCouplingDataWriter
-        (
-            dataName,
-            new Velocity(mesh_, runTime_, nameVelocity_) /* TODO: Add any other arguments here */
-        );
-        DEBUG(adapterInfo("Added writer: Velocity."));
-    }
-
 
     // NOTE: If you want to couple another variable, you need
     // to add your new coupling data user as a coupling data
@@ -137,16 +119,6 @@ void preciceAdapter::FSI::FluidStructureInteraction::addReaders(std::string data
             new DisplacementDelta(mesh_, namePointDisplacement_) /* TODO: Add any other arguments here */
         );
         DEBUG(adapterInfo("Added reader: DisplacementDelta."));
-    //
-    // TODO evaluate this.
-    // The velocity is not in the dataNames, because it is not exchanged. In the case a displacement mesh
-    // motion solver is used, it needs to be created, therefore it is listed in the same if-statement.
-        interface->addCouplingDataReader
-        (
-            dataName,
-            new Velocity(mesh_, runTime_, nameVelocity_) /* TODO: Add any other arguments here */
-        );
-        DEBUG(adapterInfo("Added reader: Velocity."));
     }
     else if (dataName.find("Displacement") == 0)
     {
@@ -156,17 +128,6 @@ void preciceAdapter::FSI::FluidStructureInteraction::addReaders(std::string data
             new Displacement(mesh_, namePointDisplacement_) /* TODO: Add any other arguments here */
         );
         DEBUG(adapterInfo("Added reader: Displacement."));
-    //
-    // TODO evaluate this.
-    // The velocity is not in the dataNames, because it is not exchanged. In the case a displacement mesh
-    // motion solver is used, it needs to be created, therefore it is listed in the same if-statement.
-    
-        // interface->addCouplingDataReader
-        // (
-        //     dataName,
-        //     new Velocity(mesh_, runTime_, nameVelocity_) /* TODO: Add any other arguments here */
-        // );
-        // DEBUG(adapterInfo("Added reader: Velocity."));
     }
     // NOTE: If you want to couple another variable, you need
     // to add your new coupling data user as a coupling data

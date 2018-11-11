@@ -24,8 +24,6 @@ private:
     /  see CHT/Temperature.H.
     */
 
-    // TODO create a pointVectorField which follows the displacementDeltas over the iterationos. 
-
     // Displacement pointVectorField
     Foam::pointVectorField * pointDisplacement_;
 
@@ -43,17 +41,15 @@ public:
         */
     );
 
-    //- Write the displacement values into the buffer
+    //- Write the displacementDelta values into the buffer
     void write(double * buffer);
 
-    //- Read the displacement values from the buffer
+    //- Read the displacementDelta values from the buffer
     void read(double * buffer);
 
 };
 
 }
 }
-// Velocity must be updated after the displacment.
-// #include "Velocity.H"
 
 #endif

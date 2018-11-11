@@ -23,9 +23,6 @@ private:
 
     //- OpenFOAM fvMesh object (we need to access the objects' registry multiple times)
     const Foam::fvMesh& mesh_;
-
-    // Get the runTime
-    const Foam::Time& runTime_;
     
     //- Force field
     Foam::volVectorField * Force_;
@@ -33,10 +30,6 @@ private:
 
     //- Stress tensor (see the OpenFOAM "Forces" function object)
     Foam::tmp<Foam::volSymmTensorField> devRhoReff(dimensionedScalar rho) const;
-
-    // TODO remove after testing
-    Foam::scalar time_;
-    Foam::scalar timeOld_;
 
 public:
 
@@ -58,7 +51,6 @@ public:
     //- Read the displacement values from the buffer
     void read(double * buffer);
 
-    void testfunctions();
     //- Destructor
     ~Force();
 
