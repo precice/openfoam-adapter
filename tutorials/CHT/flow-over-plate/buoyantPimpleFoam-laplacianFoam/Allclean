@@ -42,10 +42,18 @@ rm -f ${Participant2}_reconstructPar.log
 
 # Remove the preCICE-related log files
 echo "Deleting the preCICE log files..."
-rm -f convergence-*.log convergence-*.txt
-rm -f EventTimings-*.log EventTimings-*.txt
-rm -f iterations-*.log iterations-*.txt
-rm -f .Fluid-Solid.address
+rm -f \
+    precice-*.log \
+    precice-postProcessingInfo.log
+    
+# Output files for preCICE versions before 1.2:
+rm -f \
+    iterations-${Participant1}.txt iterations-${Participant2}.txt \
+    convergence-${Participant1}.txt convergence-${Participant2}.txt \
+    Events-${Participant1}.log Events-${Participant2}.log \
+    EventTimings-${Participant1}.log EventTimings-${Participant2}.log
+
+rm -f .${Participant1}-${Participant2}.address
 
 echo "Cleaning complete!"
 #------------------------------------------------------------------------------

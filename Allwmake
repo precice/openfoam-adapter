@@ -62,6 +62,7 @@ export ADAPTER_TARGET_DIR
 export ADAPTER_GLOBAL_CPLUS_INC_PATHS
 export ADAPTER_GLOBAL_LD_LIBRARY_PATHS
 export ADAPTER_GLOBAL_LIBRARY_PATHS
+export ADAPTER_PKG_CONFIG_CFLAGS="`PKG_CONFIG_ALLOW_SYSTEM_CFLAGS=1 pkg-config --silence-errors --cflags precice`"
 
 # Inform the user about the environment
 echo "Using the following environment variables:"
@@ -75,26 +76,45 @@ fi
 echo "  ADAPTER_PREP_FLAGS    = ${ADAPTER_PREP_FLAGS}"
 echo "  ADAPTER_TARGET_DIR    = ${ADAPTER_TARGET_DIR}"
 echo "  ADAPTER_WMAKE_OPTIONS = ${ADAPTER_WMAKE_OPTIONS}"
+echo "  ADAPTER_PKG_CONFIG_CFLAGS       = ${ADAPTER_PKG_CONFIG_CFLAGS}"
 echo "  ADAPTER_GLOBAL_CPLUS_INC_PATHS  = ${ADAPTER_GLOBAL_CPLUS_INC_PATHS}"
 echo "  ADAPTER_GLOBAL_LD_LIBRARY_PATHS = ${ADAPTER_GLOBAL_LD_LIBRARY_PATHS}"
 echo "  ADAPTER_GLOBAL_LIBRARY_PATHS    = ${ADAPTER_GLOBAL_LIBRARY_PATHS}"
+
+# Check if an OpenFOAM environment is available
+echo "  WM_PROJECT = ${WM_PROJECT}"
+echo "  WM_PROJECT_VERSION = ${WM_PROJECT_VERSION}"
+if [ -z "${WM_PROJECT}" ]; then
+    echo "  It looks like no OpenFOAM environment is available. Have you loaded the OpenFOAM etc/bashrc file?"
+    echo "Building failed."
+    exit 1
+fi
+# Check if this is a compatible OpenFOAM environment
+# For now, only check if it is not foam-extend, the main incompatible variant.
+if [ "${WM_PROJECT}" = "foam" ]; then
+    echo "  foam-extend is not compatible with the adapter. Please refer to the adapter's wiki for notes on compatibility."
+    echo "Building failed."
+    exit 1
+fi
+
 echo ""
 
 # Run wmake (build the adapter) and check the exit code
 echo "Building with WMake (see the wmake.log log file)..."
-wmake ${ADAPTER_WMAKE_OPTIONS} libso # > wmake.log 2>&1
-# echo ""
-# if [ $? -ne 0 ] || [ "$(grep -c -E "error" wmake.log)" -ne 0 ]; then
-#     echo "Building failed. See wmake.log for more."
-# else
-#     ADAPTER_WMAKE_UNDEFINED_SYMBOLS=$(grep -c -E "undefined|not defined" wmake.log)
-#     ldd -r ${ADAPTER_TARGET_DIR}/libpreciceAdapterFunctionObject.so > ldd.log 2>&1
-#     ADAPTER_LD_UNDEFINED_SYMBOLS=$(grep -c -E "undefined|not defined" ldd.log)
-#     if [ "${ADAPTER_WMAKE_UNDEFINED_SYMBOLS}" -gt 0 ] || [ "${ADAPTER_LD_UNDEFINED_SYMBOLS}" -gt 0 ]; then
-#         echo "Building completed with linking problems: there were undefined symbols. See wmake.log and ldd.log for more."
-#         echo "If preCICE is only build as a static library, please set the ADAPTER_PRECICE_DEP in this script appropriately (see comments)."
-#     else
-#         echo "Building completed successfully!"
-#         echo "Next step: Run an example from the tutorials/ directory."
-#     fi
-# fi
+wmake ${ADAPTER_WMAKE_OPTIONS} libso > wmake.log 2>&1
+echo ""
+if [ $? -ne 0 ] || [ "$(grep -c -E "error:" wmake.log)" -ne 0 ]; then
+    echo "Building failed. See wmake.log for more."
+    exit 1
+else
+    ADAPTER_WMAKE_UNDEFINED_SYMBOLS=$(grep -c -E "undefined|not defined" wmake.log)
+    ldd -r ${ADAPTER_TARGET_DIR}/libpreciceAdapterFunctionObject.so > ldd.log 2>&1
+    ADAPTER_LD_UNDEFINED_SYMBOLS=$(grep -c -E "undefined|not defined" ldd.log)
+    if [ "${ADAPTER_WMAKE_UNDEFINED_SYMBOLS}" -gt 0 ] || [ "${ADAPTER_LD_UNDEFINED_SYMBOLS}" -gt 0 ]; then
+        echo "Building completed with linking problems: there were undefined symbols. See wmake.log and ldd.log for more."
+        echo "If preCICE is only build as a static library, please set the ADAPTER_PRECICE_DEP in this script appropriately (see comments)."
+    else
+        echo "Building completed successfully!"
+        echo "Next step: Run an example from the tutorials/ directory."
+    fi
+fi
