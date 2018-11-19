@@ -5,6 +5,11 @@
 
 #include "fvCFD.H"
 
+// TEMPORARY
+#include "pointFields.H"
+#include "vectorField.H"
+
+
 namespace preciceAdapter
 {
 namespace FSI
@@ -18,9 +23,10 @@ private:
 
     //- OpenFOAM fvMesh object (we need to access the objects' registry multiple times)
     const Foam::fvMesh& mesh_;
-
+    
     //- Force field
     Foam::volVectorField * Force_;
+
 
     //- Stress tensor (see the OpenFOAM "Forces" function object)
     Foam::tmp<Foam::volSymmTensorField> devRhoReff(dimensionedScalar rho) const;

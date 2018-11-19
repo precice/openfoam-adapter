@@ -85,7 +85,7 @@ private:
         bool adjustableTimestep_;
 
         //- Should the (fixed) timestep be stored and used?
-        bool useStoredTimestep_ = false;
+        bool useStoredTimestep_ = false; 
 
         //- Switch to enable the ConjugateHeatTransfer module
         bool CHTenabled_ = false;
@@ -133,6 +133,42 @@ private:
 
         //- Checkpointed mesh points
         Foam::pointField meshPoints_;
+        Foam::pointField oldMeshPoints_;
+
+        //- Checkpointed mesh volume 
+        bool oldVolsStored = false;
+
+        Foam::volScalarField::Internal* oldVols_;
+        Foam::volScalarField::Internal* oldOldVols_;
+
+        int curTimeIndex_ = 0;
+        bool meshCheckPointed = false; 
+
+        // Vectors of pointers to the checkpointed mesh fields and their copies
+            //- Checkpointed surfaceScalarField
+            std::vector<Foam::surfaceScalarField*> meshSurfaceScalarFields_;
+
+            //- Checkpointed surfaceScalarField fields (copies)
+            std::vector<Foam::surfaceScalarField*> meshSurfaceScalarFieldCopies_;
+
+            //- Checkpointed surfaceVectorField
+            std::vector<Foam::surfaceVectorField*> meshSurfaceVectorFields_;
+
+            //- Checkpointed surfaceVectorField fields (copies)
+            std::vector<Foam::surfaceVectorField*> meshSurfaceVectorFieldCopies_;
+        
+                    //- Checkpointed volVectorField
+            std::vector<Foam::volVectorField*> meshVolVectorFields_;
+
+            //- Checkpointed volVectorField fields (copies)
+            std::vector<Foam::volVectorField*> meshVolVectorFieldCopies_;
+
+        // TODO checkpoint for the V0 and V00 fields. 
+                    //- Checkpointed volVectorField
+            std::vector<Foam::volScalarField::Internal*> volScalarInternalFields_;
+
+            //- Checkpointed volVectorField fields (copies)
+            std::vector<Foam::volScalarField::Internal*> volScalarInternalFieldCopies_;
 
         // Vectors of pointers to the checkpointed fields and their copies
 
@@ -171,6 +207,32 @@ private:
 
             //- Checkpointed pointVectorField fields (copies)
             std::vector<Foam::pointVectorField*> pointVectorFieldCopies_;
+
+// ADDED BY DEREK
+            //- Checkpointed volTensorField fields
+            std::vector<Foam::volTensorField*> volTensorFields_;
+
+            //- Checkpointed volTensorField fields (copies)
+            std::vector<Foam::volTensorField*> volTensorFieldCopies_;
+
+            //- Checkpointed surfaceTensorField fields
+            std::vector<Foam::surfaceTensorField*> surfaceTensorFields_;
+
+            //- Checkpointed surfaceTensorField fields (copies)
+            std::vector<Foam::surfaceTensorField*> surfaceTensorFieldCopies_;
+
+            //- Checkpointed pointTensorField fields
+            std::vector<Foam::pointTensorField*> pointTensorFields_;
+
+            //- Checkpointed pointTensorField fields (copies)
+            std::vector<Foam::pointTensorField*> pointTensorFieldCopies_;
+
+            //- Checkpointed volSymmTensorField fields
+            std::vector<Foam::volSymmTensorField*> volSymmTensorFields_;
+
+            //- Checkpointed volSymmTensorField fields (copies)
+            std::vector<Foam::volSymmTensorField*> volSymmTensorFieldCopies_;
+
 
             // NOTE: Declare additional vectors for any other types required.
 
@@ -222,6 +284,12 @@ private:
 
     // Methods for checkpointing
 
+        //- Configure the mesh checkpointing
+        void setupMeshCheckpointing();
+
+        //- Configure the mesh checkpointing
+        void setupMeshVolCheckpointing();
+
         //- Configure the checkpointing
         void setupCheckpointing();
 
@@ -236,6 +304,17 @@ private:
 
         //- Restore the locations of the mesh points
         void reloadMeshPoints();
+
+        // mesh checkpointed field, depending on the type
+            void addMeshCheckpointField(surfaceScalarField & field);
+
+            void addMeshCheckpointField(surfaceVectorField & field);
+
+            void addMeshCheckpointField(volVectorField & field);
+
+        // TODO V0 and V00 checkpointed field. 
+            void addVolCheckpointField(volScalarField::Internal & field);
+            void addVolCheckpointFieldBuffer(volScalarField::Internal & field);
 
         // Add checkpoint fields, depending on the type
 
@@ -260,11 +339,37 @@ private:
             // NOTE: Add here methods to add other object types to checkpoint,
             // if needed.
 
+            // ADDED BY DEREK
+            //- Add a volTensorField to checkpoint
+            void addCheckpointField(volTensorField & field);
+
+            //- Add a surfaceTensorField to checkpoint
+            void addCheckpointField(surfaceTensorField & field);
+
+            //- Add a pointTensorField to checkpoint
+            void addCheckpointField(pointTensorField & field);
+
+            //- Add a volSymmTensorField to checkpoint
+            void addCheckpointField(volSymmTensorField & field);
+
+        //- Read the checkpoint - restore the mesh fields and time
+        void readMeshCheckpoint();
+
         //- Read the checkpoint - restore the fields and time
         void readCheckpoint();
 
+        //- Write the checkpoint - store the mesh fields and time
+        void writeMeshCheckpoint();
+
         //- Write the checkpoint - store the fields and time
         void writeCheckpoint();
+
+        // TODO for the volumes. Probably these can be included with the mesh checkpoints. 
+        //- Read the volume checkpoint - restore the mesh volume fields
+        void readVolCheckpoint();
+
+        //- Write the volume checkpoint to a buffer - restore the mesh volume fields 
+        void writeVolCheckpoint();
 
     //- Destroy the preCICE interface and delete the allocated
     //  memory in a proper way. Called by the destructor.

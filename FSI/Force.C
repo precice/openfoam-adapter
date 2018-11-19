@@ -82,7 +82,7 @@ void preciceAdapter::FSI::Force::write(double * buffer)
     // Stress tensor boundary field
     const volSymmTensorField::Boundary& devRhoReffb =
         tdevRhoReff().boundaryField();
-
+   
     // Pressure
     const volScalarField& p =
         mesh_.lookupObject<volScalarField>("p");
@@ -110,7 +110,7 @@ void preciceAdapter::FSI::Force::write(double * buffer)
             // Copy the force into the buffer
             // x-dimension
             buffer[bufferIndex++]
-            =
+            = 
             Force_->boundaryFieldRef()[patchID][i].x();
 
             // y-dimension
