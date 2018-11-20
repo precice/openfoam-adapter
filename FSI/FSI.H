@@ -4,8 +4,8 @@
 #include "Interface.H"
 
 #include "FSI/Displacement.H"
+#include "FSI/DisplacementDelta.H"
 #include "FSI/Force.H"
-#include "FSI/Velocity.H"
 
 #include "fvCFD.H"
 
@@ -36,9 +36,6 @@ protected:
 
     //- Name of the pointDisplacement field
     std::string namePointDisplacement_ = "pointDisplacement";
-
-    //- Name of the velocity field
-    std::string nameVelocity_ = "U";
 
     /* TODO: Declare here any parameters that should be read from
     /  the configuration file. See CHT/CHT.H for reference.

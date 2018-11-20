@@ -1,9 +1,9 @@
-#include "Displacement.H"
+#include "DisplacementDelta.H"
 
 using namespace Foam;
 
 
-preciceAdapter::FSI::Displacement::Displacement
+preciceAdapter::FSI::DisplacementDelta::DisplacementDelta
 (
     const Foam::fvMesh& mesh,
     const std::string namePointDisplacement
@@ -25,7 +25,7 @@ pointDisplacement_(
 
 
 
-void preciceAdapter::FSI::Displacement::write(double * buffer)
+void preciceAdapter::FSI::DisplacementDelta::write(double * buffer)
 {
     /* TODO: Implement
     * We need two nested for-loops for each patch,
@@ -38,7 +38,7 @@ void preciceAdapter::FSI::Displacement::write(double * buffer)
 }
 
 // return the displacement to use later in the velocity?
-void preciceAdapter::FSI::Displacement::read(double * buffer)
+void preciceAdapter::FSI::DisplacementDelta::read(double * buffer)
 {
     /* TODO: Implement
     * We need two nested for-loops for each patch,
@@ -48,7 +48,6 @@ void preciceAdapter::FSI::Displacement::read(double * buffer)
 
     // For every element in the buffer
     int bufferIndex = 0;
-
 
     // For every boundary patch of the interface
     for (uint j = 0; j < patchIDs_.size(); j++)
@@ -63,18 +62,13 @@ void preciceAdapter::FSI::Displacement::read(double * buffer)
                 pointDisplacement_->boundaryFieldRef()[patchID]
             );
 
-        // Info << nl << "Displacement of  old point: " << pointDisplacementFluidPatch[160] << endl; //33 for flap_perp., 153
-        // For every cell of the patch
+        // For every cell of the patch add the displacement to the current values
         forAll(pointDisplacement_->boundaryFieldRef()[patchID], i)
         {
             // Set the buffer as the pointdisplacment value
-            pointDisplacementFluidPatch[i][0] = buffer[bufferIndex++];
-            pointDisplacementFluidPatch[i][1] = buffer[bufferIndex++];
-            pointDisplacementFluidPatch[i][2] = buffer[bufferIndex++];
+            pointDisplacementFluidPatch[i][0] += buffer[bufferIndex++];
+            pointDisplacementFluidPatch[i][1] += buffer[bufferIndex++];
+            pointDisplacementFluidPatch[i][2] += buffer[bufferIndex++];
         }
-
-        // Info << nl << "Displacement of watchpoint: " << pointDisplacementFluidPatch[160] << endl; //33 for flap_perp., 153
-        // For every cell of the patch
-        // Info << nl << "old value pointDisplacement: " << max(pointDisplacement_->oldTime().primitiveField()) << endl;
     }
 }

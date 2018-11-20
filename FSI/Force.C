@@ -171,7 +171,7 @@ void preciceAdapter::FSI::Force::write(double * buffer)
             // Copy the force into the buffer
             // x-dimension
             buffer[bufferIndex++]
-            =
+            = 
             Force_->boundaryFieldRef()[patchID][i].x();
 
             // y-dimension
