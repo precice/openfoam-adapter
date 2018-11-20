@@ -70,6 +70,7 @@ bool preciceAdapter::FSI::FluidStructureInteraction::readConfig(const YAML::Node
     return true;
 }
 
+// NOTE: This is exactly the same as in the CHT module.
 std::string preciceAdapter::FSI::FluidStructureInteraction::determineSolverType()
 {
     // NOTE: When coupling a different variable, you may want to
