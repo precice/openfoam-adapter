@@ -177,7 +177,7 @@ void preciceAdapter::FSI::FluidStructureInteraction::addWriters(std::string data
                 dataName,
                 new Force(mesh_, runTime_.timeName(), solverType_) /* TODO: Add any other arguments here */
             );
-            DEBUG(adapterInfo("Added writer: Force for compressible solvers."));        
+            DEBUG(adapterInfo("Added writer: Force."));        
     }
     // TODO MOVE THIS UP
     else if (dataName.find("DisplacementDelta") == 0)

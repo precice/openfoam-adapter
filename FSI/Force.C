@@ -54,11 +54,32 @@ Foam::tmp<Foam::volSymmTensorField> preciceAdapter::FSI::Force::devRhoReff() con
     // TODO: Only works for laminar flows at the moment.
     // See the OpenFOAM Forces function object, where an extended
     // version of this method is being used. 
-    
-    // Get the velocity
-    const volVectorField& U = mesh_.lookupObject<volVectorField>("U");
+    /*
+    typedef compressible::turbulenceModel cmpTurbModel;
+    typedef incompressible::turbulenceModel icoTurbModel;
+
+    if (mesh_.foundObject<cmpTurbModel>(cmpTurbModel::propertiesName))
+    {
+        const cmpTurbModel& turb =
+            mesh_.lookupObject<cmpTurbModel>(cmpTurbModel::propertiesName);
+
+        return turb.devRhoReff();
+    }
+    else if (mesh_.foundObject<icoTurbModel>(icoTurbModel::propertiesName))
+    {
+        const incompressible::turbulenceModel& turb =
+            mesh_.lookupObject<icoTurbModel>(icoTurbModel::propertiesName);
+
+        return rho()*turb.devReff();
+    }
+    else
+    {
+    */
+
+        // Get the velocity
+        const volVectorField& U = mesh_.lookupObject<volVectorField>("U");
        
-    return -mu()*dev(twoSymm(fvc::grad(U)));
+        return -mu()*dev(twoSymm(fvc::grad(U)));
 
 }
 
@@ -67,37 +88,48 @@ Foam::tmp<Foam::volScalarField> preciceAdapter::FSI::Force::rho() const
 {
     // If volScalarField exists, read it from registry
     // interFoam is incompressible but has volScalarField rho
-    if (mesh_.lookupObject<volScalarField>("rho").good() == true)
-    {
-        const volScalarField& rho = mesh_.lookupObject<volScalarField>("rho");
-        return rho;
+
+    if (mesh_.foundObject<volScalarField>("rho"))
+    {        
+        return mesh_.lookupObject<volScalarField>("rho");            
     }
     else if (solverType_.compare("incompressible") == 0)
-    {
+    {        
         const dictionary& transportProperties =
-            mesh_.lookupObject<IOdictionary>("transportProperties");      
-        
-        const volScalarField rho
+            mesh_.lookupObject<IOdictionary>("transportProperties");     
+            
+        return tmp<volScalarField>
         (
-            IOobject
+            new volScalarField
             (
-                "rho",
-                mesh_.time().timeName(),
+                IOobject
+                (
+                    "rho",
+                    mesh_.time().timeName(),
+                    mesh_,
+                    IOobject::NO_READ,
+                    IOobject::NO_WRITE
+                ),
                 mesh_,
-                IOobject::NO_READ,
-                IOobject::NO_WRITE
-            ),
-            mesh_,
-            dimensionedScalar(transportProperties.lookup("rho"))
+                dimensionedScalar(transportProperties.lookup("rho"))
+            )
         );
         
-        return rho;
-    }       
+    } 
+    else
+    {
+        FatalErrorInFunction
+            << "Did not find the correct rho."
+            << exit(FatalError);
+            
+        return volScalarField::null();
+    }
 }
 
 //lookup correct mu
 Foam::tmp<Foam::volScalarField> preciceAdapter::FSI::Force::mu() const
 { 
+
     if (solverType_.compare("incompressible") == 0)
     {
         // TODO: Add multiphase support: interFoam uses mixture.mu()
@@ -105,23 +137,35 @@ Foam::tmp<Foam::volScalarField> preciceAdapter::FSI::Force::mu() const
         const dictionary& transportProperties =
             mesh_.lookupObject<IOdictionary>("transportProperties");
                
-        dimensionedScalar nu(transportProperties.lookup("nu"));
-        const volScalarField& mu = nu*rho();
+        dimensionedScalar nu(transportProperties.lookup("nu"));       
         
-        return mu;
+        return tmp<volScalarField>
+        (
+            new volScalarField
+            (  
+                nu*rho()
+            )
+        );
+
     }
     else if (solverType_.compare("compressible") == 0)
     {
-        const volScalarField& mu = mesh_.lookupObject<volScalarField>("thermo:mu");
-        
-        return mu;
+        return mesh_.lookupObject<volScalarField>("thermo:mu");
+    }
+    else
+    {
+        FatalErrorInFunction
+            << "Did not find the correct mu."
+            << exit(FatalError);
+            
+        return volScalarField::null();
     }
 }
 
 void preciceAdapter::FSI::Force::write(double * buffer)
-{    
+{ 
     // Compute forces. See the Forces function object.
-    
+
     // Normal vectors on the boundary, multiplied with the face areas
     const surfaceVectorField::Boundary& Sfb =
         mesh_.Sf().boundaryField();
@@ -130,7 +174,7 @@ void preciceAdapter::FSI::Force::write(double * buffer)
     tmp<volSymmTensorField> tdevRhoReff = devRhoReff();
     const volSymmTensorField::Boundary& devRhoReffb =
         tdevRhoReff().boundaryField();
-      
+
     // Density boundary field
     tmp<volScalarField> trho = rho();
     const volScalarField::Boundary& rhob =
@@ -142,10 +186,10 @@ void preciceAdapter::FSI::Force::write(double * buffer)
         tp().boundaryField();        
 
     int bufferIndex = 0;
-    
     // For every boundary patch of the interface
     for (uint j = 0; j < patchIDs_.size(); j++)
     {
+
         int patchID = patchIDs_.at(j);
 
         // Pressure forces
@@ -158,6 +202,13 @@ void preciceAdapter::FSI::Force::write(double * buffer)
         {
             Force_->boundaryFieldRef()[patchID] =
                 Sfb[patchID] * pb[patchID];
+        }
+        else
+        {
+            FatalErrorInFunction
+                << "Forces calculation does only support "
+                << "compressible or incompressible solver type."
+                << exit(FatalError);
         }
 
         // Viscous forces
