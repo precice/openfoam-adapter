@@ -128,9 +128,9 @@ public:
         virtual bool write();
 
         //- Called at the end of Time::adjustDeltaT() if adjustTime is true
-        virtual bool adjustTimeStep();
+        virtual bool setTimeStep();
 
-    /*
+        /*
         // NOTE: If you add a new module that needs to execute methods
         // whenever the mesh is updated or its points moved,
         // you may put your calls inside the following methods.
