@@ -137,17 +137,8 @@ Foam::tmp<Foam::volScalarField> preciceAdapter::FSI::Force::mu() const
 
 Foam::tmp<Foam::volScalarField> preciceAdapter::FSI::Force::rho() const
 {
-    if (mesh_.foundObject<transportModel>("transportProperties"))
+    if (rhoName_ == "rhoInf")
     {
-        rhoName_ = "rhoInf";
-        const dictionary &transportProperties =
-            mesh_.lookupObject<IOdictionary>("transportProperties");
-
-        dimensionedScalar rhoRef_(
-            "rho",
-            dimDensity,
-            transportProperties.lookup("rho"));
-
         return tmp<volScalarField>(
             new volScalarField(
                 IOobject(
@@ -156,11 +147,11 @@ Foam::tmp<Foam::volScalarField> preciceAdapter::FSI::Force::rho() const
                     mesh_),
                 mesh_,
                 dimensionedScalar("rho", dimDensity, rhoRef_)));
-        }
-        else
-        {
-                return (mesh_.lookupObject<volScalarField>(rhoName_));
-        }
+    }
+    else
+    {
+        return (mesh_.lookupObject<volScalarField>(rhoName_));
+    }
 }
 
 Foam::scalar preciceAdapter::FSI::Force::rho(const volScalarField &p) const
@@ -221,6 +212,18 @@ void preciceAdapter::FSI::Force::calcForcesMoment()
         Force_[1] = Foam::vector::zero;
         Force_[2] = Foam::vector::zero;
 
+        if (mesh_.foundObject<transportModel>("transportProperties"))
+        {
+            rhoName_ = "rhoInf";
+            const dictionary &transportProperties =
+                mesh_.lookupObject<IOdictionary>("transportProperties");
+
+            dimensionedScalar rhoRef_(
+                "rho",
+                dimDensity,
+                transportProperties.lookup("rho"));
+        }
+        
         if (directForceDensity_)
         {
                 const volVectorField &fD = mesh_.lookupObject<volVectorField>(fDName_);
