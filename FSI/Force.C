@@ -137,16 +137,25 @@ Foam::tmp<Foam::volScalarField> preciceAdapter::FSI::Force::mu() const
 
 Foam::tmp<Foam::volScalarField> preciceAdapter::FSI::Force::rho() const
 {
-        if (rhoName_ == "rhoInf")
-        {
-                return tmp<volScalarField>(
-                    new volScalarField(
-                        IOobject(
-                            "rho",
-                            mesh_.time().timeName(),
-                            mesh_),
-                        mesh_,
-                        dimensionedScalar("rho", dimDensity, rhoRef_)));
+    if (mesh_.foundObject<transportModel>("transportProperties"))
+    {
+        rhoName_ = "rhoInf";
+        const dictionary &transportProperties =
+            mesh_.lookupObject<IOdictionary>("transportProperties");
+
+        dimensionedScalar rhoRef_(
+            "rho",
+            dimDensity,
+            transportProperties.lookup("rho"));
+
+        return tmp<volScalarField>(
+            new volScalarField(
+                IOobject(
+                    "rho",
+                    mesh_.time().timeName(),
+                    mesh_),
+                mesh_,
+                dimensionedScalar("rho", dimDensity, rhoRef_)));
         }
         else
         {
