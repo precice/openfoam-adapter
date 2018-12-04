@@ -183,7 +183,7 @@ Foam::scalar preciceAdapter::FSI::Force::rho(const volScalarField &p) const
 }
 
 void preciceAdapter::FSI::Force::addToFields(
-    const label patchi,
+    const label patchID,
     const vectorField &fN,
     const vectorField &fT,
     const vectorField &fP)
@@ -192,7 +192,7 @@ void preciceAdapter::FSI::Force::addToFields(
             const_cast<volVectorField &>(
                 mesh_.lookupObject<volVectorField>("Force"));
 
-        vectorField &pf = force.boundaryFieldRef()[patchi];
+        vectorField &pf = force.boundaryFieldRef()[patchID];
         pf += fN + fT + fP;
 
 }
@@ -230,22 +230,22 @@ void preciceAdapter::FSI::Force::calcForcesMoment()
 
                 forAllConstIter(labelHashSet, patchSet_, iter)
                 {
-                        label patchi = iter.key();
+                        label patchID = iter.key();
 
 
-                        scalarField sA(mag(Sfb[patchi]));
+                        scalarField sA(mag(Sfb[patchID]));
 
                         // Normal force = surfaceUnitNormal*(surfaceNormal & forceDensity)
                         vectorField fN(
-                            Sfb[patchi] / sA * (Sfb[patchi] & fD.boundaryField()[patchi]));
+                            Sfb[patchID] / sA * (Sfb[patchID] & fD.boundaryField()[patchID]));
 
                         // Tangential force (total force minus normal fN)
-                        vectorField fT(sA * fD.boundaryField()[patchi] - fN);
+                        vectorField fT(sA * fD.boundaryField()[patchID] - fN);
 
                         //- Porous force
                         vectorField fP(fT.size(), Zero);
 
-                        addToFields(patchi, fN, fT, fP);
+                        addToFields(patchID, fN, fT, fP);
                 }
         }
         else
@@ -263,16 +263,16 @@ void preciceAdapter::FSI::Force::calcForcesMoment()
 
                 forAllConstIter(labelHashSet, patchSet_, iter)
                 {
-                        label patchi = iter.key();
+                        label patchID = iter.key();
 
                         vectorField fN(
-                            rho(p) * Sfb[patchi] * (p.boundaryField()[patchi] - pRef));
+                            rho(p) * Sfb[patchID] * (p.boundaryField()[patchID] - pRef));
 
-                        vectorField fT(Sfb[patchi] & devRhoReffb[patchi]);
+                        vectorField fT(Sfb[patchID] & devRhoReffb[patchID]);
 
                         vectorField fP(fT.size(), Zero);
 
-                        addToFields(patchi, fN, fT, fP);
+                        addToFields(patchID, fN, fT, fP);
                 }
         }
 
