@@ -8,7 +8,9 @@
 // TEMPORARY
 #include "pointFields.H"
 #include "vectorField.H"
-
+#include "coordinateSystem.H"
+#include "volFieldsFwd.H"
+#include "HashSet.H"
 
 namespace preciceAdapter
 {
@@ -23,13 +25,25 @@ private:
 
     //- OpenFOAM fvMesh object (we need to access the objects' registry multiple times)
     const Foam::fvMesh& mesh_;
-    
+
+    //- Name of density field (optional)
+    std::string rhoName_ = "rho";
+
     //- Force field
     Foam::volVectorField * Force_;
 
+    // Density
+    Foam::tmp<Foam::volScalarField> rho() const;
+
+    //- Return rhoRef if the pressure field is dynamic, i.e. p/rho
+    //  otherwise return 1
+    Foam::scalar rho(const volScalarField &p) const;
+
+    // Dynamic viscosity
+    Foam::tmp<Foam::volScalarField> mu() const;
 
     //- Stress tensor (see the OpenFOAM "Forces" function object)
-    Foam::tmp<Foam::volSymmTensorField> devRhoReff(dimensionedScalar rho) const;
+    Foam::tmp<Foam::volSymmTensorField> devRhoReff();
 
 public:
 
