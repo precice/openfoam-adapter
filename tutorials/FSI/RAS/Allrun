@@ -1,0 +1,97 @@
+#!/bin/bash
+
+cd ${0%/*} || exit 1                        # Run from this directory
+. $WM_PROJECT_DIR/bin/tools/RunFunctions    # Tutorial run functions
+
+# This script prepares and runs all the participants in one terminal,
+# forwarding the solvers' output to log files.
+# Alternatively, you may execute the scripts "runSolid" and "runFluid"
+# in separate terminals.
+
+# The script "Allclean" cleans-up the result and log files.
+# Set up the run parameters:
+
+# 1 for true, 0 for false
+parallel=0
+
+# Link to the precice-config for the serial run
+echo "Setting up the preCICE configuration file for a simulation..."
+
+# =============== Participant 1: Fluid ===========================
+Participant1="Fluid"
+cd $Participant1 
+    # get application information
+    Solver1=$(getApplication)    # solver
+    if [ $parallel -eq 1 ]; then
+        np=$(getNumberOfProcessors) # number of processors
+    fi
+    rm -rf 0
+    cp -r 0.orig 0
+cd ..
+
+    # Prepare
+    echo "Preparing the ${Participant1} participant..."
+    blockMesh -case ${Participant1} > ${Participant1}/blockMesh.log 2>&1
+    checkMesh -case ${Participant1} > ${Participant1}/checkMesh.log 2>&1
+
+    potentialFoam -case ${Participant1} > ${Participant1}/potentialFoam.log 2>&1
+
+    # Run and get the process id
+    echo "Starting the ${Participant1} participant..."
+    if [ $parallel -eq 1 ]; then
+        ln -s -f precice-config_parallel.xml precice-config.xml 
+        decomposePar -force -case ${Participant1} > ${Participant1}/decomposePar.log 2>&1
+        mpirun -np $np ${Solver1} -parallel -case ${Participant1} > ${Participant1}.log 2>&1 &
+    else
+        ln -s -f precice-config_serial.xml precice-config.xml
+        ${Solver1} -case ${Participant1} > ${Participant1}.log 2>&1 &
+    fi
+    PIDParticipant1=$!
+
+# =============== Participant 2: Solid ===========================
+Participant2="Solid"
+Solver2="ccx_preCICE"
+
+    # Prepare in silent mode
+    echo "Preparing the ${Participant2} participant..."
+    cd Solid
+    cgx -bg pre_flap.fbd > prepare_flap.log 2>&1
+    cd ..
+
+    # Run
+    echo "Starting the ${Participant2} participant..."
+    ${Solver2} -i flap -precice-participant Calculix > ${Participant2}.log  2>&1 &
+    PIDParticipant2=$!
+
+
+# =============== Wait for all the participants to finish =======
+echo "Waiting for the participants to exit..., PIDs: ${PIDParticipant1}, ${PIDParticipant2}"
+echo "(you may run 'tail -f ${Participant1}.log' in another terminal to check the progress)"
+echo "To kill midrun, press 'c'. Ctrl+C will cause the processes to run in the background."
+
+while [ -e /proc/${PIDParticipant1} ]; do
+    read -r -t1 -n1 input
+    if [ "$input" = "c" ]; then
+        kill ${PIDParticipant1}
+        kill ${PIDParticipant2}
+        false
+    fi
+done
+
+if [ $? -ne 0 ] || [ "$(grep -c -E "error:" ${Participant1}.log)" -ne 0 ] || [ "$(grep -c -E "error:" ${Participant2}.log)" -ne 0 ]; then
+    echo ""
+    echo "Something went wrong... See the log files for more."
+    # precaution
+    kill ${PIDParticipant1}
+    kill ${PIDParticipant2}
+else
+    echo ""
+    echo "The simulation completed! Reconstructing fields (if parallel)"
+    ./removeObsoleteFolders.sh      # For some versions of openfoam, the functionobject is written in an empty timeolder. remove these.
+    if [ $parallel -eq 1 ]; then
+        reconstructPar -case ${Participant1} > ${Participant1}/reconstructPar.log 2>&1 & 
+    fi
+    echo "You may now open '${Participant1}/${Participant1}.foam' in ParaView."
+    # Note: ".foam" triggers the native OpenFOAM reader of ParaView.
+    # Change to ".OpenFOAM" to use the OpenFOAM reader provided with OpenFOAM.
+fi

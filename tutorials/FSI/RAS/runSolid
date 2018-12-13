@@ -1,0 +1,13 @@
+#!/bin/bash
+
+rm precice-config.xml
+
+ln -s -f precice-config_serial.xml precice-config.xml
+# ln -s -f precice-config_parallel.xml precice-config.xml
+# prepare in silent mode
+cd Solid
+cgx -bg pre_flap.fbd > prepare_flap.log  2>&1
+cd -
+
+
+ccx_preCICE -i flap -precice-participant Calculix > Solid.log 2>&1

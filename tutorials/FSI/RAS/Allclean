@@ -1,0 +1,57 @@
+#!/bin/sh
+cd ${0%/*} || exit 1    # Run from this directory
+
+echo "Cleaning..."
+
+# Source tutorial clean functions
+. $WM_PROJECT_DIR/bin/tools/CleanFunctions
+
+# Participant 1: Fluid
+Participant1="Fluid"
+Participant2="Solid"
+cd ${Participant1}
+    # Clean the case
+    ./cleanCase.sh
+    rm *.log
+    # Create an empty .foam file for ParaView
+    # Note: ".foam" triggers the native OpenFOAM reader of ParaView.
+    # Change to ".OpenFOAM" to use the OpenFOAM reader provided with OpenFOAM.
+    touch ${Participant1}.foam
+cd ..
+
+cd ${Participant2}
+    # Clean the case
+	rm *.nam
+	rm *.msh
+    rm *.log
+cd ..
+
+# Remove the log files
+rm -f ${Participant1}/blockMesh.log
+rm -f ${Participant1}/checkMesh.log
+rm -f ${Participant1}/decomposePar.log
+rm -f ${Participant1}/reconstructPar.log
+rm -f ${Participant1}.log
+
+# Remove the log files
+rm -f flap.cvg
+rm -f flap.dat
+rm -f flap.frd
+rm -f flap.sta
+rm -f spooles.out
+rm -f ${Participant2}.log
+
+
+# Remove the preCICE-related log files
+echo "Deleting the preCICE log files..."
+rm -f precice-*.log
+rm -f convergence-*.log convergence-*.txt
+rm -f EventTimings-*.log EventTimings-*.txt
+rm -f Events-*.log
+rm -f iterations-*.log iterations-*.txt
+rm -f *.watchpoint.txt
+rm -f .Fluid-Solid.address
+rm -f *.vtk
+
+echo "Cleaning complete!"
+#------------------------------------------------------------------------------

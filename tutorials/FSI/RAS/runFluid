@@ -1,0 +1,41 @@
+#!/bin/bash
+
+# Fluid participant
+
+# Run this script in one terminal and the "runSolid" script in another terminal.
+# These scripts present how the two participants would be started manually.
+# Alternatively, you may execute the "Allrun" script in one terminal.
+
+# The script "Allclean" cleans-up the result and log files.
+
+parallel=0
+
+. $WM_PROJECT_DIR/bin/tools/RunFunctions    # Tutorial run functions
+# get application information
+cd Fluid
+	solver=$(getApplication)	# solv	er
+
+	if [ $parallel -eq 1 ]; then
+		np=$(getNumberOfProcessors)	# number of processors
+		cp ../precice-config_parallel.xml precice-config.xml
+	else
+		np=1
+		cp ../precice-config_serial.xml precice-config.xml
+	fi
+	rm -rf 0
+	cp -r 0.orig 0
+cd ..
+
+# Prepare
+blockMesh -case Fluid > Fluid/blockMesh.log 2>&1
+
+potentialFoam -case Fluid > Fluid/potentialFoam.log 2>&1
+
+# Run
+if [ $parallel -eq 1 ]; then
+	decomposePar -case Fluid -force > Fluid/decomposePar.log 2>&1
+	mpirun -np $np $solver -parallel -case Fluid > Fluid.log  2>&1
+	reconstructPar -case Fluid > Fluid/reconstrucPar.log  2>&1
+else
+	$solver -case Fluid > Fluid.log 2>&1
+fi
