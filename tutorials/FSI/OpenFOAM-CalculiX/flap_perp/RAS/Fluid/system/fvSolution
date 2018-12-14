@@ -16,10 +16,10 @@ FoamFile
 
 solvers
 {
-    "(p|pcorr)"
+    "(p|Phi|pcorr)"
     {
         solver          GAMG;
-        tolerance       1e-08;
+        tolerance       1e-05;
         relTol          0.01;
         smoother        DICGaussSeidel;
     }
@@ -27,7 +27,7 @@ solvers
     "(p|pcorr)Final"
     {
         $p;
-        tolerance       1e-06;
+        tolerance       1e-05;
         relTol          0;
     }
 
@@ -35,7 +35,7 @@ solvers
     {
         solver          smoothSolver;
         smoother        symGaussSeidel;
-        tolerance       1e-7;
+        tolerance       1e-6;
         relTol          0.1;
     }
 
@@ -43,7 +43,7 @@ solvers
     {
         solver          smoothSolver;
         smoother        symGaussSeidel;
-        tolerance       1e-7;
+        tolerance       1e-6;
         relTol          0;
     } 
 
@@ -80,9 +80,9 @@ PIMPLE
     //turbOnFinalIterOnly no;
 }
 
-relaxationFactors
+potentialFlow
 {
-    "(U|k|omega).*"   1;
+    nNonOrthogonalCorrectors 10;
 }
 
 cache
