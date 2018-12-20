@@ -62,14 +62,6 @@ bool preciceAdapter::Adapter::configFileCheck(const std::string adapterConfigFil
                 adapterInfo("The 'patches' node is missing for the interface #" + std::to_string(i+1) + " in " + adapterConfigFileName + ".", "warning");
                 configErrors = true;
             }
-            if (!adapterConfig["interfaces"][i]["write-data"])
-            {
-                adapterInfo("The 'write-data' node is missing for the interface #" + std::to_string(i+1) + " in " + adapterConfigFileName + ".", "warning");
-            }
-            if (!adapterConfig["interfaces"][i]["read-data"])
-            {
-                adapterInfo("The 'read-data' node is missing for the interface #" + std::to_string(i+1) + " in " + adapterConfigFileName + ".", "warning");
-            }
         }
     }
 
