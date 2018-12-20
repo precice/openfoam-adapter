@@ -419,7 +419,6 @@ void preciceAdapter::Adapter::execute()
         readCheckpoint();
         fulfilledReadCheckpoint();
     }
-    
 
     // Read the received coupling data from the buffer
     readCouplingData();
@@ -429,7 +428,7 @@ void preciceAdapter::Adapter::execute()
     {
         adjustSolverTimeStep();
     }
-    
+
     // Write checkpoint if required
     if (isWriteCheckpointRequired())
     {
@@ -757,7 +756,7 @@ void preciceAdapter::Adapter::reloadCheckpointTime()
 void preciceAdapter::Adapter::storeMeshPoints()
 {
     DEBUG(adapterInfo("Storing mesh points..."));
-    // NOTE: In foam-extend, we would need "allPoints()". Check if this gives the same data.
+    // TODO: In foam-extend, we would need "allPoints()". Check if this gives the same data.
     meshPoints_ = mesh_.points();
     oldMeshPoints_ = mesh_.oldPoints();
 
@@ -923,8 +922,8 @@ void preciceAdapter::Adapter::setupCheckpointing()
     */
 
     // Print the available objects of type volScalarField
+    DEBUG(adapterInfo("Available objects of type volScalarField : "));
     #ifdef ADAPTER_DEBUG_MODE
-        DEBUG(adapterInfo("Available objects of type volScalarField : "));
         Info << mesh_.lookupClass<volScalarField>() << nl << nl;
     #endif
 
@@ -940,7 +939,7 @@ void preciceAdapter::Adapter::setupCheckpointing()
                 (
                     mesh_.lookupObject<volScalarField>(objectNames_[i])
                 )
-           );
+            );
 
             #ifdef ADAPTER_DEBUG_MODE
             adapterInfo
@@ -969,8 +968,8 @@ void preciceAdapter::Adapter::setupCheckpointing()
     */
 
     // Print the available objects of type volVectorField
+    DEBUG(adapterInfo("Available objects of type volVectorField : "));
     #ifdef ADAPTER_DEBUG_MODE
-        DEBUG(adapterInfo("Available objects of type volVectorField : "));
         Info << mesh_.lookupClass<volVectorField>() << nl << nl;
     #endif
 
@@ -985,8 +984,8 @@ void preciceAdapter::Adapter::setupCheckpointing()
                 const_cast<volVectorField&>
                 (
                     mesh_.lookupObject<volVectorField>(objectNames_[i])
-               )
-           );
+                )
+            );
 
             #ifdef ADAPTER_DEBUG_MODE
             adapterInfo
@@ -1002,9 +1001,9 @@ void preciceAdapter::Adapter::setupCheckpointing()
         }
     }
 
+    // Print the available objects of type surfaceScalarField
+    DEBUG(adapterInfo("Available objects of type surfaceScalarField : "));
     #ifdef ADAPTER_DEBUG_MODE
-        // Print the available objects of type surfaceScalarField
-        DEBUG(adapterInfo("Available objects of type surfaceScalarField : "));
         Info << mesh_.lookupClass<surfaceScalarField>() << nl << nl;
     #endif
 
@@ -1043,9 +1042,9 @@ void preciceAdapter::Adapter::setupCheckpointing()
        of type surfaceVectorField
     */
 
+    // Print the available objects of type surfaceVectorField
+    DEBUG(adapterInfo("Available objects of type surfaceVectorField : "));
     #ifdef ADAPTER_DEBUG_MODE
-        // Print the available objects of type surfaceVectorField
-        DEBUG(adapterInfo("Available objects of type surfaceVectorField : "));
         Info << mesh_.lookupClass<surfaceVectorField>() << nl << nl;
     #endif
 
@@ -1081,9 +1080,9 @@ void preciceAdapter::Adapter::setupCheckpointing()
        of type pointScalarField
     */
 
+    // Print the available objects of type pointScalarField
+    DEBUG(adapterInfo("Available objects of type pointScalarField : "));
     #ifdef ADAPTER_DEBUG_MODE
-        // Print the available objects of type pointScalarField
-        DEBUG(adapterInfo("Available objects of type pointScalarField : "));
         Info << mesh_.lookupClass<pointScalarField>() << nl << nl;
     #endif
 
@@ -1119,9 +1118,9 @@ void preciceAdapter::Adapter::setupCheckpointing()
        of type pointVectorField
     */
 
+    // Print the available objects of type pointVectorField
+    DEBUG(adapterInfo("Available objects of type pointVectorField : "));
     #ifdef ADAPTER_DEBUG_MODE
-        // Print the available objects of type pointVectorField
-        DEBUG(adapterInfo("Available objects of type pointVectorField : "));
         Info << mesh_.lookupClass<pointVectorField>() << nl << nl;
     #endif
 
@@ -1159,9 +1158,9 @@ void preciceAdapter::Adapter::setupCheckpointing()
        of type volTensorField
     */
 
+    // Print the available objects of type volTensorField
+    DEBUG(adapterInfo("Available objects of type volTensorField : "));
     #ifdef ADAPTER_DEBUG_MODE
-        // Print the available objects of type volTensorField
-        DEBUG(adapterInfo("Available objects of type volTensorField : "));
         Info << mesh_.lookupClass<volTensorField>() << nl << nl;
     #endif
 
@@ -1199,8 +1198,8 @@ void preciceAdapter::Adapter::setupCheckpointing()
        of type surfaceTensorField
     */
 
+    DEBUG(adapterInfo("Available objects of type surfaceTensorField : "));
     #ifdef ADAPTER_DEBUG_MODE
-        DEBUG(adapterInfo("Available objects of type surfaceTensorField : "));
         Info << mesh_.lookupClass<surfaceTensorField>() << nl << nl;
     #endif
 
@@ -1236,8 +1235,8 @@ void preciceAdapter::Adapter::setupCheckpointing()
        of type pointTensorField
     */
 
+    DEBUG(adapterInfo("Available objects of type pointTensorField : "));
     #ifdef ADAPTER_DEBUG_MODE
-        DEBUG(adapterInfo("Available objects of type pointTensorField : "));
         Info << mesh_.lookupClass<pointTensorField>() << nl << nl;
     #endif
 
@@ -1275,8 +1274,8 @@ void preciceAdapter::Adapter::setupCheckpointing()
        of type volSymmTensorField
     */
 
+    DEBUG(adapterInfo("Available objects of type volSymmTensorField : "));
     #ifdef ADAPTER_DEBUG_MODE
-        DEBUG(adapterInfo("Available objects of type volSymmTensorField : "));
         Info << mesh_.lookupClass<volSymmTensorField>() << nl << nl;
     #endif
 
@@ -1951,84 +1950,83 @@ void preciceAdapter::Adapter::teardown()
     if (checkpointing_)
     {
         DEBUG(adapterInfo("Deleting the checkpoints... "));
-        
-        // TODO add the other fields here too. 
-            // Fields
-        // volScalarFields
-        for (uint i = 0; i < volScalarFieldCopies_.size(); i++)
-        {
-            delete volScalarFieldCopies_.at(i);
-        }
-        volScalarFieldCopies_.clear();
-        // volVector
-        for (uint i = 0; i < volVectorFieldCopies_.size(); i++)
-        {
-            delete volVectorFieldCopies_.at(i);
-        }
-        volVectorFieldCopies_.clear();
-        // surfaceScalar
-        for (uint i = 0; i < surfaceScalarFieldCopies_.size(); i++)
-        {
-            delete surfaceScalarFieldCopies_.at(i);
-        }
-        surfaceScalarFieldCopies_.clear();
-        // surfaceVector
-        for (uint i = 0; i < surfaceVectorFieldCopies_.size(); i++)
-        {
-            delete surfaceVectorFieldCopies_.at(i);
-        }
-        surfaceVectorFieldCopies_.clear();
-        // pointScalar
-        for (uint i = 0; i < pointScalarFieldCopies_.size(); i++)
-        {
-            delete pointScalarFieldCopies_.at(i);
-        }
-        pointScalarFieldCopies_.clear();
-        // pointVector
-        for (uint i = 0; i < pointVectorFieldCopies_.size(); i++)
-        {
-            delete pointVectorFieldCopies_.at(i);
-        }
-        pointVectorFieldCopies_.clear();
 
-            // Mesh fields (only meshPhi in the end. )
-        // meshSurfaceScalar
-        for (uint i = 0; i < meshSurfaceScalarFieldCopies_.size(); i++)
-        {
-            delete meshSurfaceScalarFieldCopies_.at(i);
-        }
-        meshSurfaceScalarFieldCopies_.clear();
+        // Fields
+            // volScalarFields
+            for (uint i = 0; i < volScalarFieldCopies_.size(); i++)
+            {
+                delete volScalarFieldCopies_.at(i);
+            }
+            volScalarFieldCopies_.clear();
+            // volVector
+            for (uint i = 0; i < volVectorFieldCopies_.size(); i++)
+            {
+                delete volVectorFieldCopies_.at(i);
+            }
+            volVectorFieldCopies_.clear();
+            // surfaceScalar
+            for (uint i = 0; i < surfaceScalarFieldCopies_.size(); i++)
+            {
+                delete surfaceScalarFieldCopies_.at(i);
+            }
+            surfaceScalarFieldCopies_.clear();
+            // surfaceVector
+            for (uint i = 0; i < surfaceVectorFieldCopies_.size(); i++)
+            {
+                delete surfaceVectorFieldCopies_.at(i);
+            }
+            surfaceVectorFieldCopies_.clear();
+            // pointScalar
+            for (uint i = 0; i < pointScalarFieldCopies_.size(); i++)
+            {
+                delete pointScalarFieldCopies_.at(i);
+            }
+            pointScalarFieldCopies_.clear();
+            // pointVector
+            for (uint i = 0; i < pointVectorFieldCopies_.size(); i++)
+            {
+                delete pointVectorFieldCopies_.at(i);
+            }
+            pointVectorFieldCopies_.clear();
 
-        // meshSurfaceVector
-        for (uint i = 0; i < meshSurfaceVectorFieldCopies_.size(); i++)
-        {
-            delete meshSurfaceVectorFieldCopies_.at(i);
-        }
-        meshSurfaceVectorFieldCopies_.clear();
+        // Mesh fields
+            // meshSurfaceScalar
+            for (uint i = 0; i < meshSurfaceScalarFieldCopies_.size(); i++)
+            {
+                delete meshSurfaceScalarFieldCopies_.at(i);
+            }
+            meshSurfaceScalarFieldCopies_.clear();
 
-        // meshVolVector
-        for (uint i = 0; i < meshVolVectorFieldCopies_.size(); i++)
-        {
-            delete meshVolVectorFieldCopies_.at(i);
-        }
-        meshVolVectorFieldCopies_.clear();
+            // meshSurfaceVector
+            for (uint i = 0; i < meshSurfaceVectorFieldCopies_.size(); i++)
+            {
+                delete meshSurfaceVectorFieldCopies_.at(i);
+            }
+            meshSurfaceVectorFieldCopies_.clear();
+
+            // meshVolVector
+            for (uint i = 0; i < meshVolVectorFieldCopies_.size(); i++)
+            {
+                delete meshVolVectorFieldCopies_.at(i);
+            }
+            meshVolVectorFieldCopies_.clear();
 
         //TODO for the internal volume 
-        // volScalarInternal
-        for (uint i = 0; i < volScalarInternalFieldCopies_.size(); i++)
-        {
-            delete volScalarInternalFieldCopies_.at(i);
-        }
-        volScalarInternalFieldCopies_.clear();
+            // volScalarInternal
+            for (uint i = 0; i < volScalarInternalFieldCopies_.size(); i++)
+            {
+                delete volScalarInternalFieldCopies_.at(i);
+            }
+            volScalarInternalFieldCopies_.clear();
+
+            // volSymmTensor
+            for (uint i = 0; i < volSymmTensorFieldCopies_.size(); i++)
+            {
+                delete volSymmTensorFieldCopies_.at(i);
+            }
+            volSymmTensorFieldCopies_.clear();
 
         // NOTE: Add here delete for other types, if needed
-        // TODO check this. volSymmTensor
-        for (uint i = 0; i < volSymmTensorFieldCopies_.size(); i++)
-        {
-            delete volSymmTensorFieldCopies_.at(i);
-        }
-        volSymmTensorFieldCopies_.clear();
-
 
         checkpointing_ = false;
     }

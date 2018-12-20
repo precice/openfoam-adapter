@@ -85,7 +85,7 @@ private:
         bool adjustableTimestep_;
 
         //- Should the (fixed) timestep be stored and used?
-        bool useStoredTimestep_ = false; 
+        bool useStoredTimestep_ = false;
 
         //- Switch to enable the ConjugateHeatTransfer module
         bool CHTenabled_ = false;
