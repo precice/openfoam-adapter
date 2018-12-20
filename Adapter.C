@@ -2019,6 +2019,27 @@ void preciceAdapter::Adapter::teardown()
             }
             volScalarInternalFieldCopies_.clear();
 
+            // volTensorField
+            for (uint i = 0; i < volTensorFieldCopies_.size(); i++)
+            {
+                delete volTensorFieldCopies_.at(i);
+            }
+            volTensorFieldCopies_.clear();
+            
+            // surfaceTensorField
+            for (uint i = 0; i < surfaceTensorFieldCopies_.size(); i++)
+            {
+                delete surfaceTensorFieldCopies_.at(i);
+            }
+            surfaceTensorFieldCopies_.clear();
+            
+            // pointTensorField
+            for (uint i = 0; i < pointTensorFieldCopies_.size(); i++)
+            {
+                delete pointTensorFieldCopies_.at(i);
+            }
+            pointTensorFieldCopies_.clear();
+
             // volSymmTensor
             for (uint i = 0; i < volSymmTensorFieldCopies_.size(); i++)
             {
