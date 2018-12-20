@@ -5,11 +5,6 @@
 
 #include "fvCFD.H"
 
-// TEMPORARY
-#include "pointFields.H"
-#include "vectorField.H"
-
-
 namespace preciceAdapter
 {
 namespace FSI
@@ -38,11 +33,6 @@ public:
     (
         const Foam::fvMesh& mesh,
         const fileName& timeName // We create an IOobject and we need the time directory
-        /* TODO: We should add any required field names here.
-        /  They would need to be vector fields.
-        /  See CHT/Temperature.H for details.
-        /  Apply any changes also to Force.C.
-        */
     );
 
     //- Write the displacement values into the buffer

@@ -6,9 +6,6 @@
 #include "fvCFD.H"
 #include "fixedValuePointPatchFields.H"
 
-#include "pointFields.H"
-#include "vectorField.H"
-
 namespace preciceAdapter
 {
 namespace FSI
@@ -20,10 +17,6 @@ class Displacement : public CouplingDataUser
 
 private:
 
-    /* TODO: We probably need to declare some fields here,
-    /  see CHT/Temperature.H.
-    */
-
     // Displacement pointVectorField
     Foam::pointVectorField * pointDisplacement_;
 
@@ -34,11 +27,6 @@ public:
     (
         const Foam::fvMesh& mesh,
         const std::string namePointDisplacement
-        /* TODO: We should add any required field names here.
-        /  They would need to be vector fields.
-        /  See CHT/Temperature.H for details.
-        /  Apply any changes also to Displacement.C.
-        */
     );
 
     //- Write the displacement values into the buffer
