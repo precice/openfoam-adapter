@@ -16,9 +16,6 @@ protected:
     //- Type of the coupling data (scalar or vector)
     DataType dataType_ = scalar;
 
-    //- Size of the buffer used to exchange data
-    int bufferSize_;
-
     //- OpenFOAM patches that form the interface
     std::vector<int> patchIDs_;
 
@@ -35,9 +32,6 @@ public:
 
     //- Returns true if the data are vector
     bool hasVectorData();
-
-    //- Set the buffer size
-    void setBufferSize(int size);
 
     //- Set the preCICE data ID
     void setDataID(int dataID);
