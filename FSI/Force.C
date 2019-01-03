@@ -62,7 +62,9 @@ void preciceAdapter::FSI::Force::write(double * buffer)
 
     // Density
     // TODO: Extend to cover also compressible solvers
-    dimensionedScalar rho = mesh_.lookupObject<IOdictionary>("transportProperties").lookup("rho");
+    const dictionary& transportProperties =
+        mesh_.lookupObject<IOdictionary>("transportProperties");
+    const dimensionedScalar rho(transportProperties.lookup("rho"));
 
     // Stress tensor
     tmp<volSymmTensorField> tdevRhoReff = devRhoReff(rho);
