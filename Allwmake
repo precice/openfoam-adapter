@@ -25,7 +25,7 @@ ADAPTER_PREP_FLAGS="-DADAPTER_DEBUG_MODE"
 ADAPTER_WMAKE_OPTIONS=""
 
 # Where should the adapter be built? Default: "${FOAM_USER_LIBBIN}"
-ADAPTER_TARGET_DIR="${FOAM_USER_LIBBIN}"
+ADAPTER_TARGET_DIR="${FOAM_LIBBIN}"
 ################################################################################
 
 # Information header

@@ -27,7 +27,6 @@ solverType_(solverType)
     
     dataType_ = vector;
 
-    // TODO: Is this ok?
     Force_ = new volVectorField
     (
         IOobject
@@ -252,6 +251,5 @@ void preciceAdapter::FSI::Force::read(double * buffer)
 
 preciceAdapter::FSI::Force::~Force()
 {
-    // TODO: Is this enough?
     delete Force_;
 }

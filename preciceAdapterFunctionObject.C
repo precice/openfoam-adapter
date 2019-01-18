@@ -68,6 +68,13 @@ Foam::functionObjects::preciceAdapterFunctionObject::~preciceAdapterFunctionObje
 
 bool Foam::functionObjects::preciceAdapterFunctionObject::read(const dictionary& dict)
 {
+    #if defined OPENFOAM_PLUS || (defined OPENFOAM && (OPENFOAM > 1000))
+        // Patch for issue #27: warning "MPI was already finalized" while
+        // running in serial. This only affects openfoam.com, while initNull()
+        // does not exist in openfoam.org.
+        UPstream::initNull();
+    #endif
+
     adapter_.configure();
 
     return true;

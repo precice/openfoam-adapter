@@ -165,11 +165,6 @@ std::string preciceAdapter::FSI::FluidStructureInteraction::determineSolverType(
 
 void preciceAdapter::FSI::FluidStructureInteraction::addWriters(std::string dataName, Interface * interface)
 {
-    /* TODO: Add writers. See CHT/CHT.C for reference.
-    /  We probably need to do this for displacements and forces.
-    /  If different coupling data users per solver type are defined,
-    /  we need to check for that here.
-    */
     if (dataName.find("Force") == 0)
     {        
             interface->addCouplingDataWriter
@@ -179,23 +174,22 @@ void preciceAdapter::FSI::FluidStructureInteraction::addWriters(std::string data
             );
             DEBUG(adapterInfo("Added writer: Force."));        
     }
-    // TODO MOVE THIS UP
+    }
     else if (dataName.find("DisplacementDelta") == 0)
     {
         interface->addCouplingDataWriter
         (
             dataName,
-            new DisplacementDelta(mesh_, namePointDisplacement_) /* TODO: Add any other arguments here */
+            new DisplacementDelta(mesh_, namePointDisplacement_)
         );
         DEBUG(adapterInfo("Added writer: DisplacementDelta."));
     }
-    // TODO Do we need to include the displacement and velocity? They will never be written...
     else if (dataName.find("Displacement") == 0)
     {
         interface->addCouplingDataWriter
         (
             dataName,
-            new Displacement(mesh_, namePointDisplacement_) /* TODO: Add any other arguments here */
+            new Displacement(mesh_, namePointDisplacement_)
         );
         DEBUG(adapterInfo("Added writer: Displacement."));
     }
@@ -209,13 +203,6 @@ void preciceAdapter::FSI::FluidStructureInteraction::addWriters(std::string data
 
 void preciceAdapter::FSI::FluidStructureInteraction::addReaders(std::string dataName, Interface * interface)
 {
-    /* TODO: Add readers. See CHT/CHT.C for reference.
-    /  We probably need to do this for displacements and forces.
-    /  If different coupling data users per solver type are defined,
-    /  we need to check for that here.
-    */
-
-    // TODO do we need to include the force here, since it will not be read by openFOAM?
     if (dataName.find("Force") == 0)
     {
         interface->addCouplingDataReader
@@ -230,7 +217,7 @@ void preciceAdapter::FSI::FluidStructureInteraction::addReaders(std::string data
         interface->addCouplingDataReader
         (
             dataName,
-            new DisplacementDelta(mesh_, namePointDisplacement_) /* TODO: Add any other arguments here */
+            new DisplacementDelta(mesh_, namePointDisplacement_)
         );
         DEBUG(adapterInfo("Added reader: DisplacementDelta."));
     }
@@ -239,7 +226,7 @@ void preciceAdapter::FSI::FluidStructureInteraction::addReaders(std::string data
         interface->addCouplingDataReader
         (
             dataName,
-            new Displacement(mesh_, namePointDisplacement_) /* TODO: Add any other arguments here */
+            new Displacement(mesh_, namePointDisplacement_)
         );
         DEBUG(adapterInfo("Added reader: Displacement."));
     }
