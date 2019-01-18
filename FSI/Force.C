@@ -54,7 +54,7 @@ Foam::tmp<Foam::volSymmTensorField> preciceAdapter::FSI::Force::devRhoReff() con
     // TODO: Only works for laminar flows at the moment.
     // See the OpenFOAM Forces function object, where an extended
     // version of this method is being used. 
-    /*
+    
     typedef compressible::turbulenceModel cmpTurbModel;
     typedef incompressible::turbulenceModel icoTurbModel;
 
@@ -64,7 +64,7 @@ Foam::tmp<Foam::volSymmTensorField> preciceAdapter::FSI::Force::devRhoReff() con
             mesh_.lookupObject<cmpTurbModel>(cmpTurbModel::propertiesName);
 
         return turb.devRhoReff();
-    }
+    }    
     else if (mesh_.foundObject<icoTurbModel>(icoTurbModel::propertiesName))
     {
         const incompressible::turbulenceModel& turb =
@@ -73,13 +73,13 @@ Foam::tmp<Foam::volSymmTensorField> preciceAdapter::FSI::Force::devRhoReff() con
         return rho()*turb.devReff();
     }
     else
-    {
-    */
-
-        // Get the velocity
+    {    
+        // For laminar flows
+        // Get the velocity 
         const volVectorField& U = mesh_.lookupObject<volVectorField>("U");
        
         return -mu()*dev(twoSymm(fvc::grad(U)));
+    }
 
 }
 
