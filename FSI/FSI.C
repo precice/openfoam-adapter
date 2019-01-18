@@ -173,8 +173,7 @@ void preciceAdapter::FSI::FluidStructureInteraction::addWriters(std::string data
                 new Force(mesh_, runTime_.timeName(), solverType_) /* TODO: Add any other arguments here */
             );
             DEBUG(adapterInfo("Added writer: Force."));        
-    }
-    }
+    }    
     else if (dataName.find("DisplacementDelta") == 0)
     {
         interface->addCouplingDataWriter
