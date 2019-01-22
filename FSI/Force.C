@@ -50,42 +50,38 @@ solverType_(solverType)
 //Calculate viscous force
 Foam::tmp<Foam::volSymmTensorField> preciceAdapter::FSI::Force::devRhoReff() const
 {
-    // TODO: Only works for laminar flows at the moment.
-    // See the OpenFOAM Forces function object, where an extended
-    // version of this method is being used. 
-    
+    //For turbulent flows 
     typedef compressible::turbulenceModel cmpTurbModel;
-    typedef incompressible::turbulenceModel icoTurbModel;
-
+    typedef incompressible::turbulenceModel icoTurbModel;   
+    
     if (mesh_.foundObject<cmpTurbModel>(cmpTurbModel::propertiesName))
-    {
+    {        
         const cmpTurbModel& turb =
-            mesh_.lookupObject<cmpTurbModel>(cmpTurbModel::propertiesName);
-
+            mesh_.lookupObject<cmpTurbModel>(cmpTurbModel::propertiesName);    
+        
         return turb.devRhoReff();
+
     }    
     else if (mesh_.foundObject<icoTurbModel>(icoTurbModel::propertiesName))
-    {
+    {        
         const incompressible::turbulenceModel& turb =
             mesh_.lookupObject<icoTurbModel>(icoTurbModel::propertiesName);
-
-        return rho()*turb.devReff();
+            
+        return rho()*turb.devReff();        
     }
     else
-    {    
-        // For laminar flows
-        // Get the velocity 
+    {        
+        // For laminar flows get the velocity  
         const volVectorField& U = mesh_.lookupObject<volVectorField>("U");
-       
+        
         return -mu()*dev(twoSymm(fvc::grad(U)));
     }
-
 }
 
 //lookup correct rho
 Foam::tmp<Foam::volScalarField> preciceAdapter::FSI::Force::rho() const
 {
-    // If volScalarField exists, read it from registry
+    // If volScalarField exists, read it from registry (for compressible cases)
     // interFoam is incompressible but has volScalarField rho
 
     if (mesh_.foundObject<volScalarField>("rho"))
@@ -131,20 +127,30 @@ Foam::tmp<Foam::volScalarField> preciceAdapter::FSI::Force::mu() const
 
     if (solverType_.compare("incompressible") == 0)
     {
-        // TODO: Add multiphase support: interFoam uses mixture.mu()
-        // TODO: Add turbulent viscosities
-        const dictionary& transportProperties =
-            mesh_.lookupObject<IOdictionary>("transportProperties");
-               
-        dimensionedScalar nu(transportProperties.lookup("nu"));       
+        typedef immiscibleIncompressibleTwoPhaseMixture iitpMixture;
+        if (mesh_.foundObject<iitpMixture>("mixture"))
+        {
+            const iitpMixture& mixture =
+                mesh_.lookupObject<iitpMixture>("mixture");
+                
+            return mixture.mu();
+        }
+        else
+        {        
         
-        return tmp<volScalarField>
-        (
-            new volScalarField
-            (  
-                nu*rho()
-            )
-        );
+            const dictionary& transportProperties =
+                mesh_.lookupObject<IOdictionary>("transportProperties");
+                
+            dimensionedScalar nu(transportProperties.lookup("nu"));       
+            
+            return tmp<volScalarField>
+            (
+                new volScalarField
+                (  
+                    nu*rho()
+                )
+            );
+        }
 
     }
     else if (solverType_.compare("compressible") == 0)

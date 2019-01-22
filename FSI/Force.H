@@ -8,9 +8,9 @@
 // TEMPORARY
 #include "pointFields.H"
 #include "vectorField.H"
+#include "immiscibleIncompressibleTwoPhaseMixture.H"
 #include "turbulentFluidThermoModel.H"
 #include "turbulentTransportModel.H"
-
 
 namespace preciceAdapter
 {
