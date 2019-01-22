@@ -26,15 +26,6 @@ ADAPTER_WMAKE_OPTIONS=""
 
 # Where should the adapter be built? Default: "${FOAM_USER_LIBBIN}"
 ADAPTER_TARGET_DIR="${FOAM_USER_LIBBIN}"
-
-# More information for compatibility with OpenFOAM
-DOC_COMPATIBILITY="https://github.com/precice/openfoam-adapter/wiki/Notes-on-OpenFOAM"
-
-################################################################################
-# Funtion to print to screen and copy to a logfile
-log () {
-    echo "$@" | tee -a "Allwmake.log"
-}
 ################################################################################
 
 # Information header
