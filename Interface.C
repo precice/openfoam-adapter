@@ -206,7 +206,7 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh)
 
         }
         if (!(locationsType_ == "faceNodes" || locationsType_ == "faceTriangles"
-                || locationsType_ == "faceCenters" || locationsType_ == "faceCentres") )
+              || locationsType_ == "faceCenters" || locationsType_ == "faceCentres") )
         {
             FatalErrorInFunction
                     << "ERROR: interface points location type "
