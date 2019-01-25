@@ -46,54 +46,38 @@ bool preciceAdapter::FSI::FluidStructureInteraction::readConfig(const YAML::Node
     }
     DEBUG(adapterInfo("    pointDisplacement field name : " + namePointDisplacement_));
 
-
-    // Read the name of the velocity field (if different)
-    if (adapterConfig["nameVelocity"])
-    {
-        nameVelocity_ = adapterConfig["nameVelocity"].as<std::string>();
-    }
-    DEBUG(adapterInfo("    Velocity field name : " + nameVelocity_));
-
     return true;
 }
 
 void preciceAdapter::FSI::FluidStructureInteraction::addWriters(std::string dataName, Interface * interface)
 {
-    /* TODO: Add writers. See CHT/CHT.C for reference.
-    /  We probably need to do this for displacements and forces.
-    /  If different coupling data users per solver type are defined,
-    /  we need to check for that here.
-    */
     if (dataName.find("Force") == 0)
     {
         interface->addCouplingDataWriter
         (
             dataName,
-            new Force(mesh_, runTime_.timeName()) /* TODO: Add any other arguments here */
+            new Force(mesh_, runTime_.timeName())
         );
         DEBUG(adapterInfo("Added writer: Force."));
     }
-    // TODO Do we need to include the displacement and velocity? They will never be written...
+    else if (dataName.find("DisplacementDelta") == 0)
+    {
+        interface->addCouplingDataWriter
+        (
+            dataName,
+            new DisplacementDelta(mesh_, namePointDisplacement_)
+        );
+        DEBUG(adapterInfo("Added writer: DisplacementDelta."));
+    }
     else if (dataName.find("Displacement") == 0)
     {
         interface->addCouplingDataWriter
         (
             dataName,
-            new Displacement(mesh_, namePointDisplacement_) /* TODO: Add any other arguments here */
+            new Displacement(mesh_, namePointDisplacement_)
         );
         DEBUG(adapterInfo("Added writer: Displacement."));
     }
-    // TODO perform a similar strategy here as in the
-    else if (dataName.find("Velocity") == 0)
-    {
-        interface->addCouplingDataWriter
-        (
-            dataName,
-            new Velocity(mesh_, runTime_, nameVelocity_) /* TODO: Add any other arguments here */
-        );
-        DEBUG(adapterInfo("Added writer: Velocity."));
-    }
-
 
     // NOTE: If you want to couple another variable, you need
     // to add your new coupling data user as a coupling data
@@ -104,42 +88,33 @@ void preciceAdapter::FSI::FluidStructureInteraction::addWriters(std::string data
 
 void preciceAdapter::FSI::FluidStructureInteraction::addReaders(std::string dataName, Interface * interface)
 {
-    /* TODO: Add readers. See CHT/CHT.C for reference.
-    /  We probably need to do this for displacements and forces.
-    /  If different coupling data users per solver type are defined,
-    /  we need to check for that here.
-    */
-
-    // TODO do we need to include the force here, since it will not be read by openFOAM?
     if (dataName.find("Force") == 0)
     {
         interface->addCouplingDataReader
         (
             dataName,
-            new Force(mesh_, runTime_.timeName()) /* TODO: Add any other arguments here */
+            new Force(mesh_, runTime_.timeName())
         );
         DEBUG(adapterInfo("Added reader: Force."));
+    }
+    else if (dataName.find("DisplacementDelta") == 0)
+    {
+        interface->addCouplingDataReader
+        (
+            dataName,
+            new DisplacementDelta(mesh_, namePointDisplacement_)
+        );
+        DEBUG(adapterInfo("Added reader: DisplacementDelta."));
     }
     else if (dataName.find("Displacement") == 0)
     {
         interface->addCouplingDataReader
         (
             dataName,
-            new Displacement(mesh_, namePointDisplacement_) /* TODO: Add any other arguments here */
+            new Displacement(mesh_, namePointDisplacement_)
         );
         DEBUG(adapterInfo("Added reader: Displacement."));
-    //
-    // TODO evaluate this.
-    // The velocity is not in the dataNames, because it is not exchanged. In the case a displacement mesh
-    // motion solver is used, it needs to be created, therefore it is listed in the same if-statement.
-        interface->addCouplingDataReader
-        (
-            dataName,
-            new Velocity(mesh_, runTime_, nameVelocity_) /* TODO: Add any other arguments here */
-        );
-        DEBUG(adapterInfo("Added reader: Velocity."));
     }
-
     // NOTE: If you want to couple another variable, you need
     // to add your new coupling data user as a coupling data
     // writer here (and as a writer above).

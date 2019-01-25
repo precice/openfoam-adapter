@@ -1,8 +1,8 @@
-#include "Displacement.H"
+#include "DisplacementDelta.H"
 
 using namespace Foam;
 
-preciceAdapter::FSI::Displacement::Displacement
+preciceAdapter::FSI::DisplacementDelta::DisplacementDelta
 (
     const Foam::fvMesh& mesh,
     const std::string namePointDisplacement
@@ -18,7 +18,7 @@ pointDisplacement_(
     dataType_ = vector;
 }
 
-void preciceAdapter::FSI::Displacement::write(double * buffer)
+void preciceAdapter::FSI::DisplacementDelta::write(double * buffer)
 {
     /* TODO: Implement
     * We need two nested for-loops for each patch,
@@ -26,12 +26,12 @@ void preciceAdapter::FSI::Displacement::write(double * buffer)
     * See the preCICE writeBlockVectorData() implementation.
     */
     FatalErrorInFunction
-        << "Writing displacements is not supported."
+        << "Writing displacementDeltas is not supported."
         << exit(FatalError);
 }
 
 // return the displacement to use later in the velocity?
-void preciceAdapter::FSI::Displacement::read(double * buffer)
+void preciceAdapter::FSI::DisplacementDelta::read(double * buffer)
 {
     // For every element in the buffer
     int bufferIndex = 0;
@@ -51,10 +51,10 @@ void preciceAdapter::FSI::Displacement::read(double * buffer)
         // For every cell of the patch
         forAll(pointDisplacement_->boundaryFieldRef()[patchID], i)
         {
-            // Set the displacement to the received one
-            pointDisplacementFluidPatch[i][0] = buffer[bufferIndex++];
-            pointDisplacementFluidPatch[i][1] = buffer[bufferIndex++];
-            pointDisplacementFluidPatch[i][2] = buffer[bufferIndex++];
+            // Add the received delta to the actual displacement
+            pointDisplacementFluidPatch[i][0] += buffer[bufferIndex++];
+            pointDisplacementFluidPatch[i][1] += buffer[bufferIndex++];
+            pointDisplacementFluidPatch[i][2] += buffer[bufferIndex++];
         }
     }
 }

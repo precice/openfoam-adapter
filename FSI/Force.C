@@ -6,17 +6,12 @@ preciceAdapter::FSI::Force::Force
 (
     const Foam::fvMesh& mesh,
     const fileName& timeName
-    /* TODO: We should add any required field names here.
-    /  They would need to be vector fields.
-    /  See CHT/Temperature.C for details.
-    */
 )
 :
 mesh_(mesh)
 {
     dataType_ = vector;
 
-    // TODO: Is this ok?
     Force_ = new volVectorField
     (
         IOobject
@@ -48,8 +43,6 @@ Foam::tmp<Foam::volSymmTensorField> preciceAdapter::FSI::Force::devRhoReff(dimen
     const dictionary& transportProperties =
         mesh_.lookupObject<IOdictionary>("transportProperties");
 
-    // TODO: In the pimpleDyMFoam tutorial (v1712), this is just a double,
-    // which makes it fail.
     // TODO: Make this more general
     dimensionedScalar nu(transportProperties.lookup("nu"));
 
@@ -62,11 +55,6 @@ Foam::tmp<Foam::volSymmTensorField> preciceAdapter::FSI::Force::devRhoReff(dimen
 
 void preciceAdapter::FSI::Force::write(double * buffer)
 {
-    /* TODO: Implement
-    * We need two nested for-loops for each patch,
-    * the outer for the locations and the inner for the dimensions.
-    * See the preCICE writeBlockVectorData() implementation.
-    */
     // Compute forces. See the Forces function object.
     // Normal vectors on the boundary, multiplied with the face areas
     const surfaceVectorField::Boundary& Sfb =
@@ -74,7 +62,9 @@ void preciceAdapter::FSI::Force::write(double * buffer)
 
     // Density
     // TODO: Extend to cover also compressible solvers
-    dimensionedScalar rho = mesh_.lookupObject<IOdictionary>("transportProperties").lookup("rho");
+    const dictionary& transportProperties =
+        mesh_.lookupObject<IOdictionary>("transportProperties");
+    const dimensionedScalar rho(transportProperties.lookup("rho"));
 
     // Stress tensor
     tmp<volSymmTensorField> tdevRhoReff = devRhoReff(rho);
@@ -82,7 +72,7 @@ void preciceAdapter::FSI::Force::write(double * buffer)
     // Stress tensor boundary field
     const volSymmTensorField::Boundary& devRhoReffb =
         tdevRhoReff().boundaryField();
-
+   
     // Pressure
     const volScalarField& p =
         mesh_.lookupObject<volScalarField>("p");
@@ -110,7 +100,7 @@ void preciceAdapter::FSI::Force::write(double * buffer)
             // Copy the force into the buffer
             // x-dimension
             buffer[bufferIndex++]
-            =
+            = 
             Force_->boundaryFieldRef()[patchID][i].x();
 
             // y-dimension
@@ -140,6 +130,5 @@ void preciceAdapter::FSI::Force::read(double * buffer)
 
 preciceAdapter::FSI::Force::~Force()
 {
-    // TODO: Is this enough?
     delete Force_;
 }
