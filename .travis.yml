@@ -1,0 +1,13 @@
+sudo: true
+dist: trusty
+language: python
+python:
+  - "3.5"
+jobs:
+  include:
+    # trigger systemtests build only when pushing to master
+    - if: branch = master or branch = develop 
+      script: 
+        - curl -LO --retry 3 https://raw.githubusercontent.com/shkodm/systemtests/master/trigger_systemtests.py
+        - travis_wait 60 python trigger_systemtests.py --adapter openfoam --wait
+

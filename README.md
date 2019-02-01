@@ -1,4 +1,7 @@
 # preCICE-adapter for the CFD code OpenFOAM
+<a style="text-decoration: none" href="https://travis-ci.org/precice/openfoam-adapter" target="_blank">
+    <img src="https://travis-ci.org/precice/openfoam-adapter.svg?branch=master" alt="Build status">
+</a>
 
 _**Note:** This adapter is currently in a testing phase. Please [report any issues](https://github.com/precice/openfoam-adapter/issues) here and give us feedback through the [preCICE mailing list](https://mailman.informatik.uni-stuttgart.de/mailman/listinfo/precice)._
 
