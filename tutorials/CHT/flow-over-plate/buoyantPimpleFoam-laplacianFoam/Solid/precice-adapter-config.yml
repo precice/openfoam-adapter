@@ -8,3 +8,5 @@ interfaces:
   - interface
   write-data: Heat-Flux
   read-data: Temperature
+
+CHTenabled: true
