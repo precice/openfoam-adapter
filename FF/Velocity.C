@@ -9,13 +9,13 @@ preciceAdapter::FF::Velocity::Velocity
 )
 :
 U_(
-    const_cast<volScalarField*>
+    const_cast<volVectorField*>
     (
-        &mesh.lookupObject<volScalarField>(nameU)
+        &mesh.lookupObject<volVectorField>(nameU)
     )
 )
 {
-    dataType_ = scalar;
+    dataType_ = vector;
 }
 
 void preciceAdapter::FF::Velocity::write(double * buffer)
@@ -31,9 +31,20 @@ void preciceAdapter::FF::Velocity::write(double * buffer)
         forAll(U_->boundaryFieldRef()[patchID], i)
         {
             // Copy the velocity into the buffer
+            // x-dimension
             buffer[bufferIndex++]
             =
-            U_->boundaryFieldRef()[patchID][i];
+            U_->boundaryFieldRef()[patchID][i].x();
+
+            // y-dimension
+            buffer[bufferIndex++]
+            =
+            U_->boundaryFieldRef()[patchID][i].y();
+
+            // z-dimension
+            buffer[bufferIndex++]
+            =
+            U_->boundaryFieldRef()[patchID][i].z();
         }
     }
 }
@@ -51,7 +62,18 @@ void preciceAdapter::FF::Velocity::read(double * buffer)
         forAll(U_->boundaryFieldRef()[patchID], i)
         {
             // Set the velocity as the buffer value
-            U_->boundaryFieldRef()[patchID][i]
+            // x-dimension
+            U_->boundaryFieldRef()[patchID][i][0]
+            =
+            buffer[bufferIndex++];
+
+            // y-dimension
+            U_->boundaryFieldRef()[patchID][i][1]
+            =
+            buffer[bufferIndex++];
+
+            // z-dimension
+            U_->boundaryFieldRef()[patchID][i][2]
             =
             buffer[bufferIndex++];
         }
