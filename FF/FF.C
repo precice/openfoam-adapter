@@ -54,6 +54,13 @@ bool preciceAdapter::FF::FluidFluid::readConfig(const YAML::Node adapterConfig)
     }
     DEBUG(adapterInfo("    velocity field name : " + nameU_));
 
+    // Read the name of the pressure field (if different)
+    if (adapterConfig["nameP"])
+    {
+        nameP_ = adapterConfig["nameP"].as<std::string>();
+    }
+    DEBUG(adapterInfo("    pressure field name : " + nameP_));
+
     return true;
 }
 
@@ -81,6 +88,15 @@ void preciceAdapter::FF::FluidFluid::addWriters(std::string dataName, Interface 
         );
         DEBUG(adapterInfo("Added writer: Velocity."));
     }
+    if (dataName.find("Pressure") == 0)
+    {
+        interface->addCouplingDataWriter
+        (
+            dataName,
+            new Pressure(mesh_, nameP_)
+        );
+        DEBUG(adapterInfo("Added writer: Pressure."));
+    }
     else
     {
         adapterInfo("Unknown data type - cannot add " + dataName +".", "error");
@@ -103,6 +119,15 @@ void preciceAdapter::FF::FluidFluid::addReaders(std::string dataName, Interface 
             new Velocity(mesh_, nameU_)
         );
         DEBUG(adapterInfo("Added reader: Velocity."));
+    }
+    if (dataName.find("Pressure") == 0)
+    {
+        interface->addCouplingDataReader
+        (
+            dataName,
+            new Pressure(mesh_, nameP_)
+        );
+        DEBUG(adapterInfo("Added reader: Pressure."));
     }
     else
     {

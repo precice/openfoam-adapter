@@ -4,6 +4,7 @@
 #include "Interface.H"
 
 #include "FF/Velocity.H"
+#include "FF/Pressure.H"
 
 #include "fvCFD.H"
 
@@ -30,6 +31,9 @@ protected:
 
     //- Name of the velocity field
     std::string nameU_ = "U";
+    
+    //- Name of the pressure field
+    std::string nameP_ = "p";
 
     //- Determine the solver type
     std::string determineSolverType();
