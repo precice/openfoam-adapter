@@ -203,6 +203,13 @@ bool preciceAdapter::Adapter::configFileRead()
     }
     DEBUG(adapterInfo("    FSI module enabled : " + std::to_string(FSIenabled_)));
 
+    // Set the FFenabled_ switch
+    if (adapterConfig_["FFenabled"])
+    {
+        FFenabled_ = adapterConfig_["FFenabled"].as<bool>();
+    }
+    DEBUG(adapterInfo("    FF module enabled : " + std::to_string(FFenabled_)));
+
     // NOTE: set the switch for your new module here
 
     // If the CHT module is enabled, read create it, read the
@@ -219,9 +226,15 @@ bool preciceAdapter::Adapter::configFileRead()
         if (!FSI_->configure(adapterConfig_)) return false;
     }
 
+    if (FFenabled_)
+    {
+        FF_ = new FF::FluidFluid(mesh_);
+        if (!FF_->configure(adapterConfig_)) return false;
+    }
+
     // NOTE: Create your module and read any options specific to it here
 
-    if (!CHTenabled_ && !FSIenabled_) // NOTE: Add your new switch here
+    if (!CHTenabled_ && !FSIenabled_ && !FFenabled_) // NOTE: Add your new switch here
     {
         adapterInfo("No module is enabled.", "warning");
         return false;
@@ -298,6 +311,12 @@ try{
                 FSI_->addWriters(dataName, interface);
             }
 
+            // Add FF-related coupling data writers
+            if (FFenabled_)
+            {
+                FF_->addWriters(dataName, interface);
+            }
+
             // NOTE: Add any coupling data writers for your module here.
         } // end add coupling data writers
 
@@ -316,6 +335,12 @@ try{
             if (FSIenabled_)
             {
                 FSI_->addReaders(dataName, interface);
+            }
+
+            // Add FF-related coupling data readers
+            if (FFenabled_)
+            {
+                FF_->addReaders(dataName, interface);
             }
 
             // NOTE: Add any coupling data readers for your module here.
@@ -2066,6 +2091,14 @@ void preciceAdapter::Adapter::teardown()
         DEBUG(adapterInfo("Destroying the FSI module..."));
         delete FSI_;
         FSI_ = NULL;
+    }
+
+    // Delete the FF module
+    if(NULL != FF_)
+    {
+        DEBUG(adapterInfo("Destroying the FF module..."));
+        delete FF_;
+        FF_ = NULL;
     }
 
     // NOTE: Delete your new module here
