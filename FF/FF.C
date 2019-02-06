@@ -88,7 +88,7 @@ void preciceAdapter::FF::FluidFluid::addWriters(std::string dataName, Interface 
         );
         DEBUG(adapterInfo("Added writer: Velocity."));
     }
-    if (dataName.find("Pressure") == 0)
+    else if (dataName.find("Pressure") == 0)
     {
         interface->addCouplingDataWriter
         (
@@ -120,7 +120,7 @@ void preciceAdapter::FF::FluidFluid::addReaders(std::string dataName, Interface 
         );
         DEBUG(adapterInfo("Added reader: Velocity."));
     }
-    if (dataName.find("Pressure") == 0)
+    else if (dataName.find("Pressure") == 0)
     {
         interface->addCouplingDataReader
         (
