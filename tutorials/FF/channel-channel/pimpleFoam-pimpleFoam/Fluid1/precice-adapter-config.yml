@@ -1,0 +1,11 @@
+participant: Fluid1
+
+precice-config-file: precice-config.xml
+
+interfaces:
+- mesh: Fluid1-Mesh
+  patches:
+  - outlet
+  write-data: Velocity
+
+FFenabled: true
