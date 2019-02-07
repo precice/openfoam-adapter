@@ -57,23 +57,23 @@ void preciceAdapter::FF::Velocity::read(double * buffer)
     for (uint j = 0; j < patchIDs_.size(); j++)
     {
         int patchID = patchIDs_.at(j);
-    
+
         // For every cell of the patch
         forAll(U_->boundaryFieldRef()[patchID], i)
         {
             // Set the velocity as the buffer value
             // x-dimension
-            U_->boundaryFieldRef()[patchID][i][0]
+            U_->boundaryFieldRef()[patchID][i].x()
             =
             buffer[bufferIndex++];
 
             // y-dimension
-            U_->boundaryFieldRef()[patchID][i][1]
+            U_->boundaryFieldRef()[patchID][i].y()
             =
             buffer[bufferIndex++];
 
             // z-dimension
-            U_->boundaryFieldRef()[patchID][i][2]
+            U_->boundaryFieldRef()[patchID][i].z()
             =
             buffer[bufferIndex++];
         }
