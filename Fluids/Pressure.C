@@ -1,6 +1,7 @@
 #include "Pressure.H"
 #include "cellSet.H"
 //#include "readGradientFvPatchField.H"
+#include "fixedGradientFvPatchField.H"
 
 using namespace Foam;
 
@@ -58,30 +59,32 @@ void preciceAdapter::Fluids::Pressure::read(double * buffer)
 
 	int bufferIndex = 0;
 
+ 	std::cout << "Reading pressure from LUMIS: " << std::endl;
+
 	// Set the overlapping region pressure values
 	for (uint j = 0; j < patchIDs_.size(); j++)
 	{
 		int patchID = patchIDs_.at(j);
 
-		// Check that the boundary patch is of the correct type.
-		if ( P_->boundaryFieldRef()[patchID].type()=="fixedGradient")
-		{
-			Field<double> grad = P_->boundaryFieldRef()[patchID];
-			// For every cell of the patch
-			forAll(grad, i)
-			{
-				// Copy the pressure gradient into grad
-				grad[i] = buffer[bufferIndex++];
-			}
-			fixedGradientFvPatchField<double>* pBoundary = dynamic_cast<fixedGradientFvPatchField<double>*>(&P_->boundaryFieldRef()[patchID]);
-			pBoundary->gradient() = grad;
-
-			//std::cout << "Pressure gradient set from LUMIS data" << std::endl;
-			//for (int i =0; i< (grad.size()); i++ )
-			//	std::cout << ue->gradient()[i]  << std::endl;
-		}
-		else
-			std::cout << " Current patch is of type " << P_->boundaryFieldRef()[patchID].type() << " and can't accept pressure gradient data." << std::endl;
+		P_->boundaryFieldRef()[patchID].updateCoeffs();
+		Field<double> grad = P_->boundaryFieldRef()[patchID];
+        // For every cell of the patch
+    //forAll(grad, i)
+    for( int i=0; i < grad.size(); i++)
+    {
+      // Copy the pressure gradient into grad
+         grad[i] = buffer[bufferIndex++];            
+    }
+        
+    fixedGradientFvPatchField<double>* ue = dynamic_cast<fixedGradientFvPatchField<double>*>(&P_->boundaryFieldRef()[patchID]);
+    if (ue == nullptr)
+    {
+      std::cout << "Dynamic cast in read method for pressure failed. Please make sure that the pressure BC in the interface is set to fixedGradient." << std::endl; 
+    }
+    //std::cout << "Gradient field extracted: " << std::endl;
+   
+    ue->gradient() = grad; 
+    std::cout << "gradient field set: " << std::endl;
 
 	}
 

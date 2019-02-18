@@ -214,7 +214,7 @@ void preciceAdapter::Interface::readCouplingData()
                 );
 
                 // DEBUG! WRITING OF THE DATA RECEIVED FROM LUMIS
-               // std::cout << " Data received from LUMIS " << std::endl;
+                //std::cout << "Vector Data received from LUMIS " << std::endl;
                 //for (int i=0; i<numDataLocations_; i++)
                 	//std::cout << dataBuffer_[3*i] << " " << dataBuffer_[3*i+1] << " " << dataBuffer_[3*i+2] << std::endl;
 
@@ -228,10 +228,16 @@ void preciceAdapter::Interface::readCouplingData()
                     vertexIDs_,
                     dataBuffer_
                 );
+                
+                //std::cout << " Data received from LUMIS " << std::endl;
+                //for (int i=0; i<numDataLocations_; i++)
+                //	std::cout << dataBuffer_[i] << std::endl;
+
             }
 
             // Read the received data from the buffer
             couplingDataReader->read(dataBuffer_);
+            //std::cout << " Finished reading data: " << std::endl;
         }
     }
 }
@@ -256,9 +262,9 @@ void preciceAdapter::Interface::writeCouplingData()
             // Make preCICE write vector or scalar data
             if (couplingDataWriter->hasVectorData())
             {
-            	//std::cout << "Data sent to LUMIS " << std::endl;
-            	//for (int point = 0 ; point < numDataLocations_; point++)
-            		//std::cout << dataBuffer_[3*point] << " " << dataBuffer_[3* point+1] << " " << dataBuffer_[3*point+2]  << std::endl;
+            	std::cout << "Data sent to LUMIS " << std::endl;
+            	for (int point = 0 ; point < numDataLocations_; point++)
+            		std::cout << dataBuffer_[3*point] << " " << dataBuffer_[3* point+1] << " " << dataBuffer_[3*point+2]  << std::endl;
 
                 precice_.writeBlockVectorData
                 (
