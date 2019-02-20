@@ -4,7 +4,7 @@ precice-config-file: precice-config.xml
 
 interfaces:
 - mesh: Fluid-Mesh
-  locations: faceTriangles # optional, defaults to faceCenters
+  #locations: faceCenters # optional, defaults to faceCenters
   patches:
   - interface
   write-data: Temperature

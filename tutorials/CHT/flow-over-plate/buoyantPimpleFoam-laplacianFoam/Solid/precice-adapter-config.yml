@@ -4,9 +4,8 @@ precice-config-file: precice-config.xml
 
 interfaces:
 - mesh: Solid-Mesh
-  locations: faceTriangles   # optional, defaults to faceCenters
   patches:
-          - interface  #right_interface
+  - interface
   write-data: Heat-Flux
   read-data: Temperature
 

@@ -19,21 +19,30 @@ convertToMeters 1;
 vertices
 (
 
-    (0 -.25 0)
-    (1 -.25 0)
-    (1 0 0)
+    (0 -.25 0)	//0
+    (.5 -.25 0)
+    (.5 0 0)
     (0 0 0)
+  
 
     (0 -.25 .4)
-    (1 -.25 .4)
-    (1 0 .4)
+    (.5 -.25 .4)//5
+    (.5 0 .4)
     (0 0 .4)
+
+
+    (1 -.25 0)	//8
+    (1 0 0)
+
+    (1 -.25 .4) //10
+    (1 0 .4)
 
 );
 
 blocks
 (
-    hex (0 1 2 3 4 5 6 7) (32 16 1) simpleGrading (1 1 1)
+    hex (0 1 2 3 4 5 6 7) (17 16 4) simpleGrading (1 1 1)
+    hex (1 8 9 2 5 10 11 6) (17 16 4) simpleGrading (1 1 1)
 );
 
 edges
@@ -43,39 +52,50 @@ edges
 boundary
 (
 
-    left
+    /*left
     {
         type wall;
         faces
         (
-            (4 7 3 0)
+            (0 3 4 7)
         );
-    }
+    }*/
 
     right
     {
         type wall;
         faces
         (
-            (1 2 6 5)
+            (8 9 11 10)
         );
     }
 
-    interface
+    left_interface
     {
         type wall;
         faces
         (
-            (7 6 2 3)
+            (3 2 7 6)
+            (6 11 9 2)
+            (0 3 4 7)
         );
     }
-
+/*    right_interface
+    {
+        type wall;
+        faces
+        (
+            (0 3 4 7)
+        );
+    }*/
+    
     bottom
     {
         type wall;
         faces
         (
-            (4 0 1 5)
+            (0 1 5 4)
+            (5 10 8 1)
         );
     }
 
