@@ -23,12 +23,12 @@ preciceAdapter::Interface::Interface
     //TODO: Don't use the suffixes in case of "Centers" or "Nodes"
     if(locationsType_ == "faceTriangles" || locationsType_ == "faceCenters" || locationsType_ == "faceCentres"){
 
-        CentermeshID_ = precice_.getMeshID(meshName_ + "-Centers");
+        centerMeshID_ = precice_.getMeshID(meshName_ + "-Centers");
     }
 
     if(locationsType_ == "faceTriangles" || locationsType_ == "faceNodes"){
 
-        NodemeshID_ = precice_.getMeshID(meshName_ + "-Nodes");
+        nodeMeshID_ = precice_.getMeshID(meshName_ + "-Nodes");
 
     }
 
@@ -79,7 +79,7 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh)
 
         // Array of the indices of the mesh vertices.
         // Each vertex has one index, but three coordinates.
-        CenterIDs_ = new int[numCenterLocations_];
+        centerIDs_ = new int[numCenterLocations_];
 
         // Initialize the index of the vertices array
         int verticesIndex = 0;
@@ -103,7 +103,7 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh)
         }
 
 
-        precice_.setMeshVertices(CentermeshID_, numCenterLocations_, vertices, CenterIDs_);
+        precice_.setMeshVertices(centerMeshID_, numCenterLocations_, vertices, centerIDs_);
 
 
     }
@@ -123,7 +123,7 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh)
 
         // Array of the indices of the mesh vertices.
         // Each vertex has one index, but three coordinates.
-        NodeIDs_ = new int[numNodeLocations_];
+        nodeIDs_ = new int[numNodeLocations_];
 
         // Initialize the index of the vertices array
         int verticesIndex = 0;
@@ -152,7 +152,7 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh)
 
 
         // Pass the mesh vertices information to preCICE
-        precice_.setMeshVertices(NodemeshID_, numNodeLocations_, vertices, NodeIDs_);
+        precice_.setMeshVertices(nodeMeshID_, numNodeLocations_, vertices, nodeIDs_);
 
 
         //Only set the triangles, when it is necessary
@@ -192,14 +192,14 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh)
                     int triaVertIDs[faceField.size()*6];
 
                     //Get precice IDs
-                    precice_.getMeshVertexIDsFromPositions(NodemeshID_,faceField.size()*6,triCoords,triaVertIDs);
+                    precice_.getMeshVertexIDsFromPositions(nodeMeshID_,faceField.size()*6,triCoords,triaVertIDs);
 
 
                     Info<<"Number of Triangles to set "<<faceField.size()*2<<endl;
 
                     //Set Triangles
                     for(int faceI=0; faceI<faceField.size()*2; faceI++){
-                        precice_.setMeshTriangleWithEdges(NodemeshID_,triaVertIDs[faceI*3],triaVertIDs[faceI*3+1], triaVertIDs[faceI*3+2]);
+                        precice_.setMeshTriangleWithEdges(nodeMeshID_,triaVertIDs[faceI*3],triaVertIDs[faceI*3+1], triaVertIDs[faceI*3+2]);
                     }
                 }
             }
@@ -228,12 +228,12 @@ void preciceAdapter::Interface::addCouplingDataWriter
     if(locationsType_ == "faceCentres" || locationsType_ == "faceCenters" ){
 
         // Set the dataID (from preCICE)
-        couplingDataWriter->setDataID(precice_.getDataID(dataName, CentermeshID_));
+        couplingDataWriter->setDataID(precice_.getDataID(dataName, centerMeshID_));
     }
     else{
 
         // Set the dataID (from preCICE)
-        couplingDataWriter->setDataID(precice_.getDataID(dataName, NodemeshID_));
+        couplingDataWriter->setDataID(precice_.getDataID(dataName, nodeMeshID_));
     }
 
     // Set the patchIDs of the patches that form the interface
@@ -253,12 +253,12 @@ void preciceAdapter::Interface::addCouplingDataReader
     if(locationsType_ == "faceNodes"){
 
         // Set the patchIDs of the patches that form the interface
-        couplingDataReader->setDataID(precice_.getDataID(dataName, NodemeshID_));
+        couplingDataReader->setDataID(precice_.getDataID(dataName, nodeMeshID_));
     }
     else{
 
         // Set the patchIDs of the patches that form the interface
-        couplingDataReader->setDataID(precice_.getDataID(dataName, CentermeshID_));
+        couplingDataReader->setDataID(precice_.getDataID(dataName, centerMeshID_));
     }
     // Add the CouplingDataUser to the list of readers
     couplingDataReader->setPatchIDs(patchIDs_);
@@ -338,7 +338,7 @@ void preciceAdapter::Interface::readCouplingData()
                             (
                                 couplingDataReader->dataID(),
                                 numNodeLocations_,
-                                NodeIDs_,
+                                nodeIDs_,
                                 dataBuffer_
                                 );
                 }
@@ -347,7 +347,7 @@ void preciceAdapter::Interface::readCouplingData()
                             (
                                 couplingDataReader->dataID(),
                                 numCenterLocations_,
-                                CenterIDs_,
+                                centerIDs_,
                                 dataBuffer_
                                 );
                 }
@@ -361,7 +361,7 @@ void preciceAdapter::Interface::readCouplingData()
                             (
                                 couplingDataReader->dataID(),
                                 numNodeLocations_,
-                                NodeIDs_,
+                                nodeIDs_,
                                 dataBuffer_
                                 );
                 }
@@ -371,7 +371,7 @@ void preciceAdapter::Interface::readCouplingData()
                             (
                                 couplingDataReader->dataID(),
                                 numCenterLocations_,
-                                CenterIDs_,
+                                centerIDs_,
                                 dataBuffer_
                                 );
 
@@ -410,7 +410,7 @@ void preciceAdapter::Interface::writeCouplingData()
                         (
                             couplingDataWriter->dataID(),
                             numNodeLocations_,
-                            NodeIDs_,
+                            nodeIDs_,
                             dataBuffer_
                             );
             }
@@ -420,7 +420,7 @@ void preciceAdapter::Interface::writeCouplingData()
                         (
                             couplingDataWriter->dataID(),
                             numCenterLocations_,
-                            CenterIDs_,
+                            centerIDs_,
                             dataBuffer_
                             );
             }
@@ -434,7 +434,7 @@ void preciceAdapter::Interface::writeCouplingData()
                         (
                             couplingDataWriter->dataID(),
                             numNodeLocations_,
-                            NodeIDs_,
+                            nodeIDs_,
                             dataBuffer_
                             );
             }
@@ -443,7 +443,7 @@ void preciceAdapter::Interface::writeCouplingData()
                         (
                             couplingDataWriter->dataID(),
                             numCenterLocations_,
-                            CenterIDs_,
+                            centerIDs_,
                             dataBuffer_
                             );
 
@@ -470,8 +470,8 @@ preciceAdapter::Interface::~Interface()
     couplingDataWriters_.clear();
 
     // Delete the IDs_
-    delete [] NodeIDs_;
-    delete [] CenterIDs_;
+    delete [] nodeIDs_;
+    delete [] centerIDs_;
 
     // Delete the shared data buffer
     delete [] dataBuffer_;
