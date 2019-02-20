@@ -169,7 +169,7 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh)
                     const Field<point> pointCoords= mesh.boundaryMesh()[patchIDs_.at(j)].localPoints();
 
                     //Array to transform coords in precice IDs
-                    double triaCoords[faceField.size()*18];
+                    double triCoords[faceField.size()*18];
 
                     unsigned int coordIndex=0;
 
@@ -177,12 +177,12 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh)
 
                         const face& quad_face=faceField[facei];
 
-                        faceTriangulation fT(pointCoords,quad_face,false);
+                        faceTriangulation faceTri(pointCoords,quad_face,false);
 
                         for(uint triaIndex=0; triaIndex<2; triaIndex++){
                             for(uint nodeIndex=0; nodeIndex<3; nodeIndex++){
                                 for(uint xyz=0; xyz<3; xyz++)
-                                    triaCoords[coordIndex++]=pointCoords[fT[triaIndex][nodeIndex]][xyz];
+                                    triCoords[coordIndex++]=pointCoords[faceTri[triaIndex][nodeIndex]][xyz];
                             }
                         }
                     }
@@ -192,7 +192,7 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh)
                     int triaVertIDs[faceField.size()*6];
 
                     //Get precice IDs
-                    precice_.getMeshVertexIDsFromPositions(NodemeshID_,faceField.size()*6,triaCoords,triaVertIDs);
+                    precice_.getMeshVertexIDsFromPositions(NodemeshID_,faceField.size()*6,triCoords,triaVertIDs);
 
 
                     Info<<"Number of Triangles to set "<<faceField.size()*2<<endl;

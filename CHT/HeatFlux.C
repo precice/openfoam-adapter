@@ -35,6 +35,10 @@ void preciceAdapter::CHT::HeatFlux::write(double * buffer)
         int patchID = patchIDs_.at(j);
 
         //TODO: Ask for the locationsType, currently Triangles assumed
+        //      In case of Triangles we use predefined OpenFOAM functions in order
+        //      to interpolate from the scalarField temperature, which is defined on
+        //      hexahedral cells, to another scalarfield defined on triangles
+        //      In case of faceCenters/Nodes, we obviously don't need this
 
         //Setup Interpolation object
         primitivePatchInterpolation patchInterpolator(mesh_.boundaryMesh()[patchID]);
@@ -45,7 +49,7 @@ void preciceAdapter::CHT::HeatFlux::write(double * buffer)
                  ).snGrad();
 
 
-        Field<double>  gradpoint;
+        scalarField  gradpoint;
 
         //Interpolate
         gradpoint= patchInterpolator.faceToPointInterpolate(gradpatch);

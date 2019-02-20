@@ -27,10 +27,11 @@ preciceAdapter::CHT::Temperature::Temperature
 void preciceAdapter::CHT::Temperature::write(double * buffer)
 {
 
-    //If we have a nearest projection mapping, we interpolate from the centres to the nodes
+    //If we have a nearest projection mapping, we interpolate from the centres to the nodes.
+    //The Node data is then passed to preCICE
     //TODO: Add the locationsType in the class
     //      in order to make the interpolation only for the required locationstype (faceTriangles)
-    //      Currently faceTriangles assumed
+    //      If we have faceCenters, no interpolation is needed. Currently faceTriangles assumed.
 
     int bufferIndex = 0;
 
@@ -44,7 +45,7 @@ void preciceAdapter::CHT::Temperature::write(double * buffer)
 
         const scalarField& Tpatch=T_->boundaryFieldRef()[patchID];
 
-        Field<double>  Tpoint;
+        scalarField  Tpoint;
 
         //Interpolate from Centers to Nodes
         Tpoint= patchInterpolator.faceToPointInterpolate(Tpatch);
@@ -72,7 +73,6 @@ void preciceAdapter::CHT::Temperature::read(double * buffer)
     for (uint j = 0; j < patchIDs_.size(); j++)
     {
         int patchID = patchIDs_.at(j);
-
 
         // For every cell of the patch
         forAll(T_->boundaryFieldRef()[patchID], i)

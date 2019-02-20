@@ -1,0 +1,13 @@
+participant: Solid
+
+precice-config-file: precice-config.xml
+
+interfaces:
+- mesh: Solid-Mesh
+  locations: faceTriangles   # optional, defaults to faceCenters
+  patches:
+  - interface  #right_interface
+  write-data: Heat-Flux
+  read-data: Temperature
+
+CHTenabled: true
