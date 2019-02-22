@@ -25,10 +25,12 @@ private:
 
     //- OpenFOAM fvMesh object (we need to access the objects' registry multiple times)
     const Foam::fvMesh& mesh_;
-    
+
     const std::string solverType_;
     
     const bool solidForces_;
+
+    const bool porousMediumForces_;
 
     //- Force field
     Foam::volVectorField * Force_;
@@ -36,11 +38,14 @@ private:
     //- Solid stress tensor
     Foam::tmp<Foam::volSymmTensorField> devSigma() const;
 
+    //- Solid stress tensor
+    Foam::tmp<Foam::volSymmTensorField> devSigma() const;
+
     //- Stress tensor (see the OpenFOAM "Forces" function object)
     Foam::tmp<Foam::volSymmTensorField> devRhoReff() const;
-    
+
     Foam::tmp<Foam::volScalarField> rho() const;
-    
+
     Foam::tmp<Foam::volScalarField> mu() const;
 
 public:

@@ -29,7 +29,7 @@ protected:
 
     //- OpenFOAM Time object (we need to access the timestep to compute the pointMotionU)
     const Foam::Time& runTime_;
-    
+
     //- Solver type
     std::string solverType_ = "none";
     
@@ -61,7 +61,7 @@ protected:
     */
 
 protected:
-    
+
     //- Determine the solver type
     std::string determineSolverType();
 

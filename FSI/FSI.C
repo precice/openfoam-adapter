@@ -56,6 +56,13 @@ bool preciceAdapter::FSI::FluidStructureInteraction::readConfig(const YAML::Node
     }
     DEBUG(adapterInfo("    user-defined solver type : " + solverType_));
 
+    // Read the porous medium forces
+    if (adapterConfig["porousMediumForces"])
+    {
+        porousMediumForces_ = adapterConfig["porousMediumForces"].as<bool>();
+    }
+    DEBUG(adapterInfo("    add porous medium forces : " + porousMediumForces_));
+
     /* TODO: Read the names of any needed fields and parameters.
     * Include the force here?
     */
@@ -133,7 +140,7 @@ std::string preciceAdapter::FSI::FluidStructureInteraction::determineSolverType(
         DEBUG(adapterInfo("Did not find the transportProperties dictionary."));
     }
 
-    
+
     if (mesh_.foundObject<IOdictionary>(turbulenceModel::propertiesName))
     {
         turbulencePropertiesExists = true;
@@ -145,7 +152,7 @@ std::string preciceAdapter::FSI::FluidStructureInteraction::determineSolverType(
         DEBUG(adapterInfo("Did not find the " + turbulenceModel::propertiesName
             + " dictionary."));
     }
-    
+
 
     if (mesh_.foundObject<IOdictionary>("thermophysicalProperties"))
     {
@@ -208,7 +215,7 @@ void preciceAdapter::FSI::FluidStructureInteraction::addWriters(std::string data
 {
     
     if (dataName.find("Force") == 0)
-    {        
+    {
             interface->addCouplingDataWriter
             (
                 dataName,
