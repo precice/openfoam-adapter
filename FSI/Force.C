@@ -1,4 +1,4 @@
-#include "force.H"
+#include "Force.H"
 
 using namespace Foam;
 
