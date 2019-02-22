@@ -25,18 +25,23 @@ private:
 
     //- OpenFOAM fvMesh object (we need to access the objects' registry multiple times)
     const Foam::fvMesh& mesh_;
-    
+
     const std::string solverType_;
+
+    const bool porousMediumForces_;
 
     //- Force field
     Foam::volVectorField * Force_;
 
 
+    //- Solid stress tensor
+    Foam::tmp<Foam::volSymmTensorField> devSigma() const;
+
     //- Stress tensor (see the OpenFOAM "Forces" function object)
     Foam::tmp<Foam::volSymmTensorField> devRhoReff() const;
-    
+
     Foam::tmp<Foam::volScalarField> rho() const;
-    
+
     Foam::tmp<Foam::volScalarField> mu() const;
 
 public:
@@ -46,7 +51,8 @@ public:
     (
         const Foam::fvMesh& mesh,
         const fileName& timeName,
-        const std::string solverType
+        const std::string solverType,
+        const bool porousMediumForces
         // We create an IOobject and we need the time directory
         /* TODO: We should add any required field names here.
         /  They would need to be vector fields.

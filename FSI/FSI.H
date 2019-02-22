@@ -27,10 +27,13 @@ protected:
 
     //- OpenFOAM Time object (we need to access the timestep to compute the pointMotionU)
     const Foam::Time& runTime_;
-    
+
     //- Solver type
     std::string solverType_ = "none";
-    
+
+    //- Porous Medium Forces
+    bool porousMediumForces_ = false;
+
     //- Name of the transportProperties dictionary
     std::string nameTransportProperties_ = "transportProperties";
 
@@ -44,7 +47,7 @@ protected:
     */
 
 protected:
-    
+
     //- Determine the solver type
     std::string determineSolverType();
 

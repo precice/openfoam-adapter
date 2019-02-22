@@ -56,6 +56,13 @@ bool preciceAdapter::FSI::FluidStructureInteraction::readConfig(const YAML::Node
     }
     DEBUG(adapterInfo("    user-defined solver type : " + solverType_));
 
+    // Read the porous medium forces
+    if (adapterConfig["porousMediumForces"])
+    {
+        porousMediumForces_ = adapterConfig["porousMediumForces"].as<bool>();
+    }
+    DEBUG(adapterInfo("    add porous medium forces : " + porousMediumForces_));
+
     /* TODO: Read the names of any needed fields and parameters.
     * Include the force here?
     */
@@ -95,7 +102,7 @@ std::string preciceAdapter::FSI::FluidStructureInteraction::determineSolverType(
         DEBUG(adapterInfo("Did not find the transportProperties dictionary."));
     }
 
-    
+
     if (mesh_.foundObject<IOdictionary>(turbulenceModel::propertiesName))
     {
         turbulencePropertiesExists = true;
@@ -107,7 +114,7 @@ std::string preciceAdapter::FSI::FluidStructureInteraction::determineSolverType(
         DEBUG(adapterInfo("Did not find the " + turbulenceModel::propertiesName
             + " dictionary."));
     }
-    
+
 
     if (mesh_.foundObject<IOdictionary>("thermophysicalProperties"))
     {
@@ -166,14 +173,14 @@ std::string preciceAdapter::FSI::FluidStructureInteraction::determineSolverType(
 void preciceAdapter::FSI::FluidStructureInteraction::addWriters(std::string dataName, Interface * interface)
 {
     if (dataName.find("Force") == 0)
-    {        
+    {
             interface->addCouplingDataWriter
             (
                 dataName,
-                new Force(mesh_, runTime_.timeName(), solverType_) /* TODO: Add any other arguments here */
+                new Force(mesh_, runTime_.timeName(), solverType_, porousMediumForces_) /* TODO: Add any other arguments here */
             );
-            DEBUG(adapterInfo("Added writer: Force."));        
-    }    
+            DEBUG(adapterInfo("Added writer: Force."));
+    }
     else if (dataName.find("DisplacementDelta") == 0)
     {
         interface->addCouplingDataWriter
@@ -207,7 +214,7 @@ void preciceAdapter::FSI::FluidStructureInteraction::addReaders(std::string data
         interface->addCouplingDataReader
         (
             dataName,
-            new Force(mesh_, runTime_.timeName(), solverType_) /* TODO: Add any other arguments here */
+            new Force(mesh_, runTime_.timeName(), solverType_, porousMediumForces_) /* TODO: Add any other arguments here */
         );
         DEBUG(adapterInfo("Added reader: Force."));
     }
