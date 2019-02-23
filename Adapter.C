@@ -203,6 +203,12 @@ bool preciceAdapter::Adapter::configFileRead()
     }
     DEBUG(adapterInfo("    FSI module enabled : " + std::to_string(FSIenabled_)));
 
+    if (adapterConfig_["provideMeshConnectivity"])
+    {
+        provideMeshConnectivity_ = adapterConfig_["provideMeshConnectivity"].as<bool>();
+    }
+    DEBUG(adapterInfo("    Provide mesh connectivity : " + std::to_string(provideMeshConnectivity_)));
+
     // NOTE: set the switch for your new module here
 
     // If the CHT module is enabled, read create it, read the
@@ -277,7 +283,7 @@ try{
     DEBUG(adapterInfo("Creating interfaces..."));
     for (uint i = 0; i < interfacesConfig_.size(); i++)
     {
-        Interface * interface = new Interface(*precice_, mesh_, interfacesConfig_.at(i).meshName, interfacesConfig_.at(i).locationsType, interfacesConfig_.at(i).patchNames);
+        Interface * interface = new Interface(*precice_, mesh_, interfacesConfig_.at(i).meshName, interfacesConfig_.at(i).locationsType, interfacesConfig_.at(i).patchNames, provideMeshConnectivity_);
         interfaces_.push_back(interface);
         DEBUG(adapterInfo("Interface created on mesh " + interfacesConfig_.at(i).meshName));
 

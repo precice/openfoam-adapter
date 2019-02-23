@@ -3,11 +3,16 @@ participant: Solid
 precice-config-file: precice-config.xml
 
 interfaces:
-- mesh: Solid-Mesh
-  locations: faceTriangles   # optional, defaults to faceCenters
+- mesh: Solid-Mesh-Centers
+  locations: faceCenters   # optional, defaults to faceCenters
+  patches:
+  - interface  #right_interface
+  read-data: Temperature
+- mesh: Solid-Mesh-Nodes
+  locations: faceNodes   # optional, defaults to faceCenters
   patches:
   - interface  #right_interface
   write-data: Heat-Flux
-  read-data: Temperature
 
 CHTenabled: true
+provideMeshConnectivity: true 

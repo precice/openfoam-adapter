@@ -11,26 +11,18 @@ preciceAdapter::Interface::Interface
         const fvMesh& mesh,
         std::string meshName,
         std::string locationsType,
-        std::vector<std::string> patchNames
+        std::vector<std::string> patchNames,
+        bool provideMeshConnectivity
         )
     :
       precice_(precice),
       meshName_(meshName),
       locationsType_(locationsType),
-      patchNames_(patchNames)
+      patchNames_(patchNames),
+      provideMeshConnectivity_(provideMeshConnectivity)
 {
     // Get the meshID from preCICE
-    //TODO: Don't use the suffixes in case of "Centers" or "Nodes"
-    if(locationsType_ == "faceTriangles" || locationsType_ == "faceCenters" || locationsType_ == "faceCentres"){
-
-        centerMeshID_ = precice_.getMeshID(meshName_ + "-Centers");
-    }
-
-    if(locationsType_ == "faceTriangles" || locationsType_ == "faceNodes"){
-
-        nodeMeshID_ = precice_.getMeshID(meshName_ + "-Nodes");
-
-    }
+    meshID_ = precice_.getMeshID(meshName_);
 
 
     // For every patch that participates in the coupling
@@ -54,32 +46,32 @@ preciceAdapter::Interface::Interface
     }
 
     // Configure the mesh (set the data locations)
-    configureMesh(mesh);
+    configureMesh(mesh, provideMeshConnectivity_);
 }
 
-void preciceAdapter::Interface::configureMesh(const fvMesh& mesh)
+void preciceAdapter::Interface::configureMesh(const fvMesh& mesh, bool provideMeshConnectivity)
 {
     // The way we configure the mesh differs between meshes based on face centers
     // and meshes based on face nodes.
     // TODO: Reduce code duplication. In the meantime, take care to update
     // all the branches.
-    if (locationsType_ == "faceTriangles" || locationsType_ == "faceCenters" || locationsType_ == "faceCentres")
+    if (locationsType_ == "faceCenters" || locationsType_ == "faceCentres")
     {
         // Count the data locations for all the patches
         for (uint j = 0; j < patchIDs_.size(); j++)
         {
-            numCenterLocations_ +=
+            numDataLocations_ +=
                     mesh.boundaryMesh()[patchIDs_.at(j)].faceCentres().size();
         }
-        DEBUG(adapterInfo("Number of face centres: " + std::to_string(numCenterLocations_)));
+        DEBUG(adapterInfo("Number of face centres: " + std::to_string(numDataLocations_)));
 
         // Array of the mesh vertices.
         // One mesh is used for all the patches and each vertex has 3D coordinates.
-        double vertices[3 * numCenterLocations_];
+        double vertices[3 * numDataLocations_];
 
         // Array of the indices of the mesh vertices.
         // Each vertex has one index, but three coordinates.
-        centerIDs_ = new int[numCenterLocations_];
+        centerIDs_ = new int[numDataLocations_];
 
         // Initialize the index of the vertices array
         int verticesIndex = 0;
@@ -102,28 +94,25 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh)
 
         }
 
-
-        precice_.setMeshVertices(centerMeshID_, numCenterLocations_, vertices, centerIDs_);
-
-
+        precice_.setMeshVertices(meshID_, numDataLocations_, vertices, centerIDs_);
     }
-    if (locationsType_ == "faceNodes" || locationsType_ == "faceTriangles")
+    else if (locationsType_ == "faceNodes")
     {
         // Count the data locations for all the patches
         for (uint j = 0; j < patchIDs_.size(); j++)
         {
-            numNodeLocations_ +=
+            numDataLocations_ +=
                     mesh.boundaryMesh()[patchIDs_.at(j)].localPoints().size();
         }
-        DEBUG(adapterInfo("Number of face nodes: " + std::to_string(numNodeLocations_)));
+        DEBUG(adapterInfo("Number of face nodes: " + std::to_string(numDataLocations_)));
 
         // Array of the mesh vertices.
         // One mesh is used for all the patches and each vertex has 3D coordinates.
-        double vertices[3 * numNodeLocations_];
+        double vertices[3 * numDataLocations_];
 
         // Array of the indices of the mesh vertices.
         // Each vertex has one index, but three coordinates.
-        nodeIDs_ = new int[numNodeLocations_];
+        centerIDs_ = new int[numDataLocations_];
 
         // Initialize the index of the vertices array
         int verticesIndex = 0;
@@ -152,70 +141,69 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh)
 
 
         // Pass the mesh vertices information to preCICE
-        precice_.setMeshVertices(nodeMeshID_, numNodeLocations_, vertices, nodeIDs_);
+        precice_.setMeshVertices(meshID_, numDataLocations_, vertices, centerIDs_);
 
 
         //Only set the triangles, when it is necessary
-        if (locationsType_ == "faceTriangles"){
+        if (provideMeshConnectivity_)
+        {
+
+            for (uint j = 0; j < patchIDs_.size(); j++)
             {
 
-                for (uint j = 0; j < patchIDs_.size(); j++)
-                {
+                //Define triangles
 
-                    //Define triangles
+                const List<face> faceField=mesh.boundaryMesh()[patchIDs_.at(j)].localFaces();
 
-                    const List<face> faceField=mesh.boundaryMesh()[patchIDs_.at(j)].localFaces();
+                const Field<point> pointCoords= mesh.boundaryMesh()[patchIDs_.at(j)].localPoints();
 
-                    const Field<point> pointCoords= mesh.boundaryMesh()[patchIDs_.at(j)].localPoints();
+                //Array to transform coords in precice IDs
+                double triCoords[faceField.size()*18];
 
-                    //Array to transform coords in precice IDs
-                    double triCoords[faceField.size()*18];
+                unsigned int coordIndex=0;
 
-                    unsigned int coordIndex=0;
+                forAll(faceField,facei){
 
-                    forAll(faceField,facei){
+                    const face& quad_face=faceField[facei];
 
-                        const face& quad_face=faceField[facei];
+                    faceTriangulation faceTri(pointCoords,quad_face,false);
 
-                        faceTriangulation faceTri(pointCoords,quad_face,false);
-
-                        for(uint triaIndex=0; triaIndex<2; triaIndex++){
-                            for(uint nodeIndex=0; nodeIndex<3; nodeIndex++){
-                                for(uint xyz=0; xyz<3; xyz++)
-                                    triCoords[coordIndex++]=pointCoords[faceTri[triaIndex][nodeIndex]][xyz];
-                            }
+                    for(uint triIndex=0; triIndex<2; triIndex++){
+                        for(uint nodeIndex=0; nodeIndex<3; nodeIndex++){
+                            for(uint xyz=0; xyz<3; xyz++)
+                                triCoords[coordIndex++]=pointCoords[faceTri[triIndex][nodeIndex]][xyz];
                         }
                     }
+                }
 
 
-                    //Number of precice IDs
-                    int triaVertIDs[faceField.size()*6];
+                //Number of precice IDs
+                int triVertIDs[faceField.size()*6];
 
-                    //Get precice IDs
-                    precice_.getMeshVertexIDsFromPositions(nodeMeshID_,faceField.size()*6,triCoords,triaVertIDs);
+                //Get precice IDs
+                precice_.getMeshVertexIDsFromPositions(meshID_,faceField.size()*6,triCoords,triVertIDs);
 
 
-                    Info<<"Number of Triangles to set "<<faceField.size()*2<<endl;
+                Info<<"Number of Triangles to set "<<faceField.size()*2<<endl;
 
-                    //Set Triangles
-                    for(int faceI=0; faceI<faceField.size()*2; faceI++){
-                        precice_.setMeshTriangleWithEdges(nodeMeshID_,triaVertIDs[faceI*3],triaVertIDs[faceI*3+1], triaVertIDs[faceI*3+2]);
-                    }
+                //Set Triangles
+                for(int faceI=0; faceI<faceField.size()*2; faceI++){
+                    precice_.setMeshTriangleWithEdges(meshID_,triVertIDs[faceI*3],triVertIDs[faceI*3+1], triVertIDs[faceI*3+2]);
                 }
             }
+        }
 
-        }
-        if (!(locationsType_ == "faceNodes" || locationsType_ == "faceTriangles"
-              || locationsType_ == "faceCenters" || locationsType_ == "faceCentres") )
-        {
-            FatalErrorInFunction
-                    << "ERROR: interface points location type "
-                    << locationsType_
-                    << " is invalid."
-                    << exit(FatalError);
-        }
+    }
+    if (!(locationsType_ == "faceNodes" || locationsType_ == "faceCenters" || locationsType_ == "faceCentres") )
+    {
+        FatalErrorInFunction
+                << "ERROR: interface points location type "
+                << locationsType_
+                << " is invalid."
+                << exit(FatalError);
     }
 }
+
 
 //the readers and writers distinguish, where to use
 //the Centers or Nodes in case of the Triangles specification
@@ -225,16 +213,7 @@ void preciceAdapter::Interface::addCouplingDataWriter
         CouplingDataUser * couplingDataWriter
         )
 {
-    if(locationsType_ == "faceCentres" || locationsType_ == "faceCenters" ){
-
-        // Set the dataID (from preCICE)
-        couplingDataWriter->setDataID(precice_.getDataID(dataName, centerMeshID_));
-    }
-    else{
-
-        // Set the dataID (from preCICE)
-        couplingDataWriter->setDataID(precice_.getDataID(dataName, nodeMeshID_));
-    }
+    couplingDataWriter->setDataID(precice_.getDataID(dataName, meshID_));
 
     // Set the patchIDs of the patches that form the interface
     couplingDataWriter->setPatchIDs(patchIDs_);
@@ -250,16 +229,10 @@ void preciceAdapter::Interface::addCouplingDataReader
         preciceAdapter::CouplingDataUser * couplingDataReader
         )
 {
-    if(locationsType_ == "faceNodes"){
 
-        // Set the patchIDs of the patches that form the interface
-        couplingDataReader->setDataID(precice_.getDataID(dataName, nodeMeshID_));
-    }
-    else{
+    // Set the patchIDs of the patches that form the interface
+    couplingDataReader->setDataID(precice_.getDataID(dataName, meshID_));
 
-        // Set the patchIDs of the patches that form the interface
-        couplingDataReader->setDataID(precice_.getDataID(dataName, centerMeshID_));
-    }
     // Add the CouplingDataUser to the list of readers
     couplingDataReader->setPatchIDs(patchIDs_);
     couplingDataReaders_.push_back(couplingDataReader);
@@ -292,18 +265,11 @@ void preciceAdapter::Interface::createBuffer()
     // Set the appropriate buffer size
     if (needsVectorData)
     {
-        if(locationsType_== "faceNodes" || locationsType_ == "faceTriangles")
-            dataBufferSize = 3*numNodeLocations_;
-        else
-            dataBufferSize = 3*numCenterLocations_;
-
+        dataBufferSize = 3*numDataLocations_;
     }
     else
     {
-        if(locationsType_== "faceNodes" || locationsType_ == "faceTriangles")
-            dataBufferSize = numNodeLocations_;
-        else
-            dataBufferSize = numCenterLocations_;
+        dataBufferSize = numDataLocations_;
     }
 
     // Create the data buffer
@@ -332,50 +298,23 @@ void preciceAdapter::Interface::readCouplingData()
             // and fill the adapter's buffer
             if (couplingDataReader->hasVectorData())
             {
-                if(locationsType_== "faceNodes"){
-
-                    precice_.readBlockVectorData
-                            (
-                                couplingDataReader->dataID(),
-                                numNodeLocations_,
-                                nodeIDs_,
-                                dataBuffer_
-                                );
-                }
-                else if(locationsType_== "faceCentres" || locationsType_ == "faceCenters" || locationsType_ == "faceTriangles"){
-                    precice_.readBlockVectorData
-                            (
-                                couplingDataReader->dataID(),
-                                numCenterLocations_,
-                                centerIDs_,
-                                dataBuffer_
-                                );
-                }
-
+                precice_.readBlockVectorData
+                        (
+                            couplingDataReader->dataID(),
+                            numDataLocations_,
+                            centerIDs_,
+                            dataBuffer_
+                            );
             }
             else
             {
-                if(locationsType_== "faceNodes"){
-
-                    precice_.readBlockScalarData
-                            (
-                                couplingDataReader->dataID(),
-                                numNodeLocations_,
-                                nodeIDs_,
-                                dataBuffer_
-                                );
-                }
-                else if(locationsType_== "faceCentres" || locationsType_ == "faceCenters"  || locationsType_ == "faceTriangles"){
-
-                    precice_.readBlockScalarData
-                            (
-                                couplingDataReader->dataID(),
-                                numCenterLocations_,
-                                centerIDs_,
-                                dataBuffer_
-                                );
-
-                }
+                precice_.readBlockScalarData
+                        (
+                            couplingDataReader->dataID(),
+                            numDataLocations_,
+                            centerIDs_,
+                            dataBuffer_
+                            );
             }
 
             // Read the received data from the buffer
@@ -388,8 +327,6 @@ void preciceAdapter::Interface::writeCouplingData()
 {
     // TODO: wrap around isWriteDataRequired
     // Does the participant need to write data or is it subcycling?
-    // if (precice_.isWriteDataRequired(computedTimestepLength))
-    // {
     // Make every coupling data writer write
     for (uint i = 0; i < couplingDataWriters_.size(); i++)
     {
@@ -403,51 +340,23 @@ void preciceAdapter::Interface::writeCouplingData()
         // Make preCICE write vector or scalar data
         if (couplingDataWriter->hasVectorData())
         {
-
-            if(locationsType_== "faceNodes" || locationsType_ == "faceTriangles"){
-
-                precice_.writeBlockVectorData
-                        (
-                            couplingDataWriter->dataID(),
-                            numNodeLocations_,
-                            nodeIDs_,
-                            dataBuffer_
-                            );
-            }
-            else if(locationsType_== "faceCentres" || locationsType_ == "faceCenters"){
-
-                precice_.writeBlockVectorData
-                        (
-                            couplingDataWriter->dataID(),
-                            numCenterLocations_,
-                            centerIDs_,
-                            dataBuffer_
-                            );
-            }
+            precice_.writeBlockVectorData
+                    (
+                        couplingDataWriter->dataID(),
+                        numDataLocations_,
+                        centerIDs_,
+                        dataBuffer_
+                        );
         }
         else
         {
-
-            if(locationsType_== "faceNodes" || locationsType_ == "faceTriangles"){
-
-                precice_.writeBlockScalarData
-                        (
-                            couplingDataWriter->dataID(),
-                            numNodeLocations_,
-                            nodeIDs_,
-                            dataBuffer_
-                            );
-            }
-            else if(locationsType_== "faceCentres" || locationsType_ == "faceCenters"){
-                precice_.writeBlockScalarData
-                        (
-                            couplingDataWriter->dataID(),
-                            numCenterLocations_,
-                            centerIDs_,
-                            dataBuffer_
-                            );
-
-            }
+            precice_.writeBlockScalarData
+                    (
+                        couplingDataWriter->dataID(),
+                        numDataLocations_,
+                        centerIDs_,
+                        dataBuffer_
+                        );
         }
     }
 
@@ -469,8 +378,6 @@ preciceAdapter::Interface::~Interface()
     }
     couplingDataWriters_.clear();
 
-    // Delete the IDs_
-    delete [] nodeIDs_;
     delete [] centerIDs_;
 
     // Delete the shared data buffer

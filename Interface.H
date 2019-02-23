@@ -25,9 +25,7 @@ protected:
     std::string locationsType_;
 
     //- Mesh ID assigned by preCICE to the interface
-    int nodeMeshID_;
-    int centerMeshID_;
-
+    int meshID_;
 
     //- Names of the OpenFOAM patches that form the interface
     std::vector<std::string> patchNames_;
@@ -36,8 +34,7 @@ protected:
     std::vector<int> patchIDs_;
 
     //- Number of data points (cell centers) on the interface
-    int numCenterLocations_ = 0;
-    int numNodeLocations_ = 0;
+    int numDataLocations_ = 0;
 
     //- Vertex IDs assigned by preCICE
     int * centerIDs_;
@@ -52,9 +49,12 @@ protected:
     //- Vector of CouplingDataWriters
     std::vector<CouplingDataUser*> couplingDataWriters_;
 
+    //Switch for faceTriangulation (nearest projection)
+    bool provideMeshConnectivity_;
+
     //- Extracts the locations of the face centers or face nodes
     //  and exposes them to preCICE with setMeshVertices
-    void configureMesh(const Foam::fvMesh& mesh);
+    void configureMesh(const Foam::fvMesh& mesh, bool provideMeshConnectivity);
 
 public:
 
@@ -65,7 +65,8 @@ public:
             const Foam::fvMesh& mesh,
             std::string meshName,
             std::string locationsType,
-            std::vector<std::string> patchNames
+            std::vector<std::string> patchNames,
+            bool provideMeshConnectivity
             );
 
     //- Add a CouplingDataUser to read data from the interface

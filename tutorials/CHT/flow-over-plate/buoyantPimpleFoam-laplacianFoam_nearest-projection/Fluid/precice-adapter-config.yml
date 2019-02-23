@@ -3,11 +3,16 @@ participant: Fluid
 precice-config-file: precice-config.xml
 
 interfaces:
-- mesh: Fluid-Mesh
-  locations: faceTriangles # optional, defaults to faceCenters
+- mesh: Fluid-Mesh-Centers
+  locations: faceCenters # optional, defaults to faceCenters
+  patches:
+  - interface
+  read-data: Heat-Flux
+- mesh: Fluid-Mesh-Nodes
+  locations: faceNodes # optional, defaults to faceCenters
   patches:
   - interface
   write-data: Temperature
-  read-data: Heat-Flux
 
 CHTenabled: true
+provideMeshConnectivity: true 

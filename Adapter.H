@@ -93,6 +93,9 @@ private:
         //- Switch to enable the FluidStructureInteraction module
         bool FSIenabled_ = false;
 
+        //- Switch for faceTriangulation (nearest projection)
+        bool provideMeshConnectivity_ = false;
+
         // NOTE: Add a switch for your new module here
 
     //- Interfaces
