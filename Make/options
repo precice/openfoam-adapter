@@ -21,6 +21,7 @@ LIB_LIBS = \
     $(ADAPTER_GLOBAL_LIBRARY_PATHS) \
     $(ADAPTER_GLOBAL_LD_LIBRARY_PATHS) \
     -L$(ADAPTER_PRECICE_ROOT)/build/last \
+    $(ADAPTER_PKG_CONFIG_LIBS) \
     -lprecice \
     $(ADAPTER_PRECICE_DEP) \
     -lyaml-cpp
