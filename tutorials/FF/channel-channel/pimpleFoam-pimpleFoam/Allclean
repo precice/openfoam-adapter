@@ -49,8 +49,8 @@ rm -fv ${Participant2}_reconstructPar.log
 echo "Deleting the preCICE log files..."
 rm -fv \
     precice-*.log \
-    precice-postProcessingInfo.log
-    
+    precice-*.json \
+
 # Output files for preCICE versions before 1.2:
 rm -fv \
     iterations-${Participant1}.txt iterations-${Participant2}.txt \
