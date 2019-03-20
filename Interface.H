@@ -54,7 +54,7 @@ protected:
 
     //- Extracts the locations of the face centers or face nodes
     //  and exposes them to preCICE with setMeshVertices
-    void configureMesh(const Foam::fvMesh& mesh, bool provideMeshConnectivity);
+    void configureMesh(const Foam::fvMesh& mesh);
 
 public:
 

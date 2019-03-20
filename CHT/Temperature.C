@@ -24,7 +24,7 @@ preciceAdapter::CHT::Temperature::Temperature
 
 }
 
-void preciceAdapter::CHT::Temperature::write(double * buffer)
+void preciceAdapter::CHT::Temperature::write(double * buffer, bool provideMeshConnectivity)
 {
 
     //If we have a nearest projection mapping, we interpolate from the centres to the nodes.
@@ -40,48 +40,59 @@ void preciceAdapter::CHT::Temperature::write(double * buffer)
     {
         int patchID = patchIDs_.at(j);
 
-        //Create an Interpolation object at the boundary Field
-        primitivePatchInterpolation patchInterpolator(mesh_.boundaryMesh()[patchID]);
-
         const scalarField& Tpatch=T_->boundaryFieldRef()[patchID];
 
-        scalarField  Tpoint;
-
-        //Interpolate from Centers to Nodes
-        Tpoint= patchInterpolator.faceToPointInterpolate(Tpatch);
-
-
-        forAll(Tpoint, i)
+        if(provideMeshConnectivity)
         {
+            //Create an Interpolation object at the boundary Field
+            primitivePatchInterpolation patchInterpolator(mesh_.boundaryMesh()[patchID]);
 
-            // Set the temperature as the buffer value
-            // Copy the temperature into the buffer
-            buffer[bufferIndex++]
-                    =
-                    Tpoint[i];
+            scalarField  Tpoint;
 
+            //Interpolate from Centers to Nodes
+            Tpoint= patchInterpolator.faceToPointInterpolate(Tpatch);
+
+            forAll(Tpoint, i)
+            {
+                // Set the temperature as the buffer value
+                // Copy the temperature into the buffer
+                buffer[bufferIndex++]
+                        =
+                        Tpoint[i];
+            }
+        }
+        else
+        {
+            forAll(Tpatch, i)
+            {
+                // Set the temperature as the buffer value
+                // Copy the temperature into the buffer
+                buffer[bufferIndex++]
+                        =
+                        Tpatch[i];
+            }
         }
     }
 }
 
-void preciceAdapter::CHT::Temperature::read(double * buffer)
-{
-    int bufferIndex = 0;
-
-
-    // For every boundary patch of the interface
-    for (uint j = 0; j < patchIDs_.size(); j++)
+    void preciceAdapter::CHT::Temperature::read(double * buffer)
     {
-        int patchID = patchIDs_.at(j);
+        int bufferIndex = 0;
 
-        // For every cell of the patch
-        forAll(T_->boundaryFieldRef()[patchID], i)
+
+        // For every boundary patch of the interface
+        for (uint j = 0; j < patchIDs_.size(); j++)
         {
-            // Set the temperature as the buffer value
-            T_->boundaryFieldRef()[patchID][i]
-                    =
-                    buffer[bufferIndex++];
+            int patchID = patchIDs_.at(j);
 
+            // For every cell of the patch
+            forAll(T_->boundaryFieldRef()[patchID], i)
+            {
+                // Set the temperature as the buffer value
+                T_->boundaryFieldRef()[patchID][i]
+                        =
+                        buffer[bufferIndex++];
+
+            }
         }
     }
-}

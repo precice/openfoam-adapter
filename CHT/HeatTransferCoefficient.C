@@ -25,7 +25,7 @@ mesh_(mesh)
 }
 
 
-void preciceAdapter::CHT::HeatTransferCoefficient::write(double * buffer)
+void preciceAdapter::CHT::HeatTransferCoefficient::write(double * buffer, bool provideMeshConnectivity)
 {
     int bufferIndex = 0;
 

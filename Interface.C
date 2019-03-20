@@ -46,10 +46,10 @@ preciceAdapter::Interface::Interface
     }
 
     // Configure the mesh (set the data locations)
-    configureMesh(mesh, provideMeshConnectivity_);
+    configureMesh(mesh);
 }
 
-void preciceAdapter::Interface::configureMesh(const fvMesh& mesh, bool provideMeshConnectivity)
+void preciceAdapter::Interface::configureMesh(const fvMesh& mesh)
 {
     // The way we configure the mesh differs between meshes based on face centers
     // and meshes based on face nodes.
@@ -335,7 +335,7 @@ void preciceAdapter::Interface::writeCouplingData()
                 couplingDataWriter = couplingDataWriters_.at(i);
 
         // Write the data into the adapter's buffer
-        couplingDataWriter->write(dataBuffer_);
+        couplingDataWriter->write(dataBuffer_, provideMeshConnectivity_);
 
         // Make preCICE write vector or scalar data
         if (couplingDataWriter->hasVectorData())

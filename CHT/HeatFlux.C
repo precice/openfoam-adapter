@@ -25,7 +25,7 @@ preciceAdapter::CHT::HeatFlux::HeatFlux
 
 }
 
-void preciceAdapter::CHT::HeatFlux::write(double * buffer)
+void preciceAdapter::CHT::HeatFlux::write(double * buffer, bool provideMeshConnectivity)
 {
     int bufferIndex = 0;
 
@@ -40,36 +40,54 @@ void preciceAdapter::CHT::HeatFlux::write(double * buffer)
         //      hexahedral cells, to another scalarfield defined on triangles
         //      In case of faceCenters/Nodes, we obviously don't need this
 
-        //Setup Interpolation object
-        primitivePatchInterpolation patchInterpolator(mesh_.boundaryMesh()[patchID]);
-
-
         scalarField gradpatch=refCast<fixedValueFvPatchScalarField>
                 (T_->boundaryFieldRef()[patchID]
                  ).snGrad();
 
+        //TODO: Interpolate also in the HeatFluxCoefficient and the SinkTemperature
+        //      What about KappaEffAt
 
-        scalarField  gradpoint;
-
-        //Interpolate
-        gradpoint= patchInterpolator.faceToPointInterpolate(gradpatch);
-
-
-        // Extract the effective conductivity on the patch
-        extractKappaEff(patchID);
-
-
-
-        // For every cell of the patch
-        forAll(gradpoint, i)
+        if(provideMeshConnectivity)
         {
-            // Copy the heat flux into the buffer
-            // Q = - k * gradient(T)
-            //TODO: Interpolate kappa in case of a turbulent calculation
-            buffer[bufferIndex++]
-                    =
-                    -getKappaEffAt(i) * gradpoint[i];
+            //Setup Interpolation object
+            primitivePatchInterpolation patchInterpolator(mesh_.boundaryMesh()[patchID]);
 
+            scalarField  gradpoint;
+
+            //Interpolate
+            gradpoint= patchInterpolator.faceToPointInterpolate(gradpatch);
+
+            // Extract the effective conductivity on the patch
+            extractKappaEff(patchID);
+
+            // For every cell of the patch
+            forAll(gradpoint, i)
+            {
+                // Copy the heat flux into the buffer
+                // Q = - k * gradient(T)
+                //TODO: Interpolate kappa in case of a turbulent calculation
+                buffer[bufferIndex++]
+                        =
+                        -getKappaEffAt(i) * gradpoint[i];
+
+            }
+        }
+        else
+        {
+            // Extract the effective conductivity on the patch
+            extractKappaEff(patchID);
+
+            // For every cell of the patch
+            forAll(gradpatch, i)
+            {
+                // Copy the heat flux into the buffer
+                // Q = - k * gradient(T)
+                //TODO: Interpolate kappa in case of a turbulent calculation
+                buffer[bufferIndex++]
+                        =
+                        -getKappaEffAt(i) * gradpatch[i];
+
+            }
         }
     }
 }

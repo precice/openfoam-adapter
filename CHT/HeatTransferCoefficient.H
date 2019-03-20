@@ -39,7 +39,7 @@ public:
     );
 
     //- Write the heat transfer coefficient values into the buffer
-    virtual void write(double * buffer);
+    virtual void write(double * buffer, bool provideMeshConnectivity);
 
     //- Read the heat transfer coefficient values from the buffer
     virtual void read(double * buffer);

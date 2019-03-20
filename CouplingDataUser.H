@@ -43,7 +43,7 @@ public:
     void setPatchIDs(std::vector<int> patchIDs);
 
     //- Write the coupling data to the buffer
-    virtual void write(double * dataBuffer) = 0;
+    virtual void write(double * dataBuffer, bool provideMeshConnectivity) = 0;
 
     //- Read the coupling data from the buffer
     virtual void read(double * dataBuffer) = 0;

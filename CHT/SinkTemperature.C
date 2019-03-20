@@ -18,7 +18,7 @@ T_(
     dataType_ = scalar;
 }
 
-void preciceAdapter::CHT::SinkTemperature::write(double * buffer)
+void preciceAdapter::CHT::SinkTemperature::write(double * buffer, bool provideMeshConnectivity)
 {
     int bufferIndex = 0;
 

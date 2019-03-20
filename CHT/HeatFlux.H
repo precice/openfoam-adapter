@@ -35,7 +35,7 @@ public:
 
     //- Compute heat flux values from the temperature field
     //  and write them into the buffer
-    virtual void write(double * buffer);
+    virtual void write(double * buffer, bool provideMeshConnectivity);
 
     //- Read heat flux values from the buffer and assign them to
     //  the gradient of the temperature field
