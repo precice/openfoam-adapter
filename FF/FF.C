@@ -88,6 +88,15 @@ void preciceAdapter::FF::FluidFluid::addWriters(std::string dataName, Interface 
         );
         DEBUG(adapterInfo("Added writer: Velocity."));
     }
+    else if (dataName.find("PressureGradient") == 0)
+    {
+        interface->addCouplingDataWriter
+        (
+            dataName,
+            new PressureGradient(mesh_, nameP_)
+        );
+        DEBUG(adapterInfo("Added writer: Pressure."));
+    }
     else if (dataName.find("Pressure") == 0)
     {
         interface->addCouplingDataWriter
@@ -119,6 +128,15 @@ void preciceAdapter::FF::FluidFluid::addReaders(std::string dataName, Interface 
             new Velocity(mesh_, nameU_)
         );
         DEBUG(adapterInfo("Added reader: Velocity."));
+    }
+    else if (dataName.find("PressureGradient") == 0)
+    {
+        interface->addCouplingDataReader
+        (
+            dataName,
+            new PressureGradient(mesh_, nameP_)
+        );
+        DEBUG(adapterInfo("Added reader: Pressure."));
     }
     else if (dataName.find("Pressure") == 0)
     {
