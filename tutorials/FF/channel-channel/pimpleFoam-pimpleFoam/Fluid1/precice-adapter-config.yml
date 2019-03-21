@@ -7,5 +7,6 @@ interfaces:
   patches:
   - outlet
   write-data: Velocity
+  read-data: PressureGradient
 
 FFenabled: true
