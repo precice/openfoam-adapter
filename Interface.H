@@ -5,7 +5,7 @@
 #include <vector>
 #include "fvCFD.H"
 #include "CouplingDataUser.H"
-#include "SolverInterface.hpp"
+#include "precice/SolverInterface.hpp"
 
 
 namespace preciceAdapter
