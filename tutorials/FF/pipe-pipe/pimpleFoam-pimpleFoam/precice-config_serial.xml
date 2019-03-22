@@ -38,6 +38,7 @@
 
     <m2n:sockets from="Fluid1" to="Fluid2" distribution-type="gather-scatter"/>
 
+<!--
     <coupling-scheme:serial-explicit>
         <timestep-length value="0.001"/>
         <max-time value="0.1"/>
@@ -45,6 +46,26 @@
         <exchange data="Velocity" mesh="Fluid2-Mesh" from="Fluid1" to="Fluid2"/>
         <exchange data="Pressure" mesh="Fluid2-Mesh" from="Fluid2" to="Fluid1"/>
     </coupling-scheme:serial-explicit>
+-->
+
+    <coupling-scheme:serial-implicit>
+        <timestep-length value="0.001"/>
+        <max-time value="0.1"/>
+        <participants first="Fluid1" second="Fluid2"/>
+        <exchange data="Velocity" mesh="Fluid2-Mesh" from="Fluid1" to="Fluid2"/>
+        <exchange data="Pressure" mesh="Fluid2-Mesh" from="Fluid2" to="Fluid1"/>
+
+        <max-iterations value="100"/>
+        <relative-convergence-measure limit="1.0e-6" data="Pressure" mesh="Fluid2-Mesh"/>
+
+        <post-processing:IQN-ILS>
+            <data mesh="Fluid2-Mesh" name="Pressure" />
+            <initial-relaxation value="0.01" />
+            <max-used-iterations value="80" />
+            <timesteps-reused value="10" />
+            <filter type="QR1" limit="1e-8" />
+        </post-processing:IQN-ILS>
+    </coupling-scheme:serial-implicit>
 
     </solver-interface>
 
