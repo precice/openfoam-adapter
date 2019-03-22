@@ -15,14 +15,14 @@ boundaryField
 {
     inlet
     {
-        type            fixedValue;
-        value           uniform 0;
+        type            fixedGradient;
+        gradient        uniform 0;
     }
 
     outlet
     {
-        type            fixedGradient;
-        gradient        uniform 0;
+        type            fixedValue;
+        value           uniform 0;
     }
 
     fixedWalls
