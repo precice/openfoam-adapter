@@ -19,6 +19,7 @@ FSI/DisplacementDelta.C
 
 FF/FF.C
 FF/Velocity.C
+FF/VelocityGradient.C
 FF/Pressure.C
 FF/PressureGradient.C
 

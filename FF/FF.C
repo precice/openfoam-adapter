@@ -79,7 +79,16 @@ std::string preciceAdapter::FF::FluidFluid::determineSolverType()
 
 void preciceAdapter::FF::FluidFluid::addWriters(std::string dataName, Interface * interface)
 {
-    if (dataName.find("Velocity") == 0)
+    if (dataName.find("VelocityGradient") == 0)
+    {
+        interface->addCouplingDataWriter
+        (
+            dataName,
+            new VelocityGradient(mesh_, nameU_)
+        );
+        DEBUG(adapterInfo("Added writer: Velocity Gradient."));
+    }
+    else if (dataName.find("Velocity") == 0)
     {
         interface->addCouplingDataWriter
         (
@@ -95,7 +104,7 @@ void preciceAdapter::FF::FluidFluid::addWriters(std::string dataName, Interface 
             dataName,
             new PressureGradient(mesh_, nameP_)
         );
-        DEBUG(adapterInfo("Added writer: Pressure."));
+        DEBUG(adapterInfo("Added writer: Pressure Gradient."));
     }
     else if (dataName.find("Pressure") == 0)
     {
@@ -120,7 +129,16 @@ void preciceAdapter::FF::FluidFluid::addWriters(std::string dataName, Interface 
 
 void preciceAdapter::FF::FluidFluid::addReaders(std::string dataName, Interface * interface)
 {
-    if (dataName.find("Velocity") == 0)
+    if (dataName.find("VelocityGradient") == 0)
+    {
+        interface->addCouplingDataReader
+        (
+            dataName,
+            new VelocityGradient(mesh_, nameU_)
+        );
+        DEBUG(adapterInfo("Added reader: VelocityGradient."));
+    }
+    else if (dataName.find("Velocity") == 0)
     {
         interface->addCouplingDataReader
         (
@@ -136,7 +154,7 @@ void preciceAdapter::FF::FluidFluid::addReaders(std::string dataName, Interface 
             dataName,
             new PressureGradient(mesh_, nameP_)
         );
-        DEBUG(adapterInfo("Added reader: Pressure."));
+        DEBUG(adapterInfo("Added reader: Pressure Gradient."));
     }
     else if (dataName.find("Pressure") == 0)
     {

@@ -30,7 +30,7 @@ void preciceAdapter::FF::PressureGradient::write(double * buffer)
         // Get the pressure gradient boundary patch
         scalarField gradientPatch
         =
-        refCast<fixedValueFvPatchScalarField>
+        refCast<fixedGradientFvPatchScalarField>
         (
             p_->boundaryFieldRef()[patchID]
         ).snGrad();

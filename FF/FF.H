@@ -6,6 +6,7 @@
 #include "FF/Velocity.H"
 #include "FF/Pressure.H"
 #include "FF/PressureGradient.H"
+#include "FF/VelocityGradient.H"
 
 #include "fvCFD.H"
 

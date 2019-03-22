@@ -6,7 +6,7 @@ interfaces:
 - mesh: Fluid2-Mesh
   patches:
   - inlet
-  write-data: PressureGradient
-  read-data: Velocity
+  write-data: Pressure
+  read-data: VelocityGradient
 
 FFenabled: true
