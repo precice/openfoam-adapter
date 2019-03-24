@@ -30,7 +30,7 @@ void preciceAdapter::FF::VelocityGradient::write(double * buffer)
         // Get the velocity gradient boundary patch
         vectorField gradientPatch
         =
-        refCast<fixedGradientFvPatchVectorField>
+        refCast<fixedValueFvPatchVectorField>
         (
             U_->boundaryFieldRef()[patchID]
         ).snGrad();
