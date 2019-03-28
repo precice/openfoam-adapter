@@ -69,6 +69,11 @@ double preciceAdapter::Fluids::Velocity::massCorrection(double * buffer, int pat
 
 		//area += mesh_->magSf().boundaryField()[patchID][i];
 	}
+ 
+  // Gather and add up the flowRate from all the processors
+  reduce(flowRate,sumOp<double>());
+  
+  
 	//std::cout << " Flow rate: " << flowRate  << " Area: " << area << std::endl;
 	std::cout << " Flow rate: " << flowRate  << " Target flow rate: " << vDot_ << std::endl;
 

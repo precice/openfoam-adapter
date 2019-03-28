@@ -262,9 +262,9 @@ void preciceAdapter::Interface::writeCouplingData()
             // Make preCICE write vector or scalar data
             if (couplingDataWriter->hasVectorData())
             {
-            	std::cout << "Data sent to LUMIS " << std::endl;
-            	for (int point = 0 ; point < numDataLocations_; point++)
-            		std::cout << dataBuffer_[3*point] << " " << dataBuffer_[3* point+1] << " " << dataBuffer_[3*point+2]  << std::endl;
+            	//std::cout << "Data sent to LUMIS " << std::endl;
+            	//for (int point = 0 ; point < numDataLocations_; point++)
+            	//	std::cout << dataBuffer_[3*point] << " " << dataBuffer_[3* point+1] << " " << dataBuffer_[3*point+2]  << std::endl;
 
                 precice_.writeBlockVectorData
                 (
