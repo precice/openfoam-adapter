@@ -10,7 +10,7 @@ FoamFile
 
 transportModel  Newtonian;
 
-nu              nu [ 0 2 -1 0 0 0 0 ] 1e-01;
+nu              nu [ 0 2 -1 0 0 0 0 ] 1e1;
 
 rho             rho [1 -3 0 0 0 0 0] 1e-0;
 

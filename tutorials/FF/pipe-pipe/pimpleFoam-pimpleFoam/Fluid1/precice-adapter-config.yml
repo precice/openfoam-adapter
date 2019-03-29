@@ -6,7 +6,6 @@ interfaces:
 - mesh: Fluid1-Mesh
   patches:
   - outlet
-  write-data: Velocity
+  write-data: [Velocity, PressureGradient]
   read-data: Pressure
-
 FFenabled: true

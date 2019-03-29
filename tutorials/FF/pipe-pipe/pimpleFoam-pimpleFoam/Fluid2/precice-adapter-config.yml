@@ -7,6 +7,6 @@ interfaces:
   patches:
   - inlet
   write-data: Pressure
-  read-data: Velocity
+  read-data: [Velocity, PressureGradient]
 
 FFenabled: true

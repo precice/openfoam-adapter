@@ -44,5 +44,7 @@ else
     $solver -case Fluid1
 fi
 
+#foamToVTK -case Fluid1
+
 # Workaround for issue #26
 ./removeObsoleteFolders.sh
