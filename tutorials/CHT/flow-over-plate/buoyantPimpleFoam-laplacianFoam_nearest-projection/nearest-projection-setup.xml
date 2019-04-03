@@ -42,7 +42,7 @@
         <use-mesh name="Solid-Mesh-Centers" provide="yes"/>
         <read-data name="Temperature" mesh="Solid-Mesh-Centers"/>
         <write-data name="Heat-Flux" mesh="Solid-Mesh-Nodes"/>
-	<!--export:vtk directory="preCICE-output" /-->
+	<!-- <export:vtk directory="preCICE-output" /> -->
         <mapping:nearest-projection direction="read" from="Fluid-Mesh-Nodes" to="Solid-Mesh-Centers" constraint="consistent" timing="initial"/>
         <mapping:nearest-projection direction="write" from="Solid-Mesh-Nodes" to="Fluid-Mesh-Centers" constraint="consistent" timing="initial"/>
     </participant>
