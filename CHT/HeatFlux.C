@@ -25,7 +25,7 @@ preciceAdapter::CHT::HeatFlux::HeatFlux
 
 }
 
-void preciceAdapter::CHT::HeatFlux::write(double * buffer, bool provideMeshConnectivity)
+void preciceAdapter::CHT::HeatFlux::write(double * buffer, bool meshConnectivity)
 {
     int bufferIndex = 0;
 
@@ -34,58 +34,47 @@ void preciceAdapter::CHT::HeatFlux::write(double * buffer, bool provideMeshConne
     {
         int patchID = patchIDs_.at(j);
 
-        //TODO: Ask for the locationsType, currently Triangles assumed
-        //      In case of Triangles we use predefined OpenFOAM functions in order
-        //      to interpolate from the scalarField temperature, which is defined on
-        //      hexahedral cells, to another scalarfield defined on triangles
-        //      In case of faceCenters/Nodes, we obviously don't need this
-
-        scalarField gradpatch=refCast<fixedValueFvPatchScalarField>
+        scalarField gradientPatch=refCast<fixedValueFvPatchScalarField>
                 (T_->boundaryFieldRef()[patchID]
                  ).snGrad();
 
-        //TODO: Interpolate also in the HeatFluxCoefficient and the SinkTemperature
-        //      What about KappaEffAt
+        // Extract the effective conductivity on the patch
+        extractKappaEff(patchID, meshConnectivity);
 
-        if(provideMeshConnectivity)
+        //If we use the mesh connectivity, we interpolate from the centres to the nodes
+        if(meshConnectivity)
         {
             //Setup Interpolation object
             primitivePatchInterpolation patchInterpolator(mesh_.boundaryMesh()[patchID]);
 
-            scalarField  gradpoint;
+            scalarField  gradientPoints;
 
             //Interpolate
-            gradpoint= patchInterpolator.faceToPointInterpolate(gradpatch);
-
-            // Extract the effective conductivity on the patch
-            extractKappaEff(patchID);
+            gradientPoints= patchInterpolator.faceToPointInterpolate(gradientPatch);
 
             // For every cell of the patch
-            forAll(gradpoint, i)
+            forAll(gradientPoints, i)
             {
                 // Copy the heat flux into the buffer
                 // Q = - k * gradient(T)
                 //TODO: Interpolate kappa in case of a turbulent calculation
                 buffer[bufferIndex++]
                         =
-                        -getKappaEffAt(i) * gradpoint[i];
+                        -getKappaEffAt(i) * gradientPoints[i];
 
             }
         }
         else
         {
-            // Extract the effective conductivity on the patch
-            extractKappaEff(patchID);
-
             // For every cell of the patch
-            forAll(gradpatch, i)
+            forAll(gradientPatch, i)
             {
                 // Copy the heat flux into the buffer
                 // Q = - k * gradient(T)
                 //TODO: Interpolate kappa in case of a turbulent calculation
                 buffer[bufferIndex++]
                         =
-                        -getKappaEffAt(i) * gradpatch[i];
+                        -getKappaEffAt(i) * gradientPatch[i];
 
             }
         }
@@ -101,10 +90,9 @@ void preciceAdapter::CHT::HeatFlux::read(double * buffer)
     {
         int patchID = patchIDs_.at(j);
 
-
-
         // Extract the effective conductivity on the patch
-        extractKappaEff(patchID);
+        // at the moment reading with connectivity is not supported
+        extractKappaEff(patchID,/*meshConnectivity=*/false);
 
         // Get the temperature gradient boundary patch
         scalarField & gradientPatch
@@ -146,9 +134,9 @@ preciceAdapter::CHT::HeatFlux_Compressible::~HeatFlux_Compressible()
     delete Kappa_;
 }
 
-void preciceAdapter::CHT::HeatFlux_Compressible::extractKappaEff(uint patchID)
+void preciceAdapter::CHT::HeatFlux_Compressible::extractKappaEff(uint patchID, bool meshConnectivity)
 {
-    Kappa_->extract(patchID);
+    Kappa_->extract(patchID, meshConnectivity);
 }
 
 scalar preciceAdapter::CHT::HeatFlux_Compressible::getKappaEffAt(int i)
@@ -179,9 +167,9 @@ preciceAdapter::CHT::HeatFlux_Incompressible::~HeatFlux_Incompressible()
     delete Kappa_;
 }
 
-void preciceAdapter::CHT::HeatFlux_Incompressible::extractKappaEff(uint patchID)
+void preciceAdapter::CHT::HeatFlux_Incompressible::extractKappaEff(uint patchID, bool meshConnectivity)
 {
-    Kappa_->extract(patchID);
+    Kappa_->extract(patchID, meshConnectivity);
 }
 
 scalar preciceAdapter::CHT::HeatFlux_Incompressible::getKappaEffAt(int i)
@@ -209,9 +197,9 @@ preciceAdapter::CHT::HeatFlux_Basic::~HeatFlux_Basic()
     delete Kappa_;
 }
 
-void preciceAdapter::CHT::HeatFlux_Basic::extractKappaEff(uint patchID)
+void preciceAdapter::CHT::HeatFlux_Basic::extractKappaEff(uint patchID, bool meshConnectivity)
 {
-    Kappa_->extract(patchID);
+    Kappa_->extract(patchID, meshConnectivity);
 }
 
 scalar preciceAdapter::CHT::HeatFlux_Basic::getKappaEffAt(int i)

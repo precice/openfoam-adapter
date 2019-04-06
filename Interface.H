@@ -37,8 +37,7 @@ protected:
     int numDataLocations_ = 0;
 
     //- Vertex IDs assigned by preCICE
-    int * centerIDs_;
-    int * nodeIDs_;
+    int * vertexIDs_;
 
     //- Buffer for the coupling data
     double * dataBuffer_;
@@ -50,7 +49,7 @@ protected:
     std::vector<CouplingDataUser*> couplingDataWriters_;
 
     //Switch for faceTriangulation (nearest projection)
-    bool provideMeshConnectivity_;
+    bool meshConnectivity_;
 
     //- Extracts the locations of the face centers or face nodes
     //  and exposes them to preCICE with setMeshVertices
@@ -66,7 +65,7 @@ public:
             std::string meshName,
             std::string locationsType,
             std::vector<std::string> patchNames,
-            bool provideMeshConnectivity
+            bool meshConnectivity
             );
 
     //- Add a CouplingDataUser to read data from the interface

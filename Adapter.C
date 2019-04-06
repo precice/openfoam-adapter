@@ -7,15 +7,15 @@
 using namespace Foam;
 
 preciceAdapter::Adapter::Adapter(const Time& runTime, const fvMesh& mesh)
-:
-runTime_(runTime),
-mesh_(mesh)
+    :
+      runTime_(runTime),
+      mesh_(mesh)
 {
     adapterInfo("The preciceAdapter was loaded.", "info");
 
-    #ifdef ADAPTER_DEBUG_MODE
-        Info<< "Registered objects: " << mesh_.names() << endl;
-    #endif
+#ifdef ADAPTER_DEBUG_MODE
+    Info<< "Registered objects: " << mesh_.names() << endl;
+#endif
 
     return;
 }
@@ -115,6 +115,21 @@ bool preciceAdapter::Adapter::configFileRead()
         }
         DEBUG(adapterInfo("    locations : " + interfaceConfig.locationsType));
 
+        //Default false
+        interfaceConfig.meshConnectivity = false;
+        if (adapterConfigInterfaces[i]["provideMeshConnectivity"].as<bool>())
+        {
+            // Connectivity makes only sense in case of faceNodes, therefore check it here and raise a warning otherwise
+            if(interfaceConfig.locationsType == "faceNodes")
+                interfaceConfig.meshConnectivity = adapterConfigInterfaces[i]["provideMeshConnectivity"].as<bool>();
+            else
+                DEBUG(adapterInfo("Mesh connectivity is not supported for faceCenters. \n"
+                                  "Please configure the desired interface with the locationsType faceNodes. \n"
+                                  "Have a look in the adapter wiki on Github for detailed information.", "warning"));
+
+        }
+        DEBUG(adapterInfo("    Provide mesh connectivity : " + std::to_string(interfaceConfig.meshConnectivity)));
+
         DEBUG(adapterInfo("    patches   : "));
         for (uint j = 0; j < adapterConfigInterfaces[i]["patches"].size(); j++)
         {
@@ -203,12 +218,6 @@ bool preciceAdapter::Adapter::configFileRead()
     }
     DEBUG(adapterInfo("    FSI module enabled : " + std::to_string(FSIenabled_)));
 
-    if (adapterConfig_["provideMeshConnectivity"])
-    {
-        provideMeshConnectivity_ = adapterConfig_["provideMeshConnectivity"].as<bool>();
-    }
-    DEBUG(adapterInfo("    Provide mesh connectivity : " + std::to_string(provideMeshConnectivity_)));
-
     // NOTE: set the switch for your new module here
 
     // If the CHT module is enabled, read create it, read the
@@ -257,138 +266,138 @@ void preciceAdapter::Adapter::configure()
         return;
     }
 
-try{
-    // Check the timestep type (fixed vs adjustable)
-    DEBUG(adapterInfo("Checking the timestep type (fixed vs adjustable)..."));
-    adjustableTimestep_ = runTime_.controlDict().lookupOrDefault("adjustTimeStep", false);
+    try{
+        // Check the timestep type (fixed vs adjustable)
+        DEBUG(adapterInfo("Checking the timestep type (fixed vs adjustable)..."));
+        adjustableTimestep_ = runTime_.controlDict().lookupOrDefault("adjustTimeStep", false);
 
-    if (adjustableTimestep_) {
-        DEBUG(adapterInfo("  Timestep type: adjustable."));
-    } else {
-        DEBUG(adapterInfo("  Timestep type: fixed."));
-    }
-
-    // Initialize preCICE
-    DEBUG(adapterInfo("Creating the preCICE solver interface..."));
-    DEBUG(adapterInfo("  Number of processes: " + std::to_string(Pstream::nProcs())));
-    DEBUG(adapterInfo("  MPI rank: " + std::to_string(Pstream::myProcNo())));
-    precice_ = new precice::SolverInterface(participantName_, Pstream::myProcNo(), Pstream::nProcs());
-    DEBUG(adapterInfo("  preCICE solver interface was created."));
-
-    DEBUG(adapterInfo("Configuring preCICE..."));
-    precice_->configure(preciceConfigFilename_);
-    DEBUG(adapterInfo("  preCICE was configured."));
-
-    // Create interfaces
-    DEBUG(adapterInfo("Creating interfaces..."));
-    for (uint i = 0; i < interfacesConfig_.size(); i++)
-    {
-        Interface * interface = new Interface(*precice_, mesh_, interfacesConfig_.at(i).meshName, interfacesConfig_.at(i).locationsType, interfacesConfig_.at(i).patchNames, provideMeshConnectivity_);
-        interfaces_.push_back(interface);
-        DEBUG(adapterInfo("Interface created on mesh " + interfacesConfig_.at(i).meshName));
-
-        DEBUG(adapterInfo("Adding coupling data writers..."));
-        for (uint j = 0; j < interfacesConfig_.at(i).writeData.size(); j++)
-        {
-            std::string dataName = interfacesConfig_.at(i).writeData.at(j);
-
-            // Add CHT-related coupling data writers
-            if (CHTenabled_)
-            {
-                CHT_->addWriters(dataName, interface);
-            }
-
-            // Add FSI-related coupling data writers
-            if (FSIenabled_)
-            {
-                FSI_->addWriters(dataName, interface);
-            }
-
-            // NOTE: Add any coupling data writers for your module here.
-        } // end add coupling data writers
-
-        DEBUG(adapterInfo("Adding coupling data readers..."));
-        for (uint j = 0; j < interfacesConfig_.at(i).readData.size(); j++)
-        {
-            std::string dataName = interfacesConfig_.at(i).readData.at(j);
-
-            // Add CHT-related coupling data readers
-            if (CHTenabled_)
-            {
-                CHT_->addReaders(dataName, interface);
-            }
-
-            // Add FSI-related coupling data readers
-            if (FSIenabled_)
-            {
-                FSI_->addReaders(dataName, interface);
-            }
-
-            // NOTE: Add any coupling data readers for your module here.
-        } // end add coupling data readers
-
-        // Create the interface's data buffer
-        interface->createBuffer();
-    }
-
-    // Initialize preCICE and exchange the first coupling data
-    initialize();
-
-    // Read the received coupling data
-    readCouplingData();
-
-    // If checkpointing is required, specify the checkpointed fields
-    // and write the first checkpoint
-    if (isWriteCheckpointRequired())
-    {
-        checkpointing_ = true;
-
-        // Setup the checkpointing (find and add fields to checkpoint)
-        if (!disableCheckpointing_)
-        {
-            setupCheckpointing();
+        if (adjustableTimestep_) {
+            DEBUG(adapterInfo("  Timestep type: adjustable."));
+        } else {
+            DEBUG(adapterInfo("  Timestep type: fixed."));
         }
 
-        // Write checkpoint (for the first iteration)
-        writeCheckpoint();
-        fulfilledWriteCheckpoint();
-    }
+        // Initialize preCICE
+        DEBUG(adapterInfo("Creating the preCICE solver interface..."));
+        DEBUG(adapterInfo("  Number of processes: " + std::to_string(Pstream::nProcs())));
+        DEBUG(adapterInfo("  MPI rank: " + std::to_string(Pstream::myProcNo())));
+        precice_ = new precice::SolverInterface(participantName_, Pstream::myProcNo(), Pstream::nProcs());
+        DEBUG(adapterInfo("  preCICE solver interface was created."));
 
-    // Adjust the timestep for the first iteration, if it is fixed
-    if (!adjustableTimestep_)
-    {
-        adjustSolverTimeStep();
-    }
+        DEBUG(adapterInfo("Configuring preCICE..."));
+        precice_->configure(preciceConfigFilename_);
+        DEBUG(adapterInfo("  preCICE was configured."));
 
-    // If the solver tries to end before the coupling is complete,
-    // e.g. because the solver's endTime was smaller or (in implicit
-    // coupling) equal with the max-time specified in preCICE,
-    // problems may occur near the end of the simulation,
-    // as the function object may be called only once near the end.
-    // See the implementation of Foam::Time::run() for more details.
-    // To prevent this, we set the solver's endTime to "infinity"
-    // and let only preCICE control the end of the simulation.
-    // This has the side-effect of not triggering the end() method
-    // in any function object normally. Therefore, we trigger it
-    // when preCICE dictates to stop the coupling.
-    // However, the user can disable this behavior in the configuration.
-    if (preventEarlyExit_)
-    {
-        adapterInfo
-        (
-            "Setting the solver's endTime to infinity to prevent early exits. "
-            "Only preCICE will control the simulation's endTime. "
-            "Any functionObject's end() method will be triggered by the adapter. "
-            "You may disable this behavior in the adapter's configuration.",
-            "info"
-       );
-        const_cast<Time&>(runTime_).setEndTime(GREAT);
-    }
+        // Create interfaces
+        DEBUG(adapterInfo("Creating interfaces..."));
+        for (uint i = 0; i < interfacesConfig_.size(); i++)
+        {
+            Interface * interface = new Interface(*precice_, mesh_, interfacesConfig_.at(i).meshName, interfacesConfig_.at(i).locationsType, interfacesConfig_.at(i).patchNames, interfacesConfig_.at(i).meshConnectivity);
+            interfaces_.push_back(interface);
+            DEBUG(adapterInfo("Interface created on mesh " + interfacesConfig_.at(i).meshName));
 
-} catch (const Foam::error &e) {
-    adapterInfo(e.message(), "info");
-    errorsInConfigure = true;
-}
+            DEBUG(adapterInfo("Adding coupling data writers..."));
+            for (uint j = 0; j < interfacesConfig_.at(i).writeData.size(); j++)
+            {
+                std::string dataName = interfacesConfig_.at(i).writeData.at(j);
+
+                // Add CHT-related coupling data writers
+                if (CHTenabled_)
+                {
+                    CHT_->addWriters(dataName, interface);
+                }
+
+                // Add FSI-related coupling data writers
+                if (FSIenabled_)
+                {
+                    FSI_->addWriters(dataName, interface);
+                }
+
+                // NOTE: Add any coupling data writers for your module here.
+            } // end add coupling data writers
+
+            DEBUG(adapterInfo("Adding coupling data readers..."));
+            for (uint j = 0; j < interfacesConfig_.at(i).readData.size(); j++)
+            {
+                std::string dataName = interfacesConfig_.at(i).readData.at(j);
+
+                // Add CHT-related coupling data readers
+                if (CHTenabled_)
+                {
+                    CHT_->addReaders(dataName, interface);
+                }
+
+                // Add FSI-related coupling data readers
+                if (FSIenabled_)
+                {
+                    FSI_->addReaders(dataName, interface);
+                }
+
+                // NOTE: Add any coupling data readers for your module here.
+            } // end add coupling data readers
+
+            // Create the interface's data buffer
+            interface->createBuffer();
+        }
+
+        // Initialize preCICE and exchange the first coupling data
+        initialize();
+
+        // Read the received coupling data
+        readCouplingData();
+
+        // If checkpointing is required, specify the checkpointed fields
+        // and write the first checkpoint
+        if (isWriteCheckpointRequired())
+        {
+            checkpointing_ = true;
+
+            // Setup the checkpointing (find and add fields to checkpoint)
+            if (!disableCheckpointing_)
+            {
+                setupCheckpointing();
+            }
+
+            // Write checkpoint (for the first iteration)
+            writeCheckpoint();
+            fulfilledWriteCheckpoint();
+        }
+
+        // Adjust the timestep for the first iteration, if it is fixed
+        if (!adjustableTimestep_)
+        {
+            adjustSolverTimeStep();
+        }
+
+        // If the solver tries to end before the coupling is complete,
+        // e.g. because the solver's endTime was smaller or (in implicit
+        // coupling) equal with the max-time specified in preCICE,
+        // problems may occur near the end of the simulation,
+        // as the function object may be called only once near the end.
+        // See the implementation of Foam::Time::run() for more details.
+        // To prevent this, we set the solver's endTime to "infinity"
+        // and let only preCICE control the end of the simulation.
+        // This has the side-effect of not triggering the end() method
+        // in any function object normally. Therefore, we trigger it
+        // when preCICE dictates to stop the coupling.
+        // However, the user can disable this behavior in the configuration.
+        if (preventEarlyExit_)
+        {
+            adapterInfo
+                    (
+                        "Setting the solver's endTime to infinity to prevent early exits. "
+                        "Only preCICE will control the simulation's endTime. "
+                        "Any functionObject's end() method will be triggered by the adapter. "
+                        "You may disable this behavior in the adapter's configuration.",
+                        "info"
+                        );
+            const_cast<Time&>(runTime_).setEndTime(GREAT);
+        }
+
+    } catch (const Foam::error &e) {
+        adapterInfo(e.message(), "info");
+        errorsInConfigure = true;
+    }
 
     return;
 }
@@ -400,17 +409,17 @@ void preciceAdapter::Adapter::execute()
         // Handle any errors during configure().
         // See the comments in configure() for details.
         adapterInfo
-        (
-            "There was a problem while configuring the adapter. "
-            "See the log for details.",
-            "error"
-       );
+                (
+                    "There was a problem while configuring the adapter. "
+                    "See the log for details.",
+                    "error"
+                    );
     }
 
     // The solver has already solved the equations for this timestep.
     // Now call the adapter's methods to perform the coupling.
 
-    // TODO add a function which checks if all fields are checkpointed. 
+    // TODO add a function which checks if all fields are checkpointed.
     // if (ncheckpointed is nregisterdobjects. )
 
     // Write the coupling data in the buffer
@@ -454,11 +463,11 @@ void preciceAdapter::Adapter::execute()
         if (runTime_.timePath().type() == fileName::DIRECTORY)
         {
             adapterInfo
-            (
-                "The coupling timestep completed. "
-                "Writing the updated results.",
-                "info"
-           );
+                    (
+                        "The coupling timestep completed. "
+                        "Writing the updated results.",
+                        "info"
+                        );
             const_cast<Time&>(runTime_).writeNow();
         }
     }
@@ -480,11 +489,11 @@ void preciceAdapter::Adapter::execute()
         if (preventEarlyExit_)
         {
             adapterInfo
-            (
-                "The simulation was ended by preCICE. "
-                "Calling the end() methods of any functionObject explicitly.",
-                "info"
-           );
+                    (
+                        "The simulation was ended by preCICE. "
+                        "Calling the end() methods of any functionObject explicitly.",
+                        "info"
+                        );
             const_cast<Time&>(runTime_).functionObjects().end();
         }
     }
@@ -601,15 +610,15 @@ void preciceAdapter::Adapter::adjustSolverTimeStep()
             if (runTime_.runTimeModifiable())
             {
                 adapterInfo
-                (
-                    "You have enabled 'runTimeModifiable' in the "
-                    "controlDict. The preciceAdapter does not yet "
-                    "fully support this functionality when "
-                    "'adjustableTimestep' is not enabled. "
-                    "If you modify the 'deltaT' in the controlDict "
-                    "during the simulation, it will not be updated.",
-                    "warning"
-               );
+                        (
+                            "You have enabled 'runTimeModifiable' in the "
+                            "controlDict. The preciceAdapter does not yet "
+                            "fully support this functionality when "
+                            "'adjustableTimestep' is not enabled. "
+                            "If you modify the 'deltaT' in the controlDict "
+                            "during the simulation, it will not be updated.",
+                            "warning"
+                            );
             }
 
             // Store the value
@@ -641,50 +650,50 @@ void preciceAdapter::Adapter::adjustSolverTimeStep()
         if (!subcyclingAllowed_)
         {
             adapterInfo
-            (
-                "The solver's timestep cannot be smaller than the "
-                "coupling timestep, because subcycling is disabled. ",
-                "error"
-           );
+                    (
+                        "The solver's timestep cannot be smaller than the "
+                        "coupling timestep, because subcycling is disabled. ",
+                        "error"
+                        );
         }
         else
         {
-            // Add a bool 'subCycling = true' which is checked in the storeMeshPoints() function. 
+            // Add a bool 'subCycling = true' which is checked in the storeMeshPoints() function.
             adapterInfo
-            (
-                "The solver's timestep is smaller than the "
-                "coupling timestep. Subcycling...",
-                "info"
-           );
+                    (
+                        "The solver's timestep is smaller than the "
+                        "coupling timestep. Subcycling...",
+                        "info"
+                        );
             timestepSolver_ = timestepSolverDetermined;
             // TODO subcycling is enabled. For FSI the oldVolumes must be written, which is normally not done.
             if (FSIenabled_)
             {
                 adapterInfo
-                (
-                    "The adapter does not fully support subcycling for FSI and instabilities may occur.",
-                    "warning"
-                );
+                        (
+                            "The adapter does not fully support subcycling for FSI and instabilities may occur.",
+                            "warning"
+                            );
             }
         }
     }
     else if (timestepSolverDetermined > timestepPrecice_)
     {
         adapterInfo
-        (
-            "The solver's timestep cannot be larger than the coupling timestep."
-            " Adjusting from " +
-            std::to_string(timestepSolverDetermined) +
-            " to " +
-            std::to_string(timestepPrecice_),
-            "warning"
-       );
+                (
+                    "The solver's timestep cannot be larger than the coupling timestep."
+                    " Adjusting from " +
+                    std::to_string(timestepSolverDetermined) +
+                    " to " +
+                    std::to_string(timestepPrecice_),
+                    "warning"
+                    );
         timestepSolver_ = timestepPrecice_;
     }
     else
     {
         DEBUG(adapterInfo("The solver's timestep is the same as the "
-                            "coupling timestep."));
+                          "coupling timestep."));
         timestepSolver_ = timestepPrecice_;
     }
 
@@ -766,18 +775,18 @@ void preciceAdapter::Adapter::storeMeshPoints()
     meshPoints_ = mesh_.points();
     oldMeshPoints_ = mesh_.oldPoints();
 
-    /*  
+    /*
     // TODO  This is only required for subcycling. It should not be called when not subcycling!!
-    // Add a bool 'subcycling' which can be evaluated every timestep. 
+    // Add a bool 'subcycling' which can be evaluated every timestep.
     if ( !oldVolsStored && mesh_.foundObject<volScalarField::Internal>("V00") ) // For Ddt schemes which use one previous timestep
-    {  
+    {
         setupMeshVolCheckpointing();
         oldVolsStored = true;
     }
     // Update any volume fields from the buffer to the checkpointed values (if already exists.)
     */
 
-    DEBUG(adapterInfo("Stored mesh points."));    
+    DEBUG(adapterInfo("Stored mesh points."));
     if (mesh_.moving())
     {
         if (!meshCheckPointed)
@@ -794,95 +803,95 @@ void preciceAdapter::Adapter::storeMeshPoints()
 void preciceAdapter::Adapter::reloadMeshPoints()
 {
     // In Foam::polyMesh::movePoints.
-    // TODO: The function movePoints overwrites the pointer to the old mesh. 
-    // Therefore, if you revert the mesh, the oldpointer will be set to the points, which are the new values. 
+    // TODO: The function movePoints overwrites the pointer to the old mesh.
+    // Therefore, if you revert the mesh, the oldpointer will be set to the points, which are the new values.
     DEBUG(adapterInfo("Moving mesh points to their previous locations..."));
 
     // TODO
-    // Switch oldpoints on for pure physics. (is this required?). Switch off for better mesh deformation capabilities?    
+    // Switch oldpoints on for pure physics. (is this required?). Switch off for better mesh deformation capabilities?
     // const_cast<pointField&>(mesh_.points()) = oldMeshPoints_;
     const_cast<fvMesh&>(mesh_).movePoints(meshPoints_);
-   
+
     DEBUG(adapterInfo("Moved mesh points to their previous locations."));
     
-    // TODO The if statement can be removed in this case, but it is still included for clarity 
+    // TODO The if statement can be removed in this case, but it is still included for clarity
     if ( meshCheckPointed )
-    {   
+    {
         readMeshCheckpoint();
     }
 
     /*  // TODO This part should only be used when sybcycling. See the description in 'storeMeshPoints()'
         // The if statement can be removed in this case, but it is still included for clarity
     if ( oldVolsStored )
-    {       
+    {
         readVolCheckpoint();
     }
-    */ 
+    */
 }
 
 void preciceAdapter::Adapter::setupMeshCheckpointing()
 {
-    // The other mesh <type>Fields: 
+    // The other mesh <type>Fields:
     //      C
     //      Cf
     //      Sf
     //      magSf
     //      delta
-    // are updated by the function fvMesh::movePoints. Only the meshPhi needs checkpointing. 
+    // are updated by the function fvMesh::movePoints. Only the meshPhi needs checkpointing.
     DEBUG(adapterInfo("Creating a list of the mesh checkpointed fields..."));
 
     // Add meshPhi to the checkpointed fields
     addMeshCheckpointField
-    (
-        const_cast<surfaceScalarField&>
-        (
-            mesh_.phi()
-        )
-    );
-    #ifdef ADAPTER_DEBUG_MODE
+            (
+                const_cast<surfaceScalarField&>
+                (
+                    mesh_.phi()
+                    )
+                );
+#ifdef ADAPTER_DEBUG_MODE
     adapterInfo
-    (
-        "Added " + mesh_.phi().name() +
-        " in the list of checkpointed fields."
-    );
-    #endif
+            (
+                "Added " + mesh_.phi().name() +
+                " in the list of checkpointed fields."
+                );
+#endif
     
 }
 
 void preciceAdapter::Adapter::setupMeshVolCheckpointing()
 {
     DEBUG(adapterInfo("Creating a list of the mesh volume checkpointed fields..."));
-    // Add the V0 and the V00 to the list of checkpointed fields. 
+    // Add the V0 and the V00 to the list of checkpointed fields.
     // For V0
     addVolCheckpointField
-    (
-        const_cast<volScalarField::Internal&>
-        (
-            mesh_.V0()
-        )
-    );
-    #ifdef ADAPTER_DEBUG_MODE
+            (
+                const_cast<volScalarField::Internal&>
+                (
+                    mesh_.V0()
+                    )
+                );
+#ifdef ADAPTER_DEBUG_MODE
     adapterInfo
-    (
-        "Added " + mesh_.V0().name() +
-        " in the list of checkpointed fields."
-    );
-    #endif
+            (
+                "Added " + mesh_.V0().name() +
+                " in the list of checkpointed fields."
+                );
+#endif
     // For V00
     addVolCheckpointField
-    (
-        const_cast<volScalarField::Internal&>
-        (
-            mesh_.V00()
-        )
-    );
-    #ifdef ADAPTER_DEBUG_MODE
+            (
+                const_cast<volScalarField::Internal&>
+                (
+                    mesh_.V00()
+                    )
+                );
+#ifdef ADAPTER_DEBUG_MODE
     adapterInfo
-    (
-        "Added " + mesh_.V00().name() +
-        " in the list of checkpointed fields."
-    );
-    #endif
+            (
+                "Added " + mesh_.V00().name() +
+                " in the list of checkpointed fields."
+                );
+#endif
 
     // Also add the buffer fields.
     // TODO For V0
@@ -893,13 +902,13 @@ void preciceAdapter::Adapter::setupMeshVolCheckpointing()
             mesh_.V0()
         )
     ); */
-    #ifdef ADAPTER_DEBUG_MODE
+#ifdef ADAPTER_DEBUG_MODE
     adapterInfo
-    (
-        "Added " + mesh_.V0().name() +
-        " in the list of buffer checkpointed fields."
-    );
-    #endif
+            (
+                "Added " + mesh_.V0().name() +
+                " in the list of buffer checkpointed fields."
+                );
+#endif
     // TODO For V00
     /* addVolCheckpointFieldBuffer
     (
@@ -908,13 +917,13 @@ void preciceAdapter::Adapter::setupMeshVolCheckpointing()
             mesh_.V00()
         )
     );*/
-    #ifdef ADAPTER_DEBUG_MODE
+#ifdef ADAPTER_DEBUG_MODE
     adapterInfo
-    (
-        "Added " + mesh_.V00().name() +
-        " in the list of buffer checkpointed fields."
-    );
-    #endif
+            (
+                "Added " + mesh_.V00().name() +
+                " in the list of buffer checkpointed fields."
+                );
+#endif
 }
 
 
@@ -929,9 +938,9 @@ void preciceAdapter::Adapter::setupCheckpointing()
 
     // Print the available objects of type volScalarField
     DEBUG(adapterInfo("Available objects of type volScalarField : "));
-    #ifdef ADAPTER_DEBUG_MODE
-        Info << mesh_.lookupClass<volScalarField>() << nl << nl;
-    #endif
+#ifdef ADAPTER_DEBUG_MODE
+    Info << mesh_.lookupClass<volScalarField>() << nl << nl;
+#endif
 
     wordList objectNames_ = mesh_.lookupClass<volScalarField>().toc();
 
@@ -940,27 +949,27 @@ void preciceAdapter::Adapter::setupCheckpointing()
         if (mesh_.foundObject<volScalarField>(objectNames_[i]))
         {
             addCheckpointField
-            (
-                const_cast<volScalarField&>
-                (
-                    mesh_.lookupObject<volScalarField>(objectNames_[i])
-                )
-            );
+                    (
+                        const_cast<volScalarField&>
+                        (
+                            mesh_.lookupObject<volScalarField>(objectNames_[i])
+                            )
+                        );
 
-            #ifdef ADAPTER_DEBUG_MODE
+#ifdef ADAPTER_DEBUG_MODE
             adapterInfo
-            (
-                "Added " + objectNames_[i] +
-                " in the list of checkpointed fields."
-           );
-            #endif
+                    (
+                        "Added " + objectNames_[i] +
+                        " in the list of checkpointed fields."
+                        );
+#endif
 
             // TODO: Known bug, see readCheckpoint()
             if ("epsilon" == objectNames_[i])
             {
                 DEBUG(adapterInfo("Known bug: after reading a checkpoint, "
-                        "the boundaries for epsilon will not be corrected.",
-                        "warning"));
+                                  "the boundaries for epsilon will not be corrected.",
+                                  "warning"));
             }
         }
         else
@@ -975,9 +984,9 @@ void preciceAdapter::Adapter::setupCheckpointing()
 
     // Print the available objects of type volVectorField
     DEBUG(adapterInfo("Available objects of type volVectorField : "));
-    #ifdef ADAPTER_DEBUG_MODE
-        Info << mesh_.lookupClass<volVectorField>() << nl << nl;
-    #endif
+#ifdef ADAPTER_DEBUG_MODE
+    Info << mesh_.lookupClass<volVectorField>() << nl << nl;
+#endif
 
     objectNames_ = mesh_.lookupClass<volVectorField>().toc();
 
@@ -986,20 +995,20 @@ void preciceAdapter::Adapter::setupCheckpointing()
         if (mesh_.foundObject<volVectorField>(objectNames_[i]))
         {
             addCheckpointField
-            (
-                const_cast<volVectorField&>
-                (
-                    mesh_.lookupObject<volVectorField>(objectNames_[i])
-                )
-            );
+                    (
+                        const_cast<volVectorField&>
+                        (
+                            mesh_.lookupObject<volVectorField>(objectNames_[i])
+                            )
+                        );
 
-            #ifdef ADAPTER_DEBUG_MODE
+#ifdef ADAPTER_DEBUG_MODE
             adapterInfo
-            (
-                "Added " + objectNames_[i] +
-                " in the list of checkpointed fields."
-           );
-            #endif
+                    (
+                        "Added " + objectNames_[i] +
+                        " in the list of checkpointed fields."
+                        );
+#endif
         }
         else
         {
@@ -1009,9 +1018,9 @@ void preciceAdapter::Adapter::setupCheckpointing()
 
     // Print the available objects of type surfaceScalarField
     DEBUG(adapterInfo("Available objects of type surfaceScalarField : "));
-    #ifdef ADAPTER_DEBUG_MODE
-        Info << mesh_.lookupClass<surfaceScalarField>() << nl << nl;
-    #endif
+#ifdef ADAPTER_DEBUG_MODE
+    Info << mesh_.lookupClass<surfaceScalarField>() << nl << nl;
+#endif
 
     /* Find and add all the registered objects in the mesh_
        of type surfaceScalarField
@@ -1023,20 +1032,20 @@ void preciceAdapter::Adapter::setupCheckpointing()
         if (mesh_.foundObject<surfaceScalarField>(objectNames_[i]))
         {
             addCheckpointField
-            (
-                const_cast<surfaceScalarField&>
-                (
-                    mesh_.lookupObject<surfaceScalarField>(objectNames_[i])
-               )
-           );
+                    (
+                        const_cast<surfaceScalarField&>
+                        (
+                            mesh_.lookupObject<surfaceScalarField>(objectNames_[i])
+                            )
+                        );
 
-            #ifdef ADAPTER_DEBUG_MODE
+#ifdef ADAPTER_DEBUG_MODE
             adapterInfo
-            (
-                "Added " + objectNames_[i] +
-                " in the list of checkpointed fields."
-           );
-            #endif
+                    (
+                        "Added " + objectNames_[i] +
+                        " in the list of checkpointed fields."
+                        );
+#endif
         }
         else
         {
@@ -1050,9 +1059,9 @@ void preciceAdapter::Adapter::setupCheckpointing()
 
     // Print the available objects of type surfaceVectorField
     DEBUG(adapterInfo("Available objects of type surfaceVectorField : "));
-    #ifdef ADAPTER_DEBUG_MODE
-        Info << mesh_.lookupClass<surfaceVectorField>() << nl << nl;
-    #endif
+#ifdef ADAPTER_DEBUG_MODE
+    Info << mesh_.lookupClass<surfaceVectorField>() << nl << nl;
+#endif
 
     objectNames_ = mesh_.lookupClass<surfaceVectorField>().toc();
 
@@ -1061,20 +1070,20 @@ void preciceAdapter::Adapter::setupCheckpointing()
         if (mesh_.foundObject<surfaceVectorField>(objectNames_[i]))
         {
             addCheckpointField
-            (
-                const_cast<surfaceVectorField&>
-                (
-                    mesh_.lookupObject<surfaceVectorField>(objectNames_[i])
-               )
-           );
+                    (
+                        const_cast<surfaceVectorField&>
+                        (
+                            mesh_.lookupObject<surfaceVectorField>(objectNames_[i])
+                            )
+                        );
 
-            #ifdef ADAPTER_DEBUG_MODE
+#ifdef ADAPTER_DEBUG_MODE
             adapterInfo
-            (
-                "Added " + objectNames_[i] +
-                " in the list of checkpointed fields."
-           );
-            #endif
+                    (
+                        "Added " + objectNames_[i] +
+                        " in the list of checkpointed fields."
+                        );
+#endif
         }
         else
         {
@@ -1088,9 +1097,9 @@ void preciceAdapter::Adapter::setupCheckpointing()
 
     // Print the available objects of type pointScalarField
     DEBUG(adapterInfo("Available objects of type pointScalarField : "));
-    #ifdef ADAPTER_DEBUG_MODE
-        Info << mesh_.lookupClass<pointScalarField>() << nl << nl;
-    #endif
+#ifdef ADAPTER_DEBUG_MODE
+    Info << mesh_.lookupClass<pointScalarField>() << nl << nl;
+#endif
 
     objectNames_ = mesh_.lookupClass<pointScalarField>().toc();
 
@@ -1099,20 +1108,20 @@ void preciceAdapter::Adapter::setupCheckpointing()
         if (mesh_.foundObject<pointScalarField>(objectNames_[i]))
         {
             addCheckpointField
-            (
-                const_cast<pointScalarField&>
-                (
-                    mesh_.lookupObject<pointScalarField>(objectNames_[i])
-               )
-           );
+                    (
+                        const_cast<pointScalarField&>
+                        (
+                            mesh_.lookupObject<pointScalarField>(objectNames_[i])
+                            )
+                        );
 
-            #ifdef ADAPTER_DEBUG_MODE
+#ifdef ADAPTER_DEBUG_MODE
             adapterInfo
-            (
-                "Added " + objectNames_[i] +
-                " in the list of checkpointed fields."
-           );
-            #endif
+                    (
+                        "Added " + objectNames_[i] +
+                        " in the list of checkpointed fields."
+                        );
+#endif
         }
         else
         {
@@ -1126,9 +1135,9 @@ void preciceAdapter::Adapter::setupCheckpointing()
 
     // Print the available objects of type pointVectorField
     DEBUG(adapterInfo("Available objects of type pointVectorField : "));
-    #ifdef ADAPTER_DEBUG_MODE
-        Info << mesh_.lookupClass<pointVectorField>() << nl << nl;
-    #endif
+#ifdef ADAPTER_DEBUG_MODE
+    Info << mesh_.lookupClass<pointVectorField>() << nl << nl;
+#endif
 
     objectNames_ = mesh_.lookupClass<pointVectorField>().toc();
 
@@ -1137,20 +1146,20 @@ void preciceAdapter::Adapter::setupCheckpointing()
         if (mesh_.foundObject<pointVectorField>(objectNames_[i]))
         {
             addCheckpointField
-            (
-                const_cast<pointVectorField&>
-                (
-                    mesh_.lookupObject<pointVectorField>(objectNames_[i])
-               )
-           );
+                    (
+                        const_cast<pointVectorField&>
+                        (
+                            mesh_.lookupObject<pointVectorField>(objectNames_[i])
+                            )
+                        );
 
-            #ifdef ADAPTER_DEBUG_MODE
+#ifdef ADAPTER_DEBUG_MODE
             adapterInfo
-            (
-                "Added " + objectNames_[i] +
-                " in the list of checkpointed fields."
-           );
-            #endif
+                    (
+                        "Added " + objectNames_[i] +
+                        " in the list of checkpointed fields."
+                        );
+#endif
         }
         else
         {
@@ -1166,9 +1175,9 @@ void preciceAdapter::Adapter::setupCheckpointing()
 
     // Print the available objects of type volTensorField
     DEBUG(adapterInfo("Available objects of type volTensorField : "));
-    #ifdef ADAPTER_DEBUG_MODE
-        Info << mesh_.lookupClass<volTensorField>() << nl << nl;
-    #endif
+#ifdef ADAPTER_DEBUG_MODE
+    Info << mesh_.lookupClass<volTensorField>() << nl << nl;
+#endif
 
     objectNames_ = mesh_.lookupClass<volTensorField>().toc();
 
@@ -1177,20 +1186,20 @@ void preciceAdapter::Adapter::setupCheckpointing()
         if (mesh_.foundObject<volTensorField>(objectNames_[i]))
         {
             addCheckpointField
-            (
-                const_cast<volTensorField&>
-                (
-                    mesh_.lookupObject<volTensorField>(objectNames_[i])
-               )
-           );
+                    (
+                        const_cast<volTensorField&>
+                        (
+                            mesh_.lookupObject<volTensorField>(objectNames_[i])
+                            )
+                        );
 
-            #ifdef ADAPTER_DEBUG_MODE
+#ifdef ADAPTER_DEBUG_MODE
             adapterInfo
-            (
-                "Added " + objectNames_[i] +
-                " in the list of checkpointed fields."
-           );
-            #endif
+                    (
+                        "Added " + objectNames_[i] +
+                        " in the list of checkpointed fields."
+                        );
+#endif
         }
         else
         {
@@ -1205,9 +1214,9 @@ void preciceAdapter::Adapter::setupCheckpointing()
     */
 
     DEBUG(adapterInfo("Available objects of type surfaceTensorField : "));
-    #ifdef ADAPTER_DEBUG_MODE
-        Info << mesh_.lookupClass<surfaceTensorField>() << nl << nl;
-    #endif
+#ifdef ADAPTER_DEBUG_MODE
+    Info << mesh_.lookupClass<surfaceTensorField>() << nl << nl;
+#endif
 
     objectNames_ = mesh_.lookupClass<surfaceTensorField>().toc();
 
@@ -1216,20 +1225,20 @@ void preciceAdapter::Adapter::setupCheckpointing()
         if (mesh_.foundObject<surfaceTensorField>(objectNames_[i]))
         {
             addCheckpointField
-            (
-                const_cast<surfaceTensorField&>
-                (
-                    mesh_.lookupObject<surfaceTensorField>(objectNames_[i])
-               )
-           );
+                    (
+                        const_cast<surfaceTensorField&>
+                        (
+                            mesh_.lookupObject<surfaceTensorField>(objectNames_[i])
+                            )
+                        );
 
-            #ifdef ADAPTER_DEBUG_MODE
+#ifdef ADAPTER_DEBUG_MODE
             adapterInfo
-            (
-                "Added " + objectNames_[i] +
-                " in the list of checkpointed fields."
-           );
-            #endif
+                    (
+                        "Added " + objectNames_[i] +
+                        " in the list of checkpointed fields."
+                        );
+#endif
         }
         else
         {
@@ -1242,9 +1251,9 @@ void preciceAdapter::Adapter::setupCheckpointing()
     */
 
     DEBUG(adapterInfo("Available objects of type pointTensorField : "));
-    #ifdef ADAPTER_DEBUG_MODE
-        Info << mesh_.lookupClass<pointTensorField>() << nl << nl;
-    #endif
+#ifdef ADAPTER_DEBUG_MODE
+    Info << mesh_.lookupClass<pointTensorField>() << nl << nl;
+#endif
 
     objectNames_ = mesh_.lookupClass<pointTensorField>().toc();
 
@@ -1253,20 +1262,20 @@ void preciceAdapter::Adapter::setupCheckpointing()
         if (mesh_.foundObject<pointTensorField>(objectNames_[i]))
         {
             addCheckpointField
-            (
-                const_cast<pointTensorField&>
-                (
-                    mesh_.lookupObject<pointTensorField>(objectNames_[i])
-               )
-           );
+                    (
+                        const_cast<pointTensorField&>
+                        (
+                            mesh_.lookupObject<pointTensorField>(objectNames_[i])
+                            )
+                        );
 
-            #ifdef ADAPTER_DEBUG_MODE
+#ifdef ADAPTER_DEBUG_MODE
             adapterInfo
-            (
-                "Added " + objectNames_[i] +
-                " in the list of checkpointed fields."
-           );
-            #endif
+                    (
+                        "Added " + objectNames_[i] +
+                        " in the list of checkpointed fields."
+                        );
+#endif
         }
         else
         {
@@ -1281,9 +1290,9 @@ void preciceAdapter::Adapter::setupCheckpointing()
     */
 
     DEBUG(adapterInfo("Available objects of type volSymmTensorField : "));
-    #ifdef ADAPTER_DEBUG_MODE
-        Info << mesh_.lookupClass<volSymmTensorField>() << nl << nl;
-    #endif
+#ifdef ADAPTER_DEBUG_MODE
+    Info << mesh_.lookupClass<volSymmTensorField>() << nl << nl;
+#endif
 
     objectNames_ = mesh_.lookupClass<volSymmTensorField>().toc();
 
@@ -1292,20 +1301,20 @@ void preciceAdapter::Adapter::setupCheckpointing()
         if (mesh_.foundObject<volSymmTensorField>(objectNames_[i]))
         {
             addCheckpointField
-            (
-                const_cast<volSymmTensorField&>
-                (
-                    mesh_.lookupObject<volSymmTensorField>(objectNames_[i])
-               )
-           );
+                    (
+                        const_cast<volSymmTensorField&>
+                        (
+                            mesh_.lookupObject<volSymmTensorField>(objectNames_[i])
+                            )
+                        );
 
-            #ifdef ADAPTER_DEBUG_MODE
+#ifdef ADAPTER_DEBUG_MODE
             adapterInfo
-            (
-                "Added " + objectNames_[i] +
-                " in the list of checkpointed fields."
-           );
-            #endif
+                    (
+                        "Added " + objectNames_[i] +
+                        " in the list of checkpointed fields."
+                        );
+#endif
         }
         else
         {
@@ -1439,11 +1448,11 @@ void preciceAdapter::Adapter::addCheckpointField(volSymmTensorField & field)
 
 void preciceAdapter::Adapter::readCheckpoint()
 {
-    // TODO: To increase efficiency: only the oldTime() fields of the quantities which are used in the time 
+    // TODO: To increase efficiency: only the oldTime() fields of the quantities which are used in the time
     //  derivative are necessary. (In general this is only the velocity). Also old information of the mesh
-    //  is required. 
-    //  Therefore, loading the oldTime() and oldTime().oldTime() fields for the other fields can be excluded 
-    //  for efficiency.  
+    //  is required.
+    //  Therefore, loading the oldTime() and oldTime().oldTime() fields for the other fields can be excluded
+    //  for efficiency.
     DEBUG(adapterInfo("Reading a checkpoint..."));
 
     // Reload the runTime
@@ -1458,7 +1467,7 @@ void preciceAdapter::Adapter::readCheckpoint()
     // Reload all the fields of type volScalarField
     for (uint i = 0; i < volScalarFields_.size(); i++)
     {
-        // Load the volume field 
+        // Load the volume field
         *(volScalarFields_.at(i)) == *(volScalarFieldCopies_.at(i));
         // TODO: Do we need this?
         // *(volScalarFields_.at(i))->boundaryField() = *(volScalarFieldCopies_.at(i))->boundaryField();
@@ -1466,7 +1475,7 @@ void preciceAdapter::Adapter::readCheckpoint()
         int nOldTimes(volScalarFields_.at(i)->nOldTimes());
         if (nOldTimes >= 1)
         {
-            volScalarFields_.at(i)->oldTime() == volScalarFieldCopies_.at(i)->oldTime();        
+            volScalarFields_.at(i)->oldTime() == volScalarFieldCopies_.at(i)->oldTime();
         }
         if (nOldTimes == 2)
         {
@@ -1479,7 +1488,7 @@ void preciceAdapter::Adapter::readCheckpoint()
             try{
                 // TODO Check if these fields require adding besides only epsilon.
                 // (from Max Mueller's fork)
-                /* 
+                /*
                 if ( ("epsilon"  != volScalarFields_.at(i)->name()) &&
                 ("epsilon_0"!= volScalarFields_.at(i)->name()) &&
                 ("omega"    != volScalarFields_.at(i)->name()) &&
@@ -1510,7 +1519,7 @@ void preciceAdapter::Adapter::readCheckpoint()
         int nOldTimes(volVectorFields_.at(i)->nOldTimes());
         if (nOldTimes >= 1)
         {
-            volVectorFields_.at(i)->oldTime() == volVectorFieldCopies_.at(i)->oldTime();        
+            volVectorFields_.at(i)->oldTime() == volVectorFieldCopies_.at(i)->oldTime();
         }
         if (nOldTimes == 2)
         {
@@ -1536,7 +1545,7 @@ void preciceAdapter::Adapter::readCheckpoint()
         int nOldTimes(surfaceScalarFields_.at(i)->nOldTimes());
         if (nOldTimes >= 1)
         {
-            surfaceScalarFields_.at(i)->oldTime() == surfaceScalarFieldCopies_.at(i)->oldTime();        
+            surfaceScalarFields_.at(i)->oldTime() == surfaceScalarFieldCopies_.at(i)->oldTime();
         }
         if (nOldTimes == 2)
         {
@@ -1553,7 +1562,7 @@ void preciceAdapter::Adapter::readCheckpoint()
         int nOldTimes(surfaceVectorFields_.at(i)->nOldTimes());
         if (nOldTimes >= 1)
         {
-            surfaceVectorFields_.at(i)->oldTime() == surfaceVectorFieldCopies_.at(i)->oldTime();        
+            surfaceVectorFields_.at(i)->oldTime() == surfaceVectorFieldCopies_.at(i)->oldTime();
         }
         if (nOldTimes == 2)
         {
@@ -1570,7 +1579,7 @@ void preciceAdapter::Adapter::readCheckpoint()
         int nOldTimes(pointScalarFields_.at(i)->nOldTimes());
         if (nOldTimes >= 1)
         {
-            pointScalarFields_.at(i)->oldTime() == pointScalarFieldCopies_.at(i)->oldTime();        
+            pointScalarFields_.at(i)->oldTime() == pointScalarFieldCopies_.at(i)->oldTime();
         }
         if (nOldTimes == 2)
         {
@@ -1593,7 +1602,7 @@ void preciceAdapter::Adapter::readCheckpoint()
         int nOldTimes(pointVectorFields_.at(i)->nOldTimes());
         if (nOldTimes >= 1)
         {
-            pointVectorFields_.at(i)->oldTime() == pointVectorFieldCopies_.at(i)->oldTime();        
+            pointVectorFields_.at(i)->oldTime() == pointVectorFieldCopies_.at(i)->oldTime();
         }
         if (nOldTimes == 2)
         {
@@ -1604,14 +1613,14 @@ void preciceAdapter::Adapter::readCheckpoint()
         {
             DEBUG(adapterInfo("Evaluating the pointVector boundary conditions for " + pointVectorFields_.at(i)->name()));
             pointVectorFields_.at(i)->correctBoundaryConditions();
-        } 
-        catch (...) 
+        }
+        catch (...)
         {
             DEBUG(adapterInfo("Could not evaluate the boundary for" + pointVectorFields_.at(i)->name(), "warning"));
         }
     }
 
-    // TODO Evaluate if all the tensor fields need to be in here. 
+    // TODO Evaluate if all the tensor fields need to be in here.
     // Reload all the fields of type volTensorField
     for (uint i = 0; i < volTensorFields_.size(); i++)
     {
@@ -1620,7 +1629,7 @@ void preciceAdapter::Adapter::readCheckpoint()
         int nOldTimes(volTensorFields_.at(i)->nOldTimes());
         if (nOldTimes >= 1)
         {
-            volTensorFields_.at(i)->oldTime() == volTensorFieldCopies_.at(i)->oldTime();        
+            volTensorFields_.at(i)->oldTime() == volTensorFieldCopies_.at(i)->oldTime();
         }
         if (nOldTimes == 2)
         {
@@ -1636,7 +1645,7 @@ void preciceAdapter::Adapter::readCheckpoint()
         int nOldTimes(surfaceTensorFields_.at(i)->nOldTimes());
         if (nOldTimes >= 1)
         {
-            surfaceTensorFields_.at(i)->oldTime() == surfaceTensorFieldCopies_.at(i)->oldTime();        
+            surfaceTensorFields_.at(i)->oldTime() == surfaceTensorFieldCopies_.at(i)->oldTime();
         }
         if (nOldTimes == 2)
         {
@@ -1652,7 +1661,7 @@ void preciceAdapter::Adapter::readCheckpoint()
         int nOldTimes(pointTensorFields_.at(i)->nOldTimes());
         if (nOldTimes >= 1)
         {
-            pointTensorFields_.at(i)->oldTime() == pointTensorFieldCopies_.at(i)->oldTime();        
+            pointTensorFields_.at(i)->oldTime() == pointTensorFieldCopies_.at(i)->oldTime();
         }
         if (nOldTimes == 2)
         {
@@ -1660,7 +1669,7 @@ void preciceAdapter::Adapter::readCheckpoint()
         }
     }
 
-    // TODO volSymmTensorField is new. 
+    // TODO volSymmTensorField is new.
     // Reload all the fields of type volSymmTensorField
     for (uint i = 0; i < volSymmTensorFields_.size(); i++)
     {
@@ -1669,7 +1678,7 @@ void preciceAdapter::Adapter::readCheckpoint()
         int nOldTimes(volSymmTensorFields_.at(i)->nOldTimes());
         if (nOldTimes >= 1)
         {
-            volSymmTensorFields_.at(i)->oldTime() == volSymmTensorFieldCopies_.at(i)->oldTime();        
+            volSymmTensorFields_.at(i)->oldTime() == volSymmTensorFieldCopies_.at(i)->oldTime();
         }
         if (nOldTimes == 2)
         {
@@ -1679,12 +1688,12 @@ void preciceAdapter::Adapter::readCheckpoint()
 
     // NOTE: Add here other field types to read, if needed.
 
-    #ifdef ADAPTER_DEBUG_MODE
-        adapterInfo
-        (
-            "Checkpoint was read. Time = " + std::to_string(runTime_.value())
-       );
-    #endif
+#ifdef ADAPTER_DEBUG_MODE
+    adapterInfo
+            (
+                "Checkpoint was read. Time = " + std::to_string(runTime_.value())
+                );
+#endif
 
     return;
 }
@@ -1764,13 +1773,13 @@ void preciceAdapter::Adapter::writeCheckpoint()
     }
     // NOTE: Add here other types to write, if needed.
 
-    #ifdef ADAPTER_DEBUG_MODE
-        adapterInfo
-        (
-            "Checkpoint for time t = " + std::to_string(runTime_.value()) +
-            " was stored."
-       );
-    #endif
+#ifdef ADAPTER_DEBUG_MODE
+    adapterInfo
+            (
+                "Checkpoint for time t = " + std::to_string(runTime_.value()) +
+                " was stored."
+                );
+#endif
 
     return;
 }
@@ -1779,17 +1788,17 @@ void preciceAdapter::Adapter::readMeshCheckpoint()
 {
     DEBUG(adapterInfo("Reading a mesh checkpoint..."));
 
-    //TODO only the meshPhi field is here, which is a surfaceScalarField. The other fields can be removed. 
+    //TODO only the meshPhi field is here, which is a surfaceScalarField. The other fields can be removed.
     // Reload all the fields of type mesh surfaceScalarField
     for (uint i = 0; i < meshSurfaceScalarFields_.size(); i++)
-    {    
+    {
         // Load the volume field
         *(meshSurfaceScalarFields_.at(i)) == *(meshSurfaceScalarFieldCopies_.at(i));
 
         int nOldTimes(meshSurfaceScalarFields_.at(i)->nOldTimes());
         if (nOldTimes >= 1)
         {
-            meshSurfaceScalarFields_.at(i)->oldTime() == meshSurfaceScalarFieldCopies_.at(i)->oldTime();        
+            meshSurfaceScalarFields_.at(i)->oldTime() == meshSurfaceScalarFieldCopies_.at(i)->oldTime();
         }
         if (nOldTimes == 2)
         {
@@ -1806,7 +1815,7 @@ void preciceAdapter::Adapter::readMeshCheckpoint()
         int nOldTimes(meshSurfaceVectorFields_.at(i)->nOldTimes());
         if (nOldTimes >= 1)
         {
-            meshSurfaceVectorFields_.at(i)->oldTime() == meshSurfaceVectorFieldCopies_.at(i)->oldTime();        
+            meshSurfaceVectorFields_.at(i)->oldTime() == meshSurfaceVectorFieldCopies_.at(i)->oldTime();
         }
         if (nOldTimes == 2)
         {
@@ -1823,7 +1832,7 @@ void preciceAdapter::Adapter::readMeshCheckpoint()
         int nOldTimes(meshVolVectorFields_.at(i)->nOldTimes());
         if (nOldTimes >= 1)
         {
-            meshVolVectorFields_.at(i)->oldTime() == meshVolVectorFieldCopies_.at(i)->oldTime();        
+            meshVolVectorFields_.at(i)->oldTime() == meshVolVectorFieldCopies_.at(i)->oldTime();
         }
         if (nOldTimes == 2)
         {
@@ -1831,12 +1840,12 @@ void preciceAdapter::Adapter::readMeshCheckpoint()
         }
     }
     
-    #ifdef ADAPTER_DEBUG_MODE
-        adapterInfo
-        (
-            "Mesh checkpoint was read. Time = " + std::to_string(runTime_.value())
-       );
-    #endif
+#ifdef ADAPTER_DEBUG_MODE
+    adapterInfo
+            (
+                "Mesh checkpoint was read. Time = " + std::to_string(runTime_.value())
+                );
+#endif
 
     return;
 }
@@ -1863,13 +1872,13 @@ void preciceAdapter::Adapter::writeMeshCheckpoint()
         *(meshVolVectorFieldCopies_.at(i)) == *(meshVolVectorFields_.at(i));
     }
 
-    #ifdef ADAPTER_DEBUG_MODE
-        adapterInfo
-        (
-            "Mesh checkpoint for time t = " + std::to_string(runTime_.value()) +
-            " was stored."
-       );
-    #endif
+#ifdef ADAPTER_DEBUG_MODE
+    adapterInfo
+            (
+                "Mesh checkpoint for time t = " + std::to_string(runTime_.value()) +
+                " was stored."
+                );
+#endif
 
     return;
 }
@@ -1884,15 +1893,15 @@ void preciceAdapter::Adapter::readVolCheckpoint()
     {
         // Load the volume field
         *(volScalarInternalFields_.at(i)) = *(volScalarInternalFieldCopies_.at(i));
-        // There are no old times for the internal fields. 
+        // There are no old times for the internal fields.
     }
 
-    #ifdef ADAPTER_DEBUG_MODE
-        adapterInfo
-        (
-            "Mesh volumes were read. Time = " + std::to_string(runTime_.value())
-       );
-    #endif
+#ifdef ADAPTER_DEBUG_MODE
+    adapterInfo
+            (
+                "Mesh volumes were read. Time = " + std::to_string(runTime_.value())
+                );
+#endif
 
     return;
 }
@@ -1907,13 +1916,13 @@ void preciceAdapter::Adapter::writeVolCheckpoint()
         *(volScalarInternalFieldCopies_.at(i)) = *(volScalarInternalFields_.at(i));
     }
 
-    #ifdef ADAPTER_DEBUG_MODE
-        adapterInfo
-        (
-            "Mesh volumes checkpoint for time t = " + std::to_string(runTime_.value()) +
-            " was stored."
-       );
-    #endif
+#ifdef ADAPTER_DEBUG_MODE
+    adapterInfo
+            (
+                "Mesh volumes checkpoint for time t = " + std::to_string(runTime_.value()) +
+                " was stored."
+                );
+#endif
 
     return;
 }
@@ -1958,100 +1967,100 @@ void preciceAdapter::Adapter::teardown()
         DEBUG(adapterInfo("Deleting the checkpoints... "));
 
         // Fields
-            // volScalarFields
-            for (uint i = 0; i < volScalarFieldCopies_.size(); i++)
-            {
-                delete volScalarFieldCopies_.at(i);
-            }
-            volScalarFieldCopies_.clear();
-            // volVector
-            for (uint i = 0; i < volVectorFieldCopies_.size(); i++)
-            {
-                delete volVectorFieldCopies_.at(i);
-            }
-            volVectorFieldCopies_.clear();
-            // surfaceScalar
-            for (uint i = 0; i < surfaceScalarFieldCopies_.size(); i++)
-            {
-                delete surfaceScalarFieldCopies_.at(i);
-            }
-            surfaceScalarFieldCopies_.clear();
-            // surfaceVector
-            for (uint i = 0; i < surfaceVectorFieldCopies_.size(); i++)
-            {
-                delete surfaceVectorFieldCopies_.at(i);
-            }
-            surfaceVectorFieldCopies_.clear();
-            // pointScalar
-            for (uint i = 0; i < pointScalarFieldCopies_.size(); i++)
-            {
-                delete pointScalarFieldCopies_.at(i);
-            }
-            pointScalarFieldCopies_.clear();
-            // pointVector
-            for (uint i = 0; i < pointVectorFieldCopies_.size(); i++)
-            {
-                delete pointVectorFieldCopies_.at(i);
-            }
-            pointVectorFieldCopies_.clear();
+        // volScalarFields
+        for (uint i = 0; i < volScalarFieldCopies_.size(); i++)
+        {
+            delete volScalarFieldCopies_.at(i);
+        }
+        volScalarFieldCopies_.clear();
+        // volVector
+        for (uint i = 0; i < volVectorFieldCopies_.size(); i++)
+        {
+            delete volVectorFieldCopies_.at(i);
+        }
+        volVectorFieldCopies_.clear();
+        // surfaceScalar
+        for (uint i = 0; i < surfaceScalarFieldCopies_.size(); i++)
+        {
+            delete surfaceScalarFieldCopies_.at(i);
+        }
+        surfaceScalarFieldCopies_.clear();
+        // surfaceVector
+        for (uint i = 0; i < surfaceVectorFieldCopies_.size(); i++)
+        {
+            delete surfaceVectorFieldCopies_.at(i);
+        }
+        surfaceVectorFieldCopies_.clear();
+        // pointScalar
+        for (uint i = 0; i < pointScalarFieldCopies_.size(); i++)
+        {
+            delete pointScalarFieldCopies_.at(i);
+        }
+        pointScalarFieldCopies_.clear();
+        // pointVector
+        for (uint i = 0; i < pointVectorFieldCopies_.size(); i++)
+        {
+            delete pointVectorFieldCopies_.at(i);
+        }
+        pointVectorFieldCopies_.clear();
 
         // Mesh fields
-            // meshSurfaceScalar
-            for (uint i = 0; i < meshSurfaceScalarFieldCopies_.size(); i++)
-            {
-                delete meshSurfaceScalarFieldCopies_.at(i);
-            }
-            meshSurfaceScalarFieldCopies_.clear();
+        // meshSurfaceScalar
+        for (uint i = 0; i < meshSurfaceScalarFieldCopies_.size(); i++)
+        {
+            delete meshSurfaceScalarFieldCopies_.at(i);
+        }
+        meshSurfaceScalarFieldCopies_.clear();
 
-            // meshSurfaceVector
-            for (uint i = 0; i < meshSurfaceVectorFieldCopies_.size(); i++)
-            {
-                delete meshSurfaceVectorFieldCopies_.at(i);
-            }
-            meshSurfaceVectorFieldCopies_.clear();
+        // meshSurfaceVector
+        for (uint i = 0; i < meshSurfaceVectorFieldCopies_.size(); i++)
+        {
+            delete meshSurfaceVectorFieldCopies_.at(i);
+        }
+        meshSurfaceVectorFieldCopies_.clear();
 
-            // meshVolVector
-            for (uint i = 0; i < meshVolVectorFieldCopies_.size(); i++)
-            {
-                delete meshVolVectorFieldCopies_.at(i);
-            }
-            meshVolVectorFieldCopies_.clear();
+        // meshVolVector
+        for (uint i = 0; i < meshVolVectorFieldCopies_.size(); i++)
+        {
+            delete meshVolVectorFieldCopies_.at(i);
+        }
+        meshVolVectorFieldCopies_.clear();
 
-        //TODO for the internal volume 
-            // volScalarInternal
-            for (uint i = 0; i < volScalarInternalFieldCopies_.size(); i++)
-            {
-                delete volScalarInternalFieldCopies_.at(i);
-            }
-            volScalarInternalFieldCopies_.clear();
+        //TODO for the internal volume
+        // volScalarInternal
+        for (uint i = 0; i < volScalarInternalFieldCopies_.size(); i++)
+        {
+            delete volScalarInternalFieldCopies_.at(i);
+        }
+        volScalarInternalFieldCopies_.clear();
 
-            // volTensorField
-            for (uint i = 0; i < volTensorFieldCopies_.size(); i++)
-            {
-                delete volTensorFieldCopies_.at(i);
-            }
-            volTensorFieldCopies_.clear();
-            
-            // surfaceTensorField
-            for (uint i = 0; i < surfaceTensorFieldCopies_.size(); i++)
-            {
-                delete surfaceTensorFieldCopies_.at(i);
-            }
-            surfaceTensorFieldCopies_.clear();
-            
-            // pointTensorField
-            for (uint i = 0; i < pointTensorFieldCopies_.size(); i++)
-            {
-                delete pointTensorFieldCopies_.at(i);
-            }
-            pointTensorFieldCopies_.clear();
+        // volTensorField
+        for (uint i = 0; i < volTensorFieldCopies_.size(); i++)
+        {
+            delete volTensorFieldCopies_.at(i);
+        }
+        volTensorFieldCopies_.clear();
 
-            // volSymmTensor
-            for (uint i = 0; i < volSymmTensorFieldCopies_.size(); i++)
-            {
-                delete volSymmTensorFieldCopies_.at(i);
-            }
-            volSymmTensorFieldCopies_.clear();
+        // surfaceTensorField
+        for (uint i = 0; i < surfaceTensorFieldCopies_.size(); i++)
+        {
+            delete surfaceTensorFieldCopies_.at(i);
+        }
+        surfaceTensorFieldCopies_.clear();
+
+        // pointTensorField
+        for (uint i = 0; i < pointTensorFieldCopies_.size(); i++)
+        {
+            delete pointTensorFieldCopies_.at(i);
+        }
+        pointTensorFieldCopies_.clear();
+
+        // volSymmTensor
+        for (uint i = 0; i < volSymmTensorFieldCopies_.size(); i++)
+        {
+            delete volSymmTensorFieldCopies_.at(i);
+        }
+        volSymmTensorFieldCopies_.clear();
 
         // NOTE: Add here delete for other types, if needed
 

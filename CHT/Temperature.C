@@ -24,15 +24,8 @@ preciceAdapter::CHT::Temperature::Temperature
 
 }
 
-void preciceAdapter::CHT::Temperature::write(double * buffer, bool provideMeshConnectivity)
+void preciceAdapter::CHT::Temperature::write(double * buffer, bool meshConnectivity)
 {
-
-    //If we have a nearest projection mapping, we interpolate from the centres to the nodes.
-    //The Node data is then passed to preCICE
-    //TODO: Add the locationsType in the class
-    //      in order to make the interpolation only for the required locationstype (faceTriangles)
-    //      If we have faceCenters, no interpolation is needed. Currently faceTriangles assumed.
-
     int bufferIndex = 0;
 
     // For every boundary patch of the interface
@@ -40,36 +33,37 @@ void preciceAdapter::CHT::Temperature::write(double * buffer, bool provideMeshCo
     {
         int patchID = patchIDs_.at(j);
 
-        const scalarField& Tpatch=T_->boundaryFieldRef()[patchID];
+        const scalarField& TPatch=T_->boundaryFieldRef()[patchID];
 
-        if(provideMeshConnectivity)
+        //If we use the mesh connectivity, we interpolate from the centres to the nodes
+        if(meshConnectivity)
         {
             //Create an Interpolation object at the boundary Field
             primitivePatchInterpolation patchInterpolator(mesh_.boundaryMesh()[patchID]);
 
-            scalarField  Tpoint;
+            scalarField  TPoints;
 
-            //Interpolate from Centers to Nodes
-            Tpoint= patchInterpolator.faceToPointInterpolate(Tpatch);
+            //Interpolate from centers to nodes
+            TPoints= patchInterpolator.faceToPointInterpolate(TPatch);
 
-            forAll(Tpoint, i)
+            forAll(TPoints, i)
             {
                 // Set the temperature as the buffer value
                 // Copy the temperature into the buffer
                 buffer[bufferIndex++]
                         =
-                        Tpoint[i];
+                        TPoints[i];
             }
         }
         else
         {
-            forAll(Tpatch, i)
+            forAll(TPatch, i)
             {
                 // Set the temperature as the buffer value
                 // Copy the temperature into the buffer
                 buffer[bufferIndex++]
                         =
-                        Tpatch[i];
+                        TPatch[i];
             }
         }
     }

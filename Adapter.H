@@ -40,6 +40,7 @@ private:
     {
         std::string meshName;
         std::string locationsType;
+        bool meshConnectivity; //- Switch for faceTriangulation (nearest projection)
         std::vector<std::string> patchNames;
         std::vector<std::string> writeData;
         std::vector<std::string> readData;
@@ -92,9 +93,6 @@ private:
 
         //- Switch to enable the FluidStructureInteraction module
         bool FSIenabled_ = false;
-
-        //- Switch for faceTriangulation (nearest projection)
-        bool provideMeshConnectivity_ = false;
 
         // NOTE: Add a switch for your new module here
 
