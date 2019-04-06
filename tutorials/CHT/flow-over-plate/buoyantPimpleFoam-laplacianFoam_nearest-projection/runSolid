@@ -9,7 +9,7 @@
 # The script "Allclean" cleans-up the result and log files.
 
 # Use the precice-config for the serial run
-ln -s -f precice-config_serial.xml precice-config.xml
+ln -s -f nearest-projection-setup.xml precice-config.xml
 
 # Prepare
 blockMesh -case Solid

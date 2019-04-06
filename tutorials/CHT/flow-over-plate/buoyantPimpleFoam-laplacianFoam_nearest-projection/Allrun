@@ -9,7 +9,7 @@
 
 # Link to the precice-config for the serial run
 echo "Setting up the preCICE configuration file for a serial simulation..."
-ln -s -f nearest-projection-setup.xml precice-config.xml
+ln -s -f precice-config_serial.xml precice-config.xml
 
 # Participant 1: Fluid
 Participant1="Fluid"
@@ -22,7 +22,7 @@ Solver1="buoyantPimpleFoam"
 
     # Run and get the process id
     echo "Starting the ${Participant1} participant..."
-    ${Solver1} -case ${Participant1} |& tee ${Participant1}.log 2>&1 &
+    ${Solver1} -case ${Participant1} > ${Participant1}.log 2>&1 &
     PIDParticipant1=$!
 
 # Participant 2: Solid
@@ -36,7 +36,7 @@ Solver2="laplacianFoam"
 
     # Run and get the process id
     echo "Starting the ${Participant2} participant..."
-    ${Solver2} -case ${Participant2} >${Participant2}.log  2>&1 &
+    ${Solver2} -case ${Participant2} > ${Participant2}.log 2>&1 &
     PIDParticipant2=$!
 
 # Wait for all the participants to finish
