@@ -1,24 +1,27 @@
 #include "SinkTemperature.H"
+#include "primitivePatchInterpolation.H"
 
 using namespace Foam;
 
 preciceAdapter::CHT::SinkTemperature::SinkTemperature
 (
-    const Foam::fvMesh& mesh,
-    const std::string nameT
-)
-:
-T_(
-    const_cast<volScalarField*>
-    (
-        &mesh.lookupObject<volScalarField>(nameT)
-    )
-)
+        const Foam::fvMesh& mesh,
+        const std::string nameT
+        )
+    :
+      T_(
+          const_cast<volScalarField*>
+          (
+              &mesh.lookupObject<volScalarField>(nameT)
+              )
+          ),
+
+      mesh_(mesh)
 {
     dataType_ = scalar;
 }
 
-void preciceAdapter::CHT::SinkTemperature::write(double * buffer, bool provideMeshConnectivity)
+void preciceAdapter::CHT::SinkTemperature::write(double * buffer, bool meshConnectivity)
 {
     int bufferIndex = 0;
 
@@ -29,22 +32,46 @@ void preciceAdapter::CHT::SinkTemperature::write(double * buffer, bool provideMe
 
         // Get the boundary field of Temperature on the patch
         fvPatchScalarField & TPatch =
-            refCast<fvPatchScalarField>
-            (
-                T_->boundaryFieldRef()[patchID]
-            );
+                refCast<fvPatchScalarField>
+                (
+                    T_->boundaryFieldRef()[patchID]
+                    );
 
         // Get the internal field next to the patch // TODO: Simplify?
         tmp<scalarField> patchInternalFieldTmp = TPatch.patchInternalField();
         const scalarField & patchInternalField = patchInternalFieldTmp();
 
-        // For every cell of the patch
-        forAll(TPatch, i)
+        //If we use the mesh connectivity, we interpolate from the centres to the nodes
+        if(meshConnectivity)
         {
-            // Copy the internal field (sink) temperature into the buffer
-            buffer[bufferIndex++]
-            =
-            patchInternalField[i];
+            //Create an Interpolation object at the boundary Field
+            primitivePatchInterpolation patchInterpolator(mesh_.boundaryMesh()[patchID]);
+
+            scalarField  patchInternalPointField;
+
+            //Interpolate from centers to nodes
+            patchInternalPointField= patchInterpolator.faceToPointInterpolate(patchInternalField);
+
+            // For every point on the patch
+            forAll(patchInternalPointField, i)
+            {
+                // Set the temperature as the buffer value
+                // Copy the temperature into the buffer
+                buffer[bufferIndex++]
+                        =
+                        patchInternalPointField[i];
+            }
+        }
+        else
+        {
+            // For every cell of the patch
+            forAll(TPatch, i)
+            {
+                // Copy the internal field (sink) temperature into the buffer
+                buffer[bufferIndex++]
+                        =
+                        patchInternalField[i];
+            }
         }
 
         // Clear the temporary internal field object
@@ -63,10 +90,10 @@ void preciceAdapter::CHT::SinkTemperature::read(double * buffer)
 
         // Get the boundary field of the temperature on the patch
         mixedFvPatchScalarField & TPatch =
-            refCast<mixedFvPatchScalarField>
-            (
-                T_->boundaryFieldRef()[patchID]
-            );
+                refCast<mixedFvPatchScalarField>
+                (
+                    T_->boundaryFieldRef()[patchID]
+                    );
 
         // Get a reference to the reference value on the patch
         scalarField & Tref = TPatch.refValue();
@@ -76,8 +103,8 @@ void preciceAdapter::CHT::SinkTemperature::read(double * buffer)
         {
             // Set the reference value as the buffer value
             Tref[i]
-            =
-            buffer[bufferIndex++];
+                    =
+                    buffer[bufferIndex++];
         }
     }
 }
