@@ -62,7 +62,8 @@ export ADAPTER_TARGET_DIR
 export ADAPTER_GLOBAL_CPLUS_INC_PATHS
 export ADAPTER_GLOBAL_LD_LIBRARY_PATHS
 export ADAPTER_GLOBAL_LIBRARY_PATHS
-export ADAPTER_PKG_CONFIG_CFLAGS="`PKG_CONFIG_ALLOW_SYSTEM_CFLAGS=1 pkg-config --silence-errors --cflags precice`"
+export ADAPTER_PKG_CONFIG_CFLAGS="`pkg-config --silence-errors --cflags libprecice`"
+export ADAPTER_PKG_CONFIG_LIBS="`pkg-config --silence-errors --libs libprecice`"
 
 # Inform the user about the environment
 echo "Using the following environment variables:"
