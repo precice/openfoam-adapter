@@ -26,7 +26,7 @@ You may find OpenFOAM-only tutorials here, in order to test your installation, o
 
 [2] Lucia Cheung Yau. Conjugate heat transfer with the multiphysics coupling library preCICE. Master’s thesis, Department of Informatics, Technical University of Munich, 2016.
 
-[3] Derek Risseeuw. Fluid Structure Interaction Modelling of Flaping Wings. Master's thesis, Faculty of Aerospace Engineering, Delft University of Technology, 2019.
+[3] Derek Risseeuw. Fluid Structure Interaction Modelling of Flapping Wings. Master's thesis, Faculty of Aerospace Engineering, Delft University of Technology, 2019.
 
 ## Disclaimer
 
