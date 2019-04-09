@@ -203,8 +203,8 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh)
                 DEBUG(adapterInfo("Number of triangles: " + std::to_string(faceField.size()* triaPerQuad)));
 
                 //Set Triangles
-                for(int faceI=0; faceI<faceField.size()* triaPerQuad; faceI++){
-                    precice_.setMeshTriangleWithEdges(meshID_,triVertIDs[faceI*nodesPerTria],triVertIDs[faceI*nodesPerTria+1], triVertIDs[faceI*nodesPerTria+2]);
+                for(int facei=0; facei<faceField.size()* triaPerQuad; facei++){
+                    precice_.setMeshTriangleWithEdges(meshID_,triVertIDs[facei*nodesPerTria],triVertIDs[facei*nodesPerTria+1], triVertIDs[facei*nodesPerTria+2]);
                 }
             }
         }
@@ -221,8 +221,7 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh)
 }
 
 
-//the readers and writers distinguish, where to use
-//the Centers or Nodes in case of the Triangles specification
+// the readers and writers are added for each interface
 void preciceAdapter::Interface::addCouplingDataWriter
 (
         std::string dataName,

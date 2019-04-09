@@ -5,14 +5,15 @@ precice-config-file: precice-config.xml
 interfaces:
 - mesh: Solid-Mesh-Centers
   locations: faceCenters   # optional, defaults to faceCenters
+  provideMeshConnectivity: false 
   patches:
-  - interface  #right_interface
+  - interface
   read-data: Temperature
 - mesh: Solid-Mesh-Nodes
   locations: faceNodes   # optional, defaults to faceCenters
+  provideMeshConnectivity: true 
   patches:
-  - interface  #right_interface
+  - interface
   write-data: Heat-Flux
 
 CHTenabled: true
-provideMeshConnectivity: true 
