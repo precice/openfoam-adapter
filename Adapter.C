@@ -125,7 +125,7 @@ bool preciceAdapter::Adapter::configFileRead()
             else
                 DEBUG(adapterInfo("Mesh connectivity is not supported for faceCenters. \n"
                                   "Please configure the desired interface with the locationsType faceNodes. \n"
-                                  "Have a look in the adapter wiki on Github for detailed information.", "warning"));
+                                  "Have a look in the adapter wiki on Github or the tutorial case for detailed information.", "warning"));
 
         }
         DEBUG(adapterInfo("    Provide mesh connectivity : " + std::to_string(interfaceConfig.meshConnectivity)));
@@ -240,6 +240,19 @@ bool preciceAdapter::Adapter::configFileRead()
     {
         adapterInfo("No module is enabled.", "warning");
         return false;
+    }
+
+    // Check for unsupported FSI with meshConnectivity
+    for (uint i = 0; i < interfacesConfig_.size(); i++)
+    {
+        if(interfacesConfig_.at(i).meshConnectivity == true &&
+                FSIenabled_)
+            adapterInfo(
+                        "ERROR: Mesh connectivity is not supported for FSI. "
+                        "Usually, the Solid participant needs to provide the connectivity information. "
+                        "Therefore, set provideMeshConnectivity = false. "
+                        "Have a look in the tutorial README or the Github wiki for detailed information. "
+                        ,"error");
     }
 
     // TODO: Loading modules should be implemented in more general way,
