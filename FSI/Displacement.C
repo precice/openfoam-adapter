@@ -18,7 +18,7 @@ pointDisplacement_(
     dataType_ = vector;
 }
 
-void preciceAdapter::FSI::Displacement::write(double * buffer, bool provideMeshConnectivity)
+void preciceAdapter::FSI::Displacement::write(double * buffer, bool meshConnectivity)
 {
     /* TODO: Implement
     * We need two nested for-loops for each patch,
@@ -29,9 +29,7 @@ void preciceAdapter::FSI::Displacement::write(double * buffer, bool provideMeshC
         << "Writing displacements is not supported."
         << exit(FatalError);
 
-    if(provideMeshConnectivity)
-        Info<<"Warning: Mesh connectivity is not supported for FSI cases"<<endl;
-
+    //Error for meshConnecivity is implemented in the Adapter.C file
 }
 
 // return the displacement to use later in the velocity?

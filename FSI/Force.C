@@ -53,10 +53,8 @@ Foam::tmp<Foam::volSymmTensorField> preciceAdapter::FSI::Force::devRhoReff(dimen
 
 }
 
-void preciceAdapter::FSI::Force::write(double * buffer, bool provideMeshConnectivity)
+void preciceAdapter::FSI::Force::write(double * buffer, bool meshConnectivity)
 {
-    if(provideMeshConnectivity)
-        Info<<"Warning: Mesh connectivity is not supported for FSI cases"<<endl;
     // Compute forces. See the Forces function object.
     // Normal vectors on the boundary, multiplied with the face areas
     const surfaceVectorField::Boundary& Sfb =
@@ -116,6 +114,9 @@ void preciceAdapter::FSI::Force::write(double * buffer, bool provideMeshConnecti
             Force_->boundaryFieldRef()[patchID][i].z();
         }
     }
+
+    //Error for meshConnecivity is implemented in the Adapter.C file
+
 }
 
 void preciceAdapter::FSI::Force::read(double * buffer)

@@ -30,7 +30,7 @@ public:
     );
 
     //- Write the displacementDelta values into the buffer
-    void write(double * buffer, bool provideMeshConnectivity);
+    void write(double * buffer, bool meshConnectivity);
 
     //- Read the displacementDelta values from the buffer
     void read(double * buffer);
