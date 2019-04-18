@@ -115,17 +115,22 @@ bool preciceAdapter::Adapter::configFileRead()
         }
         DEBUG(adapterInfo("    locations : " + interfaceConfig.locationsType));
 
-        //Default false
+        // By default, assume that no mesh connectivity is required (i.e. no nearest-projection mapping)
         interfaceConfig.meshConnectivity = false;
         if (adapterConfigInterfaces[i]["provideMeshConnectivity"].as<bool>())
         {
-            // Connectivity makes only sense in case of faceNodes, therefore check it here and raise a warning otherwise
+            // Mesh connectivity only makes sense in case of faceNodes, check and raise a warning otherwise
             if(interfaceConfig.locationsType == "faceNodes")
+            {
                 interfaceConfig.meshConnectivity = adapterConfigInterfaces[i]["provideMeshConnectivity"].as<bool>();
+            }
             else
+            {
                 DEBUG(adapterInfo("Mesh connectivity is not supported for faceCenters. \n"
                                   "Please configure the desired interface with the locationsType faceNodes. \n"
                                   "Have a look in the adapter wiki on Github or the tutorial case for detailed information.", "warning"));
+                return false;
+            }
 
         }
         DEBUG(adapterInfo("    Provide mesh connectivity : " + std::to_string(interfaceConfig.meshConnectivity)));
@@ -220,7 +225,7 @@ bool preciceAdapter::Adapter::configFileRead()
 
     // NOTE: set the switch for your new module here
 
-    // If the CHT module is enabled, read create it, read the
+    // If the CHT module is enabled, create it, read the
     // CHT-specific options and configure it.
     if (CHTenabled_)
     {
@@ -228,8 +233,25 @@ bool preciceAdapter::Adapter::configFileRead()
         if (!CHT_->configure(adapterConfig_)) return false;
     }
 
+    // If the FSI module is enabled, create it, read the
+    // FSI-specific options and configure it.
     if (FSIenabled_)
     {
+        // Check for unsupported FSI with meshConnectivity
+        for (uint i = 0; i < interfacesConfig_.size(); i++)
+        {
+            if(interfacesConfig_.at(i).meshConnectivity == true )
+            {
+                adapterInfo(
+                    "Mesh connectivity is not supported for FSI, as, usually, "
+                    "the Solid participant needs to provide the connectivity information. "
+                    "Therefore, set provideMeshConnectivity = false. "
+                    "Have a look in the tutorial README or the Github wiki for detailed information. "
+                    ,"warning");
+                    return false;
+            }
+        }
+
         FSI_ = new FSI::FluidStructureInteraction(mesh_, runTime_);
         if (!FSI_->configure(adapterConfig_)) return false;
     }
@@ -240,19 +262,6 @@ bool preciceAdapter::Adapter::configFileRead()
     {
         adapterInfo("No module is enabled.", "warning");
         return false;
-    }
-
-    // Check for unsupported FSI with meshConnectivity
-    for (uint i = 0; i < interfacesConfig_.size(); i++)
-    {
-        if(interfacesConfig_.at(i).meshConnectivity == true &&
-                FSIenabled_)
-            adapterInfo(
-                        "ERROR: Mesh connectivity is not supported for FSI. "
-                        "Usually, the Solid participant needs to provide the connectivity information. "
-                        "Therefore, set provideMeshConnectivity = false. "
-                        "Have a look in the tutorial README or the Github wiki for detailed information. "
-                        ,"error");
     }
 
     // TODO: Loading modules should be implemented in more general way,
