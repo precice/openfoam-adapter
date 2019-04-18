@@ -117,19 +117,24 @@ bool preciceAdapter::Adapter::configFileRead()
 
         // By default, assume that no mesh connectivity is required (i.e. no nearest-projection mapping)
         interfaceConfig.meshConnectivity = false;
-        if (adapterConfigInterfaces[i]["provideMeshConnectivity"].as<bool>())
+        // Check if provideMeshConnectivity exists
+        if (adapterConfigInterfaces[i]["provideMeshConnectivity"])
         {
-            // Mesh connectivity only makes sense in case of faceNodes, check and raise a warning otherwise
-            if(interfaceConfig.locationsType == "faceNodes")
+            // Check if provideMeshConnectivity is true
+            if (adapterConfigInterfaces[i]["provideMeshConnectivity"].as<bool>())
             {
-                interfaceConfig.meshConnectivity = adapterConfigInterfaces[i]["provideMeshConnectivity"].as<bool>();
-            }
-            else
-            {
-                DEBUG(adapterInfo("Mesh connectivity is not supported for faceCenters. \n"
-                                  "Please configure the desired interface with the locationsType faceNodes. \n"
-                                  "Have a look in the adapter wiki on Github or the tutorial case for detailed information.", "warning"));
-                return false;
+                // Mesh connectivity only makes sense in case of faceNodes, check and raise a warning otherwise
+                if(interfaceConfig.locationsType == "faceNodes")
+                {
+                    interfaceConfig.meshConnectivity = true;
+                }
+                else
+                {
+                    DEBUG(adapterInfo("Mesh connectivity is not supported for faceCenters. \n"
+                                      "Please configure the desired interface with the locationsType faceNodes. \n"
+                                      "Have a look in the adapter wiki on Github or the tutorial case for detailed information.", "warning"));
+                    return false;
+                }
             }
 
         }
