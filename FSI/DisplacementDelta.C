@@ -28,8 +28,6 @@ void preciceAdapter::FSI::DisplacementDelta::write(double * buffer, bool meshCon
     FatalErrorInFunction
         << "Writing displacementDeltas is not supported."
         << exit(FatalError);
-
-    //Error for meshConnecivity is implemented in the Adapter.C file
 }
 
 // return the displacement to use later in the velocity?

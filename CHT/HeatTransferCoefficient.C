@@ -72,7 +72,6 @@ void preciceAdapter::CHT::HeatTransferCoefficient::write(double * buffer, bool m
                 // kappaEff is not a scalarField.
                 buffer[bufferIndex++] = getKappaEffAt(i) * delta[i];
             }
-
         }
     }
 }
@@ -88,10 +87,10 @@ void preciceAdapter::CHT::HeatTransferCoefficient::read(double * buffer)
         int patchID = patchIDs_.at(j);
 
         // Extract the effective conductivity on the patch
-        // at the moment reading with connectivity is not supported
+        // TODO: At the moment, reading with connectivity is not supported
         extractKappaEff(patchID,/*meshConnectivity=*/false);
 
-        // Get the face-cell distance coefficients on writethe patch
+        // Get the face-cell distance coefficients on the patch
         const scalarField & delta = mesh_.boundary()[patchID].deltaCoeffs();
 
         // Get a reference to the temperature on the patch

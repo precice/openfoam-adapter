@@ -21,7 +21,6 @@ preciceAdapter::CHT::Temperature::Temperature
 
 {
     dataType_ = scalar;
-
 }
 
 void preciceAdapter::CHT::Temperature::write(double * buffer, bool meshConnectivity)
@@ -48,7 +47,6 @@ void preciceAdapter::CHT::Temperature::write(double * buffer, bool meshConnectiv
 
             forAll(TPoints, i)
             {
-                // Set the temperature as the buffer value
                 // Copy the temperature into the buffer
                 buffer[bufferIndex++]
                         =
@@ -59,7 +57,6 @@ void preciceAdapter::CHT::Temperature::write(double * buffer, bool meshConnectiv
         {
             forAll(TPatch, i)
             {
-                // Set the temperature as the buffer value
                 // Copy the temperature into the buffer
                 buffer[bufferIndex++]
                         =
@@ -73,7 +70,6 @@ void preciceAdapter::CHT::Temperature::write(double * buffer, bool meshConnectiv
     {
         int bufferIndex = 0;
 
-
         // For every boundary patch of the interface
         for (uint j = 0; j < patchIDs_.size(); j++)
         {
@@ -86,7 +82,6 @@ void preciceAdapter::CHT::Temperature::write(double * buffer, bool meshConnectiv
                 T_->boundaryFieldRef()[patchID][i]
                         =
                         buffer[bufferIndex++];
-
             }
         }
     }

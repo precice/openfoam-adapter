@@ -24,7 +24,6 @@ preciceAdapter::Interface::Interface
     // Get the meshID from preCICE
     meshID_ = precice_.getMeshID(meshName_);
 
-
     // For every patch that participates in the coupling
     for (uint j = 0; j < patchNames.size(); j++)
     {
@@ -91,9 +90,9 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh)
                 vertices[verticesIndex++] = faceCenters[i].y();
                 vertices[verticesIndex++] = faceCenters[i].z();
             }
-
         }
 
+        // Pass the mesh vertices information to preCICE
         precice_.setMeshVertices(meshID_, numDataLocations_, vertices, vertexIDs_);
     }
     else if (locationsType_ == "faceNodes")
@@ -139,28 +138,24 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh)
             }
         }
 
-
         // Pass the mesh vertices information to preCICE
         precice_.setMeshVertices(meshID_, numDataLocations_, vertices, vertexIDs_);
-
 
         //Only set the triangles, if necessary
         if (meshConnectivity_)
         {
-
             for (uint j = 0; j < patchIDs_.size(); j++)
             {
-
                 // Define triangles
                 // This is done in the following way:
                 // We get a list of faces, which belong to this patch, and triangulate each face
                 // using the faceTriangulation object.
-                // Afterwards we store the coordinates of the triangulated faces in order to use
-                // the precice function "getMeshVertexIDsFromPositions". This function returns
-                // for each point the respective precice related ID.
-                // These IDs are consequently used for the precice function "setMeshTriangleWithEdges",
+                // Afterwards, we store the coordinates of the triangulated faces in order to use
+                // the preCICE function "getMeshVertexIDsFromPositions". This function returns
+                // for each point the respective preCICE related ID.
+                // These IDs are consequently used for the preCICE function "setMeshTriangleWithEdges",
                 // which defines edges and triangles on the interface. This connectivity information
-                // allows precice to provide a nearest-projection mapping.
+                // allows preCICE to provide a nearest-projection mapping.
                 // Since data is now related to nodes, volume fields (e.g. heat flux) needs to be
                 // interpolated in the data classes (e.g. CHT)
 
@@ -173,14 +168,13 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh)
                 const List<face>     faceField = mesh.boundaryMesh()[patchIDs_.at(j)].localFaces();
                 const Field<point> pointCoords = mesh.boundaryMesh()[patchIDs_.at(j)].localPoints();
 
-                //Array to store coordiantes in precice format
+                // Array to store coordiantes in preCICE format
                 double triCoords[faceField.size()*triaPerQuad*nodesPerTria*componentsPerNode];
 
                 unsigned int coordIndex=0;
 
-                //iterate over faces
+                // Iterate over faces
                 forAll(faceField,facei){
-
                     const face& faceQuad=faceField[facei];
 
                     faceTriangulation faceTri(pointCoords,faceQuad,false);
@@ -193,11 +187,10 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh)
                     }
                 }
 
-
-                //Array to store the IDs we get from precice
+                //Array to store the IDs we get from preCICE
                 int triVertIDs[faceField.size()*(triaPerQuad*nodesPerTria)];
 
-                //Get precice IDs
+                //Get preCICE IDs
                 precice_.getMeshVertexIDsFromPositions(meshID_,faceField.size()*(triaPerQuad*nodesPerTria),triCoords,triVertIDs);
 
                 DEBUG(adapterInfo("Number of triangles: " + std::to_string(faceField.size()* triaPerQuad)));
@@ -221,7 +214,6 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh)
 }
 
 
-// the readers and writers are added for each interface
 void preciceAdapter::Interface::addCouplingDataWriter
 (
         std::string dataName,
@@ -245,7 +237,6 @@ void preciceAdapter::Interface::addCouplingDataReader
         preciceAdapter::CouplingDataUser * couplingDataReader
         )
 {
-
     // Set the patchIDs of the patches that form the interface
     couplingDataReader->setDataID(precice_.getDataID(dataName, meshID_));
 
@@ -396,6 +387,7 @@ preciceAdapter::Interface::~Interface()
     }
     couplingDataWriters_.clear();
 
+    // Delete the vertexIDs_
     delete [] vertexIDs_;
 
     // Delete the shared data buffer

@@ -55,7 +55,6 @@ void preciceAdapter::CHT::SinkTemperature::write(double * buffer, bool meshConne
             // For every point on the patch
             forAll(patchInternalPointField, i)
             {
-                // Set the temperature as the buffer value
                 // Copy the temperature into the buffer
                 buffer[bufferIndex++]
                         =

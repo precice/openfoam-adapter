@@ -28,8 +28,6 @@ void preciceAdapter::FSI::Displacement::write(double * buffer, bool meshConnecti
     FatalErrorInFunction
         << "Writing displacements is not supported."
         << exit(FatalError);
-
-    //Error for meshConnecivity is implemented in the Adapter.C file
 }
 
 // return the displacement to use later in the velocity?

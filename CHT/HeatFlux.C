@@ -22,7 +22,6 @@ preciceAdapter::CHT::HeatFlux::HeatFlux
       mesh_(mesh)
 {
     dataType_ = scalar;
-
 }
 
 void preciceAdapter::CHT::HeatFlux::write(double * buffer, bool meshConnectivity)
@@ -41,16 +40,16 @@ void preciceAdapter::CHT::HeatFlux::write(double * buffer, bool meshConnectivity
         // Extract the effective conductivity on the patch
         extractKappaEff(patchID, meshConnectivity);
 
-        //If we use the mesh connectivity, we interpolate from the centres to the nodes
+        // If we use the mesh connectivity, we interpolate from the centres to the nodes
         if(meshConnectivity)
         {
             //Setup Interpolation object
             primitivePatchInterpolation patchInterpolator(mesh_.boundaryMesh()[patchID]);
 
-            scalarField  gradientPoints;
+            scalarField gradientPoints;
 
             //Interpolate
-            gradientPoints= patchInterpolator.faceToPointInterpolate(gradientPatch);
+            gradientPoints = patchInterpolator.faceToPointInterpolate(gradientPatch);
 
             // For every cell of the patch
             forAll(gradientPoints, i)
@@ -75,7 +74,6 @@ void preciceAdapter::CHT::HeatFlux::write(double * buffer, bool meshConnectivity
                 buffer[bufferIndex++]
                         =
                         -getKappaEffAt(i) * gradientPatch[i];
-
             }
         }
     }
@@ -91,7 +89,7 @@ void preciceAdapter::CHT::HeatFlux::read(double * buffer)
         int patchID = patchIDs_.at(j);
 
         // Extract the effective conductivity on the patch
-        // at the moment reading with connectivity is not supported
+        // TODO: At the moment, reading with connectivity is not supported
         extractKappaEff(patchID,/*meshConnectivity=*/false);
 
         // Get the temperature gradient boundary patch

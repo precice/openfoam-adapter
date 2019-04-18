@@ -114,9 +114,6 @@ void preciceAdapter::FSI::Force::write(double * buffer, bool meshConnectivity)
             Force_->boundaryFieldRef()[patchID][i].z();
         }
     }
-
-    //Error for meshConnecivity is implemented in the Adapter.C file
-
 }
 
 void preciceAdapter::FSI::Force::read(double * buffer)
