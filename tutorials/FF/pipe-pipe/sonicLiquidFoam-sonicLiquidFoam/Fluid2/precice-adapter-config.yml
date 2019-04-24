@@ -1,0 +1,12 @@
+participant: Fluid2
+
+precice-config-file: precice-config.xml
+
+interfaces:
+- mesh: Fluid2-Mesh
+  patches:
+  - inlet
+  write-data: Pressure
+  read-data: [Velocity, PressureGradient]
+
+FFenabled: true
