@@ -3,7 +3,7 @@
 <precice-configuration>
 
     <log>
-        <sink type="stream" output="stdout"  filter= "(%Severity% > debug) or (%Severity% >= trace and %Module% contains SolverInterfaceImpl)"  enabled="true" />	
+        <sink type="stream" output="stdout"  filter= "%Severity% >= debug"  enabled="true" />	
     </log>
 
     <solver-interface dimensions="3">
@@ -50,6 +50,16 @@
     </participant>
 
     <m2n:sockets from="Fluid" to="Solid" distribution-type="gather-scatter"/>
+
+    <!--
+    <coupling-scheme:serial-explicit>
+        <timestep-length value="0.01"/>
+        <max-time value="1"/>
+        <participants first="Fluid" second="Solid"/>
+        <exchange data="Temperature" mesh="Fluid-Mesh-Nodes" from="Fluid" to="Solid"/>
+        <exchange data="Heat-Flux" mesh="Fluid-Mesh-Centers" from="Solid" to="Fluid"/>
+    </coupling-scheme:serial-explicit>
+    -->
 
     <coupling-scheme:serial-implicit>
         <timestep-length value="0.01"/>
