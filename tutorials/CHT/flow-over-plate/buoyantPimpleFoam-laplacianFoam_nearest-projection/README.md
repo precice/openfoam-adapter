@@ -71,10 +71,12 @@ The participant `Fluid` has its read data `Heat-Flux`, which is read on the `fac
 
 Since you now define mesh connectivity on your interface, you can export your coupling interface with the tag `<export:vtk directory="preCICE-output" />` in your `precice-config.xml`. Make sure you have created the specified target directory (preCICE-output in the example files) in your local simulation directory, otherwise preCICE will complain about it.
 
-Visualizing these files (e.g. on ParaView) will show a triangular mesh, even though you use hexahedral meshes. This has nothing to do with your mesh and is just caused by the way the connectivity is defined in preCICE. As described above, the function `setMeshTriangles` is used to define the connectivity. Hence, every interface cell/face is represented by two triangles. The following image should give you an impression of a possible triangulated coupling mesh, which consists purely of hexahedral cells:
+Visualizing these files (e.g. using ParaView) will show a triangular mesh, even though you use hexahedral meshes. This has nothing to do with your mesh and is just caused by the way the connectivity is defined in preCICE. As described above, the function `setMeshTriangles` is used to define the connectivity. Hence, every interface cell/face is represented by two triangles. The following image should give you an impression of a possible triangulated coupling mesh, which consists purely of hexahedral cells:
 
 ![triangulated](https://user-images.githubusercontent.com/33414590/55974257-96b07d80-5c87-11e9-9965-972b922c483d.png)
  
+Note: Connectivity is defined on meshes associated with mesh nodes, which are named respectively e.g. Fluid-Mesh-Nodes. In this case, you could directly see the interface without applying filters by loading the `.vtk` files. In order to visualize additionally center based meshes, where no connectivity is provided, select a Glyph filter in paraView. Furthermore, it makes a difference, on which participant the `<export...` tag is defined in your `precice-config.xml` file. Each participant exports interface meshes, which he provides or receives. The receiving participant filters out mesh parts that it does not need (for the mapping). Hence, a received mesh might look incomplete.
+
 ### Notes on 2D Cases
 
 The geometry of the tutorial differs compared to the existing example: The out-of-plane thickness of the domain is reduced clearly and it is recommended. Otherwise your face centes have a quite large distance to the face nodes, which might trigger a preCICE warning. In that case, preCICE may filter out one of the meshes, especially in parallel simulations.  
