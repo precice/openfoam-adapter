@@ -31,21 +31,21 @@ bool preciceAdapter::Adapter::configFileCheck(const std::string adapterConfigFil
     // Check if the "participant" node exists
     if (!adapterConfig["participant"])
     {
-        adapterInfo("The 'participant' node is missing in " + adapterConfigFileName + ".", "warning");
+        adapterInfo("The 'participant' node is missing in " + adapterConfigFileName + ".", "error-deferred");
         configErrors = true;
     }
 
     // Check if the "precice-config-file" node exists
     if (!adapterConfig["precice-config-file"])
     {
-        adapterInfo("The 'precice-config-file' node is missing in " + adapterConfigFileName + ".", "warning");
+        adapterInfo("The 'precice-config-file' node is missing in " + adapterConfigFileName + ".", "error-deferred");
         configErrors = true;
     }
 
     // Check if the "interfaces" node exists
     if (!adapterConfig["interfaces"])
     {
-        adapterInfo("The 'interfaces' node is missing in " + adapterConfigFileName + ".", "warning");
+        adapterInfo("The 'interfaces' node is missing in " + adapterConfigFileName + ".", "error-deferred");
         configErrors = true;
     }
     else
@@ -54,12 +54,12 @@ bool preciceAdapter::Adapter::configFileCheck(const std::string adapterConfigFil
         {
             if (!adapterConfig["interfaces"][i]["mesh"])
             {
-                adapterInfo("The 'mesh' node is missing for the interface #" + std::to_string(i+1) + " in " + adapterConfigFileName + ".", "warning");
+                adapterInfo("The 'mesh' node is missing for the interface #" + std::to_string(i+1) + " in " + adapterConfigFileName + ".", "error-deferred");
                 configErrors = true;
             }
             if (!adapterConfig["interfaces"][i]["patches"])
             {
-                adapterInfo("The 'patches' node is missing for the interface #" + std::to_string(i+1) + " in " + adapterConfigFileName + ".", "warning");
+                adapterInfo("The 'patches' node is missing for the interface #" + std::to_string(i+1) + " in " + adapterConfigFileName + ".", "error-deferred");
                 configErrors = true;
             }
         }
@@ -223,7 +223,7 @@ bool preciceAdapter::Adapter::configFileRead()
 
     if (!CHTenabled_ && !FSIenabled_) // NOTE: Add your new switch here
     {
-        adapterInfo("No module is enabled.", "warning");
+        adapterInfo("No module is enabled.", "error-deferred");
         return false;
     }
 
@@ -380,7 +380,7 @@ try{
     }
 
 } catch (const Foam::error &e) {
-    adapterInfo(e.message(), "info");
+    adapterInfo(e.message(), "error-deferred");
     errorsInConfigure = true;
 }
 
