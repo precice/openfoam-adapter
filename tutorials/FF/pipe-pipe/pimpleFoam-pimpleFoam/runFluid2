@@ -21,6 +21,12 @@ fi
 echo "Preparing and running the Fluid2 participant..."
 
 # Prepare
+if [ $parallel -eq 1 ]; then
+    ln -s -f precice-config_parallel.xml precice-config.xml
+else
+    ln -s -f precice-config_serial.xml precice-config.xml
+fi
+
 rm -rfv Fluid2/0/
 cp -r Fluid2/0.orig/ Fluid2/0/
 blockMesh -case Fluid2
@@ -32,7 +38,10 @@ cd Fluid2
 cd ..
 if [ $parallel -eq 1 ]; then
     decomposePar -force -case Fluid2
-    mpirun -np $(getNumberOfProcessors) $solver -parallel -case Fluid2
+    cd Fluid2
+            nproc=$(getNumberOfProcessors)
+    cd ..
+    mpirun -np $nproc $solver -parallel -case Fluid2
     reconstructPar -case Fluid2
 else
     $solver -case Fluid2

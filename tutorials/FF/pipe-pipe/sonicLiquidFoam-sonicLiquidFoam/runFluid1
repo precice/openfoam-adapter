@@ -34,11 +34,14 @@ checkMesh -case Fluid1
 
 # Run
 cd Fluid1
-	solver=$(getApplication)
+    solver=$(getApplication)
 cd ..
 if [ $parallel -eq 1 ]; then
-    decomposePar -force -case Fluid1
-    mpirun -np $(getNumberOfProcessors) $solver -parallel -case Fluid1
+    decomposePar -case Fluid1
+    cd Fluid1
+        nproc=$(getNumberOfProcessors)
+    cd ..
+    mpirun -np $nproc $solver -parallel -case Fluid1
     reconstructPar -case Fluid1
 else
     $solver -case Fluid1
