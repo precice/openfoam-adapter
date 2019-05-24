@@ -53,7 +53,7 @@ Foam::functionObjects::preciceAdapterFunctionObject::preciceAdapterFunctionObjec
     fvMeshFunctionObject(name, runTime, dict),
     adapter_(runTime, mesh_)
 {
-    #if defined OPENFOAM_PLUS || (defined OPENFOAM && (OPENFOAM > 1000))
+    #if (defined OPENFOAM_PLUS && (OPENFOAM_PLUS >= 1712) ) || (defined OPENFOAM && (OPENFOAM >= 1806))
         // Patch for issue #27: warning "MPI was already finalized" while
         // running in serial. This only affects openfoam.com, while initNull()
         // does not exist in openfoam.org.
