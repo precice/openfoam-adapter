@@ -1,21 +1,25 @@
 #include "Interface.H"
 #include "Utilities.H"
+#include "faceTriangulation.H"
+
 
 using namespace Foam;
 
 preciceAdapter::Interface::Interface
 (
-    precice::SolverInterface & precice,
-    const fvMesh& mesh,
-    std::string meshName,
-    std::string locationsType,
-    std::vector<std::string> patchNames
-)
-:
-precice_(precice),
-meshName_(meshName),
-locationsType_(locationsType),
-patchNames_(patchNames)
+        precice::SolverInterface & precice,
+        const fvMesh& mesh,
+        std::string meshName,
+        std::string locationsType,
+        std::vector<std::string> patchNames,
+        bool meshConnectivity
+        )
+    :
+      precice_(precice),
+      meshName_(meshName),
+      locationsType_(locationsType),
+      patchNames_(patchNames),
+      meshConnectivity_(meshConnectivity)
 {
     // Get the meshID from preCICE
     meshID_ = precice_.getMeshID(meshName_);
@@ -30,10 +34,10 @@ patchNames_(patchNames)
         if (patchID == -1)
         {
             FatalErrorInFunction
-                 << "ERROR: Patch '"
-                 << patchNames.at(j)
-                 << "' does not exist."
-                 << exit(FatalError);
+                    << "ERROR: Patch '"
+                    << patchNames.at(j)
+                    << "' does not exist."
+                    << exit(FatalError);
         }
 
         // Add the patch in the list
@@ -56,7 +60,7 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh)
         for (uint j = 0; j < patchIDs_.size(); j++)
         {
             numDataLocations_ +=
-                mesh.boundaryMesh()[patchIDs_.at(j)].faceCentres().size();
+                    mesh.boundaryMesh()[patchIDs_.at(j)].faceCentres().size();
         }
         DEBUG(adapterInfo("Number of face centres: " + std::to_string(numDataLocations_)));
 
@@ -77,7 +81,7 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh)
         {
             // Get the face centers of the current patch
             const vectorField & faceCenters =
-                mesh.boundaryMesh()[patchIDs_.at(j)].faceCentres();
+                    mesh.boundaryMesh()[patchIDs_.at(j)].faceCentres();
 
             // Assign the (x,y,z) locations to the vertices
             for (int i = 0; i < faceCenters.size(); i++)
@@ -97,7 +101,7 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh)
         for (uint j = 0; j < patchIDs_.size(); j++)
         {
             numDataLocations_ +=
-                mesh.boundaryMesh()[patchIDs_.at(j)].localPoints().size();
+                    mesh.boundaryMesh()[patchIDs_.at(j)].localPoints().size();
         }
         DEBUG(adapterInfo("Number of face nodes: " + std::to_string(numDataLocations_)));
 
@@ -122,7 +126,7 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh)
             // TODO: Check if this behaves correctly with multiple, connected patches.
             // TODO: Maybe this should be a pointVectorField?
             const pointField & faceNodes =
-                mesh.boundaryMesh()[patchIDs_.at(j)].localPoints();
+                    mesh.boundaryMesh()[patchIDs_.at(j)].localPoints();
 
             // Assign the (x,y,z) locations to the vertices
             // TODO: Ensure consistent order when writing/reading
@@ -136,23 +140,85 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh)
 
         // Pass the mesh vertices information to preCICE
         precice_.setMeshVertices(meshID_, numDataLocations_, vertices, vertexIDs_);
+
+        //Only set the triangles, if necessary
+        if (meshConnectivity_)
+        {
+            for (uint j = 0; j < patchIDs_.size(); j++)
+            {
+                // Define triangles
+                // This is done in the following way:
+                // We get a list of faces, which belong to this patch, and triangulate each face
+                // using the faceTriangulation object.
+                // Afterwards, we store the coordinates of the triangulated faces in order to use
+                // the preCICE function "getMeshVertexIDsFromPositions". This function returns
+                // for each point the respective preCICE related ID.
+                // These IDs are consequently used for the preCICE function "setMeshTriangleWithEdges",
+                // which defines edges and triangles on the interface. This connectivity information
+                // allows preCICE to provide a nearest-projection mapping.
+                // Since data is now related to nodes, volume fields (e.g. heat flux) needs to be
+                // interpolated in the data classes (e.g. CHT)
+
+                // Define constants
+                const int       triaPerQuad = 2;
+                const int      nodesPerTria = 3;
+                const int componentsPerNode = 3;
+
+                // Get the list of faces and coordinates at the interface patch
+                const List<face>     faceField = mesh.boundaryMesh()[patchIDs_.at(j)].localFaces();
+                const Field<point> pointCoords = mesh.boundaryMesh()[patchIDs_.at(j)].localPoints();
+
+                // Array to store coordiantes in preCICE format
+                double triCoords[faceField.size()*triaPerQuad*nodesPerTria*componentsPerNode];
+
+                unsigned int coordIndex=0;
+
+                // Iterate over faces
+                forAll(faceField,facei){
+                    const face& faceQuad=faceField[facei];
+
+                    faceTriangulation faceTri(pointCoords,faceQuad,false);
+
+                    for(uint triIndex=0; triIndex < triaPerQuad; triIndex++){
+                        for(uint nodeIndex=0; nodeIndex < nodesPerTria; nodeIndex++){
+                            for(uint xyz=0; xyz < componentsPerNode; xyz++)
+                                triCoords[coordIndex++]=pointCoords[faceTri[triIndex][nodeIndex]][xyz];
+                        }
+                    }
+                }
+
+                //Array to store the IDs we get from preCICE
+                int triVertIDs[faceField.size()*(triaPerQuad*nodesPerTria)];
+
+                //Get preCICE IDs
+                precice_.getMeshVertexIDsFromPositions(meshID_,faceField.size()*(triaPerQuad*nodesPerTria),triCoords,triVertIDs);
+
+                DEBUG(adapterInfo("Number of triangles: " + std::to_string(faceField.size()* triaPerQuad)));
+
+                //Set Triangles
+                for(int facei=0; facei<faceField.size()* triaPerQuad; facei++){
+                    precice_.setMeshTriangleWithEdges(meshID_,triVertIDs[facei*nodesPerTria],triVertIDs[facei*nodesPerTria+1], triVertIDs[facei*nodesPerTria+2]);
+                }
+            }
+        }
+
     }
-    else
+    if (!(locationsType_ == "faceNodes" || locationsType_ == "faceCenters" || locationsType_ == "faceCentres") )
     {
         FatalErrorInFunction
-             << "ERROR: interface points location type "
-             << locationsType_
-             << " is invalid."
-             << exit(FatalError);
+                << "ERROR: interface points location type "
+                << locationsType_
+                << " is invalid."
+                << exit(FatalError);
     }
 }
 
 
 void preciceAdapter::Interface::addCouplingDataWriter
 (
-    std::string dataName,
-    CouplingDataUser * couplingDataWriter
-)
+        std::string dataName,
+        CouplingDataUser * couplingDataWriter
+        )
 {
     // Set the dataID (from preCICE)
     couplingDataWriter->setDataID(precice_.getDataID(dataName, meshID_));
@@ -167,9 +233,9 @@ void preciceAdapter::Interface::addCouplingDataWriter
 
 void preciceAdapter::Interface::addCouplingDataReader
 (
-    std::string dataName,
-    preciceAdapter::CouplingDataUser * couplingDataReader
-)
+        std::string dataName,
+        preciceAdapter::CouplingDataUser * couplingDataReader
+        )
 {
     // Set the patchIDs of the patches that form the interface
     couplingDataReader->setDataID(precice_.getDataID(dataName, meshID_));
@@ -233,29 +299,29 @@ void preciceAdapter::Interface::readCouplingData()
         {
             // Pointer to the current reader
             preciceAdapter::CouplingDataUser *
-                couplingDataReader = couplingDataReaders_.at(i);
+                    couplingDataReader = couplingDataReaders_.at(i);
 
             // Make preCICE read vector or scalar data
             // and fill the adapter's buffer
             if (couplingDataReader->hasVectorData())
             {
                 precice_.readBlockVectorData
-                (
-                    couplingDataReader->dataID(),
-                    numDataLocations_,
-                    vertexIDs_,
-                    dataBuffer_
-                );
+                        (
+                            couplingDataReader->dataID(),
+                            numDataLocations_,
+                            vertexIDs_,
+                            dataBuffer_
+                            );
             }
             else
             {
                 precice_.readBlockScalarData
-                (
-                    couplingDataReader->dataID(),
-                    numDataLocations_,
-                    vertexIDs_,
-                    dataBuffer_
-                );
+                        (
+                            couplingDataReader->dataID(),
+                            numDataLocations_,
+                            vertexIDs_,
+                            dataBuffer_
+                            );
             }
 
             // Read the received data from the buffer
@@ -275,31 +341,31 @@ void preciceAdapter::Interface::writeCouplingData()
         {
             // Pointer to the current reader
             preciceAdapter::CouplingDataUser *
-                couplingDataWriter = couplingDataWriters_.at(i);
+                    couplingDataWriter = couplingDataWriters_.at(i);
 
             // Write the data into the adapter's buffer
-            couplingDataWriter->write(dataBuffer_);
+            couplingDataWriter->write(dataBuffer_, meshConnectivity_);
 
             // Make preCICE write vector or scalar data
             if (couplingDataWriter->hasVectorData())
             {
                 precice_.writeBlockVectorData
-                (
-                    couplingDataWriter->dataID(),
-                    numDataLocations_,
-                    vertexIDs_,
-                    dataBuffer_
-                );
+                        (
+                            couplingDataWriter->dataID(),
+                            numDataLocations_,
+                            vertexIDs_,
+                            dataBuffer_
+                            );
             }
             else
             {
                 precice_.writeBlockScalarData
-                (
-                    couplingDataWriter->dataID(),
-                    numDataLocations_,
-                    vertexIDs_,
-                    dataBuffer_
-                );
+                        (
+                            couplingDataWriter->dataID(),
+                            numDataLocations_,
+                            vertexIDs_,
+                            dataBuffer_
+                            );
             }
         }
     // }
