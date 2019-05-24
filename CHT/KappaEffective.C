@@ -1,4 +1,5 @@
 #include "KappaEffective.H"
+#include "primitivePatchInterpolation.H"
 
 #include "Utilities.H"
 
@@ -19,10 +20,21 @@ turbulence_(
     DEBUG(adapterInfo("Constructed KappaEff_Compressible."));
 }
 
-void preciceAdapter::CHT::KappaEff_Compressible::extract(uint patchID)
+void preciceAdapter::CHT::KappaEff_Compressible::extract(uint patchID, bool meshConnectivity)
 {
-    // Extract kappaEff_ from the turbulence model
-    kappaEff_ = turbulence_.kappaEff() ().boundaryField()[patchID];
+    if(meshConnectivity)
+    {
+        //Create an Interpolation object at the boundary Field
+        primitivePatchInterpolation patchInterpolator(mesh_.boundaryMesh()[patchID]);
+
+        //Interpolate kappaEff_ from centers to nodes
+        kappaEff_= patchInterpolator.faceToPointInterpolate(turbulence_.kappaEff() ().boundaryField()[patchID]);
+    }
+    else
+    {
+        // Extract kappaEff_ from the turbulence model
+        kappaEff_ = turbulence_.kappaEff() ().boundaryField()[patchID];
+    }
 }
 
 scalar preciceAdapter::CHT::KappaEff_Compressible::getAt(int i)
@@ -125,7 +137,7 @@ nameAlphat_(nameAlphat)
         }
 }
 
-void preciceAdapter::CHT::KappaEff_Incompressible::extract(uint patchID)
+void preciceAdapter::CHT::KappaEff_Incompressible::extract(uint patchID, bool meshConnectivity)
 {
     // Compute kappaEff_ from the turbulence model, using alpha and Prandl
 
@@ -158,8 +170,22 @@ void preciceAdapter::CHT::KappaEff_Incompressible::extract(uint patchID)
         alphaEff = nu / Pr_.value();
     }
 
-    // Compute the effective thermal conductivity
-    kappaEff_ = alphaEff * rho_.value() * Cp_.value();
+    // Compute the effective thermal conductivity and store it in a temp variable
+    scalarField kappaEff_temp = alphaEff * rho_.value() * Cp_.value();
+
+    if(meshConnectivity)
+    {
+        //Create an Interpolation object at the boundary Field
+        primitivePatchInterpolation patchInterpolator(mesh_.boundaryMesh()[patchID]);
+
+        //Interpolate kappaEff_ from centers to nodes, if desired
+        kappaEff_= patchInterpolator.faceToPointInterpolate(kappaEff_temp);
+    }
+    else
+    {
+        // if no interpolation
+        kappaEff_ = kappaEff_temp;
+    }
 
 }
 
@@ -216,7 +242,7 @@ nameKappa_(nameKappa)
     }
 }
 
-void preciceAdapter::CHT::KappaEff_Basic::extract(uint patchID)
+void preciceAdapter::CHT::KappaEff_Basic::extract(uint patchID, bool meshConnectivity)
 {
     // Already extracted in the constructor
 }
