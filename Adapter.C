@@ -31,21 +31,21 @@ bool preciceAdapter::Adapter::configFileCheck(const std::string adapterConfigFil
     // Check if the "participant" node exists
     if (!adapterConfig["participant"])
     {
-        adapterInfo("The 'participant' node is missing in " + adapterConfigFileName + ".", "warning");
+        adapterInfo("The 'participant' node is missing in " + adapterConfigFileName + ".", "error-deferred");
         configErrors = true;
     }
 
     // Check if the "precice-config-file" node exists
     if (!adapterConfig["precice-config-file"])
     {
-        adapterInfo("The 'precice-config-file' node is missing in " + adapterConfigFileName + ".", "warning");
+        adapterInfo("The 'precice-config-file' node is missing in " + adapterConfigFileName + ".", "error-deferred");
         configErrors = true;
     }
 
     // Check if the "interfaces" node exists
     if (!adapterConfig["interfaces"])
     {
-        adapterInfo("The 'interfaces' node is missing in " + adapterConfigFileName + ".", "warning");
+        adapterInfo("The 'interfaces' node is missing in " + adapterConfigFileName + ".", "error-deferred");
         configErrors = true;
     }
     else
@@ -54,12 +54,12 @@ bool preciceAdapter::Adapter::configFileCheck(const std::string adapterConfigFil
         {
             if (!adapterConfig["interfaces"][i]["mesh"])
             {
-                adapterInfo("The 'mesh' node is missing for the interface #" + std::to_string(i+1) + " in " + adapterConfigFileName + ".", "warning");
+                adapterInfo("The 'mesh' node is missing for the interface #" + std::to_string(i+1) + " in " + adapterConfigFileName + ".", "error-deferred");
                 configErrors = true;
             }
             if (!adapterConfig["interfaces"][i]["patches"])
             {
-                adapterInfo("The 'patches' node is missing for the interface #" + std::to_string(i+1) + " in " + adapterConfigFileName + ".", "warning");
+                adapterInfo("The 'patches' node is missing for the interface #" + std::to_string(i+1) + " in " + adapterConfigFileName + ".", "error-deferred");
                 configErrors = true;
             }
         }
@@ -265,7 +265,7 @@ bool preciceAdapter::Adapter::configFileRead()
 
     if (!CHTenabled_ && !FSIenabled_) // NOTE: Add your new switch here
     {
-        adapterInfo("No module is enabled.", "warning");
+        adapterInfo("No module is enabled.", "error-deferred");
         return false;
     }
 
@@ -421,8 +421,33 @@ void preciceAdapter::Adapter::configure()
             const_cast<Time&>(runTime_).setEndTime(GREAT);
         }
 
+    // If the solver tries to end before the coupling is complete,
+    // e.g. because the solver's endTime was smaller or (in implicit
+    // coupling) equal with the max-time specified in preCICE,
+    // problems may occur near the end of the simulation,
+    // as the function object may be called only once near the end.
+    // See the implementation of Foam::Time::run() for more details.
+    // To prevent this, we set the solver's endTime to "infinity"
+    // and let only preCICE control the end of the simulation.
+    // This has the side-effect of not triggering the end() method
+    // in any function object normally. Therefore, we trigger it
+    // when preCICE dictates to stop the coupling.
+    // However, the user can disable this behavior in the configuration.
+    if (preventEarlyExit_)
+    {
+        adapterInfo
+        (
+            "Setting the solver's endTime to infinity to prevent early exits. "
+            "Only preCICE will control the simulation's endTime. "
+            "Any functionObject's end() method will be triggered by the adapter. "
+            "You may disable this behavior in the adapter's configuration.",
+            "info"
+       );
+        const_cast<Time&>(runTime_).setEndTime(GREAT);
+    }
+
     } catch (const Foam::error &e) {
-        adapterInfo(e.message(), "info");
+        adapterInfo(e.message(), "error-deferred");
         errorsInConfigure = true;
     }
 
