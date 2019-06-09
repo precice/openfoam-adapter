@@ -60,11 +60,11 @@ private:
         //- Remember if there were errors in the read() method
         bool errorsInConfigure = false;
 
-        //- preCICE participant name
-        std::string participantName_;
-
         //- preCICE configuration file name
-        std::string preciceConfigFilename_;
+        Foam::word preciceConfigFilename_;
+
+        //- preCICE participant name
+        Foam::word participantName_;
 
         //- Switch for subcycling
         bool subcyclingAllowed_ = true;

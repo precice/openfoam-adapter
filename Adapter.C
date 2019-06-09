@@ -20,257 +20,52 @@ preciceAdapter::Adapter::Adapter(const Time& runTime, const fvMesh& mesh)
     return;
 }
 
-bool preciceAdapter::Adapter::configFileCheck(const std::string adapterConfigFileName)
-{
-    DEBUG(adapterInfo("Checking the adapter's YAML configuration file..."));
-
-    bool configErrors = false;
-
-    YAML::Node adapterConfig = YAML::LoadFile(adapterConfigFileName);
-
-    // Check if the "participant" node exists
-    if (!adapterConfig["participant"])
-    {
-        adapterInfo("The 'participant' node is missing in " + adapterConfigFileName + ".", "warning");
-        configErrors = true;
-    }
-
-    // Check if the "precice-config-file" node exists
-    if (!adapterConfig["precice-config-file"])
-    {
-        adapterInfo("The 'precice-config-file' node is missing in " + adapterConfigFileName + ".", "warning");
-        configErrors = true;
-    }
-
-    // Check if the "interfaces" node exists
-    if (!adapterConfig["interfaces"])
-    {
-        adapterInfo("The 'interfaces' node is missing in " + adapterConfigFileName + ".", "warning");
-        configErrors = true;
-    }
-    else
-    {
-        for (uint i = 0; i < adapterConfig["interfaces"].size(); i++)
-        {
-            if (!adapterConfig["interfaces"][i]["mesh"])
-            {
-                adapterInfo("The 'mesh' node is missing for the interface #" + std::to_string(i+1) + " in " + adapterConfigFileName + ".", "warning");
-                configErrors = true;
-            }
-            if (!adapterConfig["interfaces"][i]["patches"])
-            {
-                adapterInfo("The 'patches' node is missing for the interface #" + std::to_string(i+1) + " in " + adapterConfigFileName + ".", "warning");
-                configErrors = true;
-            }
-        }
-    }
-
-    return !configErrors;
-}
-
-
 bool preciceAdapter::Adapter::configFileRead()
 {
-    // Check the configuration file.
-    // The file should be named "precice-adapter-config.yml" and located
-    // in the global case directory. In case of a decomposed case, this is
-    // the parent directory of the "processor*" directories.
-    std::string adapterConfigFileName;
-    if (runTime_.processorCase())
-    {
-        adapterConfigFileName = runTime_.path() + "/../precice-adapter-config.yml";
-    }
-    else
-    {
-        adapterConfigFileName = runTime_.path() + "/precice-adapter-config.yml";
-    }
-    adapterInfo("Reading the adapter's YAML configuration file " + adapterConfigFileName + "...", "info");
+    adapterInfo("Reading preciceAdapterDict...", "info");
 
-    if (!configFileCheck(adapterConfigFileName)) return false;
-
-    // Load the YAML file
-    YAML::Node adapterConfig_ = YAML::LoadFile(adapterConfigFileName);
-
-    // Read the preCICE participant name
-    participantName_ = adapterConfig_["participant"].as<std::string>();
-    DEBUG(adapterInfo("  participant : " + participantName_));
-
-    // Read the preCICE configuration file name
-    preciceConfigFilename_ = adapterConfig_["precice-config-file"].as<std::string>();
+    IOdictionary preciceAdapterDict
+    (
+        IOobject
+        (
+            "preciceAdapterDict",
+            runTime_.system(),
+            mesh_,
+            IOobject::MUST_READ_IF_MODIFIED,
+            IOobject::NO_WRITE
+        )
+    );
+    
+    // Read and display the preCICE configuration file name
+    preciceConfigFilename_ = preciceAdapterDict.lookupType<word>("preciceConfigFile");
     DEBUG(adapterInfo("  precice-config-file : " + preciceConfigFilename_));
 
-    YAML::Node adapterConfigInterfaces = adapterConfig_["interfaces"];
+    // Read and display the participant name
+    participantName_ = preciceAdapterDict.lookupType<word>("participant");
+    DEBUG(adapterInfo("  participant name    : " + participantName_));
+
+    // Read and display the list of modules
+    DEBUG(adapterInfo("  modules requested   : "));
+    wordList modules_ = preciceAdapterDict.lookupType<wordList>("modules");
+    for (auto module : modules_)
+    {
+        DEBUG(adapterInfo("    - " + module + "\n"));
+        
+        // Set the modules switches
+        // TODO: This is a temporary workaround for the previous implementation
+        if (module == "CHT") CHTenabled_ = true;
+        if (module == "FSI") FSIenabled_ = true;
+    }
+
+    // Read the list of coupling interfaces
     DEBUG(adapterInfo("  interfaces : "));
-    for (uint i = 0; i < adapterConfigInterfaces.size(); i++)
+    wordList interfaces_ = preciceAdapterDict.lookupType<wordList>("interfaces");
+    for (auto interface : interfaces_)
     {
         struct InterfaceConfig interfaceConfig;
-        interfaceConfig.meshName = adapterConfigInterfaces[i]["mesh"].as<std::string>();
-        DEBUG(adapterInfo("  - mesh      : " + interfaceConfig.meshName));
 
-        // By default, assume "faceCenters" as locationsType
-        interfaceConfig.locationsType = "faceCenters";
-        if (adapterConfigInterfaces[i]["locations"])
-        {
-            interfaceConfig.locationsType = adapterConfigInterfaces[i]["locations"].as<std::string>();
-        }
-        DEBUG(adapterInfo("    locations : " + interfaceConfig.locationsType));
-
-        // By default, assume that no mesh connectivity is required (i.e. no nearest-projection mapping)
-        interfaceConfig.meshConnectivity = false;
-        // Check if provideMeshConnectivity exists
-        if (adapterConfigInterfaces[i]["provideMeshConnectivity"])
-        {
-            // Check if provideMeshConnectivity is true
-            if (adapterConfigInterfaces[i]["provideMeshConnectivity"].as<bool>())
-            {
-                // Mesh connectivity only makes sense in case of faceNodes, check and raise a warning otherwise
-                if(interfaceConfig.locationsType == "faceNodes")
-                {
-                    interfaceConfig.meshConnectivity = true;
-                }
-                else
-                {
-                    DEBUG(adapterInfo("Mesh connectivity is not supported for faceCenters. \n"
-                                      "Please configure the desired interface with the locationsType faceNodes. \n"
-                                      "Have a look in the adapter wiki on Github or the tutorial case for detailed information.", "warning"));
-                    return false;
-                }
-            }
-
-        }
-        DEBUG(adapterInfo("    Provide mesh connectivity : " + std::to_string(interfaceConfig.meshConnectivity)));
-
-        DEBUG(adapterInfo("    patches   : "));
-        for (uint j = 0; j < adapterConfigInterfaces[i]["patches"].size(); j++)
-        {
-            interfaceConfig.patchNames.push_back(adapterConfigInterfaces[i]["patches"][j].as<std::string>());
-            DEBUG(adapterInfo("      " + adapterConfigInterfaces[i]["patches"][j].as<std::string>()));
-        }
-
-        if (adapterConfigInterfaces[i]["write-data"])
-        {
-            DEBUG(adapterInfo("    write-data : "));
-            if (adapterConfigInterfaces[i]["write-data"].size() > 0)
-            {
-                for (uint j = 0; j < adapterConfigInterfaces[i]["write-data"].size(); j++)
-                {
-                    interfaceConfig.writeData.push_back(adapterConfigInterfaces[i]["write-data"][j].as<std::string>());
-                    DEBUG(adapterInfo("      " + adapterConfigInterfaces[i]["write-data"][j].as<std::string>()));
-                }
-            }
-            else
-            {
-                interfaceConfig.writeData.push_back(adapterConfigInterfaces[i]["write-data"].as<std::string>());
-                DEBUG(adapterInfo("      " + adapterConfigInterfaces[i]["write-data"].as<std::string>()));
-            }
-        }
-
-        if (adapterConfigInterfaces[i]["read-data"])
-        {
-            DEBUG(adapterInfo("    read-data : "));
-            if (adapterConfigInterfaces[i]["read-data"].size() > 0)
-            {
-                for (uint j = 0; j < adapterConfigInterfaces[i]["read-data"].size(); j++)
-                {
-                    interfaceConfig.readData.push_back(adapterConfigInterfaces[i]["read-data"][j].as<std::string>());
-                    DEBUG(adapterInfo("      " + adapterConfigInterfaces[i]["read-data"][j].as<std::string>()));
-                }
-            }
-            else
-            {
-                interfaceConfig.readData.push_back(adapterConfigInterfaces[i]["read-data"].as<std::string>());
-                DEBUG(adapterInfo("      " + adapterConfigInterfaces[i]["read-data"].as<std::string>()));
-            }
-        }
-
-        interfacesConfig_.push_back(interfaceConfig);
+        // we actually need something like an interfaceConfigList...
     }
-
-    // Set the subcyclingAllowed_ switch
-    if (adapterConfig_["subcycling"])
-    {
-        subcyclingAllowed_ = adapterConfig_["subcycling"].as<bool>();
-    }
-    DEBUG(adapterInfo("    subcycling : " + std::to_string(subcyclingAllowed_)));
-
-    // Set the preventEarlyExit_ switch
-    if (adapterConfig_["preventEarlyExit"])
-    {
-        preventEarlyExit_ = adapterConfig_["preventEarlyExit"].as<bool>();
-    }
-    DEBUG(adapterInfo("    prevent early exit : " + std::to_string(preventEarlyExit_)));
-
-    // Set the evaluateBoundaries_ switch
-    if (adapterConfig_["evaluateBoundaries"])
-    {
-        evaluateBoundaries_ = adapterConfig_["evaluateBoundaries"].as<bool>();
-    }
-    DEBUG(adapterInfo("    evaluate boundaries : " + std::to_string(evaluateBoundaries_)));
-
-    // Set the disableCheckpointing_ switch
-    if (adapterConfig_["disableCheckpointing"])
-    {
-        disableCheckpointing_ = adapterConfig_["disableCheckpointing"].as<bool>();
-    }
-    DEBUG(adapterInfo("    disable checkpointing : " + std::to_string(disableCheckpointing_)));
-
-    // Set the CHTenabled_ switch
-    if (adapterConfig_["CHTenabled"])
-    {
-        CHTenabled_ = adapterConfig_["CHTenabled"].as<bool>();
-    }
-    DEBUG(adapterInfo("    CHT module enabled : " + std::to_string(CHTenabled_)));
-
-    // Set the FSIenabled_ switch
-    if (adapterConfig_["FSIenabled"])
-    {
-        FSIenabled_ = adapterConfig_["FSIenabled"].as<bool>();
-    }
-    DEBUG(adapterInfo("    FSI module enabled : " + std::to_string(FSIenabled_)));
-
-    // NOTE: set the switch for your new module here
-
-    // If the CHT module is enabled, create it, read the
-    // CHT-specific options and configure it.
-    if (CHTenabled_)
-    {
-        CHT_ = new CHT::ConjugateHeatTransfer(mesh_);
-        if (!CHT_->configure(adapterConfig_)) return false;
-    }
-
-    // If the FSI module is enabled, create it, read the
-    // FSI-specific options and configure it.
-    if (FSIenabled_)
-    {
-        // Check for unsupported FSI with meshConnectivity
-        for (uint i = 0; i < interfacesConfig_.size(); i++)
-        {
-            if(interfacesConfig_.at(i).meshConnectivity == true )
-            {
-                adapterInfo(
-                    "Mesh connectivity is not supported for FSI, as, usually, "
-                    "the Solid participant needs to provide the connectivity information. "
-                    "Therefore, set provideMeshConnectivity = false. "
-                    "Have a look in the tutorial README or the Github wiki for detailed information. "
-                    ,"warning");
-                    return false;
-            }
-        }
-
-        FSI_ = new FSI::FluidStructureInteraction(mesh_, runTime_);
-        if (!FSI_->configure(adapterConfig_)) return false;
-    }
-
-    // NOTE: Create your module and read any options specific to it here
-
-    if (!CHTenabled_ && !FSIenabled_) // NOTE: Add your new switch here
-    {
-        adapterInfo("No module is enabled.", "warning");
-        return false;
-    }
-
-    // TODO: Loading modules should be implemented in more general way,
-    // in order to avoid code duplication. See issue #16 on GitHub.
 
     return true;
 }
