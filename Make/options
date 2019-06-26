@@ -7,7 +7,7 @@ EXE_INC = \
     -I$(LIB_SRC)/TurbulenceModels/turbulenceModels/lnInclude \
     -I$(LIB_SRC)/TurbulenceModels/compressible/lnInclude \
     -I$(LIB_SRC)/TurbulenceModels/incompressible/lnInclude \
-    -I$(ADAPTER_PRECICE_ROOT)/src/precice \
+    -I/usr/include/precice/ \
     -I${ADAPTER_YAML_CPP_INC} \
     -I../ \
     $(ADAPTER_PREP_FLAGS)
