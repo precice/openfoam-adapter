@@ -17,6 +17,10 @@ FSI/Force.C
 FSI/Displacement.C
 FSI/DisplacementDelta.C
 
+AITS/TemperatureAIT.C
+
+AITS/AITS.C
+
 
 Adapter.C
 

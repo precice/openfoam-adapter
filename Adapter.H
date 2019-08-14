@@ -9,6 +9,9 @@
 // Fluid-Structure Interaction module
 #include "FSI/FSI.H"
 
+// AITSolver Interaction module
+#include "AITS/AITS.H"
+
 // NOTE: If you want to couple a new variable, include your module's header here.
 // You also need to include it in the Make/files file.
 // In case you use additional OpenFOAM symbols, you may also need to specify
@@ -94,6 +97,9 @@ private:
         //- Switch to enable the FluidStructureInteraction module
         bool FSIenabled_ = false;
 
+        //- Switch to enable the AIT Solver module
+        bool AITSenabled_ = false;
+
         // NOTE: Add a switch for your new module here
 
     //- Interfaces
@@ -110,6 +116,9 @@ private:
 
     //- Fluid-Structure Interaction module object
     FSI::FluidStructureInteraction * FSI_ = NULL;
+
+    //- AIT Solver module object
+    AITS::AITSolver * AITS_ = NULL;
 
     // NOTE: Add here a pointer for your new module object
 

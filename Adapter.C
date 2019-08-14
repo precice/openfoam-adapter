@@ -228,6 +228,13 @@ bool preciceAdapter::Adapter::configFileRead()
     }
     DEBUG(adapterInfo("    FSI module enabled : " + std::to_string(FSIenabled_)));
 
+    // Set the AITSenabled_ switch
+    if (adapterConfig_["AITSenabled"])
+    {
+        AITSenabled_ = adapterConfig_["AITSenabled"].as<bool>();
+    }
+    DEBUG(adapterInfo("    AITS module enabled : " + std::to_string(AITSenabled_)));
+    
     // NOTE: set the switch for your new module here
 
     // If the CHT module is enabled, create it, read the
@@ -261,9 +268,17 @@ bool preciceAdapter::Adapter::configFileRead()
         if (!FSI_->configure(adapterConfig_)) return false;
     }
 
+    // If the AITS module is enabled, create it, read the
+    // AITS-specific options and configure it.
+    if (AITSenabled_)
+    {
+        AITS_ = new AITS::AITSolver(mesh_);
+        if (!AITS_->configure(adapterConfig_)) return false;
+    }
+
     // NOTE: Create your module and read any options specific to it here
 
-    if (!CHTenabled_ && !FSIenabled_) // NOTE: Add your new switch here
+    if (!CHTenabled_ && !FSIenabled_ && !AITSenabled_) // NOTE: Add your new switch here
     {
         adapterInfo("No module is enabled.", "error-deferred");
         return false;
@@ -340,6 +355,12 @@ void preciceAdapter::Adapter::configure()
                     FSI_->addWriters(dataName, interface);
                 }
 
+                // Add AITS-related coupling data writers
+                if (AITSenabled_)
+                {
+                    AITS_->addWriters(dataName, interface);
+                }
+
                 // NOTE: Add any coupling data writers for your module here.
             } // end add coupling data writers
 
@@ -358,6 +379,12 @@ void preciceAdapter::Adapter::configure()
                 if (FSIenabled_)
                 {
                     FSI_->addReaders(dataName, interface);
+                }
+
+                // Add AITS-related coupling data readers
+                if (AITSenabled_)
+                {
+                    AITS_->addReaders(dataName, interface);
                 }
 
                 // NOTE: Add any coupling data readers for your module here.
@@ -2093,6 +2120,14 @@ void preciceAdapter::Adapter::teardown()
         DEBUG(adapterInfo("Destroying the FSI module..."));
         delete FSI_;
         FSI_ = NULL;
+    }
+
+    // Delete the AITS module
+    if(NULL != AITS_)
+    {
+        DEBUG(adapterInfo("Destroying the AITS module..."));
+        delete AITS_;
+        AITS_ = NULL;
     }
 
     // NOTE: Delete your new module here
