@@ -24,6 +24,8 @@ preciceAdapter::Interface::Interface
     // Get the meshID from preCICE
     meshID_ = precice_.getMeshID(meshName_);
 
+    dim_ = precice_.getDimensions();
+
     // For every patch that participates in the coupling
     for (uint j = 0; j < patchNames.size(); j++)
     {
@@ -46,8 +48,6 @@ preciceAdapter::Interface::Interface
 
     // Configure the mesh (set the data locations)
     configureMesh(mesh);
-
-    dim_ = precice_.getDimensions();
 }
 
 void preciceAdapter::Interface::configureMesh(const fvMesh& mesh)
