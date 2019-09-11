@@ -58,6 +58,8 @@ rm -fv \
     Events-${Participant1}.log Events-${Participant2}.log \
     EventTimings-${Participant1}.log EventTimings-${Participant2}.log
 
+# Remove the preCICE address files
+rm -rfv precice-run
 rm -fv .*.address
 
 echo "Cleaning complete!"
