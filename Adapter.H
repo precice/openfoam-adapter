@@ -22,7 +22,7 @@
 // YAML reader - Used to read the adapter's configuration file.
 #include "yaml-cpp/yaml.h"
 // preCICE Solver Interface
-#include "SolverInterface.hpp"
+#include "precice/SolverInterface.hpp"
 
 namespace preciceAdapter
 {
@@ -40,6 +40,7 @@ private:
     {
         std::string meshName;
         std::string locationsType;
+        bool meshConnectivity;
         std::vector<std::string> patchNames;
         std::vector<std::string> writeData;
         std::vector<std::string> readData;

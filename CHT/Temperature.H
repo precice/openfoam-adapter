@@ -18,6 +18,7 @@ private:
 
     //- Temperature field
     Foam::volScalarField * T_;
+    const Foam::fvMesh& mesh_;
 
 public:
 
@@ -29,7 +30,7 @@ public:
     );
 
     //- Write the temperature values into the buffer
-    void write(double * buffer);
+    void write(double * buffer, bool meshConnectivity);
 
     //- Read the temperature values from the buffer
     void read(double * buffer);

@@ -11,8 +11,9 @@ EXE_INC = \
     -I$(LIB_SRC)/TurbulenceModels/turbulenceModels/lnInclude \
     -I$(LIB_SRC)/TurbulenceModels/compressible/lnInclude \
     -I$(LIB_SRC)/TurbulenceModels/incompressible/lnInclude \
+    -I$(LIB_SRC)/triSurface/lnInclude \
     $(ADAPTER_GLOBAL_CPLUS_INC_PATHS) \
-    -I$(ADAPTER_PRECICE_ROOT)/src/precice \
+    -I$(ADAPTER_PRECICE_ROOT)/src \
     $(ADAPTER_PKG_CONFIG_CFLAGS) \
     -I../ \
     $(ADAPTER_PREP_FLAGS)
@@ -26,6 +27,7 @@ LIB_LIBS = \
     $(ADAPTER_GLOBAL_LIBRARY_PATHS) \
     $(ADAPTER_GLOBAL_LD_LIBRARY_PATHS) \
     -L$(ADAPTER_PRECICE_ROOT)/build/last \
+    $(ADAPTER_PKG_CONFIG_LIBS) \
     -lprecice \
     $(ADAPTER_PRECICE_DEP) \
     -lyaml-cpp

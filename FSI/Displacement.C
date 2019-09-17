@@ -18,7 +18,7 @@ pointDisplacement_(
     dataType_ = vector;
 }
 
-void preciceAdapter::FSI::Displacement::write(double * buffer)
+void preciceAdapter::FSI::Displacement::write(double * buffer, bool meshConnectivity)
 {
     /* TODO: Implement
     * We need two nested for-loops for each patch,

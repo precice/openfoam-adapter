@@ -167,8 +167,8 @@ Foam::tmp<Foam::volScalarField> preciceAdapter::FSI::Force::mu() const
     }
 }
 
-void preciceAdapter::FSI::Force::write(double * buffer)
-{ 
+void preciceAdapter::FSI::Force::write(double * buffer, bool meshConnectivity)
+{
     // Compute forces. See the Forces function object.
 
     // Normal vectors on the boundary, multiplied with the face areas

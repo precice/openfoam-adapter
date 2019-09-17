@@ -5,7 +5,7 @@
 #include <vector>
 #include "fvCFD.H"
 #include "CouplingDataUser.H"
-#include "SolverInterface.hpp"
+#include "precice/SolverInterface.hpp"
 
 
 namespace preciceAdapter
@@ -48,6 +48,9 @@ protected:
     //- Vector of CouplingDataWriters
     std::vector<CouplingDataUser*> couplingDataWriters_;
 
+    //Switch for faceTriangulation (nearest projection)
+    bool meshConnectivity_;
+
     //- Extracts the locations of the face centers or face nodes
     //  and exposes them to preCICE with setMeshVertices
     void configureMesh(const Foam::fvMesh& mesh);
@@ -57,27 +60,28 @@ public:
     //- Constructor
     Interface
     (
-        precice::SolverInterface & precice,
-        const Foam::fvMesh& mesh,
-        std::string meshName,
-        std::string locationsType,
-        std::vector<std::string> patchNames
-    );
+            precice::SolverInterface & precice,
+            const Foam::fvMesh& mesh,
+            std::string meshName,
+            std::string locationsType,
+            std::vector<std::string> patchNames,
+            bool meshConnectivity
+            );
 
     //- Add a CouplingDataUser to read data from the interface
     void addCouplingDataReader
     (
-        std::string dataName,
-        CouplingDataUser * couplingDataReader
-    );
+            std::string dataName,
+            CouplingDataUser * couplingDataReader
+            );
 
 
     //- Add a CouplingDataUser to write data on the interface
     void addCouplingDataWriter
     (
-        std::string dataName,
-        CouplingDataUser * couplingDataWriter
-    );
+            std::string dataName,
+            CouplingDataUser * couplingDataWriter
+            );
 
     //- Allocate an appropriate buffer for scalar or vector data.
     //  If at least one couplingDataUser has vector data, then
