@@ -28,7 +28,7 @@ preciceAdapter::Interface::Interface
 
     if( dim_ == 2 && meshConnectivity_ == true)
         DEBUG(adapterInfo("meshConnectivity is currently only supported for 3D cases. \n"
-                          "You might set up a 3D case and restrict the 3rd dimension by z-axis-dead = true. \n"
+                          "You might set up a 3D case and restrict the 3rd dimension by z-dead = true. \n"
                           "Have a look in the adapter wiki on Github or the tutorial case for detailed information.", "warning"));
 
     // For every patch that participates in the coupling
