@@ -39,10 +39,10 @@ public:
     );
 
     //- Write the heat transfer coefficient values into the buffer
-    virtual void write(double * buffer, bool meshConnectivity);
+    virtual void write(double * buffer, bool meshConnectivity, const unsigned int dim);
 
     //- Read the heat transfer coefficient values from the buffer
-    virtual void read(double * buffer);
+    virtual void read(double * buffer, const unsigned int dim);
 
     //- Destructor
     virtual ~HeatTransferCoefficient(){};

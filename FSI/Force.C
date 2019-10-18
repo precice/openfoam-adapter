@@ -53,7 +53,7 @@ Foam::tmp<Foam::volSymmTensorField> preciceAdapter::FSI::Force::devRhoReff(dimen
 
 }
 
-void preciceAdapter::FSI::Force::write(double * buffer, bool meshConnectivity)
+void preciceAdapter::FSI::Force::write(double * buffer, bool meshConnectivity, const unsigned int dim)
 {
     // Compute forces. See the Forces function object.
     // Normal vectors on the boundary, multiplied with the face areas
@@ -108,15 +108,16 @@ void preciceAdapter::FSI::Force::write(double * buffer, bool meshConnectivity)
             =
             Force_->boundaryFieldRef()[patchID][i].y();
 
-            // z-dimension
-            buffer[bufferIndex++]
-            =
-            Force_->boundaryFieldRef()[patchID][i].z();
+            if(dim == 3)
+                // z-dimension
+                buffer[bufferIndex++]
+                        =
+                        Force_->boundaryFieldRef()[patchID][i].z();
         }
     }
 }
 
-void preciceAdapter::FSI::Force::read(double * buffer)
+void preciceAdapter::FSI::Force::read(double * buffer, const unsigned int dim)
 {
     /* TODO: Implement
     * We need two nested for-loops for each patch,
