@@ -23,7 +23,7 @@ preciceAdapter::CHT::Temperature::Temperature
     dataType_ = scalar;
 }
 
-void preciceAdapter::CHT::Temperature::write(double * buffer, bool meshConnectivity)
+void preciceAdapter::CHT::Temperature::write(double * buffer, bool meshConnectivity, const unsigned int dim)
 {
     int bufferIndex = 0;
 
@@ -66,7 +66,7 @@ void preciceAdapter::CHT::Temperature::write(double * buffer, bool meshConnectiv
     }
 }
 
-    void preciceAdapter::CHT::Temperature::read(double * buffer)
+    void preciceAdapter::CHT::Temperature::read(double * buffer, const unsigned int dim)
     {
         int bufferIndex = 0;
 
