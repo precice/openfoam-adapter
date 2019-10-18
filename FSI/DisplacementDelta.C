@@ -18,7 +18,7 @@ pointDisplacement_(
     dataType_ = vector;
 }
 
-void preciceAdapter::FSI::DisplacementDelta::write(double * buffer, bool meshConnectivity, const unsigned int dim)
+void preciceAdapter::FSI::DisplacementDelta::write(double * buffer, bool meshConnectivity)
 {
     /* TODO: Implement
     * We need two nested for-loops for each patch,
@@ -31,7 +31,7 @@ void preciceAdapter::FSI::DisplacementDelta::write(double * buffer, bool meshCon
 }
 
 // return the displacement to use later in the velocity?
-void preciceAdapter::FSI::DisplacementDelta::read(double * buffer, const unsigned int dim)
+void preciceAdapter::FSI::DisplacementDelta::read(double * buffer)
 {
     // For every element in the buffer
     int bufferIndex = 0;
@@ -54,8 +54,7 @@ void preciceAdapter::FSI::DisplacementDelta::read(double * buffer, const unsigne
             // Add the received delta to the actual displacement
             pointDisplacementFluidPatch[i][0] += buffer[bufferIndex++];
             pointDisplacementFluidPatch[i][1] += buffer[bufferIndex++];
-            if(dim==3)
-                pointDisplacementFluidPatch[i][2] += buffer[bufferIndex++];
+            pointDisplacementFluidPatch[i][2] += buffer[bufferIndex++];
         }
     }
 }

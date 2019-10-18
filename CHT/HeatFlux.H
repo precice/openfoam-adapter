@@ -35,11 +35,11 @@ public:
 
     //- Compute heat flux values from the temperature field
     //  and write them into the buffer
-    virtual void write(double * buffer, bool meshConnectivity, const unsigned int dim);
+    virtual void write(double * buffer, bool meshConnectivity);
 
     //- Read heat flux values from the buffer and assign them to
     //  the gradient of the temperature field
-    virtual void read(double * buffer, const unsigned int dim);
+    virtual void read(double * buffer);
 
     //- Destructor
     virtual ~HeatFlux(){};

@@ -24,13 +24,6 @@ preciceAdapter::Interface::Interface
     // Get the meshID from preCICE
     meshID_ = precice_.getMeshID(meshName_);
 
-    dim_ = precice_.getDimensions();
-
-    if( dim_ == 2 && meshConnectivity_ == true)
-        DEBUG(adapterInfo("meshConnectivity is currently only supported for 3D cases. \n"
-                          "You might set up a 3D case and restrict the 3rd dimension by z-dead = true. \n"
-                          "Have a look in the adapter wiki on Github or the tutorial case for detailed information.", "warning"));
-
     // For every patch that participates in the coupling
     for (uint j = 0; j < patchNames.size(); j++)
     {
@@ -61,7 +54,6 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh)
     // and meshes based on face nodes.
     // TODO: Reduce code duplication. In the meantime, take care to update
     // all the branches.
-
     if (locationsType_ == "faceCenters" || locationsType_ == "faceCentres")
     {
         // Count the data locations for all the patches
@@ -74,7 +66,7 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh)
 
         // Array of the mesh vertices.
         // One mesh is used for all the patches and each vertex has 3D coordinates.
-        double vertices[dim_ * numDataLocations_];
+        double vertices[3 * numDataLocations_];
 
         // Array of the indices of the mesh vertices.
         // Each vertex has one index, but three coordinates.
@@ -96,8 +88,7 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh)
             {
                 vertices[verticesIndex++] = faceCenters[i].x();
                 vertices[verticesIndex++] = faceCenters[i].y();
-                if(dim_ == 3)//out-of-plane axis = z
-                    vertices[verticesIndex++] = faceCenters[i].z();
+                vertices[verticesIndex++] = faceCenters[i].z();
             }
         }
 
@@ -116,7 +107,7 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh)
 
         // Array of the mesh vertices.
         // One mesh is used for all the patches and each vertex has 3D coordinates.
-        double vertices[dim_ * numDataLocations_];
+        double vertices[3 * numDataLocations_];
 
         // Array of the indices of the mesh vertices.
         // Each vertex has one index, but three coordinates.
@@ -143,16 +134,14 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh)
             {
                 vertices[verticesIndex++] = faceNodes[i].x();
                 vertices[verticesIndex++] = faceNodes[i].y();
-                if (dim_ == 3)//out-of-plane axis = z!
-                    vertices[verticesIndex++] = faceNodes[i].z();
+                vertices[verticesIndex++] = faceNodes[i].z();
             }
         }
 
         // Pass the mesh vertices information to preCICE
         precice_.setMeshVertices(meshID_, numDataLocations_, vertices, vertexIDs_);
 
-        // meshConnectivity for prototype neglected
-        // Only set the triangles, if necessary
+        //Only set the triangles, if necessary
         if (meshConnectivity_)
         {
             for (uint j = 0; j < patchIDs_.size(); j++)
@@ -283,7 +272,7 @@ void preciceAdapter::Interface::createBuffer()
     // Set the appropriate buffer size
     if (needsVectorData)
     {
-        dataBufferSize = dim_*numDataLocations_;
+        dataBufferSize = 3*numDataLocations_;
     }
     else
     {
@@ -336,7 +325,7 @@ void preciceAdapter::Interface::readCouplingData()
             }
 
             // Read the received data from the buffer
-            couplingDataReader->read(dataBuffer_, dim_);
+            couplingDataReader->read(dataBuffer_);
         }
     }
 }
@@ -355,7 +344,7 @@ void preciceAdapter::Interface::writeCouplingData()
                     couplingDataWriter = couplingDataWriters_.at(i);
 
             // Write the data into the adapter's buffer
-            couplingDataWriter->write(dataBuffer_, meshConnectivity_, dim_);
+            couplingDataWriter->write(dataBuffer_, meshConnectivity_);
 
             // Make preCICE write vector or scalar data
             if (couplingDataWriter->hasVectorData())
