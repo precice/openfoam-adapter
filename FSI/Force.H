@@ -26,7 +26,6 @@ private:
     //- Stress tensor (see the OpenFOAM "Forces" function object)
     Foam::tmp<Foam::volSymmTensorField> devRhoReff(dimensionedScalar rho) const;
 
-
 public:
 
     //- Constructor
@@ -37,10 +36,10 @@ public:
     );
 
     //- Write the displacement values into the buffer
-    void write(double * buffer, bool meshConnectivity, const unsigned int dim);
+    void write(double * buffer, bool meshConnectivity);
 
     //- Read the displacement values from the buffer
-    void read(double * buffer, const unsigned int dim);
+    void read(double * buffer);
 
     //- Destructor
     ~Force();
