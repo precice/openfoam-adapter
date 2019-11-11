@@ -421,31 +421,6 @@ void preciceAdapter::Adapter::configure()
             const_cast<Time&>(runTime_).setEndTime(GREAT);
         }
 
-    // If the solver tries to end before the coupling is complete,
-    // e.g. because the solver's endTime was smaller or (in implicit
-    // coupling) equal with the max-time specified in preCICE,
-    // problems may occur near the end of the simulation,
-    // as the function object may be called only once near the end.
-    // See the implementation of Foam::Time::run() for more details.
-    // To prevent this, we set the solver's endTime to "infinity"
-    // and let only preCICE control the end of the simulation.
-    // This has the side-effect of not triggering the end() method
-    // in any function object normally. Therefore, we trigger it
-    // when preCICE dictates to stop the coupling.
-    // However, the user can disable this behavior in the configuration.
-    if (preventEarlyExit_)
-    {
-        adapterInfo
-        (
-            "Setting the solver's endTime to infinity to prevent early exits. "
-            "Only preCICE will control the simulation's endTime. "
-            "Any functionObject's end() method will be triggered by the adapter. "
-            "You may disable this behavior in the adapter's configuration.",
-            "info"
-       );
-        const_cast<Time&>(runTime_).setEndTime(GREAT);
-    }
-
     } catch (const Foam::error &e) {
         adapterInfo(e.message(), "error-deferred");
         errorsInConfigure = true;
