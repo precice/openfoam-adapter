@@ -29,10 +29,16 @@ ADAPTER_TARGET_DIR="${FOAM_USER_LIBBIN}"
 
 # More information for compatibility with OpenFOAM
 DOC_COMPATIBILITY="https://github.com/precice/openfoam-adapter/wiki/Notes-on-OpenFOAM"
+
+################################################################################
+# Funtion to print to screen and copy to a logfile
+log () {
+    echo "$@" | tee -a "Allwmake.log"
+}
 ################################################################################
 
 # Information header
-echo "Building the OpenFOAM adapter for preCICE..."
+log "Building the OpenFOAM adapter for preCICE..."
 
 # What is going on here:
 # 1. get the colon-separated paths (e.g. the CPLUS_INCLUDE_PATH),
@@ -68,77 +74,77 @@ export ADAPTER_PKG_CONFIG_CFLAGS="`pkg-config --silence-errors --cflags libpreci
 export ADAPTER_PKG_CONFIG_LIBS="`pkg-config --silence-errors --libs libprecice`"
 
 # Check if an OpenFOAM environment is available
-echo ""
-echo "Current OpenFOAM environment:"
-echo "  WM_PROJECT = ${WM_PROJECT}"
-echo "  WM_PROJECT_VERSION = ${WM_PROJECT_VERSION}"
+log ""
+log "Current OpenFOAM environment:"
+log "  WM_PROJECT = ${WM_PROJECT}"
+log "  WM_PROJECT_VERSION = ${WM_PROJECT_VERSION}"
 
 if [ -z "${WM_PROJECT}" ]; then
-    echo ""
-    echo "=== ERROR: It looks like no OpenFOAM environment is available. ==="
-    echo "Possible reasons:"
-    echo "- Have you loaded the OpenFOAM etc/bashrc file?"
-    echo "- Are you using a compatible OpenFOAM version?"
-    echo "  See ${DOC_COMPATIBILITY}"
+    log ""
+    log "=== ERROR: It looks like no OpenFOAM environment is available. ==="
+    log "Possible reasons:"
+    log "- Have you loaded the OpenFOAM etc/bashrc file?"
+    log "- Are you using a compatible OpenFOAM version?"
+    log "  See ${DOC_COMPATIBILITY}"
     exit 1
 fi
 # Check if this is a compatible OpenFOAM environment
 # For now, only check if it is not foam-extend, the main incompatible variant.
 if [ "${WM_PROJECT}" = "foam" ]; then
-    echo ""
-    echo "=== ERROR: foam-extend is not compatible with the adapter."
-    echo "Make sure you are using a compatible OpenFOAM version:"
-    echo "  ${DOC_COMPATIBILITY}"
+    log ""
+    log "=== ERROR: foam-extend is not compatible with the adapter."
+    log "Make sure you are using a compatible OpenFOAM version:"
+    log "  ${DOC_COMPATIBILITY}"
     exit 1
 fi
 
-echo ""
-echo "The adapter will be built into:"
-echo "  ADAPTER_TARGET_DIR    = ${ADAPTER_TARGET_DIR}"
-echo ""
-echo "The following building options will be used:"
-echo "  ADAPTER_PREP_FLAGS    = ${ADAPTER_PREP_FLAGS}"
-echo "  ADAPTER_WMAKE_OPTIONS = ${ADAPTER_WMAKE_OPTIONS}"
+log ""
+log "The adapter will be built into:"
+log "  ADAPTER_TARGET_DIR    = ${ADAPTER_TARGET_DIR}"
+log ""
+log "The following building options will be used:"
+log "  ADAPTER_PREP_FLAGS    = ${ADAPTER_PREP_FLAGS}"
+log "  ADAPTER_WMAKE_OPTIONS = ${ADAPTER_WMAKE_OPTIONS}"
 
-echo ""
-echo "Dependencies (preCICE, yaml-cpp) will be located using the following environment variables:"
-echo "  ADAPTER_PRECICE_ROOT  = ${ADAPTER_PRECICE_ROOT}"
+log ""
+log "Dependencies (preCICE, yaml-cpp) will be located using the following environment variables:"
+log "  ADAPTER_PRECICE_ROOT  = ${ADAPTER_PRECICE_ROOT}"
 if [ "${ADAPTER_PRECICE_DEP}" ]; then
-    echo "      preCICE dependencies:"
-    echo "      ADAPTER_PRECICE_DEP   = ${ADAPTER_PRECICE_DEP}"
+    log "      preCICE dependencies:"
+    log "      ADAPTER_PRECICE_DEP   = ${ADAPTER_PRECICE_DEP}"
 else
-    echo "      preCICE dependencies: not specified (ok if preCICE is built as a shared library)"
+    log "      preCICE dependencies: not specified (ok if preCICE is built as a shared library)"
 fi
-echo "  ADAPTER_PKG_CONFIG_CFLAGS       = ${ADAPTER_PKG_CONFIG_CFLAGS}"
-echo "  ADAPTER_PKG_CONFIG_LIBS         = ${ADAPTER_PKG_CONFIG_LIBS}"
-echo "  ADAPTER_GLOBAL_CPLUS_INC_PATHS  = ${ADAPTER_GLOBAL_CPLUS_INC_PATHS}"
-echo "  ADAPTER_GLOBAL_LD_LIBRARY_PATHS = ${ADAPTER_GLOBAL_LD_LIBRARY_PATHS}"
-echo "  ADAPTER_GLOBAL_LIBRARY_PATHS    = ${ADAPTER_GLOBAL_LIBRARY_PATHS}"
+log "  ADAPTER_PKG_CONFIG_CFLAGS       = ${ADAPTER_PKG_CONFIG_CFLAGS}"
+log "  ADAPTER_PKG_CONFIG_LIBS         = ${ADAPTER_PKG_CONFIG_LIBS}"
+log "  ADAPTER_GLOBAL_CPLUS_INC_PATHS  = ${ADAPTER_GLOBAL_CPLUS_INC_PATHS}"
+log "  ADAPTER_GLOBAL_LD_LIBRARY_PATHS = ${ADAPTER_GLOBAL_LD_LIBRARY_PATHS}"
+log "  ADAPTER_GLOBAL_LIBRARY_PATHS    = ${ADAPTER_GLOBAL_LIBRARY_PATHS}"
 
 # Run wmake (build the adapter) and check the exit code
-echo ""
-echo "Building with WMake (see the wmake.log log file)..."
+log ""
+log "Building with WMake (see the wmake.log log file)..."
 wmake ${ADAPTER_WMAKE_OPTIONS} libso > wmake.log 2>&1
-echo ""
+log ""
 if [ $? -ne 0 ] || [ "$(grep -c -E "error:" wmake.log)" -ne 0 ]; then
-    echo "=== ERROR: Building failed. See wmake.log for more. ==="
-    echo "Possible causes:"
-    echo "- Make sure you are using a compatible version of the adapter for your OpenFOAM version:"
-    echo "  ${DOC_COMPATIBILITY}"
-    echo "- Is preCICE discoverable at compile time? Check the content of ADAPTER_PKG_CONFIG_CFLAGS above."
+    log "=== ERROR: Building failed. See wmake.log for more. ==="
+    log "Possible causes:"
+    log "- Make sure you are using a compatible version of the adapter for your OpenFOAM version:"
+    log "  ${DOC_COMPATIBILITY}"
+    log "- Is preCICE discoverable at compile time? Check the content of ADAPTER_PKG_CONFIG_CFLAGS above."
     exit 1
 else
     ADAPTER_WMAKE_UNDEFINED_SYMBOLS=$(grep -c -E "undefined|not defined" wmake.log)
     ldd -r ${ADAPTER_TARGET_DIR}/libpreciceAdapterFunctionObject.so > ldd.log 2>&1
     ADAPTER_LD_UNDEFINED_SYMBOLS=$(grep -c -E "undefined|not defined" ldd.log)
     if [ "${ADAPTER_WMAKE_UNDEFINED_SYMBOLS}" -gt 0 ] || [ "${ADAPTER_LD_UNDEFINED_SYMBOLS}" -gt 0 ]; then
-        echo "=== ERROR: Building completed with linking problems: there were undefined symbols. ==="
-        echo "Possible causes:"
-        echo "- Is preCICE discoverable at runtime? Check the content of ADAPTER_PKG_CONFIG_LIBS and ADAPTER_GLOBAL_LD_LIBRARY_PATHS above."
-        echo "- If preCICE is (in purpose) only build as a static library, please set the ADAPTER_PRECICE_DEP in this script appropriately (see comments)."
-        echo "See wmake.log and ldd.log for more details."
+        log "=== ERROR: Building completed with linking problems: there were undefined symbols. ==="
+        log "Possible causes:"
+        log "- Is preCICE discoverable at runtime? Check the content of ADAPTER_PKG_CONFIG_LIBS and ADAPTER_GLOBAL_LD_LIBRARY_PATHS above."
+        log "- If preCICE is (in purpose) only build as a static library, please set the ADAPTER_PRECICE_DEP in this script appropriately (see comments)."
+        log "See wmake.log and ldd.log for more details."
     else
-        echo "=== OK: Building completed successfully! ==="
-        echo "Next step: Run an example from the tutorials/ directory."
+        log "=== OK: Building completed successfully! ==="
+        log "Next step: Run an example from the tutorials/ directory."
     fi
 fi
