@@ -3,7 +3,7 @@
 <precice-configuration>
 
     <log>
-        <sink type="stream" output="stdout"  filter= "%Severity% >= debug" format="---[precice] %ColorizedSeverity% %Message%" enabled="true" />	
+        <sink filter= "%Severity% >= debug" format="---[precice] %ColorizedSeverity% %Message%" enabled="true" />
     </log>
 
     <solver-interface dimensions="3">
