@@ -12,4 +12,4 @@ fi
 wclean && echo "Cleaning complete!"
 
 # Delete the log files
-rm -f wmake.log ldd.log
+rm -f Allwmake.log wmake.log ldd.log
