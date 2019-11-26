@@ -88,7 +88,7 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh)
         for (uint j = 0; j < patchIDs_.size(); j++)
         {
             // Get the face centers of the current patch
-            const vectorField & faceCenters =
+            const vectorField faceCenters =
                     mesh.boundaryMesh()[patchIDs_.at(j)].faceCentres();
 
             // Assign the (x,y,z) locations to the vertices
@@ -134,7 +134,7 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh)
             // TODO: Check if this behaves correctly in parallel.
             // TODO: Check if this behaves correctly with multiple, connected patches.
             // TODO: Maybe this should be a pointVectorField?
-            const pointField & faceNodes =
+            const pointField faceNodes =
                     mesh.boundaryMesh()[patchIDs_.at(j)].localPoints();
 
             // Assign the (x,y,z) locations to the vertices
