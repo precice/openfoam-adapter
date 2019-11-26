@@ -88,15 +88,11 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh)
         for (uint j = 0; j < patchIDs_.size(); j++)
         {
             // Get the face centers of the current patch
-            const vectorField & faceCenters =
+            const vectorField faceCenters =
                     mesh.boundaryMesh()[patchIDs_.at(j)].faceCentres();
 
-            // Initialize numFaceCenters to avoid GCC raising -Wmaybe-uninitialized
-            int numFaceCenters = 0;
-            if (faceCenters.size() > 0) numFaceCenters = faceCenters.size();
-
             // Assign the (x,y,z) locations to the vertices
-            for (int i = 0; i < numFaceCenters; i++)
+            for (int i = 0; i < faceCenters.size(); i++)
             {
                 vertices[verticesIndex++] = faceCenters[i].x();
                 vertices[verticesIndex++] = faceCenters[i].y();
@@ -138,16 +134,12 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh)
             // TODO: Check if this behaves correctly in parallel.
             // TODO: Check if this behaves correctly with multiple, connected patches.
             // TODO: Maybe this should be a pointVectorField?
-            const pointField & faceNodes =
+            const pointField faceNodes =
                     mesh.boundaryMesh()[patchIDs_.at(j)].localPoints();
-
-            // Initialize numFaceNodes to avoid GCC raising -Wmaybe-uninitialized
-            int numFaceNodes = 0;
-            if (faceNodes.size() > 0) numFaceNodes = faceNodes.size();
 
             // Assign the (x,y,z) locations to the vertices
             // TODO: Ensure consistent order when writing/reading
-            for (int i = 0; i < numFaceNodes; i++)
+            for (int i = 0; i < faceNodes.size(); i++)
             {
                 vertices[verticesIndex++] = faceNodes[i].x();
                 vertices[verticesIndex++] = faceNodes[i].y();
