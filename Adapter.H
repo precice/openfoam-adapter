@@ -77,7 +77,7 @@ private:
         bool preventEarlyExit_ = true;
 
         //- Switch for evaluating the boundaries after reading a checkpoint.
-        bool evaluateBoundaries_ = true;
+        bool evaluateBoundaries_;
 
         //- Switch to disable the checkpointing
         bool disableCheckpointing_ = false;

@@ -37,7 +37,10 @@ bool preciceAdapter::Adapter::configFileRead()
     );
     
     // Read and display the preCICE configuration file name
-    preciceConfigFilename_ = preciceAdapterDict.lookupType<word>("preciceConfigFile");
+    // NOTE: lookupType<T>("name") is deprecated in openfoam.com since v1812,
+    // which recommends get<T>("name") instead. However, get<T>("name")
+    // is not implemented in openfoam.org at the moment.
+    preciceConfigFilename_ = preciceAdapterDict.lookupType<word>("preciceConfig");
     DEBUG(adapterInfo("  precice-config-file : " + preciceConfigFilename_));
 
     // Read and display the participant name
@@ -49,23 +52,94 @@ bool preciceAdapter::Adapter::configFileRead()
     wordList modules_ = preciceAdapterDict.lookupType<wordList>("modules");
     for (auto module : modules_)
     {
-        DEBUG(adapterInfo("    - " + module + "\n"));
+        DEBUG(adapterInfo("  - " + module + "\n"));
         
         // Set the modules switches
-        // TODO: This is a temporary workaround for the previous implementation
         if (module == "CHT") CHTenabled_ = true;
         if (module == "FSI") FSIenabled_ = true;
     }
 
-    // Read the list of coupling interfaces
+    // Every interface is a subdictionary of "interfaces",
+    // each with an arbitrary name. Read all of them and create
+    // a list (here: pointer) of dictionaries.
+    const dictionary * interfaceDictPtr = preciceAdapterDict.findDict("interfaces");
     DEBUG(adapterInfo("  interfaces : "));
-    wordList interfaces_ = preciceAdapterDict.lookupType<wordList>("interfaces");
-    for (auto interface : interfaces_)
-    {
-        struct InterfaceConfig interfaceConfig;
 
-        // we actually need something like an interfaceConfigList...
+    // Check if we found any interfaces
+    // and get the details of each interface
+    if (!interfaceDictPtr)
+    {
+      adapterInfo("  Empty list of interfaces", "error-deferred");
+      return false;
     }
+    else
+    {
+      for (const entry& interfaceDictEntry : *interfaceDictPtr)
+      {
+        if(interfaceDictEntry.isDict())
+        {
+          dictionary interfaceDict = interfaceDictEntry.dict();
+          struct InterfaceConfig interfaceConfig;
+          
+          interfaceConfig.meshName = interfaceDict.lookupType<word>("mesh");
+          DEBUG(adapterInfo("  - mesh         : " + interfaceConfig.meshName));
+          
+          // By default, assume "faceCenters" as locationsType
+          interfaceConfig.locationsType = interfaceDict.lookupOrDefault<word>("locations", "faceCenters");
+          DEBUG(adapterInfo("    locations    : " + interfaceConfig.locationsType));
+          
+          // By default, assume that no mesh connectivity is required (i.e. no nearest-projection mapping)
+          interfaceConfig.meshConnectivity = interfaceDict.lookupOrDefault<bool>("connectivity", false);
+          // Mesh connectivity only makes sense in case of faceNodes, check and raise a warning otherwise
+          if(interfaceConfig.meshConnectivity && interfaceConfig.locationsType == "faceCenters")
+          {
+              DEBUG(adapterInfo("Mesh connectivity is not supported for faceCenters. \n"
+                                "Please configure the desired interface with the locationsType faceNodes. \n"
+                                "Have a look in the adapter wiki on Github or the tutorial case for detailed information.", "warning"));
+              return false;
+          }
+          DEBUG(adapterInfo("    connectivity : " + std::to_string(interfaceConfig.meshConnectivity)));
+          
+          DEBUG(adapterInfo("    patches      : "));
+          wordList patches = interfaceDict.lookupType<wordList>("patches");
+          for (auto patch : patches)
+          {
+            interfaceConfig.patchNames.push_back(patch);
+            DEBUG(adapterInfo("      - " + patch));
+          }
+          
+          DEBUG(adapterInfo("    writeData    : "));
+          wordList writeData = interfaceDict.lookupType<wordList>("writeData");
+          for (auto writeDatum : writeData)
+          {
+            interfaceConfig.writeData.push_back(writeDatum);
+            DEBUG(adapterInfo("      - " + writeDatum));
+          }
+          
+          DEBUG(adapterInfo("    readData     : "));
+          wordList readData = interfaceDict.lookupType<wordList>("readData");
+          for (auto readDatum : readData)
+          {
+            interfaceConfig.readData.push_back(readDatum);
+            DEBUG(adapterInfo("      - " + readDatum));
+          }
+          interfacesConfig_.push_back(interfaceConfig);
+        }
+      }
+    }
+    
+    // Set the evaluateBoundaries_ switch
+    evaluateBoundaries_ = preciceAdapterDict.lookupOrDefault<bool>("evaluateBoundaries", true);
+    DEBUG(adapterInfo("  evaluate boundaries : " + std::to_string(evaluateBoundaries_)));
+
+    if (!CHTenabled_ && !FSIenabled_) // NOTE: Add your new switch here
+    {
+        adapterInfo("No module is enabled.", "error-deferred");
+        return false;
+    }
+
+    // TODO: Loading modules should be implemented in more general way,
+    // in order to avoid code duplication. See issue #16 on GitHub.
 
     return true;
 }

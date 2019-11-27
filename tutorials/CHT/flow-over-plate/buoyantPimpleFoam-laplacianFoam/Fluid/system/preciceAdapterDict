@@ -1,0 +1,65 @@
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      preciceAdapterDict;
+}
+
+preciceConfig precice-config.xml;
+
+participant Fluid;
+
+modules (CHT);
+
+interfaces
+{
+  Solid_to_Inner_Fluid
+  {
+    mesh              Solid-to-Inner-Fluid;
+    locations         faceNodes;
+    connectivity      true;
+    patches           (inner-interface);
+    
+    readData
+    (
+      Sink-Temperature-Inner-Fluid
+      Heat-Transfer-Coefficient-Inner-Fluid
+    );
+    
+    writeData
+    (
+      Sink-Temperature-Solid
+      Heat-Transfer-Coefficient-Solid
+    );
+  };
+  
+  Solid_to_Outer_Fluid
+  {
+    mesh        Solid-to-Outer-Fluid;
+    patches     (outer-interface);
+    
+    readData
+    (
+      Sink-Temperature-Outer-Fluid
+      Heat-Transfer-Coefficient-Outer-Fluid
+    );
+    
+    writeData
+    (
+      Sink-Temperature-Solid
+      Heat-Transfer-Coefficient-Solid
+    );
+  };
+};
+
+// CHT
+// {
+//   solverType compresible;
+//   rho [ 1 -3  0  0 0 0 0 ] 50;
+//   Cp  [ 0  2 -2 -1 0 0 0 ] 5;
+//   k   [ 1  1 -3 -1 0 0 0 ] 100;
+// };
+
+evaluateBoundaries false;
