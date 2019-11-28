@@ -4,7 +4,7 @@ FoamFile
     format      ascii;
     class       dictionary;
     location    "system";
-    object      preciceAdapterDict;
+    object      preciceDict;
 }
 
 preciceConfig precice-config.xml;

@@ -22,13 +22,13 @@ preciceAdapter::Adapter::Adapter(const Time& runTime, const fvMesh& mesh)
 
 bool preciceAdapter::Adapter::configFileRead()
 {
-    adapterInfo("Reading preciceAdapterDict...", "info");
+    adapterInfo("Reading preciceDict...", "info");
 
-    IOdictionary preciceAdapterDict
+    IOdictionary preciceDict
     (
         IOobject
         (
-            "preciceAdapterDict",
+            "preciceDict",
             runTime_.system(),
             mesh_,
             IOobject::MUST_READ_IF_MODIFIED,
@@ -40,16 +40,16 @@ bool preciceAdapter::Adapter::configFileRead()
     // NOTE: lookupType<T>("name") is deprecated in openfoam.com since v1812,
     // which recommends get<T>("name") instead. However, get<T>("name")
     // is not implemented in openfoam.org at the moment.
-    preciceConfigFilename_ = preciceAdapterDict.lookupType<word>("preciceConfig");
+    preciceConfigFilename_ = preciceDict.lookupType<word>("preciceConfig");
     DEBUG(adapterInfo("  precice-config-file : " + preciceConfigFilename_));
 
     // Read and display the participant name
-    participantName_ = preciceAdapterDict.lookupType<word>("participant");
+    participantName_ = preciceDict.lookupType<word>("participant");
     DEBUG(adapterInfo("  participant name    : " + participantName_));
 
     // Read and display the list of modules
     DEBUG(adapterInfo("  modules requested   : "));
-    wordList modules_ = preciceAdapterDict.lookupType<wordList>("modules");
+    wordList modules_ = preciceDict.lookupType<wordList>("modules");
     for (auto module : modules_)
     {
         DEBUG(adapterInfo("  - " + module + "\n"));
@@ -62,7 +62,7 @@ bool preciceAdapter::Adapter::configFileRead()
     // Every interface is a subdictionary of "interfaces",
     // each with an arbitrary name. Read all of them and create
     // a list (here: pointer) of dictionaries.
-    const dictionary * interfaceDictPtr = preciceAdapterDict.findDict("interfaces");
+    const dictionary * interfaceDictPtr = preciceDict.findDict("interfaces");
     DEBUG(adapterInfo("  interfaces : "));
 
     // Check if we found any interfaces
@@ -129,7 +129,7 @@ bool preciceAdapter::Adapter::configFileRead()
     }
     
     // Set the evaluateBoundaries_ switch
-    evaluateBoundaries_ = preciceAdapterDict.lookupOrDefault<bool>("evaluateBoundaries", true);
+    evaluateBoundaries_ = preciceDict.lookupOrDefault<bool>("evaluateBoundaries", true);
     DEBUG(adapterInfo("  evaluate boundaries : " + std::to_string(evaluateBoundaries_)));
 
     if (!CHTenabled_ && !FSIenabled_) // NOTE: Add your new switch here
