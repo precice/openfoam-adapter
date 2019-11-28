@@ -136,7 +136,7 @@ bool preciceAdapter::Adapter::configFileRead()
 
     if (!CHTenabled_ && !FSIenabled_) // NOTE: Add your new switch here
     {
-        adapterInfo("No module is enabled.", "warning");
+        adapterInfo("No module is enabled.", "error-deferred");
         return false;
     }
 
@@ -301,7 +301,7 @@ void preciceAdapter::Adapter::configure()
         }
 
     } catch (const Foam::error &e) {
-        adapterInfo(e.message(), "info");
+        adapterInfo(e.message(), "error-deferred");
         errorsInConfigure = true;
     }
 
@@ -843,10 +843,7 @@ void preciceAdapter::Adapter::setupCheckpointing()
     */
 
     // Print the available objects of type volScalarField
-    DEBUG(adapterInfo("Available objects of type volScalarField : "));
-#ifdef ADAPTER_DEBUG_MODE
-    Info << mesh_.lookupClass<volScalarField>() << nl << nl;
-#endif
+    DEBUG(adapterInfo("Collecting objects of type volScalarField... "));
 
     wordList objectNames_ = mesh_.lookupClass<volScalarField>().toc();
 
@@ -859,15 +856,14 @@ void preciceAdapter::Adapter::setupCheckpointing()
                         const_cast<volScalarField&>
                         (
                             mesh_.lookupObject<volScalarField>(objectNames_[i])
-                            )
-                        );
+                        )
+                    );
 
 #ifdef ADAPTER_DEBUG_MODE
             adapterInfo
                     (
-                        "Added " + objectNames_[i] +
-                        " in the list of checkpointed fields."
-                        );
+                        "Will be checkpointing " + objectNames_[i]
+                    );
 #endif
 
             // TODO: Known bug, see readCheckpoint()
@@ -889,10 +885,7 @@ void preciceAdapter::Adapter::setupCheckpointing()
     */
 
     // Print the available objects of type volVectorField
-    DEBUG(adapterInfo("Available objects of type volVectorField : "));
-#ifdef ADAPTER_DEBUG_MODE
-    Info << mesh_.lookupClass<volVectorField>() << nl << nl;
-#endif
+    DEBUG(adapterInfo("Collecting objects of type volVectorField... "));
 
     objectNames_ = mesh_.lookupClass<volVectorField>().toc();
 
@@ -905,15 +898,14 @@ void preciceAdapter::Adapter::setupCheckpointing()
                         const_cast<volVectorField&>
                         (
                             mesh_.lookupObject<volVectorField>(objectNames_[i])
-                            )
-                        );
+                        )
+                    );
 
 #ifdef ADAPTER_DEBUG_MODE
             adapterInfo
                     (
-                        "Added " + objectNames_[i] +
-                        " in the list of checkpointed fields."
-                        );
+                        "Will be checkpointing " + objectNames_[i]
+                    );
 #endif
         }
         else
@@ -923,10 +915,7 @@ void preciceAdapter::Adapter::setupCheckpointing()
     }
 
     // Print the available objects of type surfaceScalarField
-    DEBUG(adapterInfo("Available objects of type surfaceScalarField : "));
-#ifdef ADAPTER_DEBUG_MODE
-    Info << mesh_.lookupClass<surfaceScalarField>() << nl << nl;
-#endif
+    DEBUG(adapterInfo("Collecting objects of type surfaceScalarField..."));
 
     /* Find and add all the registered objects in the mesh_
        of type surfaceScalarField
@@ -942,15 +931,14 @@ void preciceAdapter::Adapter::setupCheckpointing()
                         const_cast<surfaceScalarField&>
                         (
                             mesh_.lookupObject<surfaceScalarField>(objectNames_[i])
-                            )
-                        );
+                        )
+                    );
 
 #ifdef ADAPTER_DEBUG_MODE
             adapterInfo
                     (
-                        "Added " + objectNames_[i] +
-                        " in the list of checkpointed fields."
-                        );
+                        "Will be checkpointing " + objectNames_[i]
+                    );
 #endif
         }
         else
@@ -964,10 +952,7 @@ void preciceAdapter::Adapter::setupCheckpointing()
     */
 
     // Print the available objects of type surfaceVectorField
-    DEBUG(adapterInfo("Available objects of type surfaceVectorField : "));
-#ifdef ADAPTER_DEBUG_MODE
-    Info << mesh_.lookupClass<surfaceVectorField>() << nl << nl;
-#endif
+    DEBUG(adapterInfo("Collecting objects of type surfaceVectorField..."));
 
     objectNames_ = mesh_.lookupClass<surfaceVectorField>().toc();
 
@@ -980,15 +965,14 @@ void preciceAdapter::Adapter::setupCheckpointing()
                         const_cast<surfaceVectorField&>
                         (
                             mesh_.lookupObject<surfaceVectorField>(objectNames_[i])
-                            )
-                        );
+                        )
+                    );
 
 #ifdef ADAPTER_DEBUG_MODE
             adapterInfo
                     (
-                        "Added " + objectNames_[i] +
-                        " in the list of checkpointed fields."
-                        );
+                        "Will be checkpointing " + objectNames_[i]
+                    );
 #endif
         }
         else
@@ -1002,10 +986,7 @@ void preciceAdapter::Adapter::setupCheckpointing()
     */
 
     // Print the available objects of type pointScalarField
-    DEBUG(adapterInfo("Available objects of type pointScalarField : "));
-#ifdef ADAPTER_DEBUG_MODE
-    Info << mesh_.lookupClass<pointScalarField>() << nl << nl;
-#endif
+    DEBUG(adapterInfo("Collecting objects of type pointScalarField..."));
 
     objectNames_ = mesh_.lookupClass<pointScalarField>().toc();
 
@@ -1018,15 +999,14 @@ void preciceAdapter::Adapter::setupCheckpointing()
                         const_cast<pointScalarField&>
                         (
                             mesh_.lookupObject<pointScalarField>(objectNames_[i])
-                            )
-                        );
+                        )
+                    );
 
 #ifdef ADAPTER_DEBUG_MODE
             adapterInfo
                     (
-                        "Added " + objectNames_[i] +
-                        " in the list of checkpointed fields."
-                        );
+                        "Will be checkpointing " + objectNames_[i]
+                    );
 #endif
         }
         else
@@ -1040,10 +1020,7 @@ void preciceAdapter::Adapter::setupCheckpointing()
     */
 
     // Print the available objects of type pointVectorField
-    DEBUG(adapterInfo("Available objects of type pointVectorField : "));
-#ifdef ADAPTER_DEBUG_MODE
-    Info << mesh_.lookupClass<pointVectorField>() << nl << nl;
-#endif
+    DEBUG(adapterInfo("Collecting objects of type pointVectorField..."));
 
     objectNames_ = mesh_.lookupClass<pointVectorField>().toc();
 
@@ -1056,15 +1033,14 @@ void preciceAdapter::Adapter::setupCheckpointing()
                         const_cast<pointVectorField&>
                         (
                             mesh_.lookupObject<pointVectorField>(objectNames_[i])
-                            )
-                        );
+                        )
+                    );
 
 #ifdef ADAPTER_DEBUG_MODE
             adapterInfo
                     (
-                        "Added " + objectNames_[i] +
-                        " in the list of checkpointed fields."
-                        );
+                        "Will be checkpointing " + objectNames_[i]
+                    );
 #endif
         }
         else
@@ -1080,10 +1056,7 @@ void preciceAdapter::Adapter::setupCheckpointing()
     */
 
     // Print the available objects of type volTensorField
-    DEBUG(adapterInfo("Available objects of type volTensorField : "));
-#ifdef ADAPTER_DEBUG_MODE
-    Info << mesh_.lookupClass<volTensorField>() << nl << nl;
-#endif
+    DEBUG(adapterInfo("Collecting objects of type volTensorField..."));
 
     objectNames_ = mesh_.lookupClass<volTensorField>().toc();
 
@@ -1096,15 +1069,14 @@ void preciceAdapter::Adapter::setupCheckpointing()
                         const_cast<volTensorField&>
                         (
                             mesh_.lookupObject<volTensorField>(objectNames_[i])
-                            )
-                        );
+                        )
+                    );
 
 #ifdef ADAPTER_DEBUG_MODE
             adapterInfo
                     (
-                        "Added " + objectNames_[i] +
-                        " in the list of checkpointed fields."
-                        );
+                        "Will be checkpointing " + objectNames_[i]
+                    );
 #endif
         }
         else
@@ -1119,10 +1091,7 @@ void preciceAdapter::Adapter::setupCheckpointing()
        of type surfaceTensorField
     */
 
-    DEBUG(adapterInfo("Available objects of type surfaceTensorField : "));
-#ifdef ADAPTER_DEBUG_MODE
-    Info << mesh_.lookupClass<surfaceTensorField>() << nl << nl;
-#endif
+    DEBUG(adapterInfo("Collecting objects of type surfaceTensorField..."));
 
     objectNames_ = mesh_.lookupClass<surfaceTensorField>().toc();
 
@@ -1135,15 +1104,14 @@ void preciceAdapter::Adapter::setupCheckpointing()
                         const_cast<surfaceTensorField&>
                         (
                             mesh_.lookupObject<surfaceTensorField>(objectNames_[i])
-                            )
-                        );
+                        )
+                    );
 
 #ifdef ADAPTER_DEBUG_MODE
             adapterInfo
                     (
-                        "Added " + objectNames_[i] +
-                        " in the list of checkpointed fields."
-                        );
+                        "Will be checkpointing " + objectNames_[i]
+                    );
 #endif
         }
         else
@@ -1156,10 +1124,7 @@ void preciceAdapter::Adapter::setupCheckpointing()
        of type pointTensorField
     */
 
-    DEBUG(adapterInfo("Available objects of type pointTensorField : "));
-#ifdef ADAPTER_DEBUG_MODE
-    Info << mesh_.lookupClass<pointTensorField>() << nl << nl;
-#endif
+    DEBUG(adapterInfo("Collecting objects of type pointTensorField..."));
 
     objectNames_ = mesh_.lookupClass<pointTensorField>().toc();
 
@@ -1172,15 +1137,14 @@ void preciceAdapter::Adapter::setupCheckpointing()
                         const_cast<pointTensorField&>
                         (
                             mesh_.lookupObject<pointTensorField>(objectNames_[i])
-                            )
-                        );
+                        )
+                    );
 
 #ifdef ADAPTER_DEBUG_MODE
             adapterInfo
                     (
-                        "Added " + objectNames_[i] +
-                        " in the list of checkpointed fields."
-                        );
+                        "Will be checkpointing " + objectNames_[i]
+                    );
 #endif
         }
         else
@@ -1195,10 +1159,7 @@ void preciceAdapter::Adapter::setupCheckpointing()
        of type volSymmTensorField
     */
 
-    DEBUG(adapterInfo("Available objects of type volSymmTensorField : "));
-#ifdef ADAPTER_DEBUG_MODE
-    Info << mesh_.lookupClass<volSymmTensorField>() << nl << nl;
-#endif
+    DEBUG(adapterInfo("Collecting objects of type volSymmTensorField..."));
 
     objectNames_ = mesh_.lookupClass<volSymmTensorField>().toc();
 
@@ -1211,15 +1172,14 @@ void preciceAdapter::Adapter::setupCheckpointing()
                         const_cast<volSymmTensorField&>
                         (
                             mesh_.lookupObject<volSymmTensorField>(objectNames_[i])
-                            )
-                        );
+                        )
+                    );
 
 #ifdef ADAPTER_DEBUG_MODE
             adapterInfo
                     (
-                        "Added " + objectNames_[i] +
-                        " in the list of checkpointed fields."
-                        );
+                        "Will be checkpointing " + objectNames_[i]
+                    );
 #endif
         }
         else
