@@ -15,7 +15,7 @@ modules (CHT);
 
 interfaces
 {
-  Solid_to_Inner_Fluid
+  Interface1
   {
     mesh              Solid-to-Inner-Fluid;
     locations         faceNodes;
@@ -35,7 +35,7 @@ interfaces
     );
   };
   
-  Solid_to_Outer_Fluid
+  Interface2
   {
     mesh        Solid-to-Outer-Fluid;
     patches     (outer-interface);
