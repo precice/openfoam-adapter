@@ -22,8 +22,14 @@ preciceAdapter::Adapter::Adapter(const Time& runTime, const fvMesh& mesh)
 
 bool preciceAdapter::Adapter::configFileRead()
 {
-    adapterInfo("Reading preciceDict...", "info");
+    if (!mesh_.foundObject<IOdictionary>("preciceDict"))
+    {
+      DEBUG(adapterInfo("Configuration file system/preciceDict not found!", "warning"));
+      return false;
+    }
 
+    adapterInfo("Reading preciceDict...", "info");
+    
     IOdictionary preciceDict
     (
         IOobject
@@ -69,7 +75,7 @@ bool preciceAdapter::Adapter::configFileRead()
     // and get the details of each interface
     if (!interfaceDictPtr)
     {
-      adapterInfo("  Empty list of interfaces", "error-deferred");
+      adapterInfo("  Empty list of interfaces", "warning");
       return false;
     }
     else
@@ -134,7 +140,7 @@ bool preciceAdapter::Adapter::configFileRead()
 
     if (!CHTenabled_ && !FSIenabled_) // NOTE: Add your new switch here
     {
-        adapterInfo("No module is enabled.", "error-deferred");
+        adapterInfo("No module is enabled.", "warning");
         return false;
     }
 
