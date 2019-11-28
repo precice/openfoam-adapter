@@ -12,7 +12,7 @@ preciceAdapter::CHT::ConjugateHeatTransfer::ConjugateHeatTransfer
 mesh_(mesh)
 {}
 
-bool preciceAdapter::CHT::ConjugateHeatTransfer::configure(const YAML::Node adapterConfig)
+bool preciceAdapter::CHT::ConjugateHeatTransfer::configure(const IOdictionary adapterConfig)
 {
     DEBUG(adapterInfo("Configuring the CHT module..."));
 
@@ -45,62 +45,40 @@ bool preciceAdapter::CHT::ConjugateHeatTransfer::configure(const YAML::Node adap
     return true;
 }
 
-bool preciceAdapter::CHT::ConjugateHeatTransfer::readConfig(const YAML::Node adapterConfig)
+bool preciceAdapter::CHT::ConjugateHeatTransfer::readConfig(const IOdictionary adapterConfig)
 {
+    const dictionary CHTdict = adapterConfig.findDict("CHT");
+  
     // Read the solver type (if not specified, it is determined automatically)
-    if (adapterConfig["solverType"])
-    {
-        solverType_ = adapterConfig["solverType"].as<std::string>();
-    }
+    solverType_ = CHTdict.lookupOrDefault<word>("solverType", "");
     DEBUG(adapterInfo("    user-defined solver type : " + solverType_));
 
     // Read the name of the temperature field (if different)
-    if (adapterConfig["nameT"])
-    {
-        nameT_ = adapterConfig["nameT"].as<std::string>();
-    }
+    nameT_ = CHTdict.lookupOrDefault<word>("nameT", "T");
     DEBUG(adapterInfo("    temperature field name : " + nameT_));
 
     // Read the name of the transportProperties dictionary (if different)
-    if (adapterConfig["nameTransportProperties"])
-    {
-        nameTransportProperties_ = adapterConfig["nameTransportProperties"].as<std::string>();
-    }
+    nameTransportProperties_ = CHTdict.lookupOrDefault<word>("nameTransportProperties", "transportProperties");
     DEBUG(adapterInfo("    transportProperties name : " + nameTransportProperties_));
 
     // Read the name of the conductivity parameter for basic solvers (if different)
-    if (adapterConfig["nameKappa"])
-    {
-        nameKappa_ = adapterConfig["nameKappa"].as<std::string>();
-    }
+    nameKappa_ = CHTdict.lookupOrDefault<word>("nameKappa", "k");
     DEBUG(adapterInfo("    conductivity name for basic solvers : " + nameKappa_));
 
     // Read the name of the density parameter for incompressible solvers (if different)
-    if (adapterConfig["nameRho"])
-    {
-        nameRho_ = adapterConfig["nameRho"].as<std::string>();
-    }
+    nameRho_ = CHTdict.lookupOrDefault<word>("nameRho", "rho");
     DEBUG(adapterInfo("    density name for incompressible solvers : " + nameRho_));
 
     // Read the name of the heat capacity parameter for incompressible solvers (if different)
-    if (adapterConfig["nameCp"])
-    {
-        nameCp_ = adapterConfig["nameCp"].as<std::string>();
-    }
+    nameCp_ = CHTdict.lookupOrDefault<word>("nameCp", "Cp");
     DEBUG(adapterInfo("    heat capacity name for incompressible solvers : " + nameCp_));
 
     // Read the name of the Prandtl number parameter for incompressible solvers (if different)
-    if (adapterConfig["namePr"])
-    {
-        namePr_ = adapterConfig["namePr"].as<std::string>();
-    }
+    namePr_ = CHTdict.lookupOrDefault<word>("namePr","Pr");
     DEBUG(adapterInfo("    Prandtl number name for incompressible solvers : " + namePr_));
 
     // Read the name of the turbulent thermal diffusivity field for incompressible solvers (if different)
-    if (adapterConfig["nameAlphat"])
-    {
-        nameAlphat_ = adapterConfig["nameAlphat"].as<std::string>();
-    }
+    nameAlphat_ = CHTdict.lookupOrDefault<word>("nameAlphat", "alphat");
     DEBUG(adapterInfo("    Turbulent thermal diffusivity field name for incompressible solvers : " + nameAlphat_));
 
     return true;

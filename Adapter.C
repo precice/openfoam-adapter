@@ -134,6 +134,39 @@ bool preciceAdapter::Adapter::configFileRead()
     evaluateBoundaries_ = preciceDict.lookupOrDefault<bool>("evaluateBoundaries", true);
     DEBUG(adapterInfo("  evaluate boundaries : " + std::to_string(evaluateBoundaries_)));
 
+    // If the CHT module is enabled, create it, read the
+    // CHT-specific options and configure it.
+    if (CHTenabled_)
+    {
+        CHT_ = new CHT::ConjugateHeatTransfer(mesh_);
+        if (!CHT_->configure(preciceDict)) return false;
+    }
+
+    // If the FSI module is enabled, create it, read the
+    // FSI-specific options and configure it.
+    if (FSIenabled_)
+    {
+        // Check for unsupported FSI with meshConnectivity
+        for (uint i = 0; i < interfacesConfig_.size(); i++)
+        {
+            if(interfacesConfig_.at(i).meshConnectivity == true )
+            {
+                adapterInfo(
+                    "Mesh connectivity is not supported for FSI, as, usually, "
+                    "the Solid participant needs to provide the connectivity information. "
+                    "Therefore, set provideMeshConnectivity = false. "
+                    "Have a look in the tutorial README or the Github wiki for detailed information. "
+                    ,"warning");
+                    return false;
+            }
+        }
+
+        FSI_ = new FSI::FluidStructureInteraction(mesh_, runTime_);
+        if (!FSI_->configure(preciceDict)) return false;
+    }
+
+    // NOTE: Create your module and read any options specific to it here
+
     if (!CHTenabled_ && !FSIenabled_) // NOTE: Add your new switch here
     {
         adapterInfo("No module is enabled.", "error-deferred");

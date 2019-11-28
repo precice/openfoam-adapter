@@ -11,7 +11,7 @@ preciceConfig precice-config.xml;
 
 participant Fluid;
 
-modules (CHT);
+modules (CHT FSI);
 
 interfaces
 {
@@ -19,7 +19,7 @@ interfaces
   {
     mesh              Solid-to-Inner-Fluid;
     locations         faceNodes;
-    connectivity      true;
+    connectivity      false;
     patches           (inner-interface);
     
     readData
@@ -54,12 +54,19 @@ interfaces
   };
 };
 
-// CHT
-// {
-//   solverType compresible;
+CHT
+{
+   solverType compresible;
+   nameT T1;
+   nameTransportProperties transportProperties1;
+   nameKappa k1;
+   nameRho rho1;
+   nameCp Cp1;
+   namePr Pr1;
+   nameAlphat alphat1;
 //   rho [ 1 -3  0  0 0 0 0 ] 50;
 //   Cp  [ 0  2 -2 -1 0 0 0 ] 5;
 //   k   [ 1  1 -3 -1 0 0 0 ] 100;
-// };
+};
 
 evaluateBoundaries false;

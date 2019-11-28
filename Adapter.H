@@ -18,9 +18,6 @@
 #include "Time.H"
 #include "fvMesh.H"
 
-// Other header files
-// YAML reader - Used to read the adapter's configuration file.
-#include "yaml-cpp/yaml.h"
 // preCICE Solver Interface
 #include "precice/SolverInterface.hpp"
 
