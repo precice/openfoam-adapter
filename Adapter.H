@@ -63,9 +63,6 @@ private:
         //- preCICE participant name
         Foam::word participantName_;
 
-        //- Switch for subcycling
-        bool subcyclingAllowed_ = true;
-
         //- Switch for checkpointing
         bool checkpointing_ = false;
 

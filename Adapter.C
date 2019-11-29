@@ -577,34 +577,22 @@ void preciceAdapter::Adapter::adjustSolverTimeStep()
 
     if (timestepSolverDetermined < timestepPrecice_)
     {
-        if (!subcyclingAllowed_)
+        // Add a bool 'subCycling = true' which is checked in the storeMeshPoints() function.
+        adapterInfo
+                (
+                    "The solver's timestep is smaller than the "
+                    "coupling timestep. Subcycling...",
+                    "info"
+                    );
+        timestepSolver_ = timestepSolverDetermined;
+        // TODO subcycling is enabled. For FSI the oldVolumes must be written, which is normally not done.
+        if (FSIenabled_)
         {
             adapterInfo
                     (
-                        "The solver's timestep cannot be smaller than the "
-                        "coupling timestep, because subcycling is disabled. ",
-                        "error"
+                        "The adapter does not fully support subcycling for FSI and instabilities may occur.",
+                        "warning"
                         );
-        }
-        else
-        {
-            // Add a bool 'subCycling = true' which is checked in the storeMeshPoints() function.
-            adapterInfo
-                    (
-                        "The solver's timestep is smaller than the "
-                        "coupling timestep. Subcycling...",
-                        "info"
-                        );
-            timestepSolver_ = timestepSolverDetermined;
-            // TODO subcycling is enabled. For FSI the oldVolumes must be written, which is normally not done.
-            if (FSIenabled_)
-            {
-                adapterInfo
-                        (
-                            "The adapter does not fully support subcycling for FSI and instabilities may occur.",
-                            "warning"
-                            );
-            }
         }
     }
     else if (timestepSolverDetermined > timestepPrecice_)
