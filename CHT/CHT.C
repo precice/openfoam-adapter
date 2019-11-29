@@ -57,10 +57,6 @@ bool preciceAdapter::CHT::ConjugateHeatTransfer::readConfig(const IOdictionary a
     nameT_ = CHTdict.lookupOrDefault<word>("nameT", "T");
     DEBUG(adapterInfo("    temperature field name : " + nameT_));
 
-    // Read the name of the transportProperties dictionary (if different)
-    nameTransportProperties_ = CHTdict.lookupOrDefault<word>("nameTransportProperties", "transportProperties");
-    DEBUG(adapterInfo("    transportProperties name : " + nameTransportProperties_));
-
     // Read the name of the conductivity parameter for basic solvers (if different)
     nameKappa_ = CHTdict.lookupOrDefault<word>("nameKappa", "k");
     DEBUG(adapterInfo("    conductivity name for basic solvers : " + nameKappa_));
@@ -98,7 +94,7 @@ std::string preciceAdapter::CHT::ConjugateHeatTransfer::determineSolverType()
     bool turbulencePropertiesExists = false;
     bool thermophysicalPropertiesExists = false;
 
-    if (mesh_.foundObject<IOdictionary>(nameTransportProperties_))
+    if (mesh_.foundObject<IOdictionary>("transportProperties"))
     {
         transportPropertiesExists = true;
         DEBUG(adapterInfo("Found the transportProperties dictionary."));
@@ -209,7 +205,7 @@ void preciceAdapter::CHT::ConjugateHeatTransfer::addWriters(std::string dataName
             interface->addCouplingDataWriter
             (
                 dataName,
-                new HeatFlux_Incompressible(mesh_, nameT_, nameTransportProperties_, nameRho_, nameCp_, namePr_, nameAlphat_)
+                new HeatFlux_Incompressible(mesh_, nameT_, nameRho_, nameCp_, namePr_, nameAlphat_)
             );
             DEBUG(adapterInfo("Added writer: Heat Flux for incompressible solvers. "));
         }
@@ -218,7 +214,7 @@ void preciceAdapter::CHT::ConjugateHeatTransfer::addWriters(std::string dataName
             interface->addCouplingDataWriter
             (
                 dataName,
-                new HeatFlux_Basic(mesh_, nameT_, nameTransportProperties_, nameKappa_)
+                new HeatFlux_Basic(mesh_, nameT_, nameKappa_)
             );
             DEBUG(adapterInfo("Added writer: Heat Flux for basic solvers. "));
         }
@@ -244,7 +240,7 @@ void preciceAdapter::CHT::ConjugateHeatTransfer::addWriters(std::string dataName
             interface->addCouplingDataWriter
             (
                 dataName,
-                new HeatTransferCoefficient_Incompressible(mesh_, nameT_, nameTransportProperties_, nameRho_, nameCp_, namePr_, nameAlphat_)
+                new HeatTransferCoefficient_Incompressible(mesh_, nameT_, nameRho_, nameCp_, namePr_, nameAlphat_)
             );
             DEBUG(adapterInfo("Added writer: Heat Transfer Coefficient for incompressible solvers. "));
         }
@@ -253,7 +249,7 @@ void preciceAdapter::CHT::ConjugateHeatTransfer::addWriters(std::string dataName
             interface->addCouplingDataWriter
             (
                 dataName,
-                new HeatTransferCoefficient_Basic(mesh_, nameT_, nameTransportProperties_, nameKappa_)
+                new HeatTransferCoefficient_Basic(mesh_, nameT_, nameKappa_)
             );
             DEBUG(adapterInfo("Added writer: Heat Transfer Coefficient for basic solvers. "));
         }
@@ -311,7 +307,7 @@ void preciceAdapter::CHT::ConjugateHeatTransfer::addReaders(std::string dataName
             interface->addCouplingDataReader
             (
                 dataName,
-                new HeatFlux_Incompressible(mesh_, nameT_, nameTransportProperties_, nameRho_, nameCp_, namePr_, nameAlphat_)
+                new HeatFlux_Incompressible(mesh_, nameT_, nameRho_, nameCp_, namePr_, nameAlphat_)
             );
             DEBUG(adapterInfo("Added reader: Heat Flux for incompressible solvers. "));
         }
@@ -320,7 +316,7 @@ void preciceAdapter::CHT::ConjugateHeatTransfer::addReaders(std::string dataName
             interface->addCouplingDataReader
             (
                 dataName,
-                new HeatFlux_Basic(mesh_, nameT_, nameTransportProperties_, nameKappa_)
+                new HeatFlux_Basic(mesh_, nameT_, nameKappa_)
             );
             DEBUG(adapterInfo("Added reader: Heat Flux for basic solvers. "));
         }
@@ -346,7 +342,7 @@ void preciceAdapter::CHT::ConjugateHeatTransfer::addReaders(std::string dataName
             interface->addCouplingDataReader
             (
                 dataName,
-                new HeatTransferCoefficient_Incompressible(mesh_, nameT_, nameTransportProperties_, nameRho_, nameCp_, namePr_, nameAlphat_)
+                new HeatTransferCoefficient_Incompressible(mesh_, nameT_, nameRho_, nameCp_, namePr_, nameAlphat_)
             );
             DEBUG(adapterInfo("Added reader: Heat Transfer Coefficient for incompressible solvers. "));
         }
@@ -355,7 +351,7 @@ void preciceAdapter::CHT::ConjugateHeatTransfer::addReaders(std::string dataName
             interface->addCouplingDataReader
             (
                 dataName,
-                new HeatTransferCoefficient_Basic(mesh_, nameT_, nameTransportProperties_, nameKappa_)
+                new HeatTransferCoefficient_Basic(mesh_, nameT_, nameKappa_)
             );
             DEBUG(adapterInfo("Added reader: Heat Transfer Coefficient for basic solvers. "));
         }

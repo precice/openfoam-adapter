@@ -148,7 +148,6 @@ preciceAdapter::CHT::HeatFlux_Incompressible::HeatFlux_Incompressible
 (
         const Foam::fvMesh& mesh,
         const std::string nameT,
-        const std::string nameTransportProperties,
         const std::string nameRho,
         const std::string nameCp,
         const std::string namePr,
@@ -156,7 +155,7 @@ preciceAdapter::CHT::HeatFlux_Incompressible::HeatFlux_Incompressible
         )
     :
       HeatFlux(mesh, nameT),
-      Kappa_(new KappaEff_Incompressible(mesh, nameTransportProperties, nameRho, nameCp, namePr, nameAlphat))
+      Kappa_(new KappaEff_Incompressible(mesh, nameRho, nameCp, namePr, nameAlphat))
 {
 }
 
@@ -181,12 +180,11 @@ preciceAdapter::CHT::HeatFlux_Basic::HeatFlux_Basic
 (
         const Foam::fvMesh& mesh,
         const std::string nameT,
-        const std::string nameTransportProperties,
         const std::string nameKappa
         )
     :
       HeatFlux(mesh, nameT),
-      Kappa_(new KappaEff_Basic(mesh, nameTransportProperties, nameKappa))
+      Kappa_(new KappaEff_Basic(mesh, nameKappa))
 {
 }
 

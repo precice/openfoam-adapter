@@ -101,7 +101,6 @@ public:
     (
         const Foam::fvMesh& mesh,
         const std::string nameT,
-        const std::string nameTransportProperties,
         const std::string nameRho,
         const std::string nameCp,
         const std::string namePr,
@@ -137,7 +136,6 @@ public:
     (
         const Foam::fvMesh& mesh,
         const std::string nameT,
-        const std::string nameTransportProperties,
         const std::string nameKappa
     );
 

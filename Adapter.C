@@ -13,30 +13,32 @@ preciceAdapter::Adapter::Adapter(const Time& runTime, const fvMesh& mesh)
 {
     adapterInfo("The preciceAdapter was loaded.", "info");
 
-#ifdef ADAPTER_DEBUG_MODE
-    Info<< "Registered objects: " << mesh_.names() << endl;
-#endif
-
     return;
 }
 
 bool preciceAdapter::Adapter::configFileRead()
 {
 
-  try {
-    adapterInfo("Reading preciceDict...", "info");
-    
-      IOdictionary preciceDict
-      (
-          IOobject
-          (
-              "preciceDict",
-              runTime_.system(),
-              mesh_,
-              IOobject::MUST_READ_IF_MODIFIED,
-              IOobject::NO_WRITE
-          )
-      );
+    // We need a try-catch here, as if reading preciceDict fails,
+    // the respective exception will be reduced to a warning.
+    // See also comment in preciceAdapter::Adapter::configure().
+    try {
+        adapterInfo("Reading preciceDict...", "info");
+
+        // TODO: static is just a quick workaround to be able
+        // to find the dictionary also out of scope (e.g. in KappaEffective).
+        // We need a better solution.
+        static IOdictionary preciceDict
+        (
+            IOobject
+            (
+                "preciceDict",
+                runTime_.system(),
+                mesh_,
+                IOobject::MUST_READ_IF_MODIFIED,
+                IOobject::NO_WRITE
+            )
+        );
     
     // Read and display the preCICE configuration file name
     // NOTE: lookupType<T>("name") is deprecated in openfoam.com since v1812,
@@ -176,11 +178,8 @@ bool preciceAdapter::Adapter::configFileRead()
     // TODO: Loading modules should be implemented in more general way,
     // in order to avoid code duplication. See issue #16 on GitHub.
 
-    // We need a try-catch here, as if reading preciceDict fails,
-    // the respective exception will be reduced to a warning.
-    // See also comment in preciceAdapter::Adapter::configure().
     } catch (const Foam::error &e) {
-        adapterInfo(e.message(), "info");
+        adapterInfo(e.message(), "error-deferred");
         return false;
     }
 

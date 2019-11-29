@@ -81,7 +81,7 @@ std::string preciceAdapter::FSI::FluidStructureInteraction::determineSolverType(
     bool turbulencePropertiesExists = false;
     bool thermophysicalPropertiesExists = false;
 
-    if (mesh_.foundObject<IOdictionary>(nameTransportProperties_))
+    if (mesh_.foundObject<IOdictionary>("transportProperties"))
     {
         transportPropertiesExists = true;
         DEBUG(adapterInfo("Found the transportProperties dictionary."));
