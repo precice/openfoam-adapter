@@ -69,9 +69,6 @@ private:
         //- Switch for evaluating the boundaries after reading a checkpoint.
         bool evaluateBoundaries_;
 
-        //- Switch to disable the checkpointing
-        bool disableCheckpointing_ = false;
-
         //- Type of timestep (fixed, adjustable)
         bool adjustableTimestep_;
 

@@ -291,10 +291,7 @@ void preciceAdapter::Adapter::configure()
             checkpointing_ = true;
 
             // Setup the checkpointing (find and add fields to checkpoint)
-            if (!disableCheckpointing_)
-            {
-                setupCheckpointing();
-            }
+            setupCheckpointing();
 
             // Write checkpoint (for the first iteration)
             writeCheckpoint();
