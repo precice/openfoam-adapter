@@ -318,19 +318,15 @@ void preciceAdapter::Adapter::configure()
         // This has the side-effect of not triggering the end() method
         // in any function object normally. Therefore, we trigger it
         // when preCICE dictates to stop the coupling.
-        // However, the user can disable this behavior in the configuration.
-        if (preventEarlyExit_)
-        {
-            adapterInfo
-                    (
-                        "Setting the solver's endTime to infinity to prevent early exits. "
-                        "Only preCICE will control the simulation's endTime. "
-                        "Any functionObject's end() method will be triggered by the adapter. "
-                        "You may disable this behavior in the adapter's configuration.",
-                        "info"
-                        );
-            const_cast<Time&>(runTime_).setEndTime(GREAT);
-        }
+        adapterInfo
+                (
+                    "Setting the solver's endTime to infinity to prevent early exits. "
+                    "Only preCICE will control the simulation's endTime. "
+                    "Any functionObject's end() method will be triggered by the adapter. "
+                    "You may disable this behavior in the adapter's configuration.",
+                    "info"
+                    );
+        const_cast<Time&>(runTime_).setEndTime(GREAT);
 
     } catch (const Foam::error &e) {
         adapterInfo(e.message(), "error-deferred");
@@ -423,17 +419,13 @@ void preciceAdapter::Adapter::execute()
         // Set the solver's endTime to now. The next evaluation of
         // runTime.run() will be false and the solver will exit.
         const_cast<Time&>(runTime_).setEndTime(runTime_.value());
-
-        if (preventEarlyExit_)
-        {
-            adapterInfo
-                    (
-                        "The simulation was ended by preCICE. "
-                        "Calling the end() methods of any functionObject explicitly.",
-                        "info"
-                        );
-            const_cast<Time&>(runTime_).functionObjects().end();
-        }
+        adapterInfo
+                (
+                    "The simulation was ended by preCICE. "
+                    "Calling the end() methods of any functionObject explicitly.",
+                    "info"
+                    );
+        const_cast<Time&>(runTime_).functionObjects().end();
     }
 
     return;

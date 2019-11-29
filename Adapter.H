@@ -69,10 +69,6 @@ private:
         //- Switch for checkpointing
         bool checkpointing_ = false;
 
-        //- Switch for automatically preventing the solver from exiting before
-        //  the coupling is complete.
-        bool preventEarlyExit_ = true;
-
         //- Switch for evaluating the boundaries after reading a checkpoint.
         bool evaluateBoundaries_;
 
