@@ -66,7 +66,7 @@ bool preciceAdapter::Adapter::configFileRead()
     // Every interface is a subdictionary of "interfaces",
     // each with an arbitrary name. Read all of them and create
     // a list (here: pointer) of dictionaries.
-    const dictionary * interfaceDictPtr = preciceDict.findDict("interfaces");
+    const dictionary * interfaceDictPtr = preciceDict.subDictPtr("interfaces");
     DEBUG(adapterInfo("  interfaces : "));
 
     // Check if we found any interfaces

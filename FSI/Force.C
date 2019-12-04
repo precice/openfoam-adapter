@@ -91,7 +91,7 @@ Foam::tmp<Foam::volScalarField> preciceAdapter::FSI::Force::rho() const
     else if (solverType_.compare("incompressible") == 0)
     {        
         const dictionary& FSIDict =
-            mesh_.lookupObject<IOdictionary>("preciceDict").findDict("FSI");     
+            mesh_.lookupObject<IOdictionary>("preciceDict").subOrEmptyDict("FSI");
             
         return tmp<volScalarField>
         (
@@ -139,7 +139,7 @@ Foam::tmp<Foam::volScalarField> preciceAdapter::FSI::Force::mu() const
         {        
         
             const dictionary& FSIDict =
-                mesh_.lookupObject<IOdictionary>("preciceDict").findDict("FSI");
+                mesh_.lookupObject<IOdictionary>("preciceDict").subOrEmptyDict("FSI");
                 
             dimensionedScalar nu(FSIDict.lookup("nu"));       
             

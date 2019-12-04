@@ -49,7 +49,7 @@ bool preciceAdapter::FSI::FluidStructureInteraction::configure(const IOdictionar
 
 bool preciceAdapter::FSI::FluidStructureInteraction::readConfig(const IOdictionary adapterConfig)
 {
-    const dictionary FSIdict = adapterConfig.findDict("FSI");
+    const dictionary FSIdict = adapterConfig.subOrEmptyDict("FSI");
   
     // Read the solver type (if not specified, it is determined automatically)
     solverType_ = FSIdict.lookupOrDefault<word>("solverType", "");

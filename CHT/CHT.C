@@ -47,7 +47,7 @@ bool preciceAdapter::CHT::ConjugateHeatTransfer::configure(const IOdictionary ad
 
 bool preciceAdapter::CHT::ConjugateHeatTransfer::readConfig(const IOdictionary adapterConfig)
 {
-    const dictionary CHTdict = adapterConfig.findDict("CHT");
+    const dictionary CHTdict = adapterConfig.subOrEmptyDict("CHT");
   
     // Read the solver type (if not specified, it is determined automatically)
     solverType_ = CHTdict.lookupOrDefault<word>("solverType", "");

@@ -71,7 +71,7 @@ nameAlphat_(nameAlphat)
 
         // Get the preciceDict/CHT dictionary
         const dictionary CHTDict =
-            mesh_.lookupObject<IOdictionary>("preciceDict").findDict("CHT");
+            mesh_.lookupObject<IOdictionary>("preciceDict").subOrEmptyDict("CHT");
 
         // Read the Prandtl number
         if (!CHTDict.readIfPresent<dimensionedScalar>(namePr_, Pr_))
@@ -192,7 +192,7 @@ nameKappa_(nameKappa)
 
     // Get the preciceDict/CHT dictionary
     const dictionary CHTDict =
-        mesh_.lookupObject<IOdictionary>("preciceDict").findDict("CHT");
+        mesh_.lookupObject<IOdictionary>("preciceDict").subOrEmptyDict("CHT");
 
     // Read the conductivity
     if (!CHTDict.readIfPresent<dimensionedScalar>(nameKappa_, kappaEff_))
