@@ -43,7 +43,7 @@ protected:
     std::string determineSolverType();
 
     //- Read the FSI-related options from the adapter's configuration file
-    bool readConfig(const IOdictionary adapterConfig);
+    bool readConfig(const IOdictionary& adapterConfig);
 
 public:
 
@@ -52,7 +52,7 @@ public:
     FluidStructureInteraction(const Foam::fvMesh& mesh, const Foam::Time& runTime);
 
     //- Configure
-    bool configure(const IOdictionary adapterConfig);
+    bool configure(const IOdictionary& adapterConfig);
 
     //- Add coupling data writers
     void addWriters(std::string dataName, Interface * interface);

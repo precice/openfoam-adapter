@@ -12,7 +12,7 @@ preciceAdapter::CHT::ConjugateHeatTransfer::ConjugateHeatTransfer
 mesh_(mesh)
 {}
 
-bool preciceAdapter::CHT::ConjugateHeatTransfer::configure(const IOdictionary adapterConfig)
+bool preciceAdapter::CHT::ConjugateHeatTransfer::configure(const IOdictionary& adapterConfig)
 {
     DEBUG(adapterInfo("Configuring the CHT module..."));
 
@@ -45,7 +45,7 @@ bool preciceAdapter::CHT::ConjugateHeatTransfer::configure(const IOdictionary ad
     return true;
 }
 
-bool preciceAdapter::CHT::ConjugateHeatTransfer::readConfig(const IOdictionary adapterConfig)
+bool preciceAdapter::CHT::ConjugateHeatTransfer::readConfig(const IOdictionary& adapterConfig)
 {
     const dictionary CHTdict = adapterConfig.subOrEmptyDict("CHT");
   

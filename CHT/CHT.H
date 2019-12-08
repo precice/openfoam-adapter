@@ -52,7 +52,7 @@ protected:
     std::string determineSolverType();
 
     //- Read the CHT-related options from the adapter's configuraiton file
-    bool readConfig(const IOdictionary adapterConfig);
+    bool readConfig(const IOdictionary& adapterConfig);
 
 public:
 
@@ -60,7 +60,7 @@ public:
     ConjugateHeatTransfer(const Foam::fvMesh& mesh);
 
     //- Configure
-    bool configure(const IOdictionary adapterConfig);
+    bool configure(const IOdictionary& adapterConfig);
 
     //- Add coupling data writers
     void addWriters(std::string dataName, Interface * interface);

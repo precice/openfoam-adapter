@@ -14,7 +14,7 @@ mesh_(mesh),
 runTime_(runTime)
 {}
 
-bool preciceAdapter::FSI::FluidStructureInteraction::configure(const IOdictionary adapterConfig)
+bool preciceAdapter::FSI::FluidStructureInteraction::configure(const IOdictionary& adapterConfig)
 {
     DEBUG(adapterInfo("Configuring the FSI module..."));
 
@@ -47,7 +47,7 @@ bool preciceAdapter::FSI::FluidStructureInteraction::configure(const IOdictionar
     return true;
 }
 
-bool preciceAdapter::FSI::FluidStructureInteraction::readConfig(const IOdictionary adapterConfig)
+bool preciceAdapter::FSI::FluidStructureInteraction::readConfig(const IOdictionary& adapterConfig)
 {
     const dictionary FSIdict = adapterConfig.subOrEmptyDict("FSI");
   
