@@ -23,8 +23,10 @@
 
     <participant name="Fluid">
         <use-mesh name="Fluid-Mesh" provide="yes"/>
+        <use-mesh name="Solid-Mesh" from="Solid"/>
         <read-data name="Heat-Flux" mesh="Fluid-Mesh"/>
         <write-data name="Temperature" mesh="Fluid-Mesh"/>
+        <mapping:nearest-neighbor direction="read" from="Solid-Mesh" to="Fluid-Mesh" constraint="consistent" timing="initial"/>
     </participant>
 
     <participant name="Solid">
@@ -33,7 +35,6 @@
         <read-data name="Temperature" mesh="Solid-Mesh"/>
         <write-data name="Heat-Flux" mesh="Solid-Mesh"/>
         <mapping:nearest-neighbor direction="read" from="Fluid-Mesh" to="Solid-Mesh" constraint="consistent" timing="initial"/>
-        <mapping:nearest-neighbor direction="write" from="Solid-Mesh" to="Fluid-Mesh" constraint="consistent" timing="initial"/>
     </participant>
 
     <m2n:sockets from="Fluid" to="Solid"/>
@@ -44,11 +45,11 @@
         <max-iterations value="200"/>
         <participants first="Fluid" second="Solid"/>
         <exchange data="Temperature" mesh="Fluid-Mesh" from="Fluid" to="Solid"/>
-        <exchange data="Heat-Flux" mesh="Fluid-Mesh" from="Solid" to="Fluid"/>
+        <exchange data="Heat-Flux" mesh="Solid-Mesh" from="Solid" to="Fluid"/>
         <relative-convergence-measure limit="1.0e-6" data="Temperature" mesh="Fluid-Mesh"/>
         <extrapolation-order value="2"/>
         <post-processing:IQN-ILS>
-            <data mesh="Fluid-Mesh" name="Heat-Flux" />
+            <data mesh="Solid-Mesh" name="Heat-Flux" />
             <initial-relaxation value="0.01" />
             <max-used-iterations value="80" />
             <timesteps-reused value="10" />
