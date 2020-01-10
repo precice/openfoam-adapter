@@ -48,13 +48,13 @@
         <exchange data="Heat-Flux" mesh="Solid-Mesh" from="Solid" to="Fluid"/>
         <relative-convergence-measure limit="1.0e-6" data="Temperature" mesh="Fluid-Mesh"/>
         <extrapolation-order value="2"/>
-        <post-processing:IQN-ILS>
+        <acceleration:IQN-ILS>
             <data mesh="Solid-Mesh" name="Heat-Flux" />
             <initial-relaxation value="0.01" />
             <max-used-iterations value="80" />
             <timesteps-reused value="10" />
             <filter type="QR1" limit="1e-8" />
-        </post-processing:IQN-ILS>
+        </acceleration:IQN-ILS>
     </coupling-scheme:serial-implicit>
 
     </solver-interface>
