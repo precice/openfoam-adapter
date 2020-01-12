@@ -1491,7 +1491,7 @@ void preciceAdapter::Adapter::readCheckpoint()
                 // TODO: Known bug: cannot find "volScalarField::Internal kEpsilon:G"
                 // Currently it is skipped. Before it was not corrected at all.
                 // A warning for this is thrown when adding epsilon to the checkpoint.
-            } catch (Foam::error) {
+            } catch (const Foam::error &e) {
                 DEBUG(adapterInfo("Could not evaluate the boundary for" + volScalarFields_.at(i)->name(), "warning"));
             }
         }
