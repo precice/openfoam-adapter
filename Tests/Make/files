@@ -1,0 +1,25 @@
+Utilities.C
+
+Interface.C
+
+CouplingDataUser.C
+
+CHT/Temperature.C
+CHT/KappaEffective.C
+CHT/HeatFlux.C
+CHT/HeatTransferCoefficient.C
+CHT/SinkTemperature.C
+
+CHT/CHT.C
+
+FSI/FSI.C
+FSI/Force.C
+FSI/Displacement.C
+FSI/DisplacementDelta.C
+
+
+Adapter.C
+
+preciceAdapterFunctionObject.C
+
+LIB = $(ADAPTER_TARGET_DIR)/libpreciceAdapterFunctionObject
