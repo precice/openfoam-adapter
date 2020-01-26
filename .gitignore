@@ -44,3 +44,7 @@ Make/linux64GccDPInt32Opt/
 .settings/
 
 *.swp
+
+# Clion
+.idea
+Tests/.idea
