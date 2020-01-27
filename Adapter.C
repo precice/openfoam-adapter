@@ -1488,6 +1488,18 @@ void preciceAdapter::Adapter::readCheckpoint()
                 {
                     volScalarFields_.at(i)->correctBoundaryConditions();
                 }
+                else
+                {
+                    //get all boundary condition types
+                    wordList BoundaryTypes = volScalarFields_.at(i)->boundaryField().types();
+
+                    forAll(BoundaryTypes, typei)
+                    {
+                        if (BoundaryTypes[typei]!="epsilonWallFunction")
+                            volScalarFields_.at(i)->boundaryFieldRef()[typei].evaluate();
+                    }
+                }
+
                 // TODO: Known bug: cannot find "volScalarField::Internal kEpsilon:G"
                 // Currently it is skipped. Before it was not corrected at all.
                 // A warning for this is thrown when adding epsilon to the checkpoint.
