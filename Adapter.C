@@ -308,12 +308,8 @@ void preciceAdapter::Adapter::configure()
         DEBUG(adapterInfo("Creating the preCICE solver interface..."));
         DEBUG(adapterInfo("  Number of processes: " + std::to_string(Pstream::nProcs())));
         DEBUG(adapterInfo("  MPI rank: " + std::to_string(Pstream::myProcNo())));
-        precice_ = new precice::SolverInterface(participantName_, Pstream::myProcNo(), Pstream::nProcs());
+        precice_ = new precice::SolverInterface(participantName_, preciceConfigFilename_, Pstream::myProcNo(), Pstream::nProcs());
         DEBUG(adapterInfo("  preCICE solver interface was created."));
-
-        DEBUG(adapterInfo("Configuring preCICE..."));
-        precice_->configure(preciceConfigFilename_);
-        DEBUG(adapterInfo("  preCICE was configured."));
 
         // Create interfaces
         DEBUG(adapterInfo("Creating interfaces..."));
