@@ -441,7 +441,7 @@ void preciceAdapter::Adapter::execute()
     // coupling, we write again when the coupling timestep is complete.
     // Check the behavior e.g. by using watch on a result file:
     //     watch -n 0.1 -d ls --full-time Fluid/0.01/T.gz
-    if (checkpointing_ && isCouplingTimestepComplete())
+    if (checkpointing_ && isCouplingTimeWindowComplete())
     {
         // Check if the time directory already exists
         // (i.e. the solver wrote results that need to be updated)
@@ -706,9 +706,9 @@ bool preciceAdapter::Adapter::isCouplingOngoing()
     return isCouplingOngoing;
 }
 
-bool preciceAdapter::Adapter::isCouplingTimestepComplete()
+bool preciceAdapter::Adapter::isCouplingTimeWindowComplete()
 {
-    return precice_->isTimestepComplete();
+    return precice_->isTimeWindowComplete();
 }
 
 bool preciceAdapter::Adapter::isReadCheckpointRequired()
