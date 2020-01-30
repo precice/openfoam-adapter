@@ -565,7 +565,7 @@ void preciceAdapter::Adapter::initialize()
     if (precice_->isActionRequired(precice::constants::actionWriteInitialData()))
     {
         writeCouplingData();
-        precice_->fulfilledAction(precice::constants::actionWriteInitialData());
+        precice_->markActionFulfilled(precice::constants::actionWriteInitialData());
     }
 
     DEBUG(adapterInfo("Initializing preCICE data..."));
@@ -761,14 +761,14 @@ bool preciceAdapter::Adapter::isWriteCheckpointRequired()
 
 void preciceAdapter::Adapter::fulfilledReadCheckpoint()
 {
-    precice_->fulfilledAction(precice::constants::actionReadIterationCheckpoint());
+    precice_->markActionFulfilled(precice::constants::actionReadIterationCheckpoint());
 
     return;
 }
 
 void preciceAdapter::Adapter::fulfilledWriteCheckpoint()
 {
-    precice_->fulfilledAction(precice::constants::actionWriteIterationCheckpoint());
+    precice_->markActionFulfilled(precice::constants::actionWriteIterationCheckpoint());
 
     return;
 }
