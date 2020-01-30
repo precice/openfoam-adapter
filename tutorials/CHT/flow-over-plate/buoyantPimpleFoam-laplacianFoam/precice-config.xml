@@ -40,7 +40,7 @@
     <m2n:sockets from="Fluid" to="Solid"/>
 
     <coupling-scheme:serial-implicit>
-        <timestep-length value="0.01"/>
+        <time-window-size value="0.01"/>
         <max-time value="1"/>
         <max-iterations value="200"/>
         <participants first="Fluid" second="Solid"/>
@@ -52,7 +52,7 @@
             <data mesh="Solid-Mesh" name="Heat-Flux" />
             <initial-relaxation value="0.01" />
             <max-used-iterations value="80" />
-            <timesteps-reused value="10" />
+            <time-windows-reused value="10" />
             <filter type="QR1" limit="1e-8" />
         </acceleration:IQN-ILS>
     </coupling-scheme:serial-implicit>
