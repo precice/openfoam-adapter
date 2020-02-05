@@ -1,5 +1,6 @@
 //
 // Created by keefe on 27/1/20.
+// This file mocks the Interface.H file in the OpenFOAM preCICE adapter.
 //
 
 #ifndef INTERFACE_H
@@ -20,10 +21,10 @@ namespace preciceAdapter {
                         std::vector<std::string>& patchNames,
                         bool meshConnectivity
                 ){};
+        ~Interface()=default;
         MOCK_METHOD(void, createBuffer, ());
         MOCK_METHOD(void, readCouplingData, ());
         MOCK_METHOD(void, writeCouplingData, ());
-        ~Interface()=default;
     };
 }
 
