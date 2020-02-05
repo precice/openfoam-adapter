@@ -1,28 +1,33 @@
 #ifndef PRECICEADAPTER_H
 #define PRECICEADAPTER_H
 
-#include "Interface.H"
+#ifdef UNIT_TESTING
+    #include "Tests/UnitTests/AdapterTest/AdapterUnittestIncludes.h"
+#else
+    #include "Interface.H"
 
-// Conjugate Heat Transfer module
-#include "CHT/CHT.H"
+    // Conjugate Heat Transfer module
+    #include "CHT/CHT.H"
 
-// Fluid-Structure Interaction module
-#include "FSI/FSI.H"
+    // Fluid-Structure Interaction module
+    #include "FSI/FSI.H"
 
-// NOTE: If you want to couple a new variable, include your module's header here.
-// You also need to include it in the Make/files file.
-// In case you use additional OpenFOAM symbols, you may also need to specify
-// the respective libraries in the Make/options.
+    // NOTE: If you want to couple a new variable, include your module's header here.
+    // You also need to include it in the Make/files file.
+    // In case you use additional OpenFOAM symbols, you may also need to specify
+    // the respective libraries in the Make/options.
 
-// OpenFOAM header files
-#include "Time.H"
-#include "fvMesh.H"
+    // OpenFOAM header files
+    #include "Time.H"
+    #include "fvMesh.H"
+    // preCICE Solver Interface
+    #include "precice/SolverInterface.hpp"
+#endif
+
 
 // Other header files
 // YAML reader - Used to read the adapter's configuration file.
 #include "yaml-cpp/yaml.h"
-// preCICE Solver Interface
-#include "precice/SolverInterface.hpp"
 
 namespace preciceAdapter
 {
@@ -100,16 +105,16 @@ private:
     std::vector<Interface*> interfaces_;
 
     //- preCICE solver interface
-    precice::SolverInterface * precice_ = NULL;
+    precice::SolverInterface * precice_ = nullptr;
 
     //- preCICE solver interface initialized
     bool preciceInitialized_ = false;
 
     //- Conjugate Heat Transfer module object
-    CHT::ConjugateHeatTransfer * CHT_ = NULL;
+    CHT::ConjugateHeatTransfer * CHT_ = nullptr;
 
     //- Fluid-Structure Interaction module object
-    FSI::FluidStructureInteraction * FSI_ = NULL;
+    FSI::FluidStructureInteraction * FSI_ = nullptr;
 
     // NOTE: Add here a pointer for your new module object
 
