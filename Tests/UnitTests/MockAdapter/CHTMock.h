@@ -1,5 +1,6 @@
 //
-// Created by keefe on 26/1/20.
+// Created by keefe on 26/1/2020.
+// This file mocks the CHT.H file in the OpenFOAM preCICE adapter.
 //
 
 #ifndef CHT_H
@@ -16,6 +17,8 @@ namespace preciceAdapter {
             explicit ConjugateHeatTransfer(Foam::fvMesh const&){};
             ~ConjugateHeatTransfer()= default;
 
+            // Explicit method created for 'configure' to allow run-time modification of mocked
+            // configureMock() method behavior.
             MOCK_METHOD(bool, configureMock, (const YAML::Node&));
             bool configure(const YAML::Node& adapterConfig){
                 ON_CALL(*this, configureMock(testing::_)).WillByDefault(testing::Return(true));
