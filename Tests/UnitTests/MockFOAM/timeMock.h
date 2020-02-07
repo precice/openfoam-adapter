@@ -87,6 +87,7 @@ public:
     Time()=default;
     //- Destructor
     ~Time()=default;
+    Time(const Time& time){};
 
     MOCK_METHOD(label, timeIndex, (), (const));
 
