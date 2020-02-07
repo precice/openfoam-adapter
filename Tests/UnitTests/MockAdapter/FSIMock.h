@@ -8,13 +8,14 @@
 
 #include <yaml-cpp/node/node.h>
 #include "../MockFOAM/fvMeshMock.h"
-#include "../MockFOAM/timeMock.h"
+#include "Tests/UnitTests/MockFOAM/timeMock.h"
 #include "../MockAdapter/InterfaceMock.h"
 
 namespace preciceAdapter {
     namespace FSI {
         class FluidStructureInteraction{
         public:
+            static bool isConfigureMock, isAddWritersMock, isAddReadersMock;
             FluidStructureInteraction(Foam::fvMesh const&, Foam::Time const&){};
             ~FluidStructureInteraction()= default;
 
@@ -22,7 +23,8 @@ namespace preciceAdapter {
             // configureMock() method behavior.
             MOCK_METHOD(bool, configureMock, (const YAML::Node&));
             bool configure(const YAML::Node& adapterConfig){
-                ON_CALL(*this, configureMock(testing::_)).WillByDefault(testing::Return(true));
+//                ON_CALL(*this, configureMock(testing::_)).WillByDefault(testing::Return(true));
+                EXPECT_CALL(*this, configureMock(testing::_)).WillOnce(testing::Return(true));
                 return configureMock(adapterConfig);
             };
 
