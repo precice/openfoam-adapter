@@ -1,0 +1,14 @@
+participant: Fluid
+
+precice-config-file: ./precice-config.xml
+
+interfaces:
+#- mesh: Fluid-Mesh
+  #locations: faceCenters # optional, defaults to faceCenters
+- patches:
+  - interface
+  write-data: Temperature
+  read-data: Heat-Flux
+
+CHTenabled: true
+FSIenabled: true

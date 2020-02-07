@@ -1,6 +1,6 @@
 participant: Fluid
 
-precice-config-file: ./precice-config.xml
+#precice-config-file: ./precice-config.xml
 
 interfaces:
 - mesh: Fluid-Mesh
@@ -11,3 +11,4 @@ interfaces:
   read-data: Heat-Flux
 
 CHTenabled: true
+FSIenabled: true

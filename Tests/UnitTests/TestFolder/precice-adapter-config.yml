@@ -1,0 +1,26 @@
+# Standard precice-adapter-config.yml
+participant: Fluid
+
+precice-config-file: ./precice-config.xml
+
+interfaces:
+- mesh: Fluid-Mesh
+  #locations: faceCenters # optional, defaults to faceCenters
+  patches:
+  - interface
+  write-data: Temperature
+  read-data: Heat-Flux
+- mesh: Fluid-2-Mesh
+  provideMeshConnectivity: true
+  locations: faceNodes # optional, defaults to faceCenters
+  patches:
+    - patch1
+    - patch2
+  read-data: Displacement
+
+subcycling: false
+preventEarlyExit: true
+evaluateBoundaries: false
+disableCheckpointing: true
+
+CHTenabled: true
