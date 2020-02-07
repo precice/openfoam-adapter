@@ -1,8 +1,13 @@
-#include "Adapter.H"
-#include "Interface.H"
-#include "Utilities.H"
+#ifdef UNIT_TESTING
+    #include "Tests/UnitTests/AdapterTest/AdapterUnittestIncludes.h"
+    #include "Adapter.H"
+#else
+    #include "Adapter.H"
+    #include "Interface.H"
+    #include "Utilities.H"
 
-#include "IOstreams.H"
+    #include "IOstreams.H"
+#endif
 
 using namespace Foam;
 
