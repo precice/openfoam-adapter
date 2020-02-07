@@ -18,6 +18,12 @@
 
 void adapterInfo(const std::string message, const std::string level = "debug");
 
+struct adapterInfoMock{
+    adapterInfoMock();
+    ~adapterInfoMock();
+    MOCK_METHOD(void, adapterInfo, (const std::string, const std::string));
+};
+
 #endif //GTEST_UTILITIES_H
 
 #ifndef UTILITIES_H
