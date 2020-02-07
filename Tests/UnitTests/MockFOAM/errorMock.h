@@ -4,6 +4,7 @@
 
 #ifndef ERROR_H
 #define ERROR_H
+#include <string>
 
 namespace Foam{
     class error

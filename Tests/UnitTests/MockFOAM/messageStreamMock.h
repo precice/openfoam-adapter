@@ -5,9 +5,14 @@
 #ifndef MESSAGESTREAM_H
 #define MESSAGESTREAM_H
 
+
+
 namespace Foam{
+#define WarningInFunction Info;
+    static const char nl = '\n';
     class Info{
-        void operator<< (std::string){}
+        void operator<< (const std::string&){}
+        void operator<< (const char* character){}
     };
 }
 
