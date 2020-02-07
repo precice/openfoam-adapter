@@ -8,6 +8,7 @@
 
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
+#include "Tests/UnitTests/MockFOAM/timeMock.h"
 
 namespace precice{
     class SolverInterface{
@@ -20,29 +21,46 @@ namespace precice{
                 int                solverProcessIndex,
                 int                solverProcessSize)
         {
-            solverConstructor();
+//            solverConstructor();
         }
-        MOCK_METHOD(void, solverConstructor, ());
 
-        MOCK_METHOD(void, configure, (std::string&));
+        MOCK_METHOD(void, solverConstructorMock, ());
+        void solverConstructor(){
+            EXPECT_CALL(*this, solverConstructorMock());
+            solverConstructorMock();
+        }
+
+        MOCK_METHOD(void, configureMock, (std::string&));
+        void configure(std::string & word){
+            std::string testWord = "./precice-config.xml";
+            EXPECT_CALL(*this, configureMock(testWord)).Times(1);
+            configureMock(word);
+        }
 
         double initialize();
         MOCK_METHOD(double, initializeMock, ());
 
-        MOCK_METHOD(void, initializeData, ());
+        void initializeData();
+        MOCK_METHOD(void, initializeDataMock, ());
 
-        MOCK_METHOD(double, advance, (double));
+        double advance(double timestep);
+        MOCK_METHOD(double, advanceMock, (double));
+
         MOCK_METHOD(void, finalize, ());
         MOCK_METHOD(int, getDimensions, (), (const));
         // Auxiliary methods
-        MOCK_METHOD(bool, isCouplingOngoing, ());
+        MOCK_METHOD(bool, isCouplingOngoingMock, ());
+        bool isCouplingOngoing();
         MOCK_METHOD(bool, isReadDataAvailable, (), (const));
         MOCK_METHOD(bool, isWriteDataRequired, (double), (const));
-        MOCK_METHOD(bool, isTimestepComplete, (), (const));
+
+        MOCK_METHOD(bool, isTimestepCompleteMock, (), (const));
+        bool isTimestepComplete() const;
 
         bool isActionRequired(const std::string& actionName) const;
         MOCK_METHOD(bool, isActionRequiredMock, (const std::string&), (const));
-        MOCK_METHOD(void, fulfilledAction, (const std::string&), (const));
+        void fulfilledAction(const std::string& actionName) const;
+        MOCK_METHOD(void, fulfilledActionMock, (const std::string&), (const));
 
         // Mesh Methods
         MOCK_METHOD(bool, hasMesh, (const std::string&), (const));
