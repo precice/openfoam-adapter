@@ -1,12 +1,10 @@
 #ifndef Time_H
 #define Time_H
 
-#include "word.H"
-#include "scalar.H"
-#include "label.H"
+#include "constantsMock.h"
 #include <list>
 #include "PstreamMock.h"
-#include "IOStreamsMock.h"
+#include "IOstreamsMock.h"
 #include "fileNameMock.h"
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
@@ -16,6 +14,7 @@
 
 namespace Foam
 {
+    constexpr float TEST_TIME_STEP = 0.1234f;
 
     // Type declaration for Foam::list
     typedef std::vector<Foam::word> wordList;
@@ -41,6 +40,7 @@ class unwatchedIOdictionaryMock {
 class timePathMock {
 public:
     timePathMock()=default;
+    timePathMock(const timePathMock& mock){};
     ~timePathMock()=default;
     MOCK_METHOD(int, type, (), (const));
 };
@@ -50,8 +50,14 @@ public:
 class classMock{
 public:
     classMock()=default;
+    classMock(const classMock& mock) {};
+
     ~classMock()=default;
-    MOCK_METHOD(wordList, toc, (), (const));
+    MOCK_METHOD(wordList, tocMock, (), (const));
+    wordList toc() const{
+        EXPECT_CALL(*this, tocMock()).Times(1);
+        return tocMock();
+    };
     MOCK_METHOD(void, end, (), (const));
 };
 
@@ -104,7 +110,7 @@ public:
 
     MOCK_METHOD(void, setEndTime, (scalar), (const));
 
-    MOCK_METHOD(timePathMock&, timePath, (), (const));
+    MOCK_METHOD(const timePathMock&, timePath, (), (const));
 
     MOCK_METHOD(Time&, deltaT, (), (const));
 
