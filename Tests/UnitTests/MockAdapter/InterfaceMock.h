@@ -7,7 +7,9 @@
 #define INTERFACE_H
 
 #include "../MockFOAM/fvMeshMock.h"
-#include "Tests/UnitTests/MockpreCICE/SolverInterfaceMock.hpp"
+#include "../MockpreCICE/SolverInterfaceMock.hpp"
+#include "gtest/gtest.h"
+#include "gmock/gmock.h"
 
 namespace preciceAdapter {
     class Interface {
@@ -22,9 +24,21 @@ namespace preciceAdapter {
                         bool meshConnectivity
                 ){};
         ~Interface()=default;
-        MOCK_METHOD(void, createBuffer, ());
-        MOCK_METHOD(void, readCouplingData, ());
-        MOCK_METHOD(void, writeCouplingData, ());
+        MOCK_METHOD(void, createBufferMock, ());
+        void createBuffer(){
+            EXPECT_CALL(*this, createBufferMock()).Times(1);
+            createBufferMock();
+        }
+
+        MOCK_METHOD(void, readCouplingDataMock, ());
+        void readCouplingData(){
+            ON_CALL(*this, readCouplingDataMock());
+        }
+        MOCK_METHOD(void, writeCouplingDataMock, ());
+
+        void writeCouplingData(){
+            ON_CALL(*this, writeCouplingDataMock());
+        }
     };
 }
 
