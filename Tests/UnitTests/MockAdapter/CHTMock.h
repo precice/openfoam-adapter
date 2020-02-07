@@ -11,7 +11,7 @@
 #include <utility>
 #include "../MockFOAM/fvMeshMock.h"
 #include "../MockAdapter/InterfaceMock.h"
-
+using namespace testing;
 namespace preciceAdapter {
     namespace CHT {
         class ConjugateHeatTransfer{
@@ -28,7 +28,7 @@ namespace preciceAdapter {
             MOCK_METHOD(bool, configureMock, (const YAML::Node&));
             bool configure(const YAML::Node& adapterConfig){
                 if(!isConfigureMock){
-                    EXPECT_CALL(*this, configureMock(testing::_)).WillOnce(testing::Return(true));
+                    EXPECT_CALL(*this, configureMock(_)).WillOnce(Return(true));
                     isConfigureMock = true;
                 }
                 return configureMock(adapterConfig);
@@ -36,22 +36,20 @@ namespace preciceAdapter {
 
             MOCK_METHOD(void, addWritersMock, (std::string, Interface *));
             void addWriters(std::string writer_name, Interface* interface){
-                std::string writer = "Temperature";
                 if (!isAddWritersMock){
-                    EXPECT_CALL(*this, addWritersMock(writer, interface)).Times(1);
+                    EXPECT_CALL(*this, addWritersMock(_, _)).Times(1);
                     isAddWritersMock = true;
                 }
                 addWritersMock(std::move(writer_name), interface);
             }
 
             MOCK_METHOD(void, addReadersMock, (std::string, Interface *));
-            void addReaders(std::string writer_name, Interface* interface){
-                std::string reader = "Heat-Flux";
+            void addReaders(std::string reader_name, Interface* interface){
                 if(!isAddReadersMock){
-                    EXPECT_CALL(*this, addWritersMock(reader, interface)).Times(1);
+                    EXPECT_CALL(*this, addReadersMock(_, _)).Times(2);
                     isAddReadersMock = true;
                 }
-                addWritersMock(std::move(writer_name), interface);
+                addReadersMock(std::move(reader_name), interface);
             }
         };
     }
