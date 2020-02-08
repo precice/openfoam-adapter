@@ -268,7 +268,7 @@ private:
         bool isCouplingOngoing();
 
         //- Determine if the coupling timestep has been completed
-        bool isCouplingTimestepComplete();
+        bool isCouplingTimeWindowComplete();
 
         //- Determine if a checkpoint must be read
         bool isReadCheckpointRequired();
