@@ -219,12 +219,8 @@ void preciceAdapter::Adapter::configure()
         DEBUG(adapterInfo("Creating the preCICE solver interface..."));
         DEBUG(adapterInfo("  Number of processes: " + std::to_string(Pstream::nProcs())));
         DEBUG(adapterInfo("  MPI rank: " + std::to_string(Pstream::myProcNo())));
-        precice_ = new precice::SolverInterface(participantName_, Pstream::myProcNo(), Pstream::nProcs());
+        precice_ = new precice::SolverInterface(participantName_, preciceConfigFilename_, Pstream::myProcNo(), Pstream::nProcs());
         DEBUG(adapterInfo("  preCICE solver interface was created."));
-
-        DEBUG(adapterInfo("Configuring preCICE..."));
-        precice_->configure(preciceConfigFilename_);
-        DEBUG(adapterInfo("  preCICE was configured."));
 
         // Create interfaces
         DEBUG(adapterInfo("Creating interfaces..."));
@@ -387,7 +383,7 @@ void preciceAdapter::Adapter::execute()
     // coupling, we write again when the coupling timestep is complete.
     // Check the behavior e.g. by using watch on a result file:
     //     watch -n 0.1 -d ls --full-time Fluid/0.01/T.gz
-    if (checkpointing_ && isCouplingTimestepComplete())
+    if (checkpointing_ && isCouplingTimeWindowComplete())
     {
         // Check if the time directory already exists
         // (i.e. the solver wrote results that need to be updated)
@@ -469,7 +465,7 @@ void preciceAdapter::Adapter::initialize()
     if (precice_->isActionRequired(precice::constants::actionWriteInitialData()))
     {
         writeCouplingData();
-        precice_->fulfilledAction(precice::constants::actionWriteInitialData());
+        precice_->markActionFulfilled(precice::constants::actionWriteInitialData());
     }
 
     DEBUG(adapterInfo("Initializing preCICE data..."));
@@ -636,9 +632,9 @@ bool preciceAdapter::Adapter::isCouplingOngoing()
     return isCouplingOngoing;
 }
 
-bool preciceAdapter::Adapter::isCouplingTimestepComplete()
+bool preciceAdapter::Adapter::isCouplingTimeWindowComplete()
 {
-    return precice_->isTimestepComplete();
+    return precice_->isTimeWindowComplete();
 }
 
 bool preciceAdapter::Adapter::isReadCheckpointRequired()
@@ -653,14 +649,14 @@ bool preciceAdapter::Adapter::isWriteCheckpointRequired()
 
 void preciceAdapter::Adapter::fulfilledReadCheckpoint()
 {
-    precice_->fulfilledAction(precice::constants::actionReadIterationCheckpoint());
+    precice_->markActionFulfilled(precice::constants::actionReadIterationCheckpoint());
 
     return;
 }
 
 void preciceAdapter::Adapter::fulfilledWriteCheckpoint()
 {
-    precice_->fulfilledAction(precice::constants::actionWriteIterationCheckpoint());
+    precice_->markActionFulfilled(precice::constants::actionWriteIterationCheckpoint());
 
     return;
 }
@@ -1379,7 +1375,7 @@ void preciceAdapter::Adapter::readCheckpoint()
                 // TODO: Known bug: cannot find "volScalarField::Internal kEpsilon:G"
                 // Currently it is skipped. Before it was not corrected at all.
                 // A warning for this is thrown when adding epsilon to the checkpoint.
-            } catch (Foam::error) {
+            } catch (const Foam::error &e) {
                 DEBUG(adapterInfo("Could not evaluate the boundary for" + volScalarFields_.at(i)->name(), "warning"));
             }
         }

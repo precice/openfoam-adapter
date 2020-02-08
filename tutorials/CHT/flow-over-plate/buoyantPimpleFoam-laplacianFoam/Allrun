@@ -7,10 +7,6 @@
 
 # The script "Allclean" cleans-up the result and log files.
 
-# Link to the precice-config for the serial run
-echo "Setting up the preCICE configuration file for a serial simulation..."
-ln -s -f precice-config_serial.xml precice-config.xml
-
 # Participant 1: Fluid
 Participant1="Fluid"
 Solver1="buoyantPimpleFoam"
