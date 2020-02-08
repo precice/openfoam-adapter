@@ -44,7 +44,7 @@ bool preciceAdapter::Adapter::configFileRead()
     // NOTE: lookupType<T>("name") is deprecated in openfoam.com since v1812,
     // which recommends get<T>("name") instead. However, get<T>("name")
     // is not implemented in openfoam.org at the moment.
-    preciceConfigFilename_ = preciceDict.lookupType<word>("preciceConfig");
+    preciceConfigFilename_ = preciceDict.lookupType<fileName>("preciceConfig");
     DEBUG(adapterInfo("  precice-config-file : " + preciceConfigFilename_));
 
     // Read and display the participant name
