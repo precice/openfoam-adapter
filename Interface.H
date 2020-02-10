@@ -5,7 +5,7 @@
 #include <vector>
 #include "fvCFD.H"
 #include "CouplingDataUser.H"
-#include "SolverInterface.hpp"
+#include "precice/SolverInterface.hpp"
 
 
 namespace preciceAdapter
@@ -20,6 +20,9 @@ protected:
 
     //- Mesh name used in the preCICE configuration
     std::string meshName_;
+
+    //- Point locations type (faceCenters vs faceNodes)
+    std::string locationsType_;
 
     //- Mesh ID assigned by preCICE to the interface
     int meshID_;
@@ -45,9 +48,14 @@ protected:
     //- Vector of CouplingDataWriters
     std::vector<CouplingDataUser*> couplingDataWriters_;
 
-    //- Extracts the locations of the face centers and exposes them to preCICE
-    //  with setMeshVertices
-    //  TODO: Create a mesh of nodes instead of face centers?
+    //Switch for faceTriangulation (nearest projection)
+    bool meshConnectivity_;
+
+    // Simulation dimension
+    unsigned int dim_;
+
+    //- Extracts the locations of the face centers or face nodes
+    //  and exposes them to preCICE with setMeshVertices
     void configureMesh(const Foam::fvMesh& mesh);
 
 public:
@@ -55,26 +63,33 @@ public:
     //- Constructor
     Interface
     (
-        precice::SolverInterface & precice,
-        const Foam::fvMesh& mesh,
-        std::string meshName,
-        std::vector<std::string> patchNames
-    );
+            precice::SolverInterface & precice,
+            const Foam::fvMesh& mesh,
+            std::string meshName,
+            std::string locationsType,
+            std::vector<std::string> patchNames,
+            bool meshConnectivity
+            );
 
     //- Add a CouplingDataUser to read data from the interface
     void addCouplingDataReader
     (
-        std::string dataName,
-        CouplingDataUser * couplingDataReader
-    );
+            std::string dataName,
+            CouplingDataUser * couplingDataReader
+            );
 
 
     //- Add a CouplingDataUser to write data on the interface
     void addCouplingDataWriter
     (
-        std::string dataName,
-        CouplingDataUser * couplingDataWriter
-    );
+            std::string dataName,
+            CouplingDataUser * couplingDataWriter
+            );
+
+    //- Allocate an appropriate buffer for scalar or vector data.
+    //  If at least one couplingDataUser has vector data, then
+    //  define a buffer for 3D data. Otherwise, for 1D data.
+    void createBuffer();
 
     //- Call read() on each registered couplingDataReader to read the coupling
     //  data from the buffer and apply the boundary conditions

@@ -1,0 +1,13 @@
+sudo: true
+dist: trusty
+language: python
+python:
+  - "3.5"
+jobs:
+  include:
+    # trigger systemtests build only on main branches and not on external prs
+    - if: fork = false AND ( branch = master OR branch = develop )
+      script: 
+        - curl -LO --retry 3 https://raw.githubusercontent.com/precice/systemtests/master/trigger_systemtests.py
+        - travis_wait 60 python trigger_systemtests.py --adapter openfoam --wait
+

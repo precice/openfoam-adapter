@@ -31,7 +31,7 @@ public:
     KappaEff_Compressible(const Foam::fvMesh& mesh);
 
     //- Extract the kappaEff on the specific patch and store it.
-    void extract(uint patchID);
+    void extract(uint patchID, bool meshConnectivity);
 
     //- Get the value of kappaEff at cell i
     Foam::scalar getAt(int i);
@@ -93,7 +93,7 @@ public:
     );
 
     //- Extract the kappaEff on the specific patch and store it.
-    void extract(uint patchID);
+    void extract(uint patchID, bool meshConnectivity);
 
     //- Get the value of kappaEff at cell i
     Foam::scalar getAt(int i);
@@ -130,7 +130,7 @@ public:
     );
 
     //- Extract the kappaEff on the specific patch and store it.
-    void extract(uint patchID);
+    void extract(uint patchID, bool meshConnectivity);
 
     //- Get the value of kappaEff at cell i (returns the same for every i)
     Foam::scalar getAt(int i);

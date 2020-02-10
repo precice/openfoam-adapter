@@ -24,7 +24,7 @@ protected:
     const Foam::fvMesh& mesh_;
 
     //- Wrapper for the extract() method of the corresponding KappaEff class
-    virtual void extractKappaEff(uint patchID) = 0;
+    virtual void extractKappaEff(uint patchID, bool meshConnectivity) = 0;
 
     //- Wrapper for the getAt() method of the corresponding KappaEff class
     virtual Foam::scalar getKappaEffAt(int i) = 0;
@@ -39,10 +39,10 @@ public:
     );
 
     //- Write the heat transfer coefficient values into the buffer
-    virtual void write(double * buffer);
+    virtual void write(double * buffer, bool meshConnectivity, const unsigned int dim);
 
     //- Read the heat transfer coefficient values from the buffer
-    virtual void read(double * buffer);
+    virtual void read(double * buffer, const unsigned int dim);
 
     //- Destructor
     virtual ~HeatTransferCoefficient(){};
@@ -61,7 +61,7 @@ protected:
     KappaEff_Compressible * Kappa_;
 
     //- Wrapper for the extract() method of the corresponding KappaEff class
-    virtual void extractKappaEff(uint patchID);
+    virtual void extractKappaEff(uint patchID, bool meshConnectivity);
 
     //- Wrapper for the getAt() method of the corresponding KappaEff class
     virtual Foam::scalar getKappaEffAt(int i);
@@ -92,7 +92,7 @@ protected:
     KappaEff_Incompressible * Kappa_;
 
     //- Wrapper for the extract() method of the corresponding KappaEff class
-    virtual void extractKappaEff(uint patchID);
+    virtual void extractKappaEff(uint patchID, bool meshConnectivity);
 
     //- Wrapper for the getAt() method of the corresponding KappaEff class
     virtual Foam::scalar getKappaEffAt(int i);
@@ -129,7 +129,7 @@ protected:
     KappaEff_Basic * Kappa_;
 
     //- Wrapper for the extract() method of the corresponding KappaEff class
-    virtual void extractKappaEff(uint patchID);
+    virtual void extractKappaEff(uint patchID, bool meshConnectivity);
 
     //- Wrapper for the getAt() method of the corresponding KappaEff class
     virtual Foam::scalar getKappaEffAt(int i);

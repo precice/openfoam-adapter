@@ -16,9 +16,6 @@ protected:
     //- Type of the coupling data (scalar or vector)
     DataType dataType_ = scalar;
 
-    //- Size of the buffer used to exchange data
-    int bufferSize_;
-
     //- OpenFOAM patches that form the interface
     std::vector<int> patchIDs_;
 
@@ -36,9 +33,6 @@ public:
     //- Returns true if the data are vector
     bool hasVectorData();
 
-    //- Set the buffer size
-    void setBufferSize(int size);
-
     //- Set the preCICE data ID
     void setDataID(int dataID);
 
@@ -49,10 +43,10 @@ public:
     void setPatchIDs(std::vector<int> patchIDs);
 
     //- Write the coupling data to the buffer
-    virtual void write(double * dataBuffer) = 0;
+    virtual void write(double * dataBuffer, bool meshConnectivity, const unsigned int dim) = 0;
 
     //- Read the coupling data from the buffer
-    virtual void read(double * dataBuffer) = 0;
+    virtual void read(double * dataBuffer, const unsigned int dim) = 0;
 
     //- Destructor
     virtual ~CouplingDataUser() {}
