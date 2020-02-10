@@ -986,14 +986,6 @@ void preciceAdapter::Adapter::setupCheckpointing()
                         "Will be checkpointing " + objectNames_[i]
                     );
 #endif
-
-            // TODO: Known bug, see readCheckpoint()
-            if ("epsilon" == objectNames_[i])
-            {
-                DEBUG(adapterInfo("Known bug: after reading a checkpoint, "
-                                  "the boundaries for epsilon will not be corrected.",
-                                  "warning"));
-            }
         }
         else
         {
@@ -1468,45 +1460,6 @@ void preciceAdapter::Adapter::readCheckpoint()
         {
             volScalarFields_.at(i)->oldTime().oldTime() == volScalarFieldCopies_.at(i)->oldTime().oldTime();
         }
-
-        // Evaluate the boundaries, if supported
-        if (evaluateBoundaries_)
-        {
-            try{
-                // TODO Check if these fields require adding besides only epsilon.
-                // (from Max Mueller's fork)
-                /*
-                if ( ("epsilon"  != volScalarFields_.at(i)->name()) &&
-                ("epsilon_0"!= volScalarFields_.at(i)->name()) &&
-                ("omega"    != volScalarFields_.at(i)->name()) &&
-                ("omega_0"  != volScalarFields_.at(i)->name()) &&
-                ("cellDisplacementx"!=volScalarFields_.at(i)->name()) &&
-                ("cellDisplacementy"!=volScalarFields_.at(i)->name()) &&
-                ("cellDisplacementz"!=volScalarFields_.at(i)->name()))
-                */
-                if ("epsilon" != volScalarFields_.at(i)->name())
-                {
-                    volScalarFields_.at(i)->correctBoundaryConditions();
-                }
-                else
-                {
-                    //get all boundary condition types
-                    wordList BoundaryTypes = volScalarFields_.at(i)->boundaryField().types();
-
-                    forAll(BoundaryTypes, typei)
-                    {
-                        if (BoundaryTypes[typei]!="epsilonWallFunction")
-                            volScalarFields_.at(i)->boundaryFieldRef()[typei].evaluate();
-                    }
-                }
-
-                // TODO: Known bug: cannot find "volScalarField::Internal kEpsilon:G"
-                // Currently it is skipped. Before it was not corrected at all.
-                // A warning for this is thrown when adding epsilon to the checkpoint.
-            } catch (Foam::error) {
-                DEBUG(adapterInfo("Could not evaluate the boundary for" + volScalarFields_.at(i)->name(), "warning"));
-            }
-        }
     }
 
     // Reload all the fields of type volVectorField
@@ -1524,16 +1477,6 @@ void preciceAdapter::Adapter::readCheckpoint()
         {
             volVectorFields_.at(i)->oldTime().oldTime() == volVectorFieldCopies_.at(i)->oldTime().oldTime();
         }
-
-        // TODO. Derek: Should the switch evaluateBoundaries not be implemented here?
-        // Find also similar parts below.
-        // Evaluate the boundaries
-        try{
-            DEBUG(adapterInfo("Evaluating the volVector boundary conditions for " + volVectorFields_.at(i)->name()));
-            volVectorFields_.at(i)->correctBoundaryConditions();
-        } catch (...) {
-            DEBUG(adapterInfo("Could not evaluate the boundary for" + volVectorFields_.at(i)->name(), "warning"));
-        }
     }
 
     // Reload all the fields of type surfaceScalarField
@@ -1550,7 +1493,6 @@ void preciceAdapter::Adapter::readCheckpoint()
         {
             surfaceScalarFields_.at(i)->oldTime().oldTime() == surfaceScalarFieldCopies_.at(i)->oldTime().oldTime();
         }
-        // no boundary to evaluate
     }
 
     // Reload all the fields of type surfaceVectorField
@@ -1567,7 +1509,6 @@ void preciceAdapter::Adapter::readCheckpoint()
         {
             surfaceVectorFields_.at(i)->oldTime().oldTime() == surfaceVectorFieldCopies_.at(i)->oldTime().oldTime();
         }
-        // no boundary to evaluate
     }
 
     // Reload all the fields of type pointScalarField
@@ -1583,12 +1524,6 @@ void preciceAdapter::Adapter::readCheckpoint()
         if (nOldTimes == 2)
         {
             pointScalarFields_.at(i)->oldTime().oldTime() == pointScalarFieldCopies_.at(i)->oldTime().oldTime();
-        }
-        try{
-            DEBUG(adapterInfo("Evaluating the pointScalar boundary conditions for " + pointScalarFields_.at(i)->name()));
-            pointScalarFields_.at(i)->correctBoundaryConditions();
-        } catch (...) {
-            DEBUG(adapterInfo("Could not evaluate the boundary for" + pointScalarFields_.at(i)->name(), "warning"));
         }
     }
 
@@ -1606,16 +1541,6 @@ void preciceAdapter::Adapter::readCheckpoint()
         if (nOldTimes == 2)
         {
             pointVectorFields_.at(i)->oldTime().oldTime() == pointVectorFieldCopies_.at(i)->oldTime().oldTime();
-        }
-
-        try
-        {
-            DEBUG(adapterInfo("Evaluating the pointVector boundary conditions for " + pointVectorFields_.at(i)->name()));
-            pointVectorFields_.at(i)->correctBoundaryConditions();
-        }
-        catch (...)
-        {
-            DEBUG(adapterInfo("Could not evaluate the boundary for" + pointVectorFields_.at(i)->name(), "warning"));
         }
     }
 
