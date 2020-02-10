@@ -206,6 +206,7 @@ std::string preciceAdapter::FSI::FluidStructureInteraction::determineSolverType(
 
 void preciceAdapter::FSI::FluidStructureInteraction::addWriters(std::string dataName, Interface * interface)
 {
+    
     if (dataName.find("Force") == 0)
     {        
             interface->addCouplingDataWriter
