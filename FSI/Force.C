@@ -19,14 +19,14 @@ solverType_(solverType),
 porousMediumForces_(porousMediumForces)
 {
     //What about type "basic"?
-    if (solverType_.compare("incompressible") != 0 && solverType_.compare("compressible") != 0)
+    if (solverType_.compare("incompressible") != 0 && solverType_.compare("compressible") != 0) 
     {
         FatalErrorInFunction
             << "Forces calculation does only support "
             << "compressible or incompressible solver type."
             << exit(FatalError);
     }
-
+    
     dataType_ = vector;
 
     Force_ = new volVectorField
@@ -47,6 +47,12 @@ porousMediumForces_(porousMediumForces)
             Foam::vector::zero
         )
     );
+}
+
+//Calculate solid force
+Foam::tmp<Foam::volSymmTensorField> preciceAdapter::FSI::Force::devSigma() const
+{
+    return mesh_.lookupObject<volSymmTensorField>("sigma");
 }
 
 //Calculate viscous force
@@ -165,21 +171,19 @@ Foam::tmp<Foam::volScalarField> preciceAdapter::FSI::Force::mu() const
             << "Did not find the correct mu."
             << exit(FatalError);
             
-//Calculate solid force
-Foam::tmp<Foam::volSymmTensorField> preciceAdapter::FSI::Force::devSigma() const
-{
-    return mesh_.lookupObject<volSymmTensorField>("sigma");
+        return volScalarField::null();
+    }
 }
 
 void preciceAdapter::FSI::Force::write(double * buffer, bool meshConnectivity, const unsigned int dim)
-{
+{ 
     // Compute forces. See the Forces function object.
 
     // Normal vectors on the boundary, multiplied with the face areas
     const surfaceVectorField::Boundary& Sfb =
         mesh_.Sf().boundaryField();
 
-    //Viscous stress tensor boundary field
+    // Stress tensor boundary field
     tmp<volSymmTensorField> tdevRhoReff = devRhoReff();
     const volSymmTensorField::Boundary& devRhoReffb =
         tdevRhoReff().boundaryField();
@@ -192,7 +196,7 @@ void preciceAdapter::FSI::Force::write(double * buffer, bool meshConnectivity, c
     // Pressure boundary field
     tmp<volScalarField> tp = mesh_.lookupObject<volScalarField>("p");
     const volScalarField::Boundary& pb =
-        tp().boundaryField();
+        tp().boundaryField();        
 
     int bufferIndex = 0;
     // For every boundary patch of the interface
@@ -201,7 +205,9 @@ void preciceAdapter::FSI::Force::write(double * buffer, bool meshConnectivity, c
 
         int patchID = patchIDs_.at(j);
 
-        // Pressure forces
+        
+        
+        //pressure forces
         if (solverType_.compare("incompressible") == 0)
         {
             Force_->boundaryFieldRef()[patchID] =
@@ -210,7 +216,7 @@ void preciceAdapter::FSI::Force::write(double * buffer, bool meshConnectivity, c
         else if (solverType_.compare("compressible") == 0)
         {
             Force_->boundaryFieldRef()[patchID] =
-                Sfb[patchID] * pb[patchID];
+                Sfb[patchID] * (pb[patchID] - 1.0e5);
         }
         else
         {
@@ -219,12 +225,8 @@ void preciceAdapter::FSI::Force::write(double * buffer, bool meshConnectivity, c
                 << "compressible or incompressible solver type."
                 << exit(FatalError);
         }
-
-        // Viscous forces
-        Force_->boundaryFieldRef()[patchID] +=
-            Sfb[patchID] & devRhoReffb[patchID];
-
-        //Solid forces from porous medium
+        
+        //Solid forces from porous medium 
         if (porousMediumForces_ == true)
         {
           //Solid stress tensor boundary field
@@ -232,10 +234,14 @@ void preciceAdapter::FSI::Force::write(double * buffer, bool meshConnectivity, c
           const volSymmTensorField::Boundary& devSigmab =
                 tdevSigma().boundaryField();
 
-          Force_->boundaryFieldRef()[patchID] +=
-              Sfb[patchID] & devSigmab[patchID];
+          Force_->boundaryFieldRef()[patchID] -=
+              (Sfb[patchID] & devSigmab[patchID]);
         }
-
+        
+        // Viscous forces
+        Force_->boundaryFieldRef()[patchID] +=
+            Sfb[patchID] & devRhoReffb[patchID];
+            
         // Write the forces to the preCICE buffer
         // For every cell of the patch
         forAll(Force_->boundaryFieldRef()[patchID], i)
@@ -243,33 +249,51 @@ void preciceAdapter::FSI::Force::write(double * buffer, bool meshConnectivity, c
             // Copy the force into the buffer
             // x-dimension
             buffer[bufferIndex++]
-            =
+            = 
             Force_->boundaryFieldRef()[patchID][i].x();
 
             // y-dimension
             buffer[bufferIndex++]
             =
             Force_->boundaryFieldRef()[patchID][i].y();
-
+            
             if(dim == 3)
                 // z-dimension
                 buffer[bufferIndex++]
-                        =
-                        Force_->boundaryFieldRef()[patchID][i].z();
+                =
+                Force_->boundaryFieldRef()[patchID][i].z();
         }
     }
 }
 
 void preciceAdapter::FSI::Force::read(double * buffer, const unsigned int dim)
 {
-    /* TODO: Implement
-    * We need two nested for-loops for each patch,
-    * the outer for the locations and the inner for the dimensions.
-    * See the preCICE readBlockVectorData() implementation.
-    */
-    FatalErrorInFunction
-        << "Reading forces is not supported."
-        << exit(FatalError);
+    // For every element in the buffer
+    int bufferIndex = 0;
+
+    // For every boundary patch of the interface
+    for (uint j = 0; j < patchIDs_.size(); j++)
+    {
+        int patchID = patchIDs_.at(j);
+
+        // Get the force on the patch
+        fixedValueFvPatchVectorField& ForcePatch =
+            refCast<fixedValueFvPatchVectorField>
+            (
+                Force_->boundaryFieldRef()[patchID]
+            );
+
+        // For every cell of the patch
+        forAll(Force_->boundaryFieldRef()[patchID], i)
+        {
+            // Set the force to the received one
+            ForcePatch[i][0] = buffer[bufferIndex++];
+            ForcePatch[i][1] = buffer[bufferIndex++];
+            if(dim == 3)
+                ForcePatch[i][2] = buffer[bufferIndex++];
+            
+        }
+    }
 }
 
 preciceAdapter::FSI::Force::~Force()

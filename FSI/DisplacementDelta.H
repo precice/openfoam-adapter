@@ -18,7 +18,7 @@ class DisplacementDelta : public CouplingDataUser
 private:
 
     // Displacement pointVectorField
-    Foam::pointVectorField * pointDisplacement_;
+    Foam::pointVectorField * DpointDisplacement_;
 
 public:
 
@@ -26,13 +26,13 @@ public:
     DisplacementDelta
     (
         const Foam::fvMesh& mesh,
-        const std::string namePointDisplacement
+        const std::string nameDPointDisplacement
     );
 
-    //- Write the displacementDelta values into the buffer
+    //- Write the displacement values into the buffer
     void write(double * buffer, bool meshConnectivity, const unsigned int dim);
 
-    //- Read the displacementDelta values from the buffer
+    //- Read the displacement values from the buffer
     void read(double * buffer, const unsigned int dim);
 
 };

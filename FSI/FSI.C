@@ -56,16 +56,23 @@ bool preciceAdapter::FSI::FluidStructureInteraction::readConfig(const YAML::Node
     }
     DEBUG(adapterInfo("    user-defined solver type : " + solverType_));
 
-  // Read the porous medium forces
+    /* TODO: Read the names of any needed fields and parameters.
+    * Include the force here?
+    */
+    // Read the porous medium forces
     if (adapterConfig["porousMediumForces"])
     {
         porousMediumForces_ = adapterConfig["porousMediumForces"].as<bool>();
     }
-    DEBUG(adapterInfo("    add porous medium forces : " + porousMediumForces_));
+    DEBUG(adapterInfo("    add porous medium forces : " + std::to_string(porousMediumForces_)));
+    
+    // Read volume Displacement
+    if (adapterConfig["useVolumeDisplacement"])
+    {
+        useVolD_ = adapterConfig["useVolumeDisplacement"].as<bool>();
+    }
+    DEBUG(adapterInfo("    use volume displacement field : " + std::to_string(useVolD_)));
 
-    /* TODO: Read the names of any needed fields and parameters.
-    * Include the force here?
-    */
 
     // Read the name of the pointDisplacement field (if different)
     if (adapterConfig["namePointDisplacement"])
@@ -73,6 +80,27 @@ bool preciceAdapter::FSI::FluidStructureInteraction::readConfig(const YAML::Node
         namePointDisplacement_ = adapterConfig["namePointDisplacement"].as<std::string>();
     }
     DEBUG(adapterInfo("    pointDisplacement field name : " + namePointDisplacement_));
+    
+    // Read the name of the pointDisplacement field (if different)
+    if (adapterConfig["nameDPointDisplacement"])
+    {
+        nameDPointDisplacement_ = adapterConfig["nameDPointDisplacement"].as<std::string>();
+    }
+    DEBUG(adapterInfo("    DpointDisplacement field name : " + nameDPointDisplacement_));
+    
+    // Read the name of the cellDisplacement field (if different)
+    if (adapterConfig["nameCellDisplacement"])
+    {
+        nameCellDisplacement_ = adapterConfig["nameCellDisplacement"].as<std::string>();
+    }
+    DEBUG(adapterInfo("    cellDisplacement field name : " + nameCellDisplacement_));
+    
+    // Read the name of the cellDisplacement field (if different)
+    if (adapterConfig["nameDCellDisplacement"])
+    {
+        nameDCellDisplacement_ = adapterConfig["nameDCellDisplacement"].as<std::string>();
+    }
+    DEBUG(adapterInfo("    DcellDisplacement field name : " + nameDCellDisplacement_));
 
     return true;
 }
@@ -91,7 +119,18 @@ std::string preciceAdapter::FSI::FluidStructureInteraction::determineSolverType(
     bool transportPropertiesExists = false;
     bool turbulencePropertiesExists = false;
     bool thermophysicalPropertiesExists = false;
+    bool rheologyPropertiesExists = false;
 
+    if (mesh_.foundObject<IOdictionary>(nameRheologyProperties_))
+    {
+        rheologyPropertiesExists = true;
+        DEBUG(adapterInfo("Found the rheologyProperties dictionary."));
+    }
+    else
+    {
+        DEBUG(adapterInfo("Did not find the rheologyProperties dictionary."));
+    }
+    
     if (mesh_.foundObject<IOdictionary>(nameTransportProperties_))
     {
         transportPropertiesExists = true;
@@ -102,103 +141,6 @@ std::string preciceAdapter::FSI::FluidStructureInteraction::determineSolverType(
         DEBUG(adapterInfo("Did not find the transportProperties dictionary."));
     }
 
-
-    if (mesh_.foundObject<IOdictionary>(turbulenceModel::propertiesName))
-    {
-        turbulencePropertiesExists = true;
-        DEBUG(adapterInfo("Found the " + turbulenceModel::propertiesName
-            + " dictionary."));
-    }
-    else
-    {
-        DEBUG(adapterInfo("Did not find the " + turbulenceModel::propertiesName
-            + " dictionary."));
-    }
-
-
-    if (mesh_.foundObject<IOdictionary>("thermophysicalProperties"))
-    {
-        thermophysicalPropertiesExists = true;
-        DEBUG(adapterInfo("Found the thermophysicalProperties dictionary."));
-    }
-    else
-    {
-        DEBUG(adapterInfo("Did not find the thermophysicalProperties dictionary."));
-    }
-
-    if (turbulencePropertiesExists)
-    {
-        if (thermophysicalPropertiesExists)
-        {
-            solverType = "compressible";
-            DEBUG(adapterInfo("This is a compressible flow solver, "
-                "as turbulence and thermophysical properties are provided."));
-        }
-        else if (transportPropertiesExists)
-        {
-            solverType = "incompressible";
-            DEBUG(adapterInfo("This is an incompressible flow solver, "
-            "as turbulence and transport properties are provided."));
-        }
-        else
-        {
-            adapterInfo("Could not determine the solver type, or this is not "
-            "a compatible solver: although turbulence properties are provided, "
-            "neither transport or thermophysical properties are provided.",
-            "error");
-        }
-    }
-    else
-    {
-        if (transportPropertiesExists)
-        {
-            solverType = "basic";
-            DEBUG(adapterInfo("This is a basic solver, as transport properties "
-            "are provided, while turbulence or transport properties are not "
-            "provided."));
-        }
-        else
-        {
-            adapterInfo("Could not determine the solver type, or this is not a "
-            "compatible solver: neither transport, nor turbulence properties "
-            "are provided.",
-            "error");
-        }
-    }
-
-    return solverType;
-}
-
-
-void preciceAdapter::FSI::FluidStructureInteraction::addWriters(std::string dataName, Interface * interface)
-{
-    // NOTE: When coupling a different variable, you may want to
-    // add more cases here. Or you may provide the solverType in the config.
-
-    std::string solverType;
-
-    // Determine the solver type: Compressible, Incompressible or Basic.
-    // Look for the files transportProperties, turbulenceProperties,
-    // and thermophysicalProperties
-    bool transportPropertiesExists = false;
-    bool turbulencePropertiesExists = false;
-    bool thermophysicalPropertiesExists = false;
-
-    if (mesh_.foundObject<IOdictionary>(nameTransportProperties_))
-    {
-        transportPropertiesExists = true;
-        DEBUG(adapterInfo("Found the transportProperties dictionary."));
-            interface->addCouplingDataWriter
-            (
-                dataName,
-                new Force(mesh_, runTime_.timeName(), solverType_, porousMediumForces_) /* TODO: Add any other arguments here */
-            );
-            DEBUG(adapterInfo("Added writer: Force."));
-    }
-    else
-    {
-        DEBUG(adapterInfo("Did not find the transportProperties dictionary."));
-    }
     
     if (mesh_.foundObject<IOdictionary>(turbulenceModel::propertiesName))
     {
@@ -237,6 +179,12 @@ void preciceAdapter::FSI::FluidStructureInteraction::addWriters(std::string data
             DEBUG(adapterInfo("This is an incompressible flow solver, "
             "as turbulence and transport properties are provided."));
         }
+        else if (rheologyPropertiesExists)
+        {
+            solverType = "structure";
+            DEBUG(adapterInfo("This is a structure solver, as rheology properties "
+            "are provided."));
+        }
         else
         {
             adapterInfo("Could not determine the solver type, or this is not "
@@ -245,26 +193,24 @@ void preciceAdapter::FSI::FluidStructureInteraction::addWriters(std::string data
             "error");
         }
     }
+    else if (transportPropertiesExists)
+    {
+        solverType = "basic";
+        DEBUG(adapterInfo("This is a basic solver, as transport properties "
+        "are provided, while turbulence or transport properties are not "
+        "provided."));
+    }    
     else
     {
-        if (transportPropertiesExists)
-        {
-            solverType = "basic";
-            DEBUG(adapterInfo("This is a basic solver, as transport properties "
-            "are provided, while turbulence or transport properties are not "
-            "provided."));
-        }
-        else
-        {
             adapterInfo("Could not determine the solver type, or this is not a "
             "compatible solver: neither transport, nor turbulence properties "
             "are provided.",
             "error");
-        }
-    }
+    }   
 
     return solverType;
 }
+
 
 void preciceAdapter::FSI::FluidStructureInteraction::addWriters(std::string dataName, Interface * interface)
 {
@@ -273,20 +219,20 @@ void preciceAdapter::FSI::FluidStructureInteraction::addWriters(std::string data
             interface->addCouplingDataWriter
             (
                 dataName,
-                new Force(mesh_, runTime_.timeName(), solverType_) /* TODO: Add any other arguments here */
+                new Force(mesh_, runTime_.timeName(), solverType_, porousMediumForces_) /* TODO: Add any other arguments here */
             );
             DEBUG(adapterInfo("Added writer: Force."));        
     }    
-    else if (dataName.find("DisplacementDelta") == 0)
+    else if (dataName.find("DisplacementDelta") == 0 && useVolD_ == false)
     {
         interface->addCouplingDataWriter
         (
             dataName,
-            new DisplacementDelta(mesh_, namePointDisplacement_)
+            new DisplacementDelta(mesh_, nameDPointDisplacement_)
         );
         DEBUG(adapterInfo("Added writer: DisplacementDelta."));
     }
-    else if (dataName.find("Displacement") == 0)
+    else if (dataName.find("Displacement") == 0 && useVolD_ == false)
     {
         interface->addCouplingDataWriter
         (
@@ -295,7 +241,25 @@ void preciceAdapter::FSI::FluidStructureInteraction::addWriters(std::string data
         );
         DEBUG(adapterInfo("Added writer: Displacement."));
     }
-
+    else if (dataName.find("Displacement") == 0 && useVolD_ == true)
+    {
+        interface->addCouplingDataWriter
+        (
+            dataName,
+            new volDisplacement(mesh_, nameCellDisplacement_)
+        );
+        DEBUG(adapterInfo("Added writer: volDisplacement."));
+    }
+    else if (dataName.find("DisplacementDelta") == 0 && useVolD_ == true)
+    {
+        interface->addCouplingDataWriter
+        (
+            dataName,
+            new volDisplacementDelta(mesh_, nameDCellDisplacement_)
+        );
+        DEBUG(adapterInfo("Added writer: volDisplacementDelta."));
+    }
+    
     // NOTE: If you want to couple another variable, you need
     // to add your new coupling data user as a coupling data
     // writer here (and as a reader below).
@@ -314,16 +278,16 @@ void preciceAdapter::FSI::FluidStructureInteraction::addReaders(std::string data
         );
         DEBUG(adapterInfo("Added reader: Force."));
     }
-    else if (dataName.find("DisplacementDelta") == 0)
+    else if (dataName.find("DisplacementDelta") == 0 && useVolD_ == false)
     {
         interface->addCouplingDataReader
         (
             dataName,
-            new DisplacementDelta(mesh_, namePointDisplacement_)
+            new DisplacementDelta(mesh_, nameDPointDisplacement_)
         );
         DEBUG(adapterInfo("Added reader: DisplacementDelta."));
     }
-    else if (dataName.find("Displacement") == 0)
+    else if (dataName.find("Displacement") == 0 && useVolD_ == false)
     {
         interface->addCouplingDataReader
         (
@@ -331,7 +295,26 @@ void preciceAdapter::FSI::FluidStructureInteraction::addReaders(std::string data
             new Displacement(mesh_, namePointDisplacement_)
         );
         DEBUG(adapterInfo("Added reader: Displacement."));
+    }    
+    else if (dataName.find("DisplacementDelta") == 0 && useVolD_ == true)
+    {
+        interface->addCouplingDataReader
+        (
+            dataName,
+            new volDisplacementDelta(mesh_, nameDCellDisplacement_)
+        );
+        DEBUG(adapterInfo("Added reader: volDisplacementDelta."));
     }
+    else if (dataName.find("Displacement") == 0 && useVolD_ == true)
+    {
+        interface->addCouplingDataReader
+        (
+            dataName,
+            new volDisplacement(mesh_, nameCellDisplacement_)
+        );
+        DEBUG(adapterInfo("Added reader: volDisplacement."));
+    }   
+    
     // NOTE: If you want to couple another variable, you need
     // to add your new coupling data user as a coupling data
     // writer here (and as a writer above).

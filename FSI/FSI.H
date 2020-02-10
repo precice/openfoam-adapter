@@ -5,6 +5,8 @@
 
 #include "FSI/Displacement.H"
 #include "FSI/DisplacementDelta.H"
+#include "FSI/volDisplacement.H"
+#include "FSI/volDisplacementDelta.H"
 #include "FSI/Force.H"
 
 #include "fvCFD.H"
@@ -31,20 +33,29 @@ protected:
     //- Solver type
     std::string solverType_ = "none";
     
-    //- Name of the transportProperties dictionary
-    std::string nameTransportProperties_ = "transportProperties";
-
-    //- Solver type
-    std::string solverType_ = "none";
-
     //- Porous Medium Forces
     bool porousMediumForces_ = false;
-
+    
+    //- Volume Displacement
+    bool useVolD_ = false;
+    
     //- Name of the transportProperties dictionary
     std::string nameTransportProperties_ = "transportProperties";
+    
+    //- Name of the rheologyProperties dictionary
+    std::string nameRheologyProperties_ = "rheologyProperties";
 
     //- Name of the pointDisplacement field
     std::string namePointDisplacement_ = "pointDisplacement";
+    
+    //- Name of the pointDDisplacement field
+    std::string nameDPointDisplacement_ = "DpointDisplacement";
+    
+    //- Name of the volDisplacement field
+    std::string nameCellDisplacement_ = "cellDisplacement";
+    
+    //- Name of the volDDisplacement field
+    std::string nameDCellDisplacement_ = "DcellDisplacement";
 
     /* TODO: Declare here any parameters that should be read from
     /  the configuration file. See CHT/CHT.H for reference.
@@ -54,9 +65,6 @@ protected:
 
 protected:
     
-    //- Determine the solver type
-    std::string determineSolverType();
-
     //- Determine the solver type
     std::string determineSolverType();
 

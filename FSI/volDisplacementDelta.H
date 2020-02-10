@@ -1,32 +1,32 @@
-#ifndef FSI_DISPLACEMENT_H
-#define FSI_DISPLACEMENT_H
+#ifndef FSI_VOLDISPLACEMENTDELTA_H
+#define FSI_VOLDISPLACEMENTDELTA_H
 
 #include "CouplingDataUser.H"
 
 #include "fvCFD.H"
-#include "fixedValuePointPatchFields.H"
+#include "fixedValueFvPatchFields.H"
 
 namespace preciceAdapter
 {
 namespace FSI
 {
 
-//- Class that writes and reads displacement
-class Displacement : public CouplingDataUser
+//- Class that writes and reads displacementDelta
+class volDisplacementDelta : public CouplingDataUser
 {
 
 private:
 
-    // Displacement pointVectorField
-    Foam::pointVectorField * pointDisplacement_;
+    // DisplacementDelta volVectorField
+    Foam::volVectorField * DcellDisplacement_;
 
 public:
 
     //- Constructor
-    Displacement
+    volDisplacementDelta
     (
         const Foam::fvMesh& mesh,
-        const std::string namePointDisplacement
+        const std::string nameDCellDisplacement
     );
 
     //- Write the displacement values into the buffer
@@ -34,6 +34,7 @@ public:
 
     //- Read the displacement values from the buffer
     void read(double * buffer, const unsigned int dim);
+
 };
 
 }

@@ -5,13 +5,13 @@ using namespace Foam;
 preciceAdapter::FSI::DisplacementDelta::DisplacementDelta
 (
     const Foam::fvMesh& mesh,
-    const std::string namePointDisplacement
+    const std::string nameDPointDisplacement
 )
 :
-pointDisplacement_(
+DpointDisplacement_(
     const_cast<pointVectorField*>
     (
-        &mesh.lookupObject<pointVectorField>(namePointDisplacement)
+        &mesh.lookupObject<pointVectorField>(nameDPointDisplacement)
     )
 )
 {
@@ -20,14 +20,41 @@ pointDisplacement_(
 
 void preciceAdapter::FSI::DisplacementDelta::write(double * buffer, bool meshConnectivity, const unsigned int dim)
 {
-    /* TODO: Implement
-    * We need two nested for-loops for each patch,
-    * the outer for the locations and the inner for the dimensions.
-    * See the preCICE writeBlockVectorData() implementation.
-    */
-    FatalErrorInFunction
-        << "Writing displacementDeltas is not supported."
-        << exit(FatalError);
+    int bufferIndex = 0;
+    // For every boundary patch of the interface
+    for (uint j = 0; j < patchIDs_.size(); j++)
+    {
+        int patchID = patchIDs_.at(j);
+        
+        // Get the displacement on the patch
+        fixedValuePointPatchVectorField& DpointDisplacementFluidPatch =
+            refCast<fixedValuePointPatchVectorField>
+            (
+                DpointDisplacement_->boundaryFieldRef()[patchID]
+            );
+        
+        // Write the displacements to the preCICE buffer
+        // For every cell of the patch
+        forAll(DpointDisplacement_->boundaryFieldRef()[patchID], i)
+        {
+            // Copy the dispalcement into the buffer
+            // x-dimension
+            buffer[bufferIndex++]
+            = 
+            DpointDisplacementFluidPatch[i][0];
+
+            // y-dimension
+            buffer[bufferIndex++]
+            =
+            DpointDisplacementFluidPatch[i][1];
+
+            if(dim == 3)
+                // z-dimension
+                buffer[bufferIndex++]
+                =
+                DpointDisplacementFluidPatch[i][2];
+        }
+    }
 }
 
 // return the displacement to use later in the velocity?
@@ -45,17 +72,17 @@ void preciceAdapter::FSI::DisplacementDelta::read(double * buffer, const unsigne
         fixedValuePointPatchVectorField& pointDisplacementFluidPatch =
             refCast<fixedValuePointPatchVectorField>
             (
-                pointDisplacement_->boundaryFieldRef()[patchID]
+                DpointDisplacement_->boundaryFieldRef()[patchID]
             );
 
         // For every cell of the patch
-        forAll(pointDisplacement_->boundaryFieldRef()[patchID], i)
+        forAll(DpointDisplacement_->boundaryFieldRef()[patchID], i)
         {
-            // Add the received delta to the actual displacement
-            pointDisplacementFluidPatch[i][0] += buffer[bufferIndex++];
-            pointDisplacementFluidPatch[i][1] += buffer[bufferIndex++];
-            if(dim==3)
-                pointDisplacementFluidPatch[i][2] += buffer[bufferIndex++];
+            // Set the displacementDeltas to the received one
+            pointDisplacementFluidPatch[i][0] = buffer[bufferIndex++];
+            pointDisplacementFluidPatch[i][1] = buffer[bufferIndex++];
+            if(dim == 3)
+                pointDisplacementFluidPatch[i][2] = buffer[bufferIndex++];
         }
     }
 }
