@@ -34,6 +34,15 @@ protected:
     //- Name of the transportProperties dictionary
     std::string nameTransportProperties_ = "transportProperties";
 
+    //- Solver type
+    std::string solverType_ = "none";
+
+    //- Porous Medium Forces
+    bool porousMediumForces_ = false;
+
+    //- Name of the transportProperties dictionary
+    std::string nameTransportProperties_ = "transportProperties";
+
     //- Name of the pointDisplacement field
     std::string namePointDisplacement_ = "pointDisplacement";
 
@@ -45,6 +54,9 @@ protected:
 
 protected:
     
+    //- Determine the solver type
+    std::string determineSolverType();
+
     //- Determine the solver type
     std::string determineSolverType();
 

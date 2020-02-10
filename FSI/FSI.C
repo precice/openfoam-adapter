@@ -56,6 +56,13 @@ bool preciceAdapter::FSI::FluidStructureInteraction::readConfig(const YAML::Node
     }
     DEBUG(adapterInfo("    user-defined solver type : " + solverType_));
 
+  // Read the porous medium forces
+    if (adapterConfig["porousMediumForces"])
+    {
+        porousMediumForces_ = adapterConfig["porousMediumForces"].as<bool>();
+    }
+    DEBUG(adapterInfo("    add porous medium forces : " + porousMediumForces_));
+
     /* TODO: Read the names of any needed fields and parameters.
     * Include the force here?
     */
@@ -95,6 +102,103 @@ std::string preciceAdapter::FSI::FluidStructureInteraction::determineSolverType(
         DEBUG(adapterInfo("Did not find the transportProperties dictionary."));
     }
 
+
+    if (mesh_.foundObject<IOdictionary>(turbulenceModel::propertiesName))
+    {
+        turbulencePropertiesExists = true;
+        DEBUG(adapterInfo("Found the " + turbulenceModel::propertiesName
+            + " dictionary."));
+    }
+    else
+    {
+        DEBUG(adapterInfo("Did not find the " + turbulenceModel::propertiesName
+            + " dictionary."));
+    }
+
+
+    if (mesh_.foundObject<IOdictionary>("thermophysicalProperties"))
+    {
+        thermophysicalPropertiesExists = true;
+        DEBUG(adapterInfo("Found the thermophysicalProperties dictionary."));
+    }
+    else
+    {
+        DEBUG(adapterInfo("Did not find the thermophysicalProperties dictionary."));
+    }
+
+    if (turbulencePropertiesExists)
+    {
+        if (thermophysicalPropertiesExists)
+        {
+            solverType = "compressible";
+            DEBUG(adapterInfo("This is a compressible flow solver, "
+                "as turbulence and thermophysical properties are provided."));
+        }
+        else if (transportPropertiesExists)
+        {
+            solverType = "incompressible";
+            DEBUG(adapterInfo("This is an incompressible flow solver, "
+            "as turbulence and transport properties are provided."));
+        }
+        else
+        {
+            adapterInfo("Could not determine the solver type, or this is not "
+            "a compatible solver: although turbulence properties are provided, "
+            "neither transport or thermophysical properties are provided.",
+            "error");
+        }
+    }
+    else
+    {
+        if (transportPropertiesExists)
+        {
+            solverType = "basic";
+            DEBUG(adapterInfo("This is a basic solver, as transport properties "
+            "are provided, while turbulence or transport properties are not "
+            "provided."));
+        }
+        else
+        {
+            adapterInfo("Could not determine the solver type, or this is not a "
+            "compatible solver: neither transport, nor turbulence properties "
+            "are provided.",
+            "error");
+        }
+    }
+
+    return solverType;
+}
+
+
+void preciceAdapter::FSI::FluidStructureInteraction::addWriters(std::string dataName, Interface * interface)
+{
+    // NOTE: When coupling a different variable, you may want to
+    // add more cases here. Or you may provide the solverType in the config.
+
+    std::string solverType;
+
+    // Determine the solver type: Compressible, Incompressible or Basic.
+    // Look for the files transportProperties, turbulenceProperties,
+    // and thermophysicalProperties
+    bool transportPropertiesExists = false;
+    bool turbulencePropertiesExists = false;
+    bool thermophysicalPropertiesExists = false;
+
+    if (mesh_.foundObject<IOdictionary>(nameTransportProperties_))
+    {
+        transportPropertiesExists = true;
+        DEBUG(adapterInfo("Found the transportProperties dictionary."));
+            interface->addCouplingDataWriter
+            (
+                dataName,
+                new Force(mesh_, runTime_.timeName(), solverType_, porousMediumForces_) /* TODO: Add any other arguments here */
+            );
+            DEBUG(adapterInfo("Added writer: Force."));
+    }
+    else
+    {
+        DEBUG(adapterInfo("Did not find the transportProperties dictionary."));
+    }
     
     if (mesh_.foundObject<IOdictionary>(turbulenceModel::propertiesName))
     {
@@ -162,7 +266,6 @@ std::string preciceAdapter::FSI::FluidStructureInteraction::determineSolverType(
     return solverType;
 }
 
-
 void preciceAdapter::FSI::FluidStructureInteraction::addWriters(std::string dataName, Interface * interface)
 {
     if (dataName.find("Force") == 0)
@@ -207,7 +310,7 @@ void preciceAdapter::FSI::FluidStructureInteraction::addReaders(std::string data
         interface->addCouplingDataReader
         (
             dataName,
-            new Force(mesh_, runTime_.timeName(), solverType_) /* TODO: Add any other arguments here */
+            new Force(mesh_, runTime_.timeName(), solverType_, porousMediumForces_) /* TODO: Add any other arguments here */
         );
         DEBUG(adapterInfo("Added reader: Force."));
     }

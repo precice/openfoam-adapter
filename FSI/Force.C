@@ -6,7 +6,8 @@ preciceAdapter::FSI::Force::Force
 (
     const Foam::fvMesh& mesh,
     const fileName& timeName,
-    const std::string solverType
+    const std::string solverType,
+    const bool porousMediumForces
     /* TODO: We should add any required field names here.
     /  They would need to be vector fields.
     /  See FSI/Temperature.C for details.
@@ -14,17 +15,18 @@ preciceAdapter::FSI::Force::Force
 )
 :
 mesh_(mesh),
-solverType_(solverType)
+solverType_(solverType),
+porousMediumForces_(porousMediumForces)
 {
     //What about type "basic"?
-    if (solverType_.compare("incompressible") != 0 && solverType_.compare("compressible") != 0) 
+    if (solverType_.compare("incompressible") != 0 && solverType_.compare("compressible") != 0)
     {
         FatalErrorInFunction
             << "Forces calculation does only support "
             << "compressible or incompressible solver type."
             << exit(FatalError);
     }
-    
+
     dataType_ = vector;
 
     Force_ = new volVectorField
@@ -163,8 +165,10 @@ Foam::tmp<Foam::volScalarField> preciceAdapter::FSI::Force::mu() const
             << "Did not find the correct mu."
             << exit(FatalError);
             
-        return volScalarField::null();
-    }
+//Calculate solid force
+Foam::tmp<Foam::volSymmTensorField> preciceAdapter::FSI::Force::devSigma() const
+{
+    return mesh_.lookupObject<volSymmTensorField>("sigma");
 }
 
 void preciceAdapter::FSI::Force::write(double * buffer, bool meshConnectivity, const unsigned int dim)
@@ -175,7 +179,7 @@ void preciceAdapter::FSI::Force::write(double * buffer, bool meshConnectivity, c
     const surfaceVectorField::Boundary& Sfb =
         mesh_.Sf().boundaryField();
 
-    // Stress tensor boundary field
+    //Viscous stress tensor boundary field
     tmp<volSymmTensorField> tdevRhoReff = devRhoReff();
     const volSymmTensorField::Boundary& devRhoReffb =
         tdevRhoReff().boundaryField();
@@ -188,7 +192,7 @@ void preciceAdapter::FSI::Force::write(double * buffer, bool meshConnectivity, c
     // Pressure boundary field
     tmp<volScalarField> tp = mesh_.lookupObject<volScalarField>("p");
     const volScalarField::Boundary& pb =
-        tp().boundaryField();        
+        tp().boundaryField();
 
     int bufferIndex = 0;
     // For every boundary patch of the interface
@@ -220,6 +224,18 @@ void preciceAdapter::FSI::Force::write(double * buffer, bool meshConnectivity, c
         Force_->boundaryFieldRef()[patchID] +=
             Sfb[patchID] & devRhoReffb[patchID];
 
+        //Solid forces from porous medium
+        if (porousMediumForces_ == true)
+        {
+          //Solid stress tensor boundary field
+          tmp<volSymmTensorField> tdevSigma = devSigma();
+          const volSymmTensorField::Boundary& devSigmab =
+                tdevSigma().boundaryField();
+
+          Force_->boundaryFieldRef()[patchID] +=
+              Sfb[patchID] & devSigmab[patchID];
+        }
+
         // Write the forces to the preCICE buffer
         // For every cell of the patch
         forAll(Force_->boundaryFieldRef()[patchID], i)
@@ -227,7 +243,7 @@ void preciceAdapter::FSI::Force::write(double * buffer, bool meshConnectivity, c
             // Copy the force into the buffer
             // x-dimension
             buffer[bufferIndex++]
-            = 
+            =
             Force_->boundaryFieldRef()[patchID][i].x();
 
             // y-dimension
