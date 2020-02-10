@@ -33,11 +33,8 @@ protected:
     //- Solver type
     std::string solverType_ = "none";
     
-    //- Porous Medium Forces
-    bool porousMediumForces_ = false;
-    
-    //- Volume Displacement
-    bool useVolD_ = false;
+    //- Solid Forces
+    bool solidForces_ = false;
     
     //- Name of the transportProperties dictionary
     std::string nameTransportProperties_ = "transportProperties";

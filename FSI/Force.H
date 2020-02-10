@@ -28,7 +28,7 @@ private:
     
     const std::string solverType_;
     
-    const bool porousMediumForces_;
+    const bool solidForces_;
 
     //- Force field
     Foam::volVectorField * Force_;
@@ -51,7 +51,7 @@ public:
         const Foam::fvMesh& mesh,
         const fileName& timeName,
         const std::string solverType,
-        const bool porousMediumForces
+        const bool solidForces
         // We create an IOobject and we need the time directory
         /* TODO: We should add any required field names here.
         /  They would need to be vector fields.

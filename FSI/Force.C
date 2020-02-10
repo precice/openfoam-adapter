@@ -7,7 +7,7 @@ preciceAdapter::FSI::Force::Force
     const Foam::fvMesh& mesh,
     const fileName& timeName,
     const std::string solverType,
-    const bool porousMediumForces
+    const bool solidForces
     /* TODO: We should add any required field names here.
     /  They would need to be vector fields.
     /  See FSI/Temperature.C for details.
@@ -16,7 +16,7 @@ preciceAdapter::FSI::Force::Force
 :
 mesh_(mesh),
 solverType_(solverType),
-porousMediumForces_(porousMediumForces)
+solidForces_(solidForces)
 {
     //What about type "basic"?
     if (solverType_.compare("incompressible") != 0 && solverType_.compare("compressible") != 0) 
@@ -226,8 +226,8 @@ void preciceAdapter::FSI::Force::write(double * buffer, bool meshConnectivity, c
                 << exit(FatalError);
         }
         
-        //Solid forces from porous medium 
-        if (porousMediumForces_ == true)
+        //Solid forces
+        if (solidForces_ == true)
         {
           //Solid stress tensor boundary field
           tmp<volSymmTensorField> tdevSigma = devSigma();

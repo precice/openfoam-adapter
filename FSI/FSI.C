@@ -59,20 +59,12 @@ bool preciceAdapter::FSI::FluidStructureInteraction::readConfig(const YAML::Node
     /* TODO: Read the names of any needed fields and parameters.
     * Include the force here?
     */
-    // Read the porous medium forces
-    if (adapterConfig["porousMediumForces"])
+    // Read the solid forces
+    if (adapterConfig["solidForces"])
     {
-        porousMediumForces_ = adapterConfig["porousMediumForces"].as<bool>();
+        solidForces_ = adapterConfig["solidForces"].as<bool>();
     }
-    DEBUG(adapterInfo("    add porous medium forces : " + std::to_string(porousMediumForces_)));
-    
-    // Read volume Displacement
-    if (adapterConfig["useVolumeDisplacement"])
-    {
-        useVolD_ = adapterConfig["useVolumeDisplacement"].as<bool>();
-    }
-    DEBUG(adapterInfo("    use volume displacement field : " + std::to_string(useVolD_)));
-
+    DEBUG(adapterInfo("    add solid forces : " + std::to_string(solidForces_)));   
 
     // Read the name of the pointDisplacement field (if different)
     if (adapterConfig["namePointDisplacement"])
@@ -219,11 +211,11 @@ void preciceAdapter::FSI::FluidStructureInteraction::addWriters(std::string data
             interface->addCouplingDataWriter
             (
                 dataName,
-                new Force(mesh_, runTime_.timeName(), solverType_, porousMediumForces_) /* TODO: Add any other arguments here */
+                new Force(mesh_, runTime_.timeName(), solverType_, solidForces_) /* TODO: Add any other arguments here */
             );
             DEBUG(adapterInfo("Added writer: Force."));        
     }    
-    else if (dataName.find("DisplacementDelta") == 0 && useVolD_ == false)
+    else if (dataName.find("DisplacementDelta") == 0 && interface->locationsType() == "faceNodes")
     {
         interface->addCouplingDataWriter
         (
@@ -232,7 +224,7 @@ void preciceAdapter::FSI::FluidStructureInteraction::addWriters(std::string data
         );
         DEBUG(adapterInfo("Added writer: DisplacementDelta."));
     }
-    else if (dataName.find("Displacement") == 0 && useVolD_ == false)
+    else if (dataName.find("Displacement") == 0 && interface->locationsType() == "faceNodes")
     {
         interface->addCouplingDataWriter
         (
@@ -241,7 +233,7 @@ void preciceAdapter::FSI::FluidStructureInteraction::addWriters(std::string data
         );
         DEBUG(adapterInfo("Added writer: Displacement."));
     }
-    else if (dataName.find("Displacement") == 0 && useVolD_ == true)
+    else if (dataName.find("Displacement") == 0)
     {
         interface->addCouplingDataWriter
         (
@@ -250,7 +242,7 @@ void preciceAdapter::FSI::FluidStructureInteraction::addWriters(std::string data
         );
         DEBUG(adapterInfo("Added writer: volDisplacement."));
     }
-    else if (dataName.find("DisplacementDelta") == 0 && useVolD_ == true)
+    else if (dataName.find("DisplacementDelta") == 0)
     {
         interface->addCouplingDataWriter
         (
@@ -274,11 +266,11 @@ void preciceAdapter::FSI::FluidStructureInteraction::addReaders(std::string data
         interface->addCouplingDataReader
         (
             dataName,
-            new Force(mesh_, runTime_.timeName(), solverType_, porousMediumForces_) /* TODO: Add any other arguments here */
+            new Force(mesh_, runTime_.timeName(), solverType_, solidForces_) /* TODO: Add any other arguments here */
         );
         DEBUG(adapterInfo("Added reader: Force."));
     }
-    else if (dataName.find("DisplacementDelta") == 0 && useVolD_ == false)
+    else if (dataName.find("DisplacementDelta") == 0 && interface->locationsType() == "faceNodes")
     {
         interface->addCouplingDataReader
         (
@@ -287,7 +279,7 @@ void preciceAdapter::FSI::FluidStructureInteraction::addReaders(std::string data
         );
         DEBUG(adapterInfo("Added reader: DisplacementDelta."));
     }
-    else if (dataName.find("Displacement") == 0 && useVolD_ == false)
+    else if (dataName.find("Displacement") == 0 && interface->locationsType() == "faceNodes")
     {
         interface->addCouplingDataReader
         (
@@ -296,7 +288,7 @@ void preciceAdapter::FSI::FluidStructureInteraction::addReaders(std::string data
         );
         DEBUG(adapterInfo("Added reader: Displacement."));
     }    
-    else if (dataName.find("DisplacementDelta") == 0 && useVolD_ == true)
+    else if (dataName.find("DisplacementDelta") == 0)
     {
         interface->addCouplingDataReader
         (
@@ -305,7 +297,7 @@ void preciceAdapter::FSI::FluidStructureInteraction::addReaders(std::string data
         );
         DEBUG(adapterInfo("Added reader: volDisplacementDelta."));
     }
-    else if (dataName.find("Displacement") == 0 && useVolD_ == true)
+    else if (dataName.find("Displacement") == 0)
     {
         interface->addCouplingDataReader
         (
