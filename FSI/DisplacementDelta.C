@@ -24,36 +24,36 @@ void preciceAdapter::FSI::DisplacementDelta::write(double * buffer, bool meshCon
     // For every boundary patch of the interface
     for (uint j = 0; j < patchIDs_.size(); j++)
     {
-        int patchID = patchIDs_.at(j);
-        
+        int patchID = patchIDs_.at(j);        
+                
         // Get the displacement on the patch
-        fixedValuePointPatchVectorField& DpointDisplacementFluidPatch =
+        fixedValuePointPatchVectorField& DpointDisplacementPatch =
             refCast<fixedValuePointPatchVectorField>
             (
                 DpointDisplacement_->boundaryFieldRef()[patchID]
-            );
-        
+            );            
+                
         // Write the displacements to the preCICE buffer
         // For every cell of the patch
         forAll(DpointDisplacement_->boundaryFieldRef()[patchID], i)
         {
-            // Copy the dispalcement into the buffer
+            // Copy the displacement into the buffer
             // x-dimension
             buffer[bufferIndex++]
             = 
-            DpointDisplacementFluidPatch[i][0];
+            DpointDisplacementPatch[i][0];
 
             // y-dimension
             buffer[bufferIndex++]
             =
-            DpointDisplacementFluidPatch[i][1];
+            DpointDisplacementPatch[i][1];
 
             if(dim == 3)
                 // z-dimension
                 buffer[bufferIndex++]
                 =
-                DpointDisplacementFluidPatch[i][2];
-        }
+                DpointDisplacementPatch[i][2];
+        }        
     }
 }
 
@@ -69,7 +69,7 @@ void preciceAdapter::FSI::DisplacementDelta::read(double * buffer, const unsigne
         int patchID = patchIDs_.at(j);
 
         // Get the displacement on the patch
-        fixedValuePointPatchVectorField& pointDisplacementFluidPatch =
+        fixedValuePointPatchVectorField& pointDisplacementPatch =
             refCast<fixedValuePointPatchVectorField>
             (
                 DpointDisplacement_->boundaryFieldRef()[patchID]
@@ -79,10 +79,10 @@ void preciceAdapter::FSI::DisplacementDelta::read(double * buffer, const unsigne
         forAll(DpointDisplacement_->boundaryFieldRef()[patchID], i)
         {
             // Set the displacementDeltas to the received one
-            pointDisplacementFluidPatch[i][0] = buffer[bufferIndex++];
-            pointDisplacementFluidPatch[i][1] = buffer[bufferIndex++];
+            pointDisplacementPatch[i][0] = buffer[bufferIndex++];
+            pointDisplacementPatch[i][1] = buffer[bufferIndex++];
             if(dim == 3)
-                pointDisplacementFluidPatch[i][2] = buffer[bufferIndex++];
+                pointDisplacementPatch[i][2] = buffer[bufferIndex++];
         }
     }
 }

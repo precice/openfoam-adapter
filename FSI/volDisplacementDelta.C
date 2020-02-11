@@ -27,7 +27,7 @@ void preciceAdapter::FSI::volDisplacementDelta::write(double * buffer, bool mesh
         int patchID = patchIDs_.at(j);
         
         // Get the displacement on the patch
-        fixedValueFvPatchVectorField& DcellDisplacementFluidPatch =
+        fixedValueFvPatchVectorField& DcellDisplacementPatch =
             refCast<fixedValueFvPatchVectorField>
             (
                 DcellDisplacement_->boundaryFieldRef()[patchID]
@@ -41,18 +41,18 @@ void preciceAdapter::FSI::volDisplacementDelta::write(double * buffer, bool mesh
             // x-dimension
             buffer[bufferIndex++]
             = 
-            DcellDisplacementFluidPatch[i][0];
+            DcellDisplacementPatch[i][0];
 
             // y-dimension
             buffer[bufferIndex++]
             =
-            DcellDisplacementFluidPatch[i][1];
+            DcellDisplacementPatch[i][1];
 
             if(dim == 3)
                 // z-dimension
                 buffer[bufferIndex++]
                 =
-                DcellDisplacementFluidPatch[i][2];
+                DcellDisplacementPatch[i][2];
         }
     }
 }
@@ -69,7 +69,7 @@ void preciceAdapter::FSI::volDisplacementDelta::read(double * buffer, const unsi
         int patchID = patchIDs_.at(j);
 
         // Get the displacementDelta on the patch
-        fixedValueFvPatchVectorField& DcellDisplacementFluidPatch =
+        fixedValueFvPatchVectorField& DcellDisplacementPatch =
             refCast<fixedValueFvPatchVectorField>
             (
                 DcellDisplacement_->boundaryFieldRef()[patchID]
@@ -79,10 +79,10 @@ void preciceAdapter::FSI::volDisplacementDelta::read(double * buffer, const unsi
         forAll(DcellDisplacement_->boundaryFieldRef()[patchID], i)
         {
             // Set the displacementDeltas to the received one
-            DcellDisplacementFluidPatch[i][0] = buffer[bufferIndex++];
-            DcellDisplacementFluidPatch[i][1] = buffer[bufferIndex++];
+            DcellDisplacementPatch[i][0] = buffer[bufferIndex++];
+            DcellDisplacementPatch[i][1] = buffer[bufferIndex++];
             if(dim == 3)
-                DcellDisplacementFluidPatch[i][2] = buffer[bufferIndex++];
+                DcellDisplacementPatch[i][2] = buffer[bufferIndex++];
         }
     }
 }
