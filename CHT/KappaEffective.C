@@ -48,7 +48,6 @@ scalar preciceAdapter::CHT::KappaEff_Compressible::getAt(int i)
 preciceAdapter::CHT::KappaEff_Incompressible::KappaEff_Incompressible
 (
     const Foam::fvMesh& mesh,
-    const std::string nameTransportProperties,
     const std::string nameRho,
     const std::string nameCp,
     const std::string namePr,
@@ -59,40 +58,27 @@ mesh_(mesh),
 turbulence_(
     mesh.lookupObject<incompressible::turbulenceModel>(turbulenceModel::propertiesName)
 ),
-nameTransportProperties_(nameTransportProperties),
 nameRho_(nameRho),
 nameCp_(nameCp),
 namePr_(namePr),
 nameAlphat_(nameAlphat)
 {
         DEBUG(adapterInfo("Constructed KappaEff_Incompressible."));
-        DEBUG(adapterInfo("  Name of transportProperties: " + nameTransportProperties_));
         DEBUG(adapterInfo("  Name of density: " + nameRho_));
         DEBUG(adapterInfo("  Name of heat capacity: " + nameCp_));
         DEBUG(adapterInfo("  Name of Prandl number: " + namePr_));
         DEBUG(adapterInfo("  Name of turbulent thermal diffusivity: " + nameAlphat_));
 
-        // Make sure that the transportProperties exists.
-        if (!mesh_.foundObject<IOdictionary>(nameTransportProperties_))
-        {
-            FatalErrorInFunction
-                << "The transportProperties dictionary needs "
-                << "to exist and to contain Pr, rho, and Cp."
-                << exit(FatalError);
-        }
-
-        // Get the transportProperties dictionary
-        const dictionary & transportProperties =
-            &mesh_.lookupObject<IOdictionary>(nameTransportProperties_);
+        // Get the preciceDict/CHT dictionary
+        const dictionary CHTDict =
+            mesh_.lookupObject<IOdictionary>("preciceDict").subOrEmptyDict("CHT");
 
         // Read the Prandtl number
-        if (!transportProperties.readIfPresent<dimensionedScalar>(namePr_, Pr_))
+        if (!CHTDict.readIfPresent<dimensionedScalar>(namePr_, Pr_))
         {
             adapterInfo
             (
-                "Cannot find the Prandtl number in " +
-                nameTransportProperties_ +
-                " using the name " +
+                "Cannot find the Prandtl number in preciceDict/CHT using the name " +
                 namePr_,
                 "error"
             );
@@ -103,13 +89,11 @@ nameAlphat_(nameAlphat)
         }
 
         // Read the density
-        if (!transportProperties.readIfPresent<dimensionedScalar>(nameRho_, rho_))
+        if (!CHTDict.readIfPresent<dimensionedScalar>(nameRho_, rho_))
         {
             adapterInfo
             (
-                "Cannot find the density in " +
-                nameTransportProperties_ +
-                " using the name " +
+                "Cannot find the density in preciceDict/CHT using the name " +
                 nameRho_,
                 "error"
             );
@@ -120,13 +104,11 @@ nameAlphat_(nameAlphat)
         }
 
         // Read the heat capacity
-        if (!transportProperties.readIfPresent<dimensionedScalar>(nameCp_, Cp_))
+        if (!CHTDict.readIfPresent<dimensionedScalar>(nameCp_, Cp_))
         {
             adapterInfo
             (
-                "Cannot find the heat capacity in " +
-                nameTransportProperties_ +
-                " using the name " +
+                "Cannot find the heat capacity in preciceDict/CHT using the name " +
                 nameCp_,
                 "error"
             );
@@ -199,39 +181,25 @@ scalar preciceAdapter::CHT::KappaEff_Incompressible::getAt(int i)
 preciceAdapter::CHT::KappaEff_Basic::KappaEff_Basic
 (
     const Foam::fvMesh& mesh,
-    const std::string nameTransportProperties,
     const std::string nameKappa
 )
 :
 mesh_(mesh),
-nameTransportProperties_(nameTransportProperties),
 nameKappa_(nameKappa)
 {
     DEBUG(adapterInfo("Constructed KappaEff_Basic."));
-    DEBUG(adapterInfo("  Name of transportProperties: " + nameTransportProperties_));
     DEBUG(adapterInfo("  Name of conductivity: " + nameKappa_));
 
-    // Make sure that the transportProperties exists.
-    if (!mesh_.foundObject<IOdictionary>(nameTransportProperties_))
-    {
-        FatalErrorInFunction
-            << "The transportProperties dictionary needs "
-            << "to exist and to contain k."
-            << exit(FatalError);
-    }
-
-    // Get the transportProperties dictionary
-    const dictionary & transportProperties =
-        &mesh_.lookupObject<IOdictionary>(nameTransportProperties_);
+    // Get the preciceDict/CHT dictionary
+    const dictionary CHTDict =
+        mesh_.lookupObject<IOdictionary>("preciceDict").subOrEmptyDict("CHT");
 
     // Read the conductivity
-    if (!transportProperties.readIfPresent<dimensionedScalar>(nameKappa_, kappaEff_))
+    if (!CHTDict.readIfPresent<dimensionedScalar>(nameKappa_, kappaEff_))
     {
         adapterInfo
         (
-            "Cannot find the conductivity in " +
-            nameTransportProperties_ +
-            " using the name " +
+            "Cannot find the conductivity in preciceDict/CHT using the name " +
             nameKappa_,
             "error"
         );
