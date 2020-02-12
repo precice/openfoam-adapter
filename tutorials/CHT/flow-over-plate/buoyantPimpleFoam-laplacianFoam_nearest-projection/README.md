@@ -12,12 +12,12 @@ For example, in our case, we exchange `Temperature` data in a `consistent` way f
 Notes: 
 
 - In a standard **CHT** calculation, both data sets (heat flux and temperature) are mapped consistently. Therefore, both participants need to provide connectivity.
-- In a standard **FSI** calculation, forces are mapped conservatively from `Fluid` to `Solid`, while displacements are mapped consistently from `Solid` to `Fluid`. Hence, it's `Solid` that needs to provide connectivity and not `Fluid`.
+- In a standard **FSI** calculation, forces are mapped conservatively from `Fluid` to `Solid`, while displacements are mapped consistently from `Solid` to `Fluid`. Hence, it is `Solid` that needs to provide connectivity and not `Fluid`.
 
-If mesh connectivity is not provided in the described way, you are nevertheless able to define a nearest-projection mapping in your `precice-config.xml`file, but it will _fall back to a first order nearest-neighbor mapping_.
+If mesh connectivity is not provided in the described way, you are nevertheless able to define a nearest-projection mapping in your `precice-config.xml`file, but it will _fall back to a first-order nearest-neighbor mapping_.
 
 ## Adapter Implementation
-Since OpenFOAM is a finite-volume based solver, data is located in the middle of the cell, or on the cell face centers for a coupling interface. Mesh connectivity can be given to preCICE using the methods `setMeshTriangle` and `setMeshEdge`. Using the face centers as arguments for these methods is cumbersome. The main reason is that, although OpenFOAM decomposes the mesh for parallel simulations and distributes the subdomains to different processes, mesh connectivity needs to be defined over the partitioned mesh boundaries. This problem vanishes if we define mesh connectivity based on the face nodes, since boundary nodes can be shared among processors. Therefore, mesh connectivity can only be provided on the face nodes not on the face centers.
+Since OpenFOAM is a finite-volume based solver, data is located in the middle of the cell, or on the cell face centers for a coupling interface. Mesh connectivity can be given to preCICE using the methods `setMeshTriangle` and `setMeshEdge`. Using the face centers as arguments for these methods is cumbersome. The main reason is that, although OpenFOAM decomposes the mesh for parallel simulations and distributes the subdomains to different processes, mesh connectivity needs to be defined over the partitioned mesh boundaries. This problem vanishes if we define mesh connectivity based on the face nodes, since boundary nodes can be shared among processors. Therefore, mesh connectivity can only be provided on the face nodes (not on the face centers).
 
 As described already, the data is not stored on the face nodes, but on the face centers. Therefore, we use OpenFOAM functions to interpolate from face centers to face nodes. The following image illustrates the workflow:
 
@@ -32,7 +32,7 @@ This implementation supports all CHT-related fields, which are mapped with a `co
 
 ## Changes in the Simulation Setup
 
-As we are defining two meshes for each participant, we need to define them in the `precice-config.xml` and `precice-adapter-config.yml` configuration files. Additionally, we need to enable the `provideMeshConnectivity` switch for the adapter.
+As we are defining two meshes for each participant, we need to define them in the `precice-config.xml` and `preciceDict` configuration files. Additionally, we need to enable the `connectivity` switch for the adapter.
 
 ### Changes in `precice-config.xml`
 In order to map from face nodes to face centers, both meshes need to be specified. The nodes-based mesh uses the write data and the centers-based mesh uses the read data. Have a look in the given `precice-config.xml` in this tutorial. Example: `Temperature` is calculated by the `Fluid` participant and passed to the `Solid` participant. Therefore, it is the write data of the participant `Fluid` and the read data of the participant `Solid`. This results in the following two meshes for this data:
@@ -46,40 +46,63 @@ In order to map from face nodes to face centers, both meshes need to be specifie
 ```
 All further changes follow from this interface splitting. Have a look in the given config files for all details.
 
-### Changes in `precice-adapter-config.yml`
+### Changes in `preciceDict`
 
-By default, the OpenFOAM adapter doesn't provide any connectivity information. Therefore, a new boolean variable called `provideMeshConnectivity` is introduced. This variable is associated to each interface and can be set accordingly. Note: Mesh connectivity can only be provided in case `locationsType: faceNodes` is set (see section Adapter Implementation). Similar to the interface splitting in the `precice-config.xml` file, the interfaces also need to be defined in the `yml` file. For example:
+By default, the OpenFOAM adapter doesn't provide any connectivity information. Therefore, a new boolean variable called `connectivity` is introduced. This variable is associated to each interface and can be set accordingly. Note: Mesh connectivity can only be provided in case `locations faceNodes` is set (see section Adapter Implementation). Similar to the interface splitting in the `precice-config.xml` file, the interfaces also need to be defined in the `preciceDict` file. For example:
 
 ```
-interfaces:
-- mesh: Fluid-Mesh-Centers
-  locations: faceCenters         # default
-  provideMeshConnectivity: false # default
-  patches:
-  - interface
-  read-data: Heat-Flux
-- mesh: Fluid-Mesh-Nodes
-  locations: faceNodes
-  provideMeshConnectivity: true
-  patches:
-  - interface
-  write-data: Temperature
+interfaces
+{
+  Interface1
+  {
+    mesh              Fluid-Mesh-Centers;
+    locations         faceCenters;
+    connectivity      false;
+    patches           (interface);
+    
+    readData
+    (
+      Heat-Flux
+    );
+    
+    writeData
+    (
+    );
+  };
+  
+  Interface2
+  {
+    mesh              Fluid-Mesh-Nodes;
+    locations         faceNodes;
+    connectivity      true;
+    patches           (interface);
+    
+    readData
+    (
+    );
+    
+    writeData
+    (
+      Temperature
+    );
+  };
+};
 ```
-The participant `Fluid` has its read data `Heat-Flux`, which is read on the `faceCenters`, and its write data `Temperature`, which is written to the `faceNodes`. The mesh connectivity needs only to be provided in case of the `faceNodes`, using the option `provideMeshConnectivity: true`.
+The participant `Fluid` has its read data `Heat-Flux`, which is read on the `faceCenters`, and its write data `Temperature`, which is written to the `faceNodes`. The mesh connectivity needs only to be provided in case of the `faceNodes`, using the option `connectivity true`.
 
 ## General Notes
 
-Since you now define mesh connectivity on your interface, you can export your coupling interface with the tag `<export:vtk directory="preCICE-output" />` in your `precice-config.xml`. Make sure you have created the specified target directory (preCICE-output in the example files) in your local simulation directory, otherwise preCICE will complain about it.
+Since you now define mesh connectivity on your interface, you can export your coupling interface with the tag `<export:vtk directory="preCICE-output" />` in your `precice-config.xml`.
 
 Visualizing these files (e.g. using ParaView) will show a triangular mesh, even though you use hexahedral meshes. This has nothing to do with your mesh and is just caused by the way the connectivity is defined in preCICE. As described above, the function `setMeshTriangles` is used to define the connectivity. Hence, every interface cell/face is represented by two triangles. The following image should give you an impression of a possible triangulated coupling mesh, which consists purely of hexahedral cells:
 
 ![triangulated](https://user-images.githubusercontent.com/33414590/55974257-96b07d80-5c87-11e9-9965-972b922c483d.png)
  
-Note: Connectivity is defined on meshes associated with mesh nodes, which are named respectively e.g. Fluid-Mesh-Nodes. In this case, you could directly see the interface without applying filters by loading the `.vtk` files. In order to visualize additionally center based meshes, where no connectivity is provided, select a Glyph filter in paraView. Furthermore, it makes a difference, on which participant the `<export...` tag is defined in your `precice-config.xml` file. Each participant exports interface meshes, which he provides or receives. The receiving participant filters out mesh parts that it does not need (for the mapping). Hence, a received mesh might look incomplete.
+Note: Connectivity is defined on meshes associated with mesh nodes, which are named respectively e.g. `Fluid-Mesh-Nodes`. In this case, you could directly see the interface without applying filters by loading the `.vtk` files. In order to visualize additionally center based meshes, where no connectivity is provided, select a Glyph filter in ParaView. Furthermore, it makes a difference, on which participant the `<export...` tag is defined in your `precice-config.xml` file. Each participant exports interface meshes, which he provides or receives. The receiving participant filters out mesh parts that it does not need (for the mapping). Hence, a received mesh might look incomplete.
 
 ### Notes on 2D Cases
 
-The geometry of the tutorial differs compared to the existing example: The out-of-plane thickness of the domain is reduced clearly and it is recommended. Otherwise your face centes have a quite large distance to the face nodes, which might trigger a preCICE warning. In that case, preCICE may filter out one of the meshes, especially in parallel simulations.  
+The geometry of the tutorial differs compared to the existing example: The out-of-plane thickness of the domain is reduced clearly and it is recommended. Otherwise your face centers have a quite large distance to the face nodes, which might trigger a preCICE warning. In that case, preCICE may filter out one of the meshes, especially in parallel simulations.  
 
 ### Disclaimer
 
