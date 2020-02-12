@@ -53,7 +53,7 @@ void preciceAdapter::FSI::DisplacementDelta::write(double * buffer, bool meshCon
                 buffer[bufferIndex++]
                 =
                 DpointDisplacementPatch[i][2];
-        }        
+        }       
     }
 }
 
@@ -83,6 +83,6 @@ void preciceAdapter::FSI::DisplacementDelta::read(double * buffer, const unsigne
             pointDisplacementPatch[i][1] = buffer[bufferIndex++];
             if(dim == 3)
                 pointDisplacementPatch[i][2] = buffer[bufferIndex++];
-        }
+        }      
     }
 }

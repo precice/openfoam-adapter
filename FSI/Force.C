@@ -262,7 +262,7 @@ void preciceAdapter::FSI::Force::write(double * buffer, bool meshConnectivity, c
                 buffer[bufferIndex++]
                 =
                 Force_->boundaryFieldRef()[patchID][i].z();
-        }
+        }        
     }
 }
 
@@ -277,22 +277,18 @@ void preciceAdapter::FSI::Force::read(double * buffer, const unsigned int dim)
         int patchID = patchIDs_.at(j);
 
         // Get the force on the patch
-        fixedValueFvPatchVectorField& ForcePatch =
-            refCast<fixedValueFvPatchVectorField>
-            (
-                Force_->boundaryFieldRef()[patchID]
-            );
+        vectorField ForcePatch = Force_->boundaryFieldRef()[patchID];
 
         // For every cell of the patch
         forAll(Force_->boundaryFieldRef()[patchID], i)
         {
-            // Set the force to the received one
-            ForcePatch[i][0] = buffer[bufferIndex++];
+            // Set the force to the received one            
+            ForcePatch[i][0] = buffer[bufferIndex++];            
             ForcePatch[i][1] = buffer[bufferIndex++];
             if(dim == 3)
-                ForcePatch[i][2] = buffer[bufferIndex++];
-            
-        }
+                ForcePatch[i][2] = buffer[bufferIndex++];                
+        }        
+        Force_->boundaryFieldRef()[patchID] == ForcePatch;        
     }
 }
 
