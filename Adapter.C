@@ -13,229 +13,135 @@ preciceAdapter::Adapter::Adapter(const Time& runTime, const fvMesh& mesh)
 {
     adapterInfo("The preciceAdapter was loaded.", "info");
 
-#ifdef ADAPTER_DEBUG_MODE
-    Info<< "Registered objects: " << mesh_.names() << endl;
-#endif
-
     return;
 }
 
-bool preciceAdapter::Adapter::configFileCheck(const std::string adapterConfigFileName)
-{
-    DEBUG(adapterInfo("Checking the adapter's YAML configuration file..."));
-
-    bool configErrors = false;
-
-    YAML::Node adapterConfig = YAML::LoadFile(adapterConfigFileName);
-
-    // Check if the "participant" node exists
-    if (!adapterConfig["participant"])
-    {
-        adapterInfo("The 'participant' node is missing in " + adapterConfigFileName + ".", "error-deferred");
-        configErrors = true;
-    }
-
-    // Check if the "precice-config-file" node exists
-    if (!adapterConfig["precice-config-file"])
-    {
-        adapterInfo("The 'precice-config-file' node is missing in " + adapterConfigFileName + ".", "error-deferred");
-        configErrors = true;
-    }
-
-    // Check if the "interfaces" node exists
-    if (!adapterConfig["interfaces"])
-    {
-        adapterInfo("The 'interfaces' node is missing in " + adapterConfigFileName + ".", "error-deferred");
-        configErrors = true;
-    }
-    else
-    {
-        for (uint i = 0; i < adapterConfig["interfaces"].size(); i++)
-        {
-            if (!adapterConfig["interfaces"][i]["mesh"])
-            {
-                adapterInfo("The 'mesh' node is missing for the interface #" + std::to_string(i+1) + " in " + adapterConfigFileName + ".", "error-deferred");
-                configErrors = true;
-            }
-            if (!adapterConfig["interfaces"][i]["patches"])
-            {
-                adapterInfo("The 'patches' node is missing for the interface #" + std::to_string(i+1) + " in " + adapterConfigFileName + ".", "error-deferred");
-                configErrors = true;
-            }
-        }
-    }
-
-    return !configErrors;
-}
-
-
 bool preciceAdapter::Adapter::configFileRead()
 {
-    // Check the configuration file.
-    // The file should be named "precice-adapter-config.yml" and located
-    // in the global case directory. In case of a decomposed case, this is
-    // the parent directory of the "processor*" directories.
-    std::string adapterConfigFileName;
-    if (runTime_.processorCase())
+
+    // We need a try-catch here, as if reading preciceDict fails,
+    // the respective exception will be reduced to a warning.
+    // See also comment in preciceAdapter::Adapter::configure().
+    try {
+        adapterInfo("Reading preciceDict...", "info");
+
+        // TODO: static is just a quick workaround to be able
+        // to find the dictionary also out of scope (e.g. in KappaEffective).
+        // We need a better solution.
+        static IOdictionary preciceDict
+        (
+            IOobject
+            (
+                "preciceDict",
+                runTime_.system(),
+                mesh_,
+                IOobject::MUST_READ_IF_MODIFIED,
+                IOobject::NO_WRITE
+            )
+        );
+    
+    // Read and display the preCICE configuration file name
+    // NOTE: lookupType<T>("name") is deprecated in openfoam.com since v1812,
+    // which recommends get<T>("name") instead. However, get<T>("name")
+    // is not implemented in openfoam.org at the moment.
+    preciceConfigFilename_ = preciceDict.lookupType<fileName>("preciceConfig");
+    DEBUG(adapterInfo("  precice-config-file : " + preciceConfigFilename_));
+
+    // Read and display the participant name
+    participantName_ = preciceDict.lookupType<word>("participant");
+    DEBUG(adapterInfo("  participant name    : " + participantName_));
+
+    // Read and display the list of modules
+    DEBUG(adapterInfo("  modules requested   : "));
+    wordList modules_ = preciceDict.lookupType<wordList>("modules");
+    for (auto module : modules_)
     {
-        adapterConfigFileName = runTime_.path() + "/../precice-adapter-config.yml";
+        DEBUG(adapterInfo("  - " + module + "\n"));
+        
+        // Set the modules switches
+        if (module == "CHT") CHTenabled_ = true;
+        if (module == "FSI") FSIenabled_ = true;
+    }
+
+    // Every interface is a subdictionary of "interfaces",
+    // each with an arbitrary name. Read all of them and create
+    // a list (here: pointer) of dictionaries.
+    const dictionary * interfaceDictPtr = preciceDict.subDictPtr("interfaces");
+    DEBUG(adapterInfo("  interfaces : "));
+
+    // Check if we found any interfaces
+    // and get the details of each interface
+    if (!interfaceDictPtr)
+    {
+      adapterInfo("  Empty list of interfaces", "warning");
+      return false;
     }
     else
     {
-        adapterConfigFileName = runTime_.path() + "/precice-adapter-config.yml";
+      for (const entry& interfaceDictEntry : *interfaceDictPtr)
+      {
+        if(interfaceDictEntry.isDict())
+        {
+          dictionary interfaceDict = interfaceDictEntry.dict();
+          struct InterfaceConfig interfaceConfig;
+          
+          interfaceConfig.meshName = interfaceDict.lookupType<word>("mesh");
+          DEBUG(adapterInfo("  - mesh         : " + interfaceConfig.meshName));
+          
+          // By default, assume "faceCenters" as locationsType
+          interfaceConfig.locationsType = interfaceDict.lookupOrDefault<word>("locations", "faceCenters");
+          DEBUG(adapterInfo("    locations    : " + interfaceConfig.locationsType));
+          
+          // By default, assume that no mesh connectivity is required (i.e. no nearest-projection mapping)
+          interfaceConfig.meshConnectivity = interfaceDict.lookupOrDefault<bool>("connectivity", false);
+          // Mesh connectivity only makes sense in case of faceNodes, check and raise a warning otherwise
+          if(interfaceConfig.meshConnectivity && interfaceConfig.locationsType == "faceCenters")
+          {
+              DEBUG(adapterInfo("Mesh connectivity is not supported for faceCenters. \n"
+                                "Please configure the desired interface with the locationsType faceNodes. \n"
+                                "Have a look in the adapter wiki on Github or the tutorial case for detailed information.", "warning"));
+              return false;
+          }
+          DEBUG(adapterInfo("    connectivity : " + std::to_string(interfaceConfig.meshConnectivity)));
+          
+          DEBUG(adapterInfo("    patches      : "));
+          wordList patches = interfaceDict.lookupType<wordList>("patches");
+          for (auto patch : patches)
+          {
+            interfaceConfig.patchNames.push_back(patch);
+            DEBUG(adapterInfo("      - " + patch));
+          }
+          
+          DEBUG(adapterInfo("    writeData    : "));
+          wordList writeData = interfaceDict.lookupType<wordList>("writeData");
+          for (auto writeDatum : writeData)
+          {
+            interfaceConfig.writeData.push_back(writeDatum);
+            DEBUG(adapterInfo("      - " + writeDatum));
+          }
+          
+          DEBUG(adapterInfo("    readData     : "));
+          wordList readData = interfaceDict.lookupType<wordList>("readData");
+          for (auto readDatum : readData)
+          {
+            interfaceConfig.readData.push_back(readDatum);
+            DEBUG(adapterInfo("      - " + readDatum));
+          }
+          interfacesConfig_.push_back(interfaceConfig);
+        }
+      }
     }
-    adapterInfo("Reading the adapter's YAML configuration file " + adapterConfigFileName + "...", "info");
-
-    if (!configFileCheck(adapterConfigFileName)) return false;
-
-    // Load the YAML file
-    YAML::Node adapterConfig_ = YAML::LoadFile(adapterConfigFileName);
-
-    // Read the preCICE participant name
-    participantName_ = adapterConfig_["participant"].as<std::string>();
-    DEBUG(adapterInfo("  participant : " + participantName_));
-
-    // Read the preCICE configuration file name
-    preciceConfigFilename_ = adapterConfig_["precice-config-file"].as<std::string>();
-    DEBUG(adapterInfo("  precice-config-file : " + preciceConfigFilename_));
-
-    YAML::Node adapterConfigInterfaces = adapterConfig_["interfaces"];
-    DEBUG(adapterInfo("  interfaces : "));
-    for (uint i = 0; i < adapterConfigInterfaces.size(); i++)
-    {
-        struct InterfaceConfig interfaceConfig;
-        interfaceConfig.meshName = adapterConfigInterfaces[i]["mesh"].as<std::string>();
-        DEBUG(adapterInfo("  - mesh      : " + interfaceConfig.meshName));
-
-        // By default, assume "faceCenters" as locationsType
-        interfaceConfig.locationsType = "faceCenters";
-        if (adapterConfigInterfaces[i]["locations"])
-        {
-            interfaceConfig.locationsType = adapterConfigInterfaces[i]["locations"].as<std::string>();
-        }
-        DEBUG(adapterInfo("    locations : " + interfaceConfig.locationsType));
-
-        // By default, assume that no mesh connectivity is required (i.e. no nearest-projection mapping)
-        interfaceConfig.meshConnectivity = false;
-        // Check if provideMeshConnectivity exists
-        if (adapterConfigInterfaces[i]["provideMeshConnectivity"])
-        {
-            // Check if provideMeshConnectivity is true
-            if (adapterConfigInterfaces[i]["provideMeshConnectivity"].as<bool>())
-            {
-                // Mesh connectivity only makes sense in case of faceNodes, check and raise a warning otherwise
-                if(interfaceConfig.locationsType == "faceNodes")
-                {
-                    interfaceConfig.meshConnectivity = true;
-                }
-                else
-                {
-                    DEBUG(adapterInfo("Mesh connectivity is not supported for faceCenters. \n"
-                                      "Please configure the desired interface with the locationsType faceNodes. \n"
-                                      "Have a look in the adapter wiki on Github or the tutorial case for detailed information.", "warning"));
-                    return false;
-                }
-            }
-
-        }
-        DEBUG(adapterInfo("    Provide mesh connectivity : " + std::to_string(interfaceConfig.meshConnectivity)));
-
-        DEBUG(adapterInfo("    patches   : "));
-        for (uint j = 0; j < adapterConfigInterfaces[i]["patches"].size(); j++)
-        {
-            interfaceConfig.patchNames.push_back(adapterConfigInterfaces[i]["patches"][j].as<std::string>());
-            DEBUG(adapterInfo("      " + adapterConfigInterfaces[i]["patches"][j].as<std::string>()));
-        }
-
-        if (adapterConfigInterfaces[i]["write-data"])
-        {
-            DEBUG(adapterInfo("    write-data : "));
-            if (adapterConfigInterfaces[i]["write-data"].size() > 0)
-            {
-                for (uint j = 0; j < adapterConfigInterfaces[i]["write-data"].size(); j++)
-                {
-                    interfaceConfig.writeData.push_back(adapterConfigInterfaces[i]["write-data"][j].as<std::string>());
-                    DEBUG(adapterInfo("      " + adapterConfigInterfaces[i]["write-data"][j].as<std::string>()));
-                }
-            }
-            else
-            {
-                interfaceConfig.writeData.push_back(adapterConfigInterfaces[i]["write-data"].as<std::string>());
-                DEBUG(adapterInfo("      " + adapterConfigInterfaces[i]["write-data"].as<std::string>()));
-            }
-        }
-
-        if (adapterConfigInterfaces[i]["read-data"])
-        {
-            DEBUG(adapterInfo("    read-data : "));
-            if (adapterConfigInterfaces[i]["read-data"].size() > 0)
-            {
-                for (uint j = 0; j < adapterConfigInterfaces[i]["read-data"].size(); j++)
-                {
-                    interfaceConfig.readData.push_back(adapterConfigInterfaces[i]["read-data"][j].as<std::string>());
-                    DEBUG(adapterInfo("      " + adapterConfigInterfaces[i]["read-data"][j].as<std::string>()));
-                }
-            }
-            else
-            {
-                interfaceConfig.readData.push_back(adapterConfigInterfaces[i]["read-data"].as<std::string>());
-                DEBUG(adapterInfo("      " + adapterConfigInterfaces[i]["read-data"].as<std::string>()));
-            }
-        }
-
-        interfacesConfig_.push_back(interfaceConfig);
-    }
-
-    // Set the subcyclingAllowed_ switch
-    if (adapterConfig_["subcycling"])
-    {
-        subcyclingAllowed_ = adapterConfig_["subcycling"].as<bool>();
-    }
-    DEBUG(adapterInfo("    subcycling : " + std::to_string(subcyclingAllowed_)));
-
-    // Set the preventEarlyExit_ switch
-    if (adapterConfig_["preventEarlyExit"])
-    {
-        preventEarlyExit_ = adapterConfig_["preventEarlyExit"].as<bool>();
-    }
-    DEBUG(adapterInfo("    prevent early exit : " + std::to_string(preventEarlyExit_)));
-
+    
     // Set the evaluateBoundaries_ switch
-    if (adapterConfig_["evaluateBoundaries"])
-    {
-        evaluateBoundaries_ = adapterConfig_["evaluateBoundaries"].as<bool>();
-    }
-    DEBUG(adapterInfo("    evaluate boundaries : " + std::to_string(evaluateBoundaries_)));
-
-    // Set the disableCheckpointing_ switch
-    if (adapterConfig_["disableCheckpointing"])
-    {
-        disableCheckpointing_ = adapterConfig_["disableCheckpointing"].as<bool>();
-    }
-    DEBUG(adapterInfo("    disable checkpointing : " + std::to_string(disableCheckpointing_)));
-
-    // Set the CHTenabled_ switch
-    if (adapterConfig_["CHTenabled"])
-    {
-        CHTenabled_ = adapterConfig_["CHTenabled"].as<bool>();
-    }
-    DEBUG(adapterInfo("    CHT module enabled : " + std::to_string(CHTenabled_)));
-
-    // Set the FSIenabled_ switch
-    if (adapterConfig_["FSIenabled"])
-    {
-        FSIenabled_ = adapterConfig_["FSIenabled"].as<bool>();
-    }
-    DEBUG(adapterInfo("    FSI module enabled : " + std::to_string(FSIenabled_)));
-
-    // NOTE: set the switch for your new module here
+    evaluateBoundaries_ = preciceDict.lookupOrDefault<bool>("evaluateBoundaries", true);
+    DEBUG(adapterInfo("  evaluate boundaries : " + std::to_string(evaluateBoundaries_)));
 
     // If the CHT module is enabled, create it, read the
     // CHT-specific options and configure it.
     if (CHTenabled_)
     {
         CHT_ = new CHT::ConjugateHeatTransfer(mesh_);
-        if (!CHT_->configure(adapterConfig_)) return false;
+        if (!CHT_->configure(preciceDict)) return false;
     }
 
     // If the FSI module is enabled, create it, read the
@@ -258,7 +164,7 @@ bool preciceAdapter::Adapter::configFileRead()
         }
 
         FSI_ = new FSI::FluidStructureInteraction(mesh_, runTime_);
-        if (!FSI_->configure(adapterConfig_)) return false;
+        if (!FSI_->configure(preciceDict)) return false;
     }
 
     // NOTE: Create your module and read any options specific to it here
@@ -271,6 +177,11 @@ bool preciceAdapter::Adapter::configFileRead()
 
     // TODO: Loading modules should be implemented in more general way,
     // in order to avoid code duplication. See issue #16 on GitHub.
+
+    } catch (const Foam::error &e) {
+        adapterInfo(e.message(), "error-deferred");
+        return false;
+    }
 
     return true;
 }
@@ -308,12 +219,8 @@ void preciceAdapter::Adapter::configure()
         DEBUG(adapterInfo("Creating the preCICE solver interface..."));
         DEBUG(adapterInfo("  Number of processes: " + std::to_string(Pstream::nProcs())));
         DEBUG(adapterInfo("  MPI rank: " + std::to_string(Pstream::myProcNo())));
-        precice_ = new precice::SolverInterface(participantName_, Pstream::myProcNo(), Pstream::nProcs());
+        precice_ = new precice::SolverInterface(participantName_, preciceConfigFilename_, Pstream::myProcNo(), Pstream::nProcs());
         DEBUG(adapterInfo("  preCICE solver interface was created."));
-
-        DEBUG(adapterInfo("Configuring preCICE..."));
-        precice_->configure(preciceConfigFilename_);
-        DEBUG(adapterInfo("  preCICE was configured."));
 
         // Create interfaces
         DEBUG(adapterInfo("Creating interfaces..."));
@@ -380,10 +287,7 @@ void preciceAdapter::Adapter::configure()
             checkpointing_ = true;
 
             // Setup the checkpointing (find and add fields to checkpoint)
-            if (!disableCheckpointing_)
-            {
-                setupCheckpointing();
-            }
+            setupCheckpointing();
 
             // Write checkpoint (for the first iteration)
             writeCheckpoint();
@@ -407,19 +311,15 @@ void preciceAdapter::Adapter::configure()
         // This has the side-effect of not triggering the end() method
         // in any function object normally. Therefore, we trigger it
         // when preCICE dictates to stop the coupling.
-        // However, the user can disable this behavior in the configuration.
-        if (preventEarlyExit_)
-        {
-            adapterInfo
-                    (
-                        "Setting the solver's endTime to infinity to prevent early exits. "
-                        "Only preCICE will control the simulation's endTime. "
-                        "Any functionObject's end() method will be triggered by the adapter. "
-                        "You may disable this behavior in the adapter's configuration.",
-                        "info"
-                        );
-            const_cast<Time&>(runTime_).setEndTime(GREAT);
-        }
+        adapterInfo
+                (
+                    "Setting the solver's endTime to infinity to prevent early exits. "
+                    "Only preCICE will control the simulation's endTime. "
+                    "Any functionObject's end() method will be triggered by the adapter. "
+                    "You may disable this behavior in the adapter's configuration.",
+                    "info"
+                    );
+        const_cast<Time&>(runTime_).setEndTime(GREAT);
 
     } catch (const Foam::error &e) {
         adapterInfo(e.message(), "error-deferred");
@@ -483,7 +383,7 @@ void preciceAdapter::Adapter::execute()
     // coupling, we write again when the coupling timestep is complete.
     // Check the behavior e.g. by using watch on a result file:
     //     watch -n 0.1 -d ls --full-time Fluid/0.01/T.gz
-    if (checkpointing_ && isCouplingTimestepComplete())
+    if (checkpointing_ && isCouplingTimeWindowComplete())
     {
         // Check if the time directory already exists
         // (i.e. the solver wrote results that need to be updated)
@@ -512,17 +412,13 @@ void preciceAdapter::Adapter::execute()
         // Set the solver's endTime to now. The next evaluation of
         // runTime.run() will be false and the solver will exit.
         const_cast<Time&>(runTime_).setEndTime(runTime_.value());
-
-        if (preventEarlyExit_)
-        {
-            adapterInfo
-                    (
-                        "The simulation was ended by preCICE. "
-                        "Calling the end() methods of any functionObject explicitly.",
-                        "info"
-                        );
-            const_cast<Time&>(runTime_).functionObjects().end();
-        }
+        adapterInfo
+                (
+                    "The simulation was ended by preCICE. "
+                    "Calling the end() methods of any functionObject explicitly.",
+                    "info"
+                    );
+        const_cast<Time&>(runTime_).functionObjects().end();
     }
 
     return;
@@ -569,7 +465,7 @@ void preciceAdapter::Adapter::initialize()
     if (precice_->isActionRequired(precice::constants::actionWriteInitialData()))
     {
         writeCouplingData();
-        precice_->fulfilledAction(precice::constants::actionWriteInitialData());
+        precice_->markActionFulfilled(precice::constants::actionWriteInitialData());
     }
 
     DEBUG(adapterInfo("Initializing preCICE data..."));
@@ -674,34 +570,22 @@ void preciceAdapter::Adapter::adjustSolverTimeStep()
 
     if (timestepSolverDetermined < timestepPrecice_)
     {
-        if (!subcyclingAllowed_)
+        // Add a bool 'subCycling = true' which is checked in the storeMeshPoints() function.
+        adapterInfo
+                (
+                    "The solver's timestep is smaller than the "
+                    "coupling timestep. Subcycling...",
+                    "info"
+                    );
+        timestepSolver_ = timestepSolverDetermined;
+        // TODO subcycling is enabled. For FSI the oldVolumes must be written, which is normally not done.
+        if (FSIenabled_)
         {
             adapterInfo
                     (
-                        "The solver's timestep cannot be smaller than the "
-                        "coupling timestep, because subcycling is disabled. ",
-                        "error"
+                        "The adapter does not fully support subcycling for FSI and instabilities may occur.",
+                        "warning"
                         );
-        }
-        else
-        {
-            // Add a bool 'subCycling = true' which is checked in the storeMeshPoints() function.
-            adapterInfo
-                    (
-                        "The solver's timestep is smaller than the "
-                        "coupling timestep. Subcycling...",
-                        "info"
-                        );
-            timestepSolver_ = timestepSolverDetermined;
-            // TODO subcycling is enabled. For FSI the oldVolumes must be written, which is normally not done.
-            if (FSIenabled_)
-            {
-                adapterInfo
-                        (
-                            "The adapter does not fully support subcycling for FSI and instabilities may occur.",
-                            "warning"
-                            );
-            }
         }
     }
     else if (timestepSolverDetermined > timestepPrecice_)
@@ -748,9 +632,9 @@ bool preciceAdapter::Adapter::isCouplingOngoing()
     return isCouplingOngoing;
 }
 
-bool preciceAdapter::Adapter::isCouplingTimestepComplete()
+bool preciceAdapter::Adapter::isCouplingTimeWindowComplete()
 {
-    return precice_->isTimestepComplete();
+    return precice_->isTimeWindowComplete();
 }
 
 bool preciceAdapter::Adapter::isReadCheckpointRequired()
@@ -765,14 +649,14 @@ bool preciceAdapter::Adapter::isWriteCheckpointRequired()
 
 void preciceAdapter::Adapter::fulfilledReadCheckpoint()
 {
-    precice_->fulfilledAction(precice::constants::actionReadIterationCheckpoint());
+    precice_->markActionFulfilled(precice::constants::actionReadIterationCheckpoint());
 
     return;
 }
 
 void preciceAdapter::Adapter::fulfilledWriteCheckpoint()
 {
-    precice_->fulfilledAction(precice::constants::actionWriteIterationCheckpoint());
+    precice_->markActionFulfilled(precice::constants::actionWriteIterationCheckpoint());
 
     return;
 }

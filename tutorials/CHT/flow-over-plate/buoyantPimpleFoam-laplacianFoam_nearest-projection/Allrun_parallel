@@ -8,10 +8,6 @@
 
 # The script "Allclean" cleans-up the result and log files.
 
-# Link to the precice-config for the parallel run
-echo "Setting up the preCICE configuration file for a parallel simulation..."
-ln -s -f precice-config_parallel.xml precice-config.xml
-
 # Participant 1: Fluid
 Participant1="Fluid"
 Solver1="buoyantPimpleFoam"
