@@ -107,7 +107,7 @@ log "  ADAPTER_PREP_FLAGS    = ${ADAPTER_PREP_FLAGS}"
 log "  ADAPTER_WMAKE_OPTIONS = ${ADAPTER_WMAKE_OPTIONS}"
 
 log ""
-log "Dependencies (preCICE, yaml-cpp) will be located using the following environment variables:"
+log "Dependencies (preCICE) will be located using the following environment variables:"
 log "  ADAPTER_PRECICE_ROOT  = ${ADAPTER_PRECICE_ROOT}"
 if [ "${ADAPTER_PRECICE_DEP}" ]; then
     log "      preCICE dependencies:"

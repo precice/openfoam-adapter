@@ -10,9 +10,6 @@
 
 #include "fvCFD.H"
 
-// YAML reader - Used to read the adapter's configuration file.
-#include "yaml-cpp/yaml.h"
-
 namespace preciceAdapter
 {
 namespace CHT
@@ -30,9 +27,6 @@ protected:
 
     //- Solver type
     std::string solverType_ = "none";
-
-    //- Name of the transportProperties dictionary
-    std::string nameTransportProperties_ = "transportProperties";
 
     //- Name of the temperature field
     std::string nameT_ = "T";
@@ -58,7 +52,7 @@ protected:
     std::string determineSolverType();
 
     //- Read the CHT-related options from the adapter's configuraiton file
-    bool readConfig(const YAML::Node adapterConfig);
+    bool readConfig(const IOdictionary& adapterConfig);
 
 public:
 
@@ -66,7 +60,7 @@ public:
     ConjugateHeatTransfer(const Foam::fvMesh& mesh);
 
     //- Configure
-    bool configure(const YAML::Node adapterConfig);
+    bool configure(const IOdictionary& adapterConfig);
 
     //- Add coupling data writers
     void addWriters(std::string dataName, Interface * interface);
