@@ -215,17 +215,10 @@ void preciceAdapter::FSI::Force::write(double * buffer, bool meshConnectivity, c
         {
             Force_->boundaryFieldRef()[patchID] =
                 Sfb[patchID] * (pb[patchID] - 1.0e5);
-        }
-        else
-        {
-            FatalErrorInFunction
-                << "Forces calculation does only support "
-                << "compressible or incompressible solver type."
-                << exit(FatalError);
-        }
-        
+        }        
+       
         //Solid forces
-        if (solidForces_ == true)
+        if (solidForces_ == true || solverType_.compare("structure") == 0)
         {
           //Solid stress tensor boundary field
           tmp<volSymmTensorField> tdevSigma = devSigma();

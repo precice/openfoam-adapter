@@ -28,6 +28,7 @@ bool preciceAdapter::FSI::FluidStructureInteraction::configure(const IOdictionar
     if (
         solverType_.compare("compressible") == 0 ||
         solverType_.compare("incompressible") == 0 ||
+        solverType_.compare("structure") == 0 ||
         solverType_.compare("basic") == 0
     )
     {
@@ -49,54 +50,35 @@ bool preciceAdapter::FSI::FluidStructureInteraction::configure(const IOdictionar
 
 bool preciceAdapter::FSI::FluidStructureInteraction::readConfig(const IOdictionary& adapterConfig)
 {
-    const dictionary FSIdict = adapterConfig.subOrEmptyDict("FSI");
+    const dictionary FSIdict = adapterConfig.subDict("FSI");
   
     // Read the solver type (if not specified, it is determined automatically)
     solverType_ = FSIdict.lookupOrDefault<word>("solverType", "");
     DEBUG(adapterInfo("    user-defined solver type : " + solverType_));
-
-    // Read the porous medium forces
-    if (adapterConfig["porousMediumForces"])
-    {
-        porousMediumForces_ = adapterConfig["porousMediumForces"].as<bool>();
-    }
-    DEBUG(adapterInfo("    add porous medium forces : " + porousMediumForces_));
-
+    
     /* TODO: Read the names of any needed fields and parameters.
     * Include the force here?
     */
     // Read the solid forces
-    if (adapterConfig["solidForces"])
-    {
-        solidForces_ = adapterConfig["solidForces"].as<bool>();
-    }
-    DEBUG(adapterInfo("    add solid forces : " + std::to_string(solidForces_)));   
+    solidForces_ = FSIdict.lookupOrDefault("solidForces", false);    
+    DEBUG(adapterInfo("    add solid forces: " + std::to_string(solidForces_)));   
 
     // Read the name of the pointDisplacement field (if different)
     namePointDisplacement_ = FSIdict.lookupOrDefault<word>("namePointDisplacement", "pointDisplacement");
-    DEBUG(adapterInfo("    pointDisplacement field name : " + namePointDisplacement_));
+    DEBUG(adapterInfo("    pointDisplacement field name: " + namePointDisplacement_));
     
-    // Read the name of the pointDisplacement field (if different)
-    if (adapterConfig["nameDPointDisplacement"])
-    {
-        nameDPointDisplacement_ = adapterConfig["nameDPointDisplacement"].as<std::string>();
-    }
-    DEBUG(adapterInfo("    DpointDisplacement field name : " + nameDPointDisplacement_));
+    // Read the name of the DpointDisplacement field (if different)
+    nameDPointDisplacement_ = FSIdict.lookupOrDefault<word>("nameDPointDisplacement", "DpointDisplacement");
+    DEBUG(adapterInfo("    DpointDisplacement field name: " + nameDPointDisplacement_));
     
     // Read the name of the cellDisplacement field (if different)
-    if (adapterConfig["nameCellDisplacement"])
-    {
-        nameCellDisplacement_ = adapterConfig["nameCellDisplacement"].as<std::string>();
-    }
-    DEBUG(adapterInfo("    cellDisplacement field name : " + nameCellDisplacement_));
+    nameCellDisplacement_ = FSIdict.lookupOrDefault<word>("nameCellDisplacement", "cellDisplacement");
+    DEBUG(adapterInfo("    cellDisplacement field name: " + nameCellDisplacement_));
     
-    // Read the name of the cellDisplacement field (if different)
-    if (adapterConfig["nameDCellDisplacement"])
-    {
-        nameDCellDisplacement_ = adapterConfig["nameDCellDisplacement"].as<std::string>();
-    }
-    DEBUG(adapterInfo("    DcellDisplacement field name : " + nameDCellDisplacement_));
-
+    // Read the name of the DcellDisplacement field (if different)
+    nameDCellDisplacement_ = FSIdict.lookupOrDefault<word>("nameDCellDisplacement", "DcellDisplacement");
+    DEBUG(adapterInfo("    DcellDisplacement field name: " + nameDCellDisplacement_));
+    
     return true;
 }
 

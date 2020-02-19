@@ -30,14 +30,9 @@ private:
     
     const bool solidForces_;
 
-    const bool porousMediumForces_;
-
     //- Force field
     Foam::volVectorField * Force_;
     
-    //- Solid stress tensor
-    Foam::tmp<Foam::volSymmTensorField> devSigma() const;
-
     //- Solid stress tensor
     Foam::tmp<Foam::volSymmTensorField> devSigma() const;
 
