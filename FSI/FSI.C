@@ -14,7 +14,7 @@ mesh_(mesh),
 runTime_(runTime)
 {}
 
-bool preciceAdapter::FSI::FluidStructureInteraction::configure(const YAML::Node adapterConfig)
+bool preciceAdapter::FSI::FluidStructureInteraction::configure(const IOdictionary& adapterConfig)
 {
     DEBUG(adapterInfo("Configuring the FSI module..."));
 
@@ -47,13 +47,12 @@ bool preciceAdapter::FSI::FluidStructureInteraction::configure(const YAML::Node 
     return true;
 }
 
-bool preciceAdapter::FSI::FluidStructureInteraction::readConfig(const YAML::Node adapterConfig)
+bool preciceAdapter::FSI::FluidStructureInteraction::readConfig(const IOdictionary& adapterConfig)
 {
+    const dictionary FSIdict = adapterConfig.subOrEmptyDict("FSI");
+  
     // Read the solver type (if not specified, it is determined automatically)
-    if (adapterConfig["solverType"])
-    {
-        solverType_ = adapterConfig["solverType"].as<std::string>();
-    }
+    solverType_ = FSIdict.lookupOrDefault<word>("solverType", "");
     DEBUG(adapterInfo("    user-defined solver type : " + solverType_));
 
     // Read the porous medium forces
@@ -74,10 +73,7 @@ bool preciceAdapter::FSI::FluidStructureInteraction::readConfig(const YAML::Node
     DEBUG(adapterInfo("    add solid forces : " + std::to_string(solidForces_)));   
 
     // Read the name of the pointDisplacement field (if different)
-    if (adapterConfig["namePointDisplacement"])
-    {
-        namePointDisplacement_ = adapterConfig["namePointDisplacement"].as<std::string>();
-    }
+    namePointDisplacement_ = FSIdict.lookupOrDefault<word>("namePointDisplacement", "pointDisplacement");
     DEBUG(adapterInfo("    pointDisplacement field name : " + namePointDisplacement_));
     
     // Read the name of the pointDisplacement field (if different)

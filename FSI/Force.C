@@ -97,10 +97,10 @@ Foam::tmp<Foam::volScalarField> preciceAdapter::FSI::Force::rho() const
         return mesh_.lookupObject<volScalarField>("rho");
     }
     else if (solverType_.compare("incompressible") == 0)
-    {
-        const dictionary& transportProperties =
-            mesh_.lookupObject<IOdictionary>("transportProperties");
-
+    {        
+        const dictionary& FSIDict =
+            mesh_.lookupObject<IOdictionary>("preciceDict").subOrEmptyDict("FSI");
+            
         return tmp<volScalarField>
         (
             new volScalarField
@@ -114,7 +114,7 @@ Foam::tmp<Foam::volScalarField> preciceAdapter::FSI::Force::rho() const
                     IOobject::NO_WRITE
                 ),
                 mesh_,
-                dimensionedScalar(transportProperties.lookup("rho"))
+                dimensionedScalar(FSIDict.lookup("rho"))
             )
         );
 
@@ -144,13 +144,13 @@ Foam::tmp<Foam::volScalarField> preciceAdapter::FSI::Force::mu() const
             return mixture.mu();
         }
         else
-        {
-
-            const dictionary& transportProperties =
-                mesh_.lookupObject<IOdictionary>("transportProperties");
-
-            dimensionedScalar nu(transportProperties.lookup("nu"));
-
+        {        
+        
+            const dictionary& FSIDict =
+                mesh_.lookupObject<IOdictionary>("preciceDict").subOrEmptyDict("FSI");
+                
+            dimensionedScalar nu(FSIDict.lookup("nu"));       
+            
             return tmp<volScalarField>
             (
                 new volScalarField
@@ -204,9 +204,7 @@ void preciceAdapter::FSI::Force::write(double * buffer, bool meshConnectivity, c
     {
 
         int patchID = patchIDs_.at(j);
-
-        
-        
+                
         //pressure forces
         if (solverType_.compare("incompressible") == 0)
         {
