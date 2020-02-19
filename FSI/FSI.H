@@ -9,9 +9,6 @@
 
 #include "fvCFD.H"
 
-// YAML reader - Used to read the adapter's configuration file.
-#include "yaml-cpp/yaml.h"
-
 namespace preciceAdapter
 {
 namespace FSI
@@ -31,9 +28,6 @@ protected:
     //- Solver type
     std::string solverType_ = "none";
     
-    //- Name of the transportProperties dictionary
-    std::string nameTransportProperties_ = "transportProperties";
-
     //- Name of the pointDisplacement field
     std::string namePointDisplacement_ = "pointDisplacement";
 
@@ -49,7 +43,7 @@ protected:
     std::string determineSolverType();
 
     //- Read the FSI-related options from the adapter's configuration file
-    bool readConfig(const YAML::Node adapterConfig);
+    bool readConfig(const IOdictionary& adapterConfig);
 
 public:
 
@@ -58,7 +52,7 @@ public:
     FluidStructureInteraction(const Foam::fvMesh& mesh, const Foam::Time& runTime);
 
     //- Configure
-    bool configure(const YAML::Node adapterConfig);
+    bool configure(const IOdictionary& adapterConfig);
 
     //- Add coupling data writers
     void addWriters(std::string dataName, Interface * interface);
