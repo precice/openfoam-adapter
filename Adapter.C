@@ -131,10 +131,6 @@ bool preciceAdapter::Adapter::configFileRead()
         }
       }
     }
-    
-    // Set the evaluateBoundaries_ switch
-    evaluateBoundaries_ = preciceDict.lookupOrDefault<bool>("evaluateBoundaries", true);
-    DEBUG(adapterInfo("  evaluate boundaries : " + std::to_string(evaluateBoundaries_)));
 
     // If the CHT module is enabled, create it, read the
     // CHT-specific options and configure it.
