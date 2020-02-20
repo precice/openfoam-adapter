@@ -70,15 +70,7 @@ bool preciceAdapter::FSI::FluidStructureInteraction::readConfig(const IOdictiona
     // Read the name of the DpointDisplacement field (if different)
     nameDPointDisplacement_ = FSIdict.lookupOrDefault<word>("nameDPointDisplacement", "DpointDisplacement");
     DEBUG(adapterInfo("    DpointDisplacement field name: " + nameDPointDisplacement_));
-    
-    // Read the name of the cellDisplacement field (if different)
-    nameCellDisplacement_ = FSIdict.lookupOrDefault<word>("nameCellDisplacement", "cellDisplacement");
-    DEBUG(adapterInfo("    cellDisplacement field name: " + nameCellDisplacement_));
-    
-    // Read the name of the DcellDisplacement field (if different)
-    nameDCellDisplacement_ = FSIdict.lookupOrDefault<word>("nameDCellDisplacement", "DcellDisplacement");
-    DEBUG(adapterInfo("    DcellDisplacement field name: " + nameDCellDisplacement_));
-    
+  
     return true;
 }
 
@@ -219,24 +211,6 @@ void preciceAdapter::FSI::FluidStructureInteraction::addWriters(std::string data
         );
         DEBUG(adapterInfo("Added writer: Displacement."));
     }
-    else if (dataName.find("DisplacementDelta") == 0)
-    {
-        interface->addCouplingDataWriter
-        (
-            dataName,
-            new volDisplacementDelta(mesh_, nameDCellDisplacement_)
-        );
-        DEBUG(adapterInfo("Added writer: volDisplacementDelta."));
-    }    
-    else if (dataName.find("Displacement") == 0)
-    {
-        interface->addCouplingDataWriter
-        (
-            dataName,
-            new volDisplacement(mesh_, nameCellDisplacement_)
-        );
-        DEBUG(adapterInfo("Added writer: volDisplacement."));
-    }
     
     // NOTE: If you want to couple another variable, you need
     // to add your new coupling data user as a coupling data
@@ -274,24 +248,6 @@ void preciceAdapter::FSI::FluidStructureInteraction::addReaders(std::string data
         );
         DEBUG(adapterInfo("Added reader: Displacement."));
     }    
-    else if (dataName.find("DisplacementDelta") == 0)
-    {
-        interface->addCouplingDataReader
-        (
-            dataName,
-            new volDisplacementDelta(mesh_, nameDCellDisplacement_)
-        );
-        DEBUG(adapterInfo("Added reader: volDisplacementDelta."));
-    }
-    else if (dataName.find("Displacement") == 0)
-    {
-        interface->addCouplingDataReader
-        (
-            dataName,
-            new volDisplacement(mesh_, nameCellDisplacement_)
-        );
-        DEBUG(adapterInfo("Added reader: volDisplacement."));
-    }   
     
     // NOTE: If you want to couple another variable, you need
     // to add your new coupling data user as a coupling data

@@ -44,12 +44,6 @@ protected:
     
     //- Name of the pointDDisplacement field
     std::string nameDPointDisplacement_ = "DpointDisplacement";
-    
-    //- Name of the volDisplacement field
-    std::string nameCellDisplacement_ = "cellDisplacement";
-    
-    //- Name of the volDDisplacement field
-    std::string nameDCellDisplacement_ = "DcellDisplacement";
 
     /* TODO: Declare here any parameters that should be read from
     /  the configuration file. See CHT/CHT.H for reference.
