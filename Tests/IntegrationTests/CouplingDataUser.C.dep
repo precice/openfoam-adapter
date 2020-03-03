@@ -1,0 +1,5 @@
+$(OBJECTS_DIR)/../../CouplingDataUser.C.dep: \
+../../CouplingDataUser.C \
+../../CouplingDataUser.H \
+
+

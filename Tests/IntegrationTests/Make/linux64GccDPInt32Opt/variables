@@ -1,0 +1,1 @@
+LIB = $(ADAPTER_TARGET_DIR)/libpreciceTestFunctionObject
