@@ -232,6 +232,8 @@ void preciceAdapter::Interface::addCouplingDataWriter
         )
 {
     // Set the dataID (from preCICE)
+    // DEBUG(adapterInfo("Adding Data Writer: " + dataName + " " + std::to_string(meshID_)));
+    DEBUG(adapterInfo("Adding Data Writer: " + dataName + " DataID: " + std::to_string(precice_.getDataID(dataName, meshID_))));
     couplingDataWriter->setDataID(precice_.getDataID(dataName, meshID_));
 
     // Set the patchIDs of the patches that form the interface
@@ -248,6 +250,8 @@ void preciceAdapter::Interface::addCouplingDataReader
         preciceAdapter::CouplingDataUser * couplingDataReader
         )
 {
+    // DEBUG(adapterInfo("Adding Data Reader: " + dataName + " " + std::to_string(meshID_)));
+    DEBUG(adapterInfo("Adding Data Reader: " + dataName + " DataID: " + std::to_string(precice_.getDataID(dataName, meshID_))));
     // Set the patchIDs of the patches that form the interface
     couplingDataReader->setDataID(precice_.getDataID(dataName, meshID_));
 

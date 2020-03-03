@@ -5,7 +5,12 @@
 #include <vector>
 #include "fvCFD.H"
 #include "CouplingDataUser.H"
-#include "precice/SolverInterface.hpp"
+
+#ifndef INT_TESTING
+    #include "precice/SolverInterface.hpp"
+#else
+    #include "Tests/IntegrationTests/MockpreCICE/SolverInterfaceMock.hpp"
+#endif
 
 
 namespace preciceAdapter
