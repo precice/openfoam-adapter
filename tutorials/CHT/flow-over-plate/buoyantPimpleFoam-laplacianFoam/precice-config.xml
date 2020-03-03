@@ -41,7 +41,7 @@
 
     <coupling-scheme:serial-implicit>
         <time-window-size value="0.01"/>
-        <max-time value="1"/>
+        <max-time value="0.05"/>
         <max-iterations value="200"/>
         <participants first="Fluid" second="Solid"/>
         <exchange data="Temperature" mesh="Fluid-Mesh" from="Fluid" to="Solid"/>
