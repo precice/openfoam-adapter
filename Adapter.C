@@ -1,8 +1,14 @@
-#include "Adapter.H"
-#include "Interface.H"
-#include "Utilities.H"
+#ifdef UNIT_TESTING
+    #include "Tests/UnitTests/AdapterTest/AdapterUnittestIncludes.h"
+    #include "Adapter.H"
+#else
+    #include "Adapter.H"
+    #include "Interface.H"
+    #include "Utilities.H"
 
-#include "IOstreams.H"
+    #include "IOstreams.H"
+#endif
+
 
 using namespace Foam;
 
@@ -200,13 +206,14 @@ void preciceAdapter::Adapter::configure()
         // there was an error and it will be handled by the first call to
         // the functionObject's execute(), which can throw errors normally.
         errorsInConfigure = true;
+        adapterInfo("Config file read failed");
 
         return;
     }
 
     try{
         // Check the timestep type (fixed vs adjustable)
-        DEBUG(adapterInfo("Checking the timestep type (fixed vs adjustable)..."));
+        adapterInfo("Checking the timestep type (fixed vs adjustable)...");
         adjustableTimestep_ = runTime_.controlDict().lookupOrDefault("adjustTimeStep", false);
 
         if (adjustableTimestep_) {
@@ -216,10 +223,13 @@ void preciceAdapter::Adapter::configure()
         }
 
         // Initialize preCICE
-        DEBUG(adapterInfo("Creating the preCICE solver interface..."));
-        DEBUG(adapterInfo("  Number of processes: " + std::to_string(Pstream::nProcs())));
-        DEBUG(adapterInfo("  MPI rank: " + std::to_string(Pstream::myProcNo())));
-        precice_ = new precice::SolverInterface(participantName_, preciceConfigFilename_, Pstream::myProcNo(), Pstream::nProcs());
+        adapterInfo("Creating the preCICE solver interface...");
+        adapterInfo("  Number of processes: " + std::to_string(Pstream::nProcs()));
+        adapterInfo("  MPI rank: " + std::to_string(Pstream::myProcNo()));
+        #ifndef INT_TESTING
+            precice_ = new precice::SolverInterface(participantName_, preciceConfigFilename_, Pstream::myProcNo(), Pstream::nProcs());
+        #endif
+
         DEBUG(adapterInfo("  preCICE solver interface was created."));
 
         // Create interfaces
@@ -277,7 +287,7 @@ void preciceAdapter::Adapter::configure()
         // Initialize preCICE and exchange the first coupling data
         initialize();
 
-        // Read the received coupling data
+        // // Read the received coupling data
         readCouplingData();
 
         // If checkpointing is required, specify the checkpointed fields
@@ -462,8 +472,10 @@ void preciceAdapter::Adapter::initialize()
 
     preciceInitialized_ = true;
 
+
     if (precice_->isActionRequired(precice::constants::actionWriteInitialData()))
     {
+        DEBUG(adapterInfo("Writing initial data", "info"));
         writeCouplingData();
         precice_->markActionFulfilled(precice::constants::actionWriteInitialData());
     }
@@ -1817,8 +1829,10 @@ void preciceAdapter::Adapter::teardown()
     if (NULL != precice_)
     {
         DEBUG(adapterInfo("Destroying the preCICE solver interface..."));
-        delete precice_;
-        precice_ = NULL;
+        #ifndef INT_TESTING
+            delete precice_;
+            precice_ = NULL;
+        #endif
     }
 
     // Delete the preCICE solver interfaces
