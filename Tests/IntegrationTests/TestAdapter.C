@@ -152,9 +152,10 @@ void preciceAdapter::TestAdapter::testExecute()
     if (coupling_step < 6){
         for (int i=0; i < write_data_size; i++){
             if (std::abs(writeDataError[i]) > 1e-5){
-                adapterInfo("Temperature Data at index " + std::to_string(i) + " not matching!", "info");
+                adapterInfo("Temperature Data at index " + std::to_string(i) + " not matching!", "error-deferred");
                 adapterInfo("Reference values is: " + std::to_string(writeData[i]) 
-                    + ", Buffer value is: " + std::to_string(writeData[i] - writeDataError[i]), "info");
+                    + ", Buffer value is: " + std::to_string(writeData[i] - writeDataError[i]), "error-deferred");
+		testsPassed = false;
             }
             
         }
@@ -180,7 +181,6 @@ void preciceAdapter::TestAdapter::testExecute()
 void preciceAdapter::TestAdapter::testAdjustSolverTimeStep()
 {
     adapterInfo("Adjusting Timestep", "info");
-    mock.Reset();
     adjustSolverTimeStep();
     return;
 }
@@ -188,6 +188,13 @@ void preciceAdapter::TestAdapter::testAdjustSolverTimeStep()
 
 void preciceAdapter::TestAdapter::testEnd()
 {
+    if(testsPassed){
+        adapterInfo("All integration tests passed!", "info");
+    }
+    else{
+        adapterInfo("Tests failed! See errors for more details.", "error-deferred");
+    }
+    mock.Reset();
     When(Method(mock, isCouplingOngoing)).AlwaysReturn(false);
     end();
     return;

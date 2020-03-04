@@ -68,6 +68,7 @@ class TestAdapter: public Adapter
         // Size of data buffers required for reading and writing data
         int read_data_size = 161;
         int write_data_size = 161;
+	bool testsPassed = true;
 };
 
 }
