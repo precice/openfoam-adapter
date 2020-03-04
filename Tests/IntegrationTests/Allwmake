@@ -17,7 +17,7 @@ ADAPTER_PRECICE_ROOT="${PRECICE_ROOT}"
 # ADAPTER_PRECICE_DEP="${ADAPTER_PRECICE_DEP} -lpython2.7"
 
 # Optional: Preprocessor flags ("-DADAPTER_DEBUG_MODE" enables debug messages)
-ADAPTER_PREP_FLAGS="-g -DADAPTER_DEBUG_MODE=1 -DINT_TESTING=1 -O0"
+ADAPTER_PREP_FLAGS="-DADAPTER_DEBUG_MODE=1 -DINT_TESTING=1"
 
 # Optional: Flags used by wmake.
 # In order to compile with multiple threads, add e.g. "-j 4".
@@ -38,7 +38,7 @@ log () {
 ################################################################################
 
 # Information header
-log "Building the OpenFOAM adapter for preCICE..."
+log "Building the OpenFOAM adapter for Integration Testing..."
 
 # What is going on here:
 # 1. get the colon-separated paths (e.g. the CPLUS_INCLUDE_PATH),
@@ -48,7 +48,7 @@ log "Building the OpenFOAM adapter for preCICE..."
 # 5. translate the new line characters to "\", i.e. make everything again one line.
 
 # Extract the paths from the CPLUS_INCLUDE_PATH list and convert them to a sequence of "-I/path/ \"
-export CPLUS_INCLUDE_PATH=$CPLUS_INCLUDE_PATH:../../
+export CPLUS_INCLUDE_PATH=$CPLUS_INCLUDE_PATH:../../:./MockpreCICE/
 if [ "${CPLUS_INCLUDE_PATH}" ]; then
     ADAPTER_GLOBAL_CPLUS_INC_PATHS=$(echo $CPLUS_INCLUDE_PATH | tr ':' '\n' |  sed '/^$/d' | sed 's/^/-I/' | tr '\n' ' \\')
 fi
@@ -71,8 +71,8 @@ export ADAPTER_TARGET_DIR
 export ADAPTER_GLOBAL_CPLUS_INC_PATHS
 export ADAPTER_GLOBAL_LD_LIBRARY_PATHS
 export ADAPTER_GLOBAL_LIBRARY_PATHS
-export ADAPTER_PKG_CONFIG_CFLAGS="`pkg-config --silence-errors --cflags libprecice`"
-export ADAPTER_PKG_CONFIG_LIBS="`pkg-config --silence-errors --libs libprecice`"
+export ADAPTER_PKG_CONFIG_CFLAGS="`pkg-config --silence-errors`"
+export ADAPTER_PKG_CONFIG_LIBS="`pkg-config --silence-errors`"
 
 # Check if an OpenFOAM environment is available
 log ""
