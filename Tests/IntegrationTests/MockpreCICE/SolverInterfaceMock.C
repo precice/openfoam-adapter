@@ -21,21 +21,5 @@ const std::string& precice::constants::actionWriteIterationCheckpoint(){
 };
 
 const std::string& precice::constants::actionWriteInitialData(){
-    return precice::SolverInterface::writeIterationCheckpoint;
+    return precice::SolverInterface::initialDataName;
 };
-
-void integrationtest::writeCouplingTest(Mock<precice::SolverInterface>* mock){
-    // int mesh_values = 0;
-    // int data_values = 0;
-    // When(Method(*mock,getMeshID)).AlwaysReturn(++mesh_values);
-    // When(Method(*mock,getDimensions)).AlwaysReturn(3);
-    // When(Method(*mock,getDataID)).AlwaysReturn(++data_values);
-    
-    // When(Method(*mock,getMeshID)).AlwaysReturn(++mesh_values);
-
-    
-}
-
-void integrationtest::configureTest(Mock<precice::SolverInterface>* mock){
-
-}

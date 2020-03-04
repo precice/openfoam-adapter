@@ -75,11 +75,6 @@ namespace precice{
     } // namespace constants
 }
 
-namespace integrationtest{
-    void writeCouplingTest(Mock<precice::SolverInterface>& mock);
-    void configureTest(Mock<precice::SolverInterface>& mock);
-}
-
 
 
 #endif
