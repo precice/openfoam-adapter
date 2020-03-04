@@ -63,7 +63,6 @@ SourceFiles
 // Main adapter header file
 #include "TestAdapter.H"
 
-#include <catch2/catch.hpp>
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
