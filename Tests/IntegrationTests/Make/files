@@ -19,6 +19,7 @@
 
 ../../Adapter.C
 
+MockpreCICE/SolverInterfaceMock.C
 TestAdapter.C
 preciceTestFunctionObject.C
 
