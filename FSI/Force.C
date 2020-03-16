@@ -4,6 +4,17 @@ using namespace Foam;
 
 preciceAdapter::FSI::Force::Force
 (
+        const Foam::fvMesh& mesh,
+        const std::string solverType
+)
+:
+mesh_(mesh),solverType_(solverType)
+{}
+
+
+
+preciceAdapter::FSI::Force::Force
+(
     const Foam::fvMesh& mesh,
     const fileName& timeName,
     const std::string solverType
@@ -167,7 +178,7 @@ Foam::tmp<Foam::volScalarField> preciceAdapter::FSI::Force::mu() const
     }
 }
 
-void preciceAdapter::FSI::Force::write(double * buffer, bool meshConnectivity, const unsigned int dim)
+void preciceAdapter::FSI::Force::write(double * buffer, bool /*meshConnectivity*/, const unsigned int dim)
 {
     // Compute forces. See the Forces function object.
 
@@ -244,7 +255,7 @@ void preciceAdapter::FSI::Force::write(double * buffer, bool meshConnectivity, c
     }
 }
 
-void preciceAdapter::FSI::Force::read(double * buffer, const unsigned int dim)
+void preciceAdapter::FSI::Force::read(double * /*buffer*/, const unsigned int /*dim*/)
 {
     /* TODO: Implement
     * We need two nested for-loops for each patch,

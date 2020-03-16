@@ -1,7 +1,8 @@
-#ifndef FSI_FORCE_H
-#define FSI_FORCE_H
+#ifndef FSI_STRESS_H
+#define FSI_STRESS_H
 
 #include "CouplingDataUser.H"
+#include "Force.H"
 
 #include "fvCFD.H"
 
@@ -18,7 +19,7 @@ namespace FSI
 {
 
 //- Class that writes and reads force
-class Force : public CouplingDataUser
+class Stress : public Force
 {
 
 private:
@@ -28,22 +29,14 @@ private:
     
     const std::string solverType_;
 
-    //- Force field
-    Foam::volVectorField * Force_;
-
-protected:
-    //- Stress tensor (see the OpenFOAM "Forces" function object)
-    Foam::tmp<Foam::volSymmTensorField> devRhoReff() const;
-    
-    Foam::tmp<Foam::volScalarField> rho() const;
-    
-    Foam::tmp<Foam::volScalarField> mu() const;
+    //- Stress field
+    Foam::volVectorField * Stress_;
 
 
 public:
 
     //- Constructor
-    Force
+    Stress
     (
         const Foam::fvMesh& mesh,
         const fileName& timeName,
@@ -56,21 +49,15 @@ public:
         */
     );
 
-    //- Constructor
-    Force
-    (
-        const Foam::fvMesh& mesh,
-        const std::string solverType
-    );
-
     //- Write the displacement values into the buffer
-    virtual void write(double * buffer, bool meshConnectivity, const unsigned int dim);
+    void write
+    (double * buffer, bool meshConnectivity, const unsigned int dim) override;
 
     //- Read the displacement values from the buffer
-    virtual void read(double * buffer, const unsigned int dim);
+    void read(double * buffer, const unsigned int dim) override;
 
     //- Destructor
-    ~Force();
+    ~Stress();
 
 };
 
