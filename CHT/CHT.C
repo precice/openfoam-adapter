@@ -102,7 +102,7 @@ std::string preciceAdapter::CHT::ConjugateHeatTransfer::determineSolverType()
 
     if (solverType == "basic")
       adapterInfo("Failed to determine the solver type. This might lead to "
-                  "issued during your simulation. Using 'basic' as solver type. "
+                  "issues during your simulation. Using 'basic' as solver type. "
                   "Please specify the solver type in the preciceDict file.",
                   "warning");
 
