@@ -85,22 +85,22 @@ std::string preciceAdapter::CHT::ConjugateHeatTransfer::determineSolverType()
     // NOTE: When coupling a different variable, you may want to
     // add more cases here. Or you may provide the solverType in the config.
 
-    std::string solverType = "basic";
+    std::string solverType = "unknown";
 
-    dimensionSet compressible_pressure_dimension(1, -1, -2, 0, 0, 0, 0);
-    dimensionSet incompressible_pressure_dimension(0, 2, -2, 0, 0, 0, 0);
+    dimensionSet pressureDimensionsCompressible(1, -1, -2, 0, 0, 0, 0);
+    dimensionSet pressureDimensionsIncompressible(0, 2, -2, 0, 0, 0, 0);
 
     if (mesh_.foundObject<volScalarField>("p"))
     {
       volScalarField p_ = mesh_.lookupObject<volScalarField>("p");
 
-      if (p_.dimensions() == compressible_pressure_dimension)
+      if (p_.dimensions() == pressureDimensionsCompressible)
         solverType = "compressible";
-      else if (p_.dimensions() == incompressible_pressure_dimension)
+      else if (p_.dimensions() == pressureDimensionsIncompressible)
         solverType = "incompressible";
     }
 
-    if (solverType == "basic")
+    if (solverType == "unknown")
       adapterInfo("Failed to determine the solver type. This might lead to "
                   "issues during your simulation. Using 'basic' as solver type. "
                   "Please specify the solver type in the preciceDict file.",
