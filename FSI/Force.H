@@ -64,10 +64,10 @@ public:
     );
 
     //- Write the displacement values into the buffer
-    virtual void write(double * buffer, bool meshConnectivity, const unsigned int dim);
+    void write(double * buffer, bool meshConnectivity, const unsigned int dim);
 
     //- Read the displacement values from the buffer
-    virtual void read(double * buffer, const unsigned int dim);
+    void read(double * buffer, const unsigned int dim);
 
     //- Destructor
     ~Force();

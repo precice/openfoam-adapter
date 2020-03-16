@@ -17,8 +17,7 @@ Force(mesh,solverType),
 mesh_(mesh),
 solverType_(solverType)
 {
-    //What about type "basic"?
-    if (solverType_.compare("incompressible") != 0 && solverType_.compare("compressible") != 0) 
+    if (solverType_.compare("incompressible") != 0 && solverType_.compare("compressible") != 0)
     {
         FatalErrorInFunction
             << "Stresses calculation only supports "
@@ -48,7 +47,7 @@ solverType_(solverType)
     );
 }
 
-void preciceAdapter::FSI::Stress::write(double * buffer, bool /*meshConnectivity*/, const unsigned int dim)
+void preciceAdapter::FSI::Stress::write(double * buffer, bool meshConnectivity, const unsigned int dim)
 {
     // Compute stress. See the Forces function object.
 
@@ -124,7 +123,7 @@ void preciceAdapter::FSI::Stress::write(double * buffer, bool /*meshConnectivity
     }
 }
 
-void preciceAdapter::FSI::Stress::read(double * /*buffer*/, const unsigned int /*dim*/)
+void preciceAdapter::FSI::Stress::read(double * buffer, const unsigned int dim)
 {
     /* TODO: Implement
     * We need two nested for-loops for each patch,
