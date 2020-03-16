@@ -21,7 +21,7 @@ solverType_(solverType)
     if (solverType_.compare("incompressible") != 0 && solverType_.compare("compressible") != 0) 
     {
         FatalErrorInFunction
-            << "Forces calculation does only support "
+            << "Stresses calculation only supports "
             << "compressible or incompressible solver type."
             << exit(FatalError);
     }
