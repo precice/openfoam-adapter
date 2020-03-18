@@ -101,10 +101,13 @@ std::string preciceAdapter::CHT::ConjugateHeatTransfer::determineSolverType()
     }
 
     if (solverType == "unknown")
-      adapterInfo("Failed to determine the solver type. This might lead to "
-                  "issues during your simulation. Using 'basic' as solver type. "
-                  "Please specify the solver type in the preciceDict file.",
-                  "warning");
+      adapterInfo("Failed to determine the solver type. "
+                  "Please specify your solver type in the preciceDict. "
+                  "Known solver types are: "
+                  "Incompressible"
+                  "Compressible"
+                  "Basic",
+                  "error");
 
     return solverType;
 }
