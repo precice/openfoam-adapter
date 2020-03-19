@@ -6,7 +6,6 @@
 
 #include "fvCFD.H"
 
-// TEMPORARY
 #include "pointFields.H"
 #include "vectorField.H"
 #include "immiscibleIncompressibleTwoPhaseMixture.H"
