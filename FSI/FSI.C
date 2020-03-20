@@ -27,8 +27,7 @@ bool preciceAdapter::FSI::FluidStructureInteraction::configure(const IOdictionar
     // Check the solver type and determine it if needed
     if (
         solverType_.compare("compressible") == 0 ||
-        solverType_.compare("incompressible") == 0 ||
-        solverType_.compare("basic") == 0
+        solverType_.compare("incompressible") == 0
     )
     {
         DEBUG(adapterInfo("Known solver type: " + solverType_));
@@ -89,11 +88,13 @@ std::string preciceAdapter::FSI::FluidStructureInteraction::determineSolverType(
 
     if (solverType == "unknown")
       adapterInfo("Failed to determine the solver type. "
-                  "Please specify your solver type in the preciceDict. "
-                  "Known solver types for FSI are: "
-                  "Incompressible"
-                  "Compressible",
+                  "Please specify your solver type in the FSI section of the "
+                  "preciceDict. Known solver types for FSI are: "
+                  "incompressible and "
+                  "compressible",
                   "error");
+
+    DEBUG(adapterInfo("Automatically determined solver type : " + solverType));
 
     return solverType;
 }
