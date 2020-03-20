@@ -90,7 +90,7 @@ std::string preciceAdapter::FSI::FluidStructureInteraction::determineSolverType(
     if (solverType == "unknown")
       adapterInfo("Failed to determine the solver type. "
                   "Please specify your solver type in the preciceDict. "
-                  "Known solver types are: "
+                  "Known solver types for FSI are: "
                   "Incompressible"
                   "Compressible"
                   "Basic",
