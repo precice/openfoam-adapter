@@ -12,7 +12,7 @@ preciceAdapter::FF::FluidFluid::FluidFluid
 mesh_(mesh)
 {}
 
-bool preciceAdapter::FF::FluidFluid::configure(const YAML::Node adapterConfig)
+bool preciceAdapter::FF::FluidFluid::configure(const IOdictionary& adapterConfig)
 {
     DEBUG(adapterInfo("Configuring the CHT module..."));
 
@@ -45,20 +45,20 @@ bool preciceAdapter::FF::FluidFluid::configure(const YAML::Node adapterConfig)
     return true;
 }
 
-bool preciceAdapter::FF::FluidFluid::readConfig(const YAML::Node adapterConfig)
+bool preciceAdapter::FF::FluidFluid::readConfig(const IOdictionary& adapterConfig)
 {
+    const dictionary FFdict = adapterConfig.subOrEmptyDict("FF");
+    
+    // Read the solver type (if not specified, it is determined automatically)
+    solverType_ = FFdict.lookupOrDefault<word>("solverType", "");
+    DEBUG(adapterInfo("    user-defined solver type : " + solverType_));
+    
     // Read the name of the velocity field (if different)
-    if (adapterConfig["nameU"])
-    {
-        nameU_ = adapterConfig["nameU"].as<std::string>();
-    }
+    nameU_ = FFdict.lookupOrDefault<word>("nameU", "U");
     DEBUG(adapterInfo("    velocity field name : " + nameU_));
 
     // Read the name of the pressure field (if different)
-    if (adapterConfig["nameP"])
-    {
-        nameP_ = adapterConfig["nameP"].as<std::string>();
-    }
+    nameP_ = FFdict.lookupOrDefault<word>("nameP", "p");
     DEBUG(adapterInfo("    pressure field name : " + nameP_));
 
     return true;

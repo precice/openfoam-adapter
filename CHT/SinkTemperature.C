@@ -1,4 +1,5 @@
 #include "SinkTemperature.H"
+#include "primitivePatchInterpolation.H"
 
 using namespace Foam;
 
@@ -6,19 +7,20 @@ preciceAdapter::CHT::SinkTemperature::SinkTemperature
 (
     const Foam::fvMesh& mesh,
     const std::string nameT
-)
+    )
 :
 T_(
     const_cast<volScalarField*>
     (
         &mesh.lookupObject<volScalarField>(nameT)
     )
-)
+),
+mesh_(mesh)
 {
     dataType_ = scalar;
 }
 
-void preciceAdapter::CHT::SinkTemperature::write(double * buffer)
+void preciceAdapter::CHT::SinkTemperature::write(double * buffer, bool meshConnectivity, const unsigned int dim)
 {
     int bufferIndex = 0;
 
@@ -38,13 +40,36 @@ void preciceAdapter::CHT::SinkTemperature::write(double * buffer)
         tmp<scalarField> patchInternalFieldTmp = TPatch.patchInternalField();
         const scalarField & patchInternalField = patchInternalFieldTmp();
 
-        // For every cell of the patch
-        forAll(TPatch, i)
+        //If we use the mesh connectivity, we interpolate from the centres to the nodes
+        if(meshConnectivity)
         {
-            // Copy the internal field (sink) temperature into the buffer
-            buffer[bufferIndex++]
-            =
-            patchInternalField[i];
+            //Create an Interpolation object at the boundary Field
+            primitivePatchInterpolation patchInterpolator(mesh_.boundaryMesh()[patchID]);
+
+            scalarField  patchInternalPointField;
+
+            //Interpolate from centers to nodes
+            patchInternalPointField= patchInterpolator.faceToPointInterpolate(patchInternalField);
+
+            // For every point on the patch
+            forAll(patchInternalPointField, i)
+            {
+                // Copy the temperature into the buffer
+                buffer[bufferIndex++]
+                =
+                patchInternalPointField[i];
+            }
+        }
+        else
+        {
+            // For every cell of the patch
+            forAll(TPatch, i)
+            {
+                // Copy the internal field (sink) temperature into the buffer
+                buffer[bufferIndex++]
+                =
+                patchInternalField[i];
+            }
         }
 
         // Clear the temporary internal field object
@@ -52,7 +77,7 @@ void preciceAdapter::CHT::SinkTemperature::write(double * buffer)
     }
 }
 
-void preciceAdapter::CHT::SinkTemperature::read(double * buffer)
+void preciceAdapter::CHT::SinkTemperature::read(double * buffer, const unsigned int dim)
 {
     int bufferIndex = 0;
 

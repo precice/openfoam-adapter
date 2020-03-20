@@ -2,6 +2,7 @@
 
 #include "fvCFD.H"
 #include "mixedFvPatchFields.H"
+#include "primitivePatchInterpolation.H"
 
 using namespace Foam;
 
@@ -25,7 +26,7 @@ mesh_(mesh)
 }
 
 
-void preciceAdapter::CHT::HeatTransferCoefficient::write(double * buffer)
+void preciceAdapter::CHT::HeatTransferCoefficient::write(double * buffer, bool meshConnectivity, const unsigned int dim)
 {
     int bufferIndex = 0;
 
@@ -35,25 +36,48 @@ void preciceAdapter::CHT::HeatTransferCoefficient::write(double * buffer)
         int patchID = patchIDs_.at(j);
 
         // Extract the effective conductivity on the patch
-        extractKappaEff(patchID);
+        extractKappaEff(patchID, meshConnectivity);
 
         // Get the face-cell distance coefficients on the patch
         const scalarField & delta = mesh_.boundary()[patchID].deltaCoeffs();
 
-        // For all the cells on the patch
-        forAll(delta, i)
+        //If we use the mesh connectivity, we interpolate from the centres to the nodes
+        if(meshConnectivity)
         {
-            // Fill the buffer with the values kappaEff * delta.
-            // Kappa is not precomputed, in order to be able to use the
-            // same write() method also for basic solvers, where
-            // kappaEff is not a scalarField.
-            buffer[bufferIndex++] = getKappaEffAt(i) * delta[i];
+            //Setup Interpolation object
+            primitivePatchInterpolation patchInterpolator(mesh_.boundaryMesh()[patchID]);
+
+            scalarField  deltaPoints;
+
+            //Interpolate
+            deltaPoints = patchInterpolator.faceToPointInterpolate(delta);
+
+            // For all the cells on the patch
+            forAll(deltaPoints, i)
+            {
+                // Fill the buffer with the values kappaEff * delta.
+                // Kappa is not precomputed, in order to be able to use the
+                // same write() method also for basic solvers, where
+                // kappaEff is not a scalarField.
+                buffer[bufferIndex++] = getKappaEffAt(i) * deltaPoints[i];
+            }
+        }
+        else
+        {
+            forAll(delta, i)
+            {
+                // Fill the buffer with the values kappaEff * delta.
+                // Kappa is not precomputed, in order to be able to use the
+                // same write() method also for basic solvers, where
+                // kappaEff is not a scalarField.
+                buffer[bufferIndex++] = getKappaEffAt(i) * delta[i];
+            }
         }
     }
 }
 
 
-void preciceAdapter::CHT::HeatTransferCoefficient::read(double * buffer)
+void preciceAdapter::CHT::HeatTransferCoefficient::read(double * buffer, const unsigned int dim)
 {
     int bufferIndex = 0;
 
@@ -63,14 +87,15 @@ void preciceAdapter::CHT::HeatTransferCoefficient::read(double * buffer)
         int patchID = patchIDs_.at(j);
 
         // Extract the effective conductivity on the patch
-        extractKappaEff(patchID);
+        // TODO: At the moment, reading with connectivity is not supported
+        extractKappaEff(patchID,/*meshConnectivity=*/false);
 
         // Get the face-cell distance coefficients on the patch
         const scalarField & delta = mesh_.boundary()[patchID].deltaCoeffs();
 
         // Get a reference to the temperature on the patch
         mixedFvPatchScalarField & TPatch =
-            refCast<mixedFvPatchScalarField>(T_->boundaryFieldRef()[patchID]);
+                refCast<mixedFvPatchScalarField>(T_->boundaryFieldRef()[patchID]);
 
         // For every cell on the patch
         forAll(TPatch, i)
@@ -88,7 +113,7 @@ void preciceAdapter::CHT::HeatTransferCoefficient::read(double * buffer)
 
             // Set the fraction (0-1) of value for the mixed boundary condition
             TPatch.valueFraction()[i] =
-                neighborKappaDelta / (myKappaDelta + neighborKappaDelta);
+                    neighborKappaDelta / (myKappaDelta + neighborKappaDelta);
         }
     }
 }
@@ -115,9 +140,9 @@ preciceAdapter::CHT::HeatTransferCoefficient_Compressible::
 }
 
 void preciceAdapter::CHT::HeatTransferCoefficient_Compressible::
-extractKappaEff(uint patchID)
+extractKappaEff(uint patchID, bool meshConnectivity)
 {
-    Kappa_->extract(patchID);
+    Kappa_->extract(patchID, meshConnectivity);
 }
 
 scalar preciceAdapter::CHT::HeatTransferCoefficient_Compressible::
@@ -133,7 +158,6 @@ HeatTransferCoefficient_Incompressible
 (
     const Foam::fvMesh& mesh,
     const std::string nameT,
-    const std::string nameTransportProperties,
     const std::string nameRho,
     const std::string nameCp,
     const std::string namePr,
@@ -141,7 +165,7 @@ HeatTransferCoefficient_Incompressible
 )
 :
 HeatTransferCoefficient(mesh, nameT),
-Kappa_(new KappaEff_Incompressible(mesh, nameTransportProperties, nameRho, nameCp, namePr, nameAlphat))
+Kappa_(new KappaEff_Incompressible(mesh, nameRho, nameCp, namePr, nameAlphat))
 {
 }
 
@@ -152,9 +176,9 @@ preciceAdapter::CHT::HeatTransferCoefficient_Incompressible::
 }
 
 void preciceAdapter::CHT::HeatTransferCoefficient_Incompressible::
-extractKappaEff(uint patchID)
+extractKappaEff(uint patchID, bool meshConnectivity)
 {
-    Kappa_->extract(patchID);
+    Kappa_->extract(patchID, meshConnectivity);
 }
 
 scalar preciceAdapter::CHT::HeatTransferCoefficient_Incompressible::
@@ -170,12 +194,11 @@ HeatTransferCoefficient_Basic
 (
     const Foam::fvMesh& mesh,
     const std::string nameT,
-    const std::string nameTransportProperties,
     const std::string nameKappa
 )
 :
 HeatTransferCoefficient(mesh, nameT),
-Kappa_(new KappaEff_Basic(mesh, nameTransportProperties, nameKappa))
+Kappa_(new KappaEff_Basic(mesh, nameKappa))
 {
 }
 
@@ -186,9 +209,9 @@ preciceAdapter::CHT::HeatTransferCoefficient_Basic::
 }
 
 void preciceAdapter::CHT::HeatTransferCoefficient_Basic::
-extractKappaEff(uint patchID)
+extractKappaEff(uint patchID, bool meshConnectivity)
 {
-    Kappa_->extract(patchID);
+    Kappa_->extract(patchID, meshConnectivity);
 }
 
 scalar preciceAdapter::CHT::HeatTransferCoefficient_Basic::

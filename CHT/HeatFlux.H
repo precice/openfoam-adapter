@@ -20,8 +20,10 @@ protected:
     //- Temperature field
     Foam::volScalarField * T_;
 
+    const Foam::fvMesh& mesh_;
+
     //- Wrapper for the extract() method of the corresponding KappaEff class
-    virtual void extractKappaEff(uint patchID) = 0;
+    virtual void extractKappaEff(uint patchID, bool meshConnectivity) = 0;
 
     //- Wrapper for the getAt() method of the corresponding KappaEff class
     virtual Foam::scalar getKappaEffAt(int i) = 0;
@@ -33,11 +35,11 @@ public:
 
     //- Compute heat flux values from the temperature field
     //  and write them into the buffer
-    virtual void write(double * buffer);
+    virtual void write(double * buffer, bool meshConnectivity, const unsigned int dim);
 
     //- Read heat flux values from the buffer and assign them to
     //  the gradient of the temperature field
-    virtual void read(double * buffer);
+    virtual void read(double * buffer, const unsigned int dim);
 
     //- Destructor
     virtual ~HeatFlux(){};
@@ -56,7 +58,7 @@ protected:
     KappaEff_Compressible * Kappa_;
 
     //- Wrapper for the extract() method of the corresponding KappaEff class
-    virtual void extractKappaEff(uint patchID);
+    virtual void extractKappaEff(uint patchID, bool meshConnectivity);
 
     //- Wrapper for the getAt() method of the corresponding KappaEff class
     virtual Foam::scalar getKappaEffAt(int i);
@@ -87,7 +89,7 @@ protected:
     KappaEff_Incompressible * Kappa_;
 
     //- Wrapper for the extract() method of the corresponding KappaEff class
-    virtual void extractKappaEff(uint patchID);
+    virtual void extractKappaEff(uint patchID, bool meshConnectivity);
 
     //- Wrapper for the getAt() method of the corresponding KappaEff class
     virtual Foam::scalar getKappaEffAt(int i);
@@ -99,7 +101,6 @@ public:
     (
         const Foam::fvMesh& mesh,
         const std::string nameT,
-        const std::string nameTransportProperties,
         const std::string nameRho,
         const std::string nameCp,
         const std::string namePr,
@@ -123,7 +124,7 @@ protected:
     KappaEff_Basic * Kappa_;
 
     //- Wrapper for the extract() method of the corresponding KappaEff class
-    virtual void extractKappaEff(uint patchID);
+    virtual void extractKappaEff(uint patchID, bool meshConnectivity);
 
     //- Wrapper for the getAt() method of the corresponding KappaEff class
     virtual Foam::scalar getKappaEffAt(int i);
@@ -135,7 +136,6 @@ public:
     (
         const Foam::fvMesh& mesh,
         const std::string nameT,
-        const std::string nameTransportProperties,
         const std::string nameKappa
     );
 

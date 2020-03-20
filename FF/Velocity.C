@@ -18,7 +18,7 @@ U_(
     dataType_ = vector;
 }
 
-void preciceAdapter::FF::Velocity::write(double * buffer)
+void preciceAdapter::FF::Velocity::write(double * buffer, bool meshConnectivity, const unsigned int dim)
 {
     int bufferIndex = 0;
 
@@ -41,15 +41,16 @@ void preciceAdapter::FF::Velocity::write(double * buffer)
             =
             U_->boundaryFieldRef()[patchID][i].y();
 
-            // z-dimension
-            buffer[bufferIndex++]
-            =
-            U_->boundaryFieldRef()[patchID][i].z();
+            if(dim == 3)
+                // z-dimension
+                buffer[bufferIndex++]
+                =
+                U_->boundaryFieldRef()[patchID][i].z();
         }
     }
 }
 
-void preciceAdapter::FF::Velocity::read(double * buffer)
+void preciceAdapter::FF::Velocity::read(double * buffer, const unsigned int dim)
 {
     int bufferIndex = 0;
 
@@ -72,10 +73,11 @@ void preciceAdapter::FF::Velocity::read(double * buffer)
             =
             buffer[bufferIndex++];
 
-            // z-dimension
-            U_->boundaryFieldRef()[patchID][i].z()
-            =
-            buffer[bufferIndex++];
+            if(dim == 3)
+                // z-dimension
+                U_->boundaryFieldRef()[patchID][i].z()
+                =
+                buffer[bufferIndex++];
         }
     }
 }

@@ -10,9 +10,6 @@
 
 #include "fvCFD.H"
 
-// YAML reader - Used to read the adapter's configuration file.
-#include "yaml-cpp/yaml.h"
-
 namespace preciceAdapter
 {
 namespace FF
@@ -41,7 +38,7 @@ protected:
     std::string determineSolverType();
 
     //- Read the FF-related options from the adapter's configuration file
-    bool readConfig(const YAML::Node adapterConfig);
+    bool readConfig(const IOdictionary& adapterConfig);
 
 public:
 
@@ -49,7 +46,7 @@ public:
     FluidFluid(const Foam::fvMesh& mesh);
 
     //- Configure
-    bool configure(const YAML::Node adapterConfig);
+    bool configure(const IOdictionary& adapterConfig);
     
     //- Add coupling data writers
     void addWriters(std::string dataName, Interface * interface);

@@ -18,7 +18,7 @@ U_(
     dataType_ = vector;
 }
 
-void preciceAdapter::FF::VelocityGradient::write(double * buffer)
+void preciceAdapter::FF::VelocityGradient::write(double * buffer, bool meshConnectivity, const unsigned int dim)
 {
     int bufferIndex = 0;
 
@@ -49,15 +49,16 @@ void preciceAdapter::FF::VelocityGradient::write(double * buffer)
             =
             -gradientPatch[i].y();
 
-            // z-dimension
-            buffer[bufferIndex++]
-            =
-            -gradientPatch[i].z();
+            if(dim == 3)
+                // z-dimension
+                buffer[bufferIndex++]
+                =
+                -gradientPatch[i].z();
         }
     }
 }
 
-void preciceAdapter::FF::VelocityGradient::read(double * buffer)
+void preciceAdapter::FF::VelocityGradient::read(double * buffer, const unsigned int dim)
 {
     int bufferIndex = 0;
 
@@ -88,10 +89,11 @@ void preciceAdapter::FF::VelocityGradient::read(double * buffer)
             =
             buffer[bufferIndex++];
 
-            // z-dimension
-            gradientPatch[i].z()
-            =
-            buffer[bufferIndex++];
+            if(dim == 3)
+                // z-dimension
+                gradientPatch[i].z()
+                =
+                buffer[bufferIndex++];
         }
     }
 }

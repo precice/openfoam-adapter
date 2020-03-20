@@ -31,7 +31,7 @@ public:
     KappaEff_Compressible(const Foam::fvMesh& mesh);
 
     //- Extract the kappaEff on the specific patch and store it.
-    void extract(uint patchID);
+    void extract(uint patchID, bool meshConnectivity);
 
     //- Get the value of kappaEff at cell i
     Foam::scalar getAt(int i);
@@ -55,16 +55,13 @@ protected:
     //  used to compute the effective thermal conductivity.
     const Foam::incompressible::turbulenceModel & turbulence_;
 
-    //- Name of the transportProperties dictionary
-    const std::string nameTransportProperties_;
-
-    //- Name of the user-provided density (in the transportProperties)
+    //- Name of the user-provided density (in the preciceDict)
     const std::string nameRho_;
 
-    //- Name of the user-provided heat capacity (in the transportProperties)
+    //- Name of the user-provided heat capacity (in the preciceDict)
     const std::string nameCp_;
 
-    //- Name of the user-provided Prandtl number (in the transportProperties)
+    //- Name of the user-provided Prandtl number (in the preciceDict)
     const std::string namePr_;
 
     //- Name of the turbulent thermal diffusivity field
@@ -85,7 +82,6 @@ public:
     KappaEff_Incompressible
     (
         const Foam::fvMesh& mesh,
-        const std::string nameTransportProperties,
         const std::string nameRho,
         const std::string nameCp,
         const std::string namePr,
@@ -93,7 +89,7 @@ public:
     );
 
     //- Extract the kappaEff on the specific patch and store it.
-    void extract(uint patchID);
+    void extract(uint patchID, bool meshConnectivity);
 
     //- Get the value of kappaEff at cell i
     Foam::scalar getAt(int i);
@@ -102,7 +98,7 @@ public:
 
 //- Class that extracts the effective conductivity from basic solvers,
 //  which do not have a turbulence/thermophysical model, but read
-//  the required parameters from the transportProperties dictionary.
+//  the required parameters from the preciceDict dictionary.
 class KappaEff_Basic {
 
 protected:
@@ -113,10 +109,7 @@ protected:
     //- Effective conductivity (the same for each cell)
     Foam::dimensionedScalar kappaEff_;
 
-    //- Name of the transportProperties dictionary
-    const std::string nameTransportProperties_;
-
-    //- Name of the user-provided conductivity (in the transportProperties)
+    //- Name of the user-provided conductivity (in the preciceDict)
     const std::string nameKappa_;
 
 public:
@@ -125,12 +118,11 @@ public:
     KappaEff_Basic
     (
         const Foam::fvMesh& mesh,
-        const std::string nameTransportProperties,
         const std::string nameKappa
     );
 
     //- Extract the kappaEff on the specific patch and store it.
-    void extract(uint patchID);
+    void extract(uint patchID, bool meshConnectivity);
 
     //- Get the value of kappaEff at cell i (returns the same for every i)
     Foam::scalar getAt(int i);

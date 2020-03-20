@@ -48,6 +48,12 @@ protected:
     //- Vector of CouplingDataWriters
     std::vector<CouplingDataUser*> couplingDataWriters_;
 
+    //Switch for faceTriangulation (nearest projection)
+    bool meshConnectivity_;
+
+    // Simulation dimension
+    unsigned int dim_;
+
     //- Extracts the locations of the face centers or face nodes
     //  and exposes them to preCICE with setMeshVertices
     void configureMesh(const Foam::fvMesh& mesh);
@@ -61,7 +67,8 @@ public:
         const Foam::fvMesh& mesh,
         std::string meshName,
         std::string locationsType,
-        std::vector<std::string> patchNames
+        std::vector<std::string> patchNames,
+        bool meshConnectivity
     );
 
     //- Add a CouplingDataUser to read data from the interface

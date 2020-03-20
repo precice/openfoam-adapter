@@ -21,12 +21,6 @@ fi
 echo "Preparing and running the Fluid2 participant..."
 
 # Prepare
-if [ $parallel -eq 1 ]; then
-    ln -s -f precice-config_parallel.xml precice-config.xml
-else
-    ln -s -f precice-config_serial.xml precice-config.xml
-fi
-
 rm -rfv Fluid2/0/
 cp -r Fluid2/0.orig/ Fluid2/0/
 blockMesh -case Fluid2

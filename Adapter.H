@@ -21,9 +21,6 @@
 #include "Time.H"
 #include "fvMesh.H"
 
-// Other header files
-// YAML reader - Used to read the adapter's configuration file.
-#include "yaml-cpp/yaml.h"
 // preCICE Solver Interface
 #include "precice/SolverInterface.hpp"
 
@@ -43,6 +40,7 @@ private:
     {
         std::string meshName;
         std::string locationsType;
+        bool meshConnectivity;
         std::vector<std::string> patchNames;
         std::vector<std::string> writeData;
         std::vector<std::string> readData;
@@ -62,27 +60,17 @@ private:
         //- Remember if there were errors in the read() method
         bool errorsInConfigure = false;
 
-        //- preCICE participant name
-        std::string participantName_;
-
         //- preCICE configuration file name
-        std::string preciceConfigFilename_;
+        Foam::word preciceConfigFilename_;
 
-        //- Switch for subcycling
-        bool subcyclingAllowed_ = true;
+        //- preCICE participant name
+        Foam::word participantName_;
 
         //- Switch for checkpointing
         bool checkpointing_ = false;
 
-        //- Switch for automatically preventing the solver from exiting before
-        //  the coupling is complete.
-        bool preventEarlyExit_ = true;
-
         //- Switch for evaluating the boundaries after reading a checkpoint.
-        bool evaluateBoundaries_ = true;
-
-        //- Switch to disable the checkpointing
-        bool disableCheckpointing_ = false;
+        bool evaluateBoundaries_;
 
         //- Type of timestep (fixed, adjustable)
         bool adjustableTimestep_;
@@ -276,7 +264,7 @@ private:
         bool isCouplingOngoing();
 
         //- Determine if the coupling timestep has been completed
-        bool isCouplingTimestepComplete();
+        bool isCouplingTimeWindowComplete();
 
         //- Determine if a checkpoint must be read
         bool isReadCheckpointRequired();

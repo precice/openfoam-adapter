@@ -30,10 +30,10 @@ public:
     );
 
     //- Write the displacement values into the buffer
-    void write(double * buffer);
+    void write(double * buffer, bool meshConnectivity, const unsigned int dim);
 
     //- Read the displacement values from the buffer
-    void read(double * buffer);
+    void read(double * buffer, const unsigned int dim);
 };
 
 }
