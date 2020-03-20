@@ -27,8 +27,7 @@ bool preciceAdapter::FSI::FluidStructureInteraction::configure(const IOdictionar
     // Check the solver type and determine it if needed
     if (
         solverType_.compare("compressible") == 0 ||
-        solverType_.compare("incompressible") == 0 ||
-        solverType_.compare("basic") == 0
+        solverType_.compare("incompressible") == 0
     )
     {
         DEBUG(adapterInfo("Known solver type: " + solverType_));
@@ -72,88 +71,30 @@ std::string preciceAdapter::FSI::FluidStructureInteraction::determineSolverType(
     // NOTE: When coupling a different variable, you may want to
     // add more cases here. Or you may provide the solverType in the config.
 
-    std::string solverType;
+    std::string solverType = "unknown";
 
-    // Determine the solver type: Compressible, Incompressible or Basic.
-    // Look for the files transportProperties, turbulenceProperties,
-    // and thermophysicalProperties
-    bool transportPropertiesExists = false;
-    bool turbulencePropertiesExists = false;
-    bool thermophysicalPropertiesExists = false;
+    dimensionSet pressureDimensionsCompressible(1, -1, -2, 0, 0, 0, 0);
+    dimensionSet pressureDimensionsIncompressible(0, 2, -2, 0, 0, 0, 0);
 
-    if (mesh_.foundObject<IOdictionary>("transportProperties"))
+    if (mesh_.foundObject<volScalarField>("p"))
     {
-        transportPropertiesExists = true;
-        DEBUG(adapterInfo("Found the transportProperties dictionary."));
-    }
-    else
-    {
-        DEBUG(adapterInfo("Did not find the transportProperties dictionary."));
+      volScalarField p_ = mesh_.lookupObject<volScalarField>("p");
+
+      if (p_.dimensions() == pressureDimensionsCompressible)
+        solverType = "compressible";
+      else if (p_.dimensions() == pressureDimensionsIncompressible)
+        solverType = "incompressible";
     }
 
-    
-    if (mesh_.foundObject<IOdictionary>(turbulenceModel::propertiesName))
-    {
-        turbulencePropertiesExists = true;
-        DEBUG(adapterInfo("Found the " + turbulenceModel::propertiesName
-            + " dictionary."));
-    }
-    else
-    {
-        DEBUG(adapterInfo("Did not find the " + turbulenceModel::propertiesName
-            + " dictionary."));
-    }
-    
+    if (solverType == "unknown")
+      adapterInfo("Failed to determine the solver type. "
+                  "Please specify your solver type in the FSI section of the "
+                  "preciceDict. Known solver types for FSI are: "
+                  "incompressible and "
+                  "compressible",
+                  "error");
 
-    if (mesh_.foundObject<IOdictionary>("thermophysicalProperties"))
-    {
-        thermophysicalPropertiesExists = true;
-        DEBUG(adapterInfo("Found the thermophysicalProperties dictionary."));
-    }
-    else
-    {
-        DEBUG(adapterInfo("Did not find the thermophysicalProperties dictionary."));
-    }
-
-    if (turbulencePropertiesExists)
-    {
-        if (thermophysicalPropertiesExists)
-        {
-            solverType = "compressible";
-            DEBUG(adapterInfo("This is a compressible flow solver, "
-                "as turbulence and thermophysical properties are provided."));
-        }
-        else if (transportPropertiesExists)
-        {
-            solverType = "incompressible";
-            DEBUG(adapterInfo("This is an incompressible flow solver, "
-            "as turbulence and transport properties are provided."));
-        }
-        else
-        {
-            adapterInfo("Could not determine the solver type, or this is not "
-            "a compatible solver: although turbulence properties are provided, "
-            "neither transport or thermophysical properties are provided.",
-            "error");
-        }
-    }
-    else
-    {
-        if (transportPropertiesExists)
-        {
-            solverType = "basic";
-            DEBUG(adapterInfo("This is a basic solver, as transport properties "
-            "are provided, while turbulence or transport properties are not "
-            "provided."));
-        }
-        else
-        {
-            adapterInfo("Could not determine the solver type, or this is not a "
-            "compatible solver: neither transport, nor turbulence properties "
-            "are provided.",
-            "error");
-        }
-    }
+    DEBUG(adapterInfo("Automatically determined solver type : " + solverType));
 
     return solverType;
 }
