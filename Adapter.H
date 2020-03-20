@@ -69,9 +69,6 @@ private:
         //- Switch for checkpointing
         bool checkpointing_ = false;
 
-        //- Switch for evaluating the boundaries after reading a checkpoint.
-        bool evaluateBoundaries_;
-
         //- Type of timestep (fixed, adjustable)
         bool adjustableTimestep_;
 
@@ -131,10 +128,10 @@ private:
         //- Checkpointed mesh points
         Foam::pointField meshPoints_;
         Foam::pointField oldMeshPoints_;
-        bool meshCheckPointed = false; 
+        bool meshCheckPointed = false;
 
         // TODO: Currently unused, see storeMeshPoints().
-        //- Checkpointed mesh volume 
+        //- Checkpointed mesh volume
         // bool oldVolsStored = false;
         // Foam::volScalarField::Internal * oldVols_;
         // Foam::volScalarField::Internal * oldOldVols_;
@@ -153,14 +150,14 @@ private:
 
             //- Checkpointed surfaceVectorField mesh fields (copies)
             std::vector<Foam::surfaceVectorField*> meshSurfaceVectorFieldCopies_;
-        
+
             //- Checkpointed volVectorField mesh fields
             std::vector<Foam::volVectorField*> meshVolVectorFields_;
 
             //- Checkpointed volVectorField mesh fields (copies)
             std::vector<Foam::volVectorField*> meshVolVectorFieldCopies_;
 
-            // TODO checkpoint for the V0 (Old volume) and V00 (Old-Old volume) fields. 
+            // TODO checkpoint for the V0 (Old volume) and V00 (Old-Old volume) fields.
             //- Checkpointed volScalarField mesh fields
             std::vector<Foam::volScalarField::Internal*> volScalarInternalFields_;
 
@@ -363,11 +360,11 @@ private:
         //- Write the checkpoint - store the fields and time
         void writeCheckpoint();
 
-        // TODO Probably these can be included to the mesh checkpoints. 
+        // TODO Probably these can be included to the mesh checkpoints.
         //- Read the volume checkpoint - restore the mesh volume fields
         void readVolCheckpoint();
 
-        //- Write the volume checkpoint to a buffer - restore the mesh volume fields 
+        //- Write the volume checkpoint to a buffer - restore the mesh volume fields
         void writeVolCheckpoint();
 
     //- Destroy the preCICE interface and delete the allocated
