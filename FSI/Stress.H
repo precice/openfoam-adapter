@@ -17,9 +17,12 @@ namespace preciceAdapter
 namespace FSI
 {
 
-//- Class that writes and reads force
-class Stress : public Force
-{
+//- Class that writes and reads stress [N/m^2]:
+// This is essentially a force (in spatial coordinates) scaled by the deformed
+// cell face. Thus, a conservative quantity. Calculation concept has been copied
+// from the force module, but the scaled version here is commonly used in FEM
+// applications.
+class Stress : public Force {
 
 private:
 
@@ -42,24 +45,19 @@ public:
         const std::string solverType
         // We create an IOobject and we need the time directory
         /* TODO: We should add any required field names here.
-        /  They would need to be vector fields.
-        /  See CHT/Temperature.H for details.
-        /  Apply any changes also to Force.C.
         */
     );
 
-    //- Write the displacement values into the buffer
+    //- Write the stress values into the buffer
     void write
     (double * buffer, bool meshConnectivity, const unsigned int dim);
 
-    //- Read the displacement values from the buffer
+    //- Read the stress values from the buffer
     void read(double * buffer, const unsigned int dim);
 
     //- Destructor
     ~Stress();
-
 };
-
 }
 }
 

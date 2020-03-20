@@ -95,15 +95,15 @@ void preciceAdapter::FSI::Stress::write(double * buffer, bool meshConnectivity, 
                 << exit(FatalError);
         }
 
-        // Viscous forces
+        // Viscous contribution
         Stress_->boundaryFieldRef()[patchID] +=
             nV & devRhoReffb[patchID];
 
-        // Write the forces to the preCICE buffer
+        // Write the stress to the preCICE buffer
         // For every cell of the patch
         forAll(Stress_->boundaryFieldRef()[patchID], i)
         {
-            // Copy the force into the buffer
+            // Copy the stress into the buffer
             // x-dimension
             buffer[bufferIndex++]
             = 
