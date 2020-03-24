@@ -19,7 +19,7 @@ namespace FSI
 
 //- Class that writes and reads stress [N/m^2]:
 // This is essentially a force (in spatial coordinates) scaled by the deformed
-// cell face. Thus, a conservative quantity. Calculation concept has been copied
+// cell face. Thus, a consistent quantity. Calculation concept has been copied
 // from the force module, but the scaled version here is commonly used in FEM
 // applications.
 class Stress : public Force {
