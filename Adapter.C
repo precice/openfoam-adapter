@@ -404,7 +404,7 @@ void preciceAdapter::Adapter::execute()
     {
         // Check if the time directory already exists
         // (i.e. the solver wrote results that need to be updated)
-        if (runTime_.timePath().type() == fileName::DIRECTORY)
+        if (runTime_.timePath().type() == fileType::directory)
         {
             adapterInfo
             (
@@ -628,7 +628,7 @@ void preciceAdapter::Adapter::adjustSolverTimeStep()
     // Update the solver's timestep (but don't trigger the adjustDeltaT(),
     // which also triggers the functionObject's adjustTimeStep())
     // TODO: Keep this in mind if any relevant problem appears.
-    const_cast<Time&>(runTime_).setDeltaT(timestepSolver_, false);
+    const_cast<Time&>(runTime_).setDeltaTNoAdjust(timestepSolver_);
 
     return;
 }
