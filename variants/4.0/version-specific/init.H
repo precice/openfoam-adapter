@@ -1,0 +1,1 @@
+std::cout << "Using a variant of the preciceAdapter for OpenFOAM 4.0 and 4.1." << std::endl;

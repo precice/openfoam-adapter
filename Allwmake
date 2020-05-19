@@ -31,6 +31,14 @@ ADAPTER_TARGET_DIR="${FOAM_USER_LIBBIN}"
 DOC_COMPATIBILITY="https://github.com/precice/openfoam-adapter/wiki/Notes-on-OpenFOAM"
 
 ################################################################################
+# Guess the OpenFOAM version.
+# We have version-specific files under variants/
+ADAPTER_OPENFOAM_VARIANT="default"
+if [ "${WM_PROJECT}" = "OpenFOAM" ]; then
+    ADAPTER_OPENFOAM_VARIANT=${WM_PROJECT_VERSION}
+fi
+
+################################################################################
 # Funtion to print to screen and copy to a logfile
 log () {
     echo "$@" | tee -a "Allwmake.log"
@@ -65,6 +73,7 @@ fi
 # Export the environment variables
 export ADAPTER_PRECICE_ROOT
 export ADAPTER_PRECICE_DEP
+export ADAPTER_OPENFOAM_VARIANT
 export ADAPTER_PREP_FLAGS
 export ADAPTER_TARGET_DIR
 export ADAPTER_GLOBAL_CPLUS_INC_PATHS
@@ -78,6 +87,7 @@ log ""
 log "Current OpenFOAM environment:"
 log "  WM_PROJECT = ${WM_PROJECT}"
 log "  WM_PROJECT_VERSION = ${WM_PROJECT_VERSION}"
+log "  ADAPTER_OPENFOAM_VARIANT = ${ADAPTER_OPENFOAM_VARIANT}"
 
 if [ -z "${WM_PROJECT}" ]; then
     log ""
