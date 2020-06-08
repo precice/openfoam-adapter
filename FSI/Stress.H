@@ -1,7 +1,8 @@
-#ifndef FSI_FORCE_H
-#define FSI_FORCE_H
+#ifndef FSI_STRESS_H
+#define FSI_STRESS_H
 
 #include "CouplingDataUser.H"
+#include "Force.H"
 
 #include "fvCFD.H"
 
@@ -16,9 +17,12 @@ namespace preciceAdapter
 namespace FSI
 {
 
-//- Class that writes and reads force
-class Force : public CouplingDataUser
-{
+//- Class that writes and reads stress [N/m^2]:
+// This is essentially a force (in spatial coordinates) scaled by the deformed
+// cell face. Thus, a consistent quantity. Calculation concept has been copied
+// from the force module, but the scaled version here is commonly used in FEM
+// applications.
+class Stress : public Force {
 
 private:
 
@@ -27,52 +31,32 @@ private:
     
     const std::string solverType_;
 
-    //- Force field
-    Foam::volVectorField * Force_;
-
-protected:
-    //- Stress tensor (see the OpenFOAM "Forces" function object)
-    Foam::tmp<Foam::volSymmTensorField> devRhoReff() const;
-    
-    Foam::tmp<Foam::volScalarField> rho() const;
-    
-    Foam::tmp<Foam::volScalarField> mu() const;
+    //- Stress field
+    Foam::volVectorField * Stress_;
 
 
 public:
 
     //- Constructor
-    Force
+    Stress
     (
         const Foam::fvMesh& mesh,
         const fileName& timeName,
         const std::string solverType
         // We create an IOobject and we need the time directory
         /* TODO: We should add any required field names here.
-        /  They would need to be vector fields.
-        /  See CHT/Temperature.H for details.
-        /  Apply any changes also to Force.C.
         */
     );
 
-    //- Constructor
-    Force
-    (
-        const Foam::fvMesh& mesh,
-        const std::string solverType
-    );
-
-    //- Write the forces values into the buffer
+    //- Write the stress values into the buffer
     void write(double * buffer, bool meshConnectivity, const unsigned int dim);
 
-    //- Read the forces values from the buffer
+    //- Read the stress values from the buffer
     void read(double * buffer, const unsigned int dim);
 
     //- Destructor
-    ~Force();
-
+    ~Stress();
 };
-
 }
 }
 
