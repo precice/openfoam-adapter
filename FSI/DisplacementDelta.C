@@ -51,7 +51,7 @@ void preciceAdapter::FSI::DisplacementDelta::read(double * buffer, const unsigne
         );
 
         // For every cell of the patch
-        forAll(pointDisplacement_->boundaryFieldRef()[patchID], i)
+        forAll(pointDisplacement_->boundaryField()[patchID], i)
         {
             // Add the received delta to the actual displacement
             pointDisplacementFluidPatch[i][0] += buffer[bufferIndex++];

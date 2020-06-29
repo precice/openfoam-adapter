@@ -51,7 +51,7 @@ void preciceAdapter::FSI::Displacement::read(double * buffer, const unsigned int
         );
 
         // For every cell of the patch
-        forAll(pointDisplacement_->boundaryFieldRef()[patchID], i)
+        forAll(pointDisplacement_->boundaryField()[patchID], i)
         {
             // Set the displacement to the received one
             pointDisplacementFluidPatch[i][0] = buffer[bufferIndex++];

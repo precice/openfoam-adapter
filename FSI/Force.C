@@ -246,24 +246,24 @@ void preciceAdapter::FSI::Force::write(double * buffer, bool meshConnectivity, c
 
         // Write the forces to the preCICE buffer
         // For every cell of the patch
-        forAll(Force_->boundaryFieldRef()[patchID], i)
+        forAll(Force_->boundaryField()[patchID], i)
         {
             // Copy the force into the buffer
             // x-dimension
             buffer[bufferIndex++]
             = 
-            Force_->boundaryFieldRef()[patchID][i].x();
+            Force_->boundaryField()[patchID][i].x();
 
             // y-dimension
             buffer[bufferIndex++]
             =
-            Force_->boundaryFieldRef()[patchID][i].y();
+            Force_->boundaryField()[patchID][i].y();
 
             if(dim == 3)
                 // z-dimension
                 buffer[bufferIndex++]
                         =
-                        Force_->boundaryFieldRef()[patchID][i].z();
+                        Force_->boundaryField()[patchID][i].z();
         }
     }
 }
