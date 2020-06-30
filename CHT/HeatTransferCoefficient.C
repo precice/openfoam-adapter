@@ -39,7 +39,10 @@ void preciceAdapter::CHT::HeatTransferCoefficient::write(double * buffer, bool m
         extractKappaEff(patchID, meshConnectivity);
 
         // Get the face-cell distance coefficients on the patch
-        const scalarField & delta = mesh_.boundary()[patchID].deltaCoeffs();
+        const scalarField & delta
+        (
+            mesh_.boundary()[patchID].deltaCoeffs()
+        );
 
         //If we use the mesh connectivity, we interpolate from the centres to the nodes
         if(meshConnectivity)
@@ -91,11 +94,19 @@ void preciceAdapter::CHT::HeatTransferCoefficient::read(double * buffer, const u
         extractKappaEff(patchID,/*meshConnectivity=*/false);
 
         // Get the face-cell distance coefficients on the patch
-        const scalarField & delta = mesh_.boundary()[patchID].deltaCoeffs();
+        const scalarField & delta
+        (
+            mesh_.boundary()[patchID].deltaCoeffs()
+        );
 
         // Get a reference to the temperature on the patch
-        mixedFvPatchScalarField & TPatch =
-                refCast<mixedFvPatchScalarField>(T_->boundaryFieldRef()[patchID]);
+        mixedFvPatchScalarField & TPatch
+        (
+            refCast<mixedFvPatchScalarField>
+            (
+                T_->boundaryFieldRef()[patchID]
+            )
+        );
 
         // For every cell on the patch
         forAll(TPatch, i)
