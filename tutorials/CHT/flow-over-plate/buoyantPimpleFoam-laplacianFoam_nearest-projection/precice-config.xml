@@ -34,7 +34,7 @@
         <use-mesh name="Solid-Mesh-Nodes" from="Solid"/>
         <read-data name="Heat-Flux" mesh="Fluid-Mesh-Centers"/>
         <write-data name="Temperature" mesh="Fluid-Mesh-Nodes"/>
-        <mapping:nearest-projection direction="read" from="Solid-Mesh-Nodes" to="Fluid-Mesh-Centers" constraint="consistent" timing="initial"/>
+        <mapping:nearest-projection direction="read" from="Solid-Mesh-Nodes" to="Fluid-Mesh-Centers" constraint="consistent"/>
     </participant>
 
     <participant name="Solid">
@@ -44,7 +44,7 @@
         <read-data name="Temperature" mesh="Solid-Mesh-Centers"/>
         <write-data name="Heat-Flux" mesh="Solid-Mesh-Nodes"/>
         <!-- <export:vtk directory="preCICE-output" /> -->
-        <mapping:nearest-projection direction="read" from="Fluid-Mesh-Nodes" to="Solid-Mesh-Centers" constraint="consistent" timing="initial"/>
+        <mapping:nearest-projection direction="read" from="Fluid-Mesh-Nodes" to="Solid-Mesh-Centers" constraint="consistent"/>
     </participant>
 
     <m2n:sockets from="Fluid" to="Solid"/>
@@ -62,12 +62,11 @@
     <coupling-scheme:serial-implicit>
         <time-window-size value="0.01"/>
         <max-time value="1"/>
-        <max-iterations value="200"/>
         <participants first="Fluid" second="Solid"/>
         <exchange data="Temperature" mesh="Fluid-Mesh-Nodes" from="Fluid" to="Solid"/>
         <exchange data="Heat-Flux" mesh="Solid-Mesh-Nodes" from="Solid" to="Fluid"/>
+        <max-iterations value="200"/>
         <relative-convergence-measure limit="1.0e-6" data="Temperature" mesh="Fluid-Mesh-Nodes"/>
-        <extrapolation-order value="2"/>
         <acceleration:IQN-ILS>
             <data mesh="Solid-Mesh-Nodes" name="Heat-Flux" />
             <initial-relaxation value="0.01" />
