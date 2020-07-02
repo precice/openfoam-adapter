@@ -4,6 +4,16 @@ using namespace Foam;
 
 preciceAdapter::FSI::Force::Force
 (
+        const Foam::fvMesh& mesh,
+        const std::string solverType
+)
+:
+mesh_(mesh),solverType_(solverType)
+{}
+
+
+preciceAdapter::FSI::Force::Force
+(
     const Foam::fvMesh& mesh,
     const fileName& timeName,
     const std::string solverType
@@ -13,8 +23,7 @@ preciceAdapter::FSI::Force::Force
     */
 )
 :
-mesh_(mesh),
-solverType_(solverType)
+Force(mesh, solverType)
 {
     //What about type "basic"?
     if (solverType_.compare("incompressible") != 0 && solverType_.compare("compressible") != 0) 
