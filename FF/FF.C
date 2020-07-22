@@ -25,8 +25,7 @@ bool preciceAdapter::FF::FluidFluid::configure(const IOdictionary& adapterConfig
     // Check the solver type and determine it if needed
     if (
         solverType_.compare("compressible") == 0 ||
-        solverType_.compare("incompressible") == 0 ||
-        solverType_.compare("basic") == 0
+        solverType_.compare("incompressible") == 0
     )
     {
         DEBUG(adapterInfo("Known solver type: " + solverType_));
@@ -69,11 +68,31 @@ std::string preciceAdapter::FF::FluidFluid::determineSolverType()
     // NOTE: When coupling a different variable, you may want to
     // add more cases here. Or you may provide the solverType in the config.
 
-    std::string solverType;
-    
-    // TODO: Implement properly
-    solverType = "incompressible";
-    
+    std::string solverType = "unknown";
+
+    dimensionSet pressureDimensionsCompressible(1, -1, -2, 0, 0, 0, 0);
+    dimensionSet pressureDimensionsIncompressible(0, 2, -2, 0, 0, 0, 0);
+
+    if (mesh_.foundObject<volScalarField>("p"))
+    {
+      volScalarField p_ = mesh_.lookupObject<volScalarField>("p");
+
+      if (p_.dimensions() == pressureDimensionsCompressible)
+        solverType = "compressible";
+      else if (p_.dimensions() == pressureDimensionsIncompressible)
+        solverType = "incompressible";
+    }
+
+    if (solverType == "unknown")
+      adapterInfo("Failed to determine the solver type. "
+                  "Please specify your solver type in the FF section of the "
+                  "preciceDict. Known solver types for FF are: "
+                  "incompressible and "
+                  "compressible",
+                  "error");
+
+    DEBUG(adapterInfo("Automatically determined solver type : " + solverType));
+
     return solverType;
 }
 
