@@ -5,8 +5,12 @@
 
 #include "FF/Velocity.H"
 #include "FF/Pressure.H"
+#include "FF/Prgh.H"
+#include "FF/Alpha.H"
 #include "FF/PressureGradient.H"
+#include "FF/PrghGradient.H"
 #include "FF/VelocityGradient.H"
+#include "FF/AlphaGradient.H"
 
 #include "fvCFD.H"
 
@@ -33,6 +37,12 @@ protected:
     
     //- Name of the pressure field
     std::string nameP_ = "p";
+
+    //- Name of the pressure field
+    std::string nameA_ = "alpha.water";
+
+    //- Name of the pressure field
+    std::string namePrgh_ = "p_rgh";
 
     //- Determine the solver type
     std::string determineSolverType();

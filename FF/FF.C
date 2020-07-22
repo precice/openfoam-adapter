@@ -14,7 +14,7 @@ mesh_(mesh)
 
 bool preciceAdapter::FF::FluidFluid::configure(const IOdictionary& adapterConfig)
 {
-    DEBUG(adapterInfo("Configuring the CHT module..."));
+    DEBUG(adapterInfo("Configuring the FF module..."));
 
     // Read the FF-specific options from the adapter's configuration file
     if (!readConfig(adapterConfig)) return false;
@@ -48,18 +48,26 @@ bool preciceAdapter::FF::FluidFluid::configure(const IOdictionary& adapterConfig
 bool preciceAdapter::FF::FluidFluid::readConfig(const IOdictionary& adapterConfig)
 {
     const dictionary FFdict = adapterConfig.subOrEmptyDict("FF");
-    
+
     // Read the solver type (if not specified, it is determined automatically)
     solverType_ = FFdict.lookupOrDefault<word>("solverType", "");
     DEBUG(adapterInfo("    user-defined solver type : " + solverType_));
-    
+
     // Read the name of the velocity field (if different)
     nameU_ = FFdict.lookupOrDefault<word>("nameU", "U");
     DEBUG(adapterInfo("    velocity field name : " + nameU_));
 
     // Read the name of the pressure field (if different)
-    nameP_ = FFdict.lookupOrDefault<word>("nameP", "p");
-    DEBUG(adapterInfo("    pressure field name : " + nameP_));
+    // nameP_ = FFdict.lookupOrDefault<word>("nameP", "p");
+    // DEBUG(adapterInfo("    pressure field name : " + nameP_));
+
+    // Read the name of the alpha field (if different)
+    nameA_ = FFdict.lookupOrDefault<word>("nameA", "alpha.water");
+    DEBUG(adapterInfo("    alpha field name : " + nameA_));
+
+    // Read the name of the prgh field (if different)
+    namePrgh_ = FFdict.lookupOrDefault<word>("namePrgh", "p_rgh");
+    DEBUG(adapterInfo("    p_rgh field name : " + namePrgh_));
 
     return true;
 }
@@ -70,10 +78,10 @@ std::string preciceAdapter::FF::FluidFluid::determineSolverType()
     // add more cases here. Or you may provide the solverType in the config.
 
     std::string solverType;
-    
+
     // TODO: Implement properly
     solverType = "incompressible";
-    
+
     return solverType;
 }
 
@@ -114,6 +122,42 @@ void preciceAdapter::FF::FluidFluid::addWriters(std::string dataName, Interface 
             new Pressure(mesh_, nameP_)
         );
         DEBUG(adapterInfo("Added writer: Pressure."));
+    }
+    else if (dataName.find("AlphaGradient") == 0)
+    {
+        interface->addCouplingDataWriter
+        (
+            dataName,
+            new AlphaGradient(mesh_, nameA_)
+        );
+        DEBUG(adapterInfo("Added writer: Alpha Gradient."));
+    }
+    else if (dataName.find("Alpha") == 0)
+    {
+        interface->addCouplingDataWriter
+        (
+            dataName,
+            new Alpha(mesh_, nameA_)
+        );
+        DEBUG(adapterInfo("Added writer: Alpha."));
+    }
+    else if (dataName.find("PrghGradient") == 0)
+    {
+        interface->addCouplingDataWriter
+        (
+            dataName,
+            new PrghGradient(mesh_, namePrgh_)
+        );
+        DEBUG(adapterInfo("Added writer: Prgh Gradient."));
+    }
+    else if (dataName.find("Prgh") == 0)
+    {
+        interface->addCouplingDataWriter
+        (
+            dataName,
+            new Prgh(mesh_, namePrgh_)
+        );
+        DEBUG(adapterInfo("Added writer: Prgh."));
     }
     else
     {
@@ -165,6 +209,42 @@ void preciceAdapter::FF::FluidFluid::addReaders(std::string dataName, Interface 
         );
         DEBUG(adapterInfo("Added reader: Pressure."));
     }
+    else if (dataName.find("AlphaGradient") == 0)
+    {
+        interface->addCouplingDataReader
+        (
+            dataName,
+            new AlphaGradient(mesh_, nameA_)
+        );
+        DEBUG(adapterInfo("Added reader: Alpha Gradient."));
+    }
+    else if (dataName.find("Alpha") == 0)
+    {
+        interface->addCouplingDataReader
+        (
+            dataName,
+            new Alpha(mesh_, nameA_)
+        );
+        DEBUG(adapterInfo("Added reader: Alpha."));
+    }
+    else if (dataName.find("PrghGradient") == 0)
+    {
+        interface->addCouplingDataReader
+        (
+            dataName,
+            new PrghGradient(mesh_, namePrgh_)
+        );
+        DEBUG(adapterInfo("Added reader: Prgh Gradient."));
+    }
+    else if (dataName.find("Prgh") == 0)
+    {
+        interface->addCouplingDataReader
+        (
+            dataName,
+            new Prgh(mesh_, namePrgh_)
+        );
+        DEBUG(adapterInfo("Added reader: Prgh."));
+    }
     else
     {
         adapterInfo("Unknown data type - cannot add " + dataName +".", "error");
@@ -176,5 +256,3 @@ void preciceAdapter::FF::FluidFluid::addReaders(std::string dataName, Interface 
     // The argument of the dataName.compare() needs to match
     // the one provided in the adapter's configuration file.
 }
-
-
