@@ -125,7 +125,10 @@ void preciceAdapter::CHT::KappaEff_Incompressible::extract(uint patchID, bool me
 
     // Get the laminar viscosity from the turbulence model
     // TODO: Do we really need turbulence at the end?
-    const scalarField & nu = turbulence_.nu() ().boundaryField()[patchID];
+    const scalarField & nu
+    (
+        turbulence_.nu() ().boundaryField()[patchID]
+    );
 
     // Compute the effective thermal diffusivity
     // (alphaEff = alpha + alphat = nu / Pr + nut / Prt)
@@ -135,8 +138,10 @@ void preciceAdapter::CHT::KappaEff_Incompressible::extract(uint patchID, bool me
     // Does the turbulent thermal diffusivity exist in the object registry?
     if (mesh_.foundObject<volScalarField>(nameAlphat_))
     {
-        const scalarField & alphat =
-            mesh_.lookupObject<volScalarField>(nameAlphat_).boundaryField()[patchID];
+        const scalarField & alphat
+        (
+            mesh_.lookupObject<volScalarField>(nameAlphat_).boundaryField()[patchID]
+        );
 
         alphaEff = nu / Pr_.value() + alphat;
     }
@@ -153,7 +158,10 @@ void preciceAdapter::CHT::KappaEff_Incompressible::extract(uint patchID, bool me
     }
 
     // Compute the effective thermal conductivity and store it in a temp variable
-    scalarField kappaEff_temp = alphaEff * rho_.value() * Cp_.value();
+    scalarField kappaEff_temp
+    (
+        alphaEff * rho_.value() * Cp_.value()
+    );
 
     if(meshConnectivity)
     {

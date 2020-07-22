@@ -30,11 +30,13 @@ void preciceAdapter::CHT::SinkTemperature::write(double * buffer, bool meshConne
         int patchID = patchIDs_.at(j);
 
         // Get the boundary field of Temperature on the patch
-        fvPatchScalarField & TPatch =
+        fvPatchScalarField & TPatch
+        (
             refCast<fvPatchScalarField>
             (
                 T_->boundaryFieldRef()[patchID]
-            );
+            )
+        );
 
         // Get the internal field next to the patch // TODO: Simplify?
         tmp<scalarField> patchInternalFieldTmp = TPatch.patchInternalField();
@@ -87,11 +89,13 @@ void preciceAdapter::CHT::SinkTemperature::read(double * buffer, const unsigned 
         int patchID = patchIDs_.at(j);
 
         // Get the boundary field of the temperature on the patch
-        mixedFvPatchScalarField & TPatch =
+        mixedFvPatchScalarField & TPatch
+        (
             refCast<mixedFvPatchScalarField>
             (
                 T_->boundaryFieldRef()[patchID]
-            );
+            )
+        );
 
         // Get a reference to the reference value on the patch
         scalarField & Tref = TPatch.refValue();

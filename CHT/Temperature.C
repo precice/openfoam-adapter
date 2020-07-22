@@ -30,7 +30,10 @@ void preciceAdapter::CHT::Temperature::write(double * buffer, bool meshConnectiv
     {
         int patchID = patchIDs_.at(j);
 
-        const scalarField& TPatch = T_->boundaryFieldRef()[patchID];
+        const scalarField& TPatch
+        (
+            T_->boundaryFieldRef()[patchID]
+        );
 
         //If we use the mesh connectivity, we interpolate from the centres to the nodes
         if(meshConnectivity)
@@ -38,10 +41,11 @@ void preciceAdapter::CHT::Temperature::write(double * buffer, bool meshConnectiv
             //Create an Interpolation object at the boundary Field
             primitivePatchInterpolation patchInterpolator(mesh_.boundaryMesh()[patchID]);
 
-            scalarField  TPoints;
-
             //Interpolate from centers to nodes
-            TPoints = patchInterpolator.faceToPointInterpolate(TPatch);
+            scalarField  TPoints
+            (
+                patchInterpolator.faceToPointInterpolate(TPatch)
+            );
 
             forAll(TPoints, i)
             {
