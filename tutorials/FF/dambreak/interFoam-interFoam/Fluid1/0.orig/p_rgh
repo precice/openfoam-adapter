@@ -26,7 +26,7 @@ boundaryField
         value           uniform 0;
     }
 
-    rightWall
+    outlet
     {
         type            fixedValue;
         value      	uniform 0;

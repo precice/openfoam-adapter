@@ -16,16 +16,28 @@ FoamFile
 
 convertToMeters 1;
 
+xleft 10;
+xmiddle 15;
+xright 20;
+
+ybottom 0;
+ymiddle 5;
+ytop 10;
+
+zback 0;
+zmiddle 5;
+zfront 10;
+
 vertices
 (
-    (1000 -500 500) //0
-    (2000 -500 500) //1
-    (2000 -500 -500)//2
-    (1000 -500 -500)//3
-    (1000 500 500)//4
-    (2000 500 500)//5
-    (2000 500 -500)//6
-    (1000 500 -500)//7
+    ($xleft $ybottom $zfront) //0
+    ($xright $ybottom $zfront) //1
+    ($xright $ybottom $zback) //2
+    ($xleft $ybottom $zback) //3
+    ($xleft $ytop $zfront) //4
+    ($xright $ytop $zfront) //5
+    ($xright $ytop $zback) //6
+    ($xleft $ytop $zback) //7
 
 );
 
@@ -40,7 +52,7 @@ edges
 
 boundary
 (
-    leftWall
+    inlet //left wall of Fluid2
     {
         type wall;
         faces

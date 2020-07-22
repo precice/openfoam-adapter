@@ -16,16 +16,28 @@ FoamFile
 
 convertToMeters 1;
 
+xleft 0;
+xmiddle 5;
+xright 10;
+
+ybottom 0;
+ymiddle 5;
+ytop 10;
+
+zback 0;
+zmiddle 5;
+zfront 10;
+
 vertices
 (
-    (0 -500 500) //0
-    (1000 -500 500) //1
-    (1000 -500 -500)//2
-    (0 -500 -500)//3
-    (0 500 500)//4
-    (1000 500 500)//5
-    (1000 500 -500)//6
-    (0 500 -500)//7
+    ($xleft $ybottom $zfront) //0
+    ($xright $ybottom $zfront) //1
+    ($xright $ybottom $zback) //2
+    ($xleft $ybottom $zback) //3
+    ($xleft $ytop $zfront) //4
+    ($xright $ytop $zfront) //5
+    ($xright $ytop $zback) //6
+    ($xleft $ytop $zback) //7
 
 );
 
@@ -48,7 +60,7 @@ boundary
             (0 4 7 3)
         );
     }
-    rightWall
+    outlet //right wall of Fluid1
     {
         type wall;
         faces

@@ -18,16 +18,20 @@ interfaces
   Interface1
   {
     mesh              Fluid2_Mesh;
-    patches           (leftWall);
+    patches           (inlet);
 
     readData
     (
-      Alpha
       Velocity
+      PrghGradient
+      Alpha
     );
 
     writeData
     (
+      VelocityGradient
+      Prgh
+      AlphaGradient
     );
   };
 };

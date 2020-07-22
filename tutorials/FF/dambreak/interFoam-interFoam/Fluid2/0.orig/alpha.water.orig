@@ -20,7 +20,7 @@ internalField   uniform 0;
 
 boundaryField
 {
-    leftWall
+    inlet
     {
         type            zeroGradient;
     }

@@ -25,7 +25,7 @@ boundaryField
     {
         type            noSlip;
     }
-    rightWall
+    outlet
     {
         type            fixedGradient;
         gradient        uniform (0 0 0);

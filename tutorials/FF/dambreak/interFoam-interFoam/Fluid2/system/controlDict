@@ -52,5 +52,13 @@ maxAlphaCo      1;
 
 maxDeltaT       1;
 
+functions
+{
+    preCICE_Adapter
+    {
+        type preciceAdapterFunctionObject;
+        libs ("libpreciceAdapterFunctionObject.so");
+    }
+}
 
 // ************************************************************************* //

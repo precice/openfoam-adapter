@@ -20,11 +20,25 @@ defaultFieldValues
     volScalarFieldValue alpha.water 0
 );
 
+xleft 10;
+xmiddle 15;
+xright 20;
+
+ybottom 0;
+ymiddle 5;
+ytop 10;
+
+zback 0;
+zmiddle 5;
+zfront 10;
+
+rad 5;
+
 regions
 (
     boxToCell
     {
-        box (0 0 -500) (1000 500 500);
+        box ($xleft $ybottom $zback) ($xleft $ymiddle $zfront);
         fieldValues
         (
             volScalarFieldValue alpha.water 1
