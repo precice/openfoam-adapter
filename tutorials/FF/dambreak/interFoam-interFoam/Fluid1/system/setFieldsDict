@@ -24,7 +24,21 @@ regions
 (
     boxToCell
     {
-        box (0 0 -1) (0.1461 0.292 1);
+        box (0 0 -500) (1000 500 500);
+        fieldValues
+        (
+            volScalarFieldValue alpha.water 1
+        );
+    }
+
+    cylinderToCell
+    {
+
+            p1 (500 500 0);
+            p2 (0 800 0);
+            radius 250;
+
+
         fieldValues
         (
             volScalarFieldValue alpha.water 1

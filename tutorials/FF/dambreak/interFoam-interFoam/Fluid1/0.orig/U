@@ -1,3 +1,10 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  7
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
 FoamFile
 {
     version     2.0;
@@ -10,23 +17,31 @@ FoamFile
 
 dimensions      [0 1 -1 0 0 0 0];
 
-internalField   uniform (0 0 0.1);
+internalField   uniform (0 0 0);
 
 boundaryField
 {
-    inlet
+    leftWall
     {
-        type            fixedValue;
-        value           $internalField;
+        type            noSlip;
     }
-    outlet
+    rightWall
     {
         type            fixedGradient;
         gradient        uniform (0 0 0);
     }
-    fixedWalls
+    lowerWall
     {
         type            noSlip;
+    }
+    atmosphere
+    {
+        type            pressureInletOutletVelocity;
+        value           uniform (0 0 0);
+    }
+    defaultFaces
+    {
+        type            empty;
     }
 }
 

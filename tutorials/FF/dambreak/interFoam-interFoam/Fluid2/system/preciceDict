@@ -17,18 +17,17 @@ interfaces
 {
   Interface1
   {
-    mesh              Fluid2-Mesh;
-    patches           (inlet);
-    
+    mesh              Fluid2_Mesh;
+    patches           (leftWall);
+
     readData
     (
+      Alpha
       Velocity
-      PressureGradient
     );
-    
+
     writeData
     (
-      Pressure
     );
   };
 };
