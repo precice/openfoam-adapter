@@ -14,7 +14,7 @@ mesh_(mesh)
 
 bool preciceAdapter::FF::FluidFluid::configure(const IOdictionary& adapterConfig)
 {
-    DEBUG(adapterInfo("Configuring the CHT module..."));
+    DEBUG(adapterInfo("Configuring the FF module..."));
 
     // Read the FF-specific options from the adapter's configuration file
     if (!readConfig(adapterConfig)) return false;
@@ -176,5 +176,4 @@ void preciceAdapter::FF::FluidFluid::addReaders(std::string dataName, Interface 
     // The argument of the dataName.compare() needs to match
     // the one provided in the adapter's configuration file.
 }
-
 
