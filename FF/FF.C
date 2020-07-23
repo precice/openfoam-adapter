@@ -58,8 +58,8 @@ bool preciceAdapter::FF::FluidFluid::readConfig(const IOdictionary& adapterConfi
     DEBUG(adapterInfo("    velocity field name : " + nameU_));
 
     // Read the name of the pressure field (if different)
-    // nameP_ = FFdict.lookupOrDefault<word>("nameP", "p");
-    // DEBUG(adapterInfo("    pressure field name : " + nameP_));
+    nameP_ = FFdict.lookupOrDefault<word>("nameP", "p");
+    DEBUG(adapterInfo("    pressure field name : " + nameP_));
 
     // Read the name of the alpha field (if different)
     nameA_ = FFdict.lookupOrDefault<word>("nameA", "alpha.water");
