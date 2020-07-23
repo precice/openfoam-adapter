@@ -28,17 +28,17 @@ checkMesh -case Fluid2
 setFields -case Fluid2
 
 
-# # Run
-# cd Fluid2
-# 	solver=$(getApplication)
-# cd ..
-# if [ $parallel -eq 1 ]; then
-#     decomposePar -force -case Fluid2
-#     cd Fluid2
-#             nproc=$(getNumberOfProcessors)
-#     cd ..
-#     mpirun -np $nproc $solver -parallel -case Fluid2
-#     reconstructPar -case Fluid2
-# else
-#     $solver -case Fluid2
-# fi
+# Run
+cd Fluid2
+	solver=$(getApplication)
+cd ..
+if [ $parallel -eq 1 ]; then
+    decomposePar -force -case Fluid2
+    cd Fluid2
+            nproc=$(getNumberOfProcessors)
+    cd ..
+    mpirun -np $nproc $solver -parallel -case Fluid2
+    reconstructPar -case Fluid2
+else
+    $solver -case Fluid2
+fi

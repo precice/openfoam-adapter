@@ -52,7 +52,7 @@ edges
 
 boundary
 (
-    inlet //left wall of Fluid2
+    leftWall_inlet
     {
         type wall;
         faces

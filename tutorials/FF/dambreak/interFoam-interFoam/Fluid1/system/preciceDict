@@ -18,7 +18,7 @@ interfaces
   Interface1
   {
     mesh              Fluid1-Mesh;
-    patches           (outlet);
+    patches           (rightWall_outlet);
 
     readData
     (

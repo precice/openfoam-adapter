@@ -60,7 +60,7 @@ boundary
             (0 4 7 3)
         );
     }
-    outlet //right wall of Fluid1
+    rightWall_outlet
     {
         type wall;
         faces

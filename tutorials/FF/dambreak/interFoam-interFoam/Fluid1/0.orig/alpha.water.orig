@@ -25,7 +25,7 @@ boundaryField
         type            zeroGradient;
     }
 
-    outlet
+    rightWall_outlet
     {
         type            fixedGradient;
         inletValue      uniform 0;

@@ -17,8 +17,8 @@ interfaces
 {
   Interface1
   {
-    mesh              Fluid2_Mesh;
-    patches           (inlet);
+    mesh              Fluid2-Mesh;
+    patches           (leftWall_inlet);
 
     readData
     (

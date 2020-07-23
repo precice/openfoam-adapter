@@ -27,22 +27,22 @@ blockMesh -case Fluid1
 checkMesh -case Fluid1
 setFields -case Fluid1
 
-# # Run
-# cd Fluid1
-#     solver=$(getApplication)
-# cd ..
-# if [ $parallel -eq 1 ]; then
-#     decomposePar -case Fluid1
-#     cd Fluid1
-#         nproc=$(getNumberOfProcessors)
-#     cd ..
-#     mpirun -np $nproc $solver -parallel -case Fluid1
-#     reconstructPar -case Fluid1
-# else
-#     $solver -case Fluid1
-# fi
-#
-# #foamToVTK -case Fluid1
-#
-# # Workaround for issue #26
-# ./removeObsoleteFolders.sh
+# Run
+cd Fluid1
+    solver=$(getApplication)
+cd ..
+if [ $parallel -eq 1 ]; then
+    decomposePar -case Fluid1
+    cd Fluid1
+        nproc=$(getNumberOfProcessors)
+    cd ..
+    mpirun -np $nproc $solver -parallel -case Fluid1
+    reconstructPar -case Fluid1
+else
+    $solver -case Fluid1
+fi
+
+#foamToVTK -case Fluid1
+
+# Workaround for issue #26
+./removeObsoleteFolders.sh
