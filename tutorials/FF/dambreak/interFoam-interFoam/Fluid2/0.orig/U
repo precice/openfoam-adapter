@@ -21,14 +21,14 @@ internalField   uniform (0 0 0);
 
 boundaryField
 {
-    inlet
+    leftWall_inlet
     {
-        type            noSlip;
+        type            fixedValue;
+        value           $internalField;
     }
     rightWall
     {
-        type            fixedGradient;
-        gradient        uniform (0 0 0);
+        type            noSlip;
     }
     lowerWall
     {

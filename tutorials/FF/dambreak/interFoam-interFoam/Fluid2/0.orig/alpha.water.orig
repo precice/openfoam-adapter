@@ -20,16 +20,16 @@ internalField   uniform 0;
 
 boundaryField
 {
-    inlet
-    {
-        type            zeroGradient;
-    }
-
-    rightWall
+    leftWall_inlet
     {
         type            fixedGradient;
         inletValue      uniform 0;
         gradient      	uniform 0;
+    }
+
+    rightWall
+    {
+        type            zeroGradient;
     }
 
     lowerWall

@@ -57,14 +57,18 @@
 
     <coupling-scheme:serial-explicit>
         <time-window-size value="0.05"/>
-        <max-time value="2.0"/>
+        <max-time value="5.0"/>
         <participants first="Fluid1" second="Fluid2"/>
-        <exchange data="VelocityGradient" mesh="Fluid2-Mesh" from="Fluid2" to="Fluid1"/>
-        <exchange data="Prgh" mesh="Fluid2-Mesh" from="Fluid2" to="Fluid1"/>
-        <exchange data="AlphaGradient" mesh="Fluid2-Mesh" from="Fluid2" to="Fluid1"/>
-	<exchange data="Velocity" mesh="Fluid1-Mesh" from="Fluid1" to="Fluid2"/>
+
+        <!-- <exchange data="VelocityGradient" mesh="Fluid2-Mesh" from="Fluid2" to="Fluid1"/> -->
+        <!-- <exchange data="Alpha" mesh="Fluid1-Mesh" from="Fluid1" to="Fluid2"/> -->
+        <exchange data="PrghGradient" mesh="Fluid2-Mesh" from="Fluid2" to="Fluid1"/>
+
+	    <exchange data="Velocity" mesh="Fluid1-Mesh" from="Fluid1" to="Fluid2"/>
+        <exchange data="Alpha" mesh="Fluid2-Mesh" from="Fluid1" to="Fluid2"/>
         <exchange data="PrghGradient" mesh="Fluid1-Mesh" from="Fluid1" to="Fluid2"/>
-        <exchange data="Alpha" mesh="Fluid1-Mesh" from="Fluid1" to="Fluid2"/>
+        <!-- <exchange data="AlphaGradient" mesh="Fluid2-Mesh" from="Fluid2" to="Fluid1"/> -->
+
     </coupling-scheme:serial-explicit>
 
     </solver-interface>

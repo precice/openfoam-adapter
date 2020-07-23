@@ -20,16 +20,16 @@ internalField   uniform 0;
 
 boundaryField
 {
-    inlet
+    leftWall_inlet
     {
-        type            fixedFluxPressure;
-        value           uniform 0;
+        type            fixedGradient;
+        gradient        uniform 0;
     }
 
     rightWall
     {
-        type            fixedValue;
-        value      	uniform 0;
+        type            fixedFluxPressure;
+        value           uniform 0;
     }
 
     lowerWall

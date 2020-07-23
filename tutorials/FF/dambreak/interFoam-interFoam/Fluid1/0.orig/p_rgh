@@ -26,10 +26,10 @@ boundaryField
         value           uniform 0;
     }
 
-    outlet
+    rightWall_outlet
     {
         type            fixedValue;
-        value      	uniform 0;
+        value           uniform 0;
     }
 
     lowerWall
