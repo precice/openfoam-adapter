@@ -81,6 +81,8 @@ std::string preciceAdapter::FF::FluidFluid::determineSolverType()
         solverType = "compressible";
       else if (p_.dimensions() == pressureDimensionsIncompressible)
         solverType = "incompressible";
+      // TODO: Add special case for multiphase solvers.
+      // Currently, interFoam is misclassified as "compressible".
     }
 
     if (solverType == "unknown")
