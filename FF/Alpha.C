@@ -30,7 +30,7 @@ void preciceAdapter::FF::Alpha::write(double * buffer, bool meshConnectivity, co
         // For every cell of the patch
         forAll(alpha_->boundaryFieldRef()[patchID], i)
         {
-            // Copy the pressure into the buffer
+            // Copy the alpha into the buffer
             buffer[bufferIndex++]
             =
             alpha_->boundaryFieldRef()[patchID][i];
@@ -50,7 +50,7 @@ void preciceAdapter::FF::Alpha::read(double * buffer, const unsigned int dim)
         // For every cell of the patch
         forAll(alpha_->boundaryFieldRef()[patchID], i)
         {
-            // Set the pressure as the buffer value
+            // Set the alpha as the buffer value
             alpha_->boundaryFieldRef()[patchID][i]
             =
             buffer[bufferIndex++];

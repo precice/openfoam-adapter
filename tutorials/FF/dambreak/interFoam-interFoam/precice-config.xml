@@ -31,24 +31,26 @@
 
     <participant name="Fluid1">
         <use-mesh name="Fluid1-Mesh" provide="yes"/>
-        <use-mesh name="Fluid2-Mesh" from="Fluid2"/>
-        <read-data name="VelocityGradient" mesh="Fluid1-Mesh"/>
-        <read-data name="Prgh" mesh="Fluid1-Mesh"/>
-        <read-data name="AlphaGradient" mesh="Fluid1-Mesh"/>
+        <!-- <use-mesh name="Fluid2-Mesh" from="Fluid2"/> -->
+        <!-- <read-data name="VelocityGradient" mesh="Fluid1-Mesh"/> -->
+        <!-- <read-data name="Prgh" mesh="Fluid1-Mesh"/> -->
+        <!-- <read-data name="AlphaGradient" mesh="Fluid1-Mesh"/> -->
+        <!-- <write-data name="PrghGradient" mesh="Fluid1-Mesh"/> -->
+
         <write-data name="Velocity" mesh="Fluid1-Mesh"/>
-        <write-data name="PrghGradient" mesh="Fluid1-Mesh"/>
+        <write-data name="Prgh" mesh="Fluid1-Mesh"/>
         <write-data name="Alpha" mesh="Fluid1-Mesh"/>
-	<mapping:nearest-neighbor direction="read" from="Fluid2-Mesh" to="Fluid1-Mesh" 		constraint="consistent" />
+	<!-- <mapping:nearest-neighbor direction="write" from="Fluid2-Mesh" to="Fluid1-Mesh" 		constraint="consistent" /> -->
     </participant>
 
     <participant name="Fluid2">
         <use-mesh name="Fluid2-Mesh" provide="yes"/>
         <use-mesh name="Fluid1-Mesh" from="Fluid1"/>
-        <write-data name="VelocityGradient" mesh="Fluid2-Mesh"/>
-        <write-data name="Prgh" mesh="Fluid2-Mesh"/>
-        <write-data name="AlphaGradient" mesh="Fluid2-Mesh"/>
+        <!-- <write-data name="VelocityGradient" mesh="Fluid2-Mesh"/> -->
+        <!-- <write-data name="Prgh" mesh="Fluid2-Mesh"/> -->
+        <!-- <write-data name="AlphaGradient" mesh="Fluid2-Mesh"/> -->
         <read-data name="Velocity" mesh="Fluid2-Mesh"/>
-        <read-data name="PrghGradient" mesh="Fluid2-Mesh"/>
+        <read-data name="Prgh" mesh="Fluid2-Mesh"/>
         <read-data name="Alpha" mesh="Fluid2-Mesh"/>
 	<mapping:nearest-neighbor direction="read" from="Fluid1-Mesh" to="Fluid2-Mesh" 		constraint="consistent" />
     </participant>
@@ -57,17 +59,17 @@
 
     <coupling-scheme:serial-explicit>
         <time-window-size value="0.05"/>
-        <max-time value="5.0"/>
+        <max-time value="2.0"/>
         <participants first="Fluid1" second="Fluid2"/>
 
         <!-- <exchange data="VelocityGradient" mesh="Fluid2-Mesh" from="Fluid2" to="Fluid1"/> -->
         <!-- <exchange data="Alpha" mesh="Fluid1-Mesh" from="Fluid1" to="Fluid2"/> -->
-        <exchange data="PrghGradient" mesh="Fluid2-Mesh" from="Fluid2" to="Fluid1"/>
+        <!-- <exchange data="PrghGradient" mesh="Fluid2-Mesh" from="Fluid2" to="Fluid1"/> -->
+        <!-- <exchange data="AlphaGradient" mesh="Fluid2-Mesh" from="Fluid2" to="Fluid1"/> -->
 
 	    <exchange data="Velocity" mesh="Fluid1-Mesh" from="Fluid1" to="Fluid2"/>
-        <exchange data="Alpha" mesh="Fluid2-Mesh" from="Fluid1" to="Fluid2"/>
-        <exchange data="PrghGradient" mesh="Fluid1-Mesh" from="Fluid1" to="Fluid2"/>
-        <!-- <exchange data="AlphaGradient" mesh="Fluid2-Mesh" from="Fluid2" to="Fluid1"/> -->
+        <exchange data="Alpha" mesh="Fluid1-Mesh" from="Fluid1" to="Fluid2"/>
+        <exchange data="Prgh" mesh="Fluid1-Mesh" from="Fluid1" to="Fluid2"/>
 
     </coupling-scheme:serial-explicit>
 

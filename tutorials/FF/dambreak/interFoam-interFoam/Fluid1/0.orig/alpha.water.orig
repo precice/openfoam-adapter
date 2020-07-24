@@ -27,9 +27,11 @@ boundaryField
 
     rightWall_outlet
     {
-        type            fixedGradient;
-        inletValue      uniform 0;
-        gradient      	uniform 0;
+        type            zeroGradient;
+
+        // type            fixedGradient;
+        // inletValue      uniform 0;
+        // gradient      	uniform 0;
     }
 
     lowerWall

@@ -22,8 +22,8 @@ boundaryField
 {
     leftWall_inlet
     {
-        type            fixedGradient;
-        gradient        uniform 0;
+        type            fixedFluxPressure;
+        gradient        $internalField;
     }
 
     rightWall

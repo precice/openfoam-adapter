@@ -23,7 +23,7 @@ boundaryField
 {
     leftWall
     {
-        type            noSlip;
+        type            noSlip; //( type fixedValue; value (0,0,0); )
     }
     rightWall_outlet
     {

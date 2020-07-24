@@ -24,12 +24,11 @@ interfaces
     (
       Velocity
       Alpha
-      PrghGradient
+      Prgh
     );
 
     writeData
     (
-      Prgh
     );
   };
 };

@@ -22,9 +22,11 @@ boundaryField
 {
     leftWall_inlet
     {
-        type            fixedGradient;
-        inletValue      uniform 0;
-        gradient      	uniform 0;
+        type            fixedValue;
+        value           $internalField;
+        // type            fixedGradient;
+        // inletValue      uniform 0;
+        // gradient      	uniform 0;
     }
 
     rightWall

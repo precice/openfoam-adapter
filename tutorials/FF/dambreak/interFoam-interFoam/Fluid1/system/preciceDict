@@ -22,14 +22,13 @@ interfaces
 
     readData
     (
-      Prgh
     );
 
     writeData
     (
       Velocity
       Alpha
-      PrghGradient
+      Prgh
     );
   };
 };
