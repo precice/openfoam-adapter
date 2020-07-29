@@ -14,6 +14,7 @@ CHT/CHT.C
 
 FSI/FSI.C
 FSI/Force.C
+FSI/Stress.C
 FSI/Displacement.C
 FSI/DisplacementDelta.C
 

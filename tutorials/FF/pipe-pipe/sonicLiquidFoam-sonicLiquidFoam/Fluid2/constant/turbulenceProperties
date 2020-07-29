@@ -6,8 +6,5 @@ FoamFile
     location    "constant";
     object      turbulenceProperties;
 }
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 simulationType laminar;
-
-// ************************************************************************* //
