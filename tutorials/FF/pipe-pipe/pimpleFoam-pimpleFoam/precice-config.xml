@@ -61,7 +61,6 @@
 
         <max-iterations value="100"/>
         <relative-convergence-measure limit="1.0e-6" data="Pressure" mesh="Fluid2-Mesh"/>
-        <!--<relative-convergence-measure limit="1.0e-6" data="PressureGradient" mesh="Fluid2-Mesh"/>-->
         <relative-convergence-measure limit="1.0e-6" data="Velocity" mesh="Fluid1-Mesh"/>
 
         <acceleration:IQN-ILS>
