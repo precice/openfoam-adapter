@@ -5,18 +5,17 @@ using namespace Foam;
 
 preciceAdapter::CHT::SinkTemperature::SinkTemperature
 (
-        const Foam::fvMesh& mesh,
-        const std::string nameT
-        )
-    :
-      T_(
-          const_cast<volScalarField*>
-          (
-              &mesh.lookupObject<volScalarField>(nameT)
-              )
-          ),
-
-      mesh_(mesh)
+    const Foam::fvMesh& mesh,
+    const std::string nameT
+    )
+:
+T_(
+    const_cast<volScalarField*>
+    (
+        &mesh.lookupObject<volScalarField>(nameT)
+    )
+),
+mesh_(mesh)
 {
     dataType_ = scalar;
 }
@@ -59,8 +58,8 @@ void preciceAdapter::CHT::SinkTemperature::write(double * buffer, bool meshConne
             {
                 // Copy the temperature into the buffer
                 buffer[bufferIndex++]
-                        =
-                        patchInternalPointField[i];
+                =
+                patchInternalPointField[i];
             }
         }
         else
@@ -70,8 +69,8 @@ void preciceAdapter::CHT::SinkTemperature::write(double * buffer, bool meshConne
             {
                 // Copy the internal field (sink) temperature into the buffer
                 buffer[bufferIndex++]
-                        =
-                        patchInternalField[i];
+                =
+                patchInternalField[i];
             }
         }
 
@@ -106,8 +105,8 @@ void preciceAdapter::CHT::SinkTemperature::read(double * buffer, const unsigned 
         {
             // Set the reference value as the buffer value
             Tref[i]
-                    =
-                    buffer[bufferIndex++];
+            =
+            buffer[bufferIndex++];
         }
     }
 }

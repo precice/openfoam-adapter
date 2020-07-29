@@ -10,7 +10,9 @@ It is based on [previous work](https://github.com/ludcila/CHT-preCICE) by Lucia 
 
 The fluid-structure interaction module was developed in close collaboration between Gerasimos Chourdakis and Derek Risseeuw (TU Delft), in the context of the [master's thesis of the latter](http://resolver.tudelft.nl/uuid:70beddde-e870-4c62-9a2f-8758b4e49123) [3]. We would also like to thank David Schneider (Univ. Siegen / TUM) and Maximilian Müller (TU Braunschweig) for sharing the code and experience of their similar previous work.
 
-The adapter is [easily extensible](https://github.com/precice/openfoam-adapter/wiki/How-to-extend-the-adapter) and support for fluid-fluid multi-model coupling [is planned](https://github.com/precice/openfoam-adapter/issues/60).
+The fluid-fluid coupling module is being developed by Gerasimos Chourdakis, in the context of his dissertation.
+
+The adapter is [easily extensible](https://github.com/precice/openfoam-adapter/wiki/How-to-extend-the-adapter).
 
 ## Start here
 

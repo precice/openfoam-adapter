@@ -9,17 +9,17 @@ using namespace Foam;
 
 preciceAdapter::CHT::HeatFlux::HeatFlux
 (
-        const Foam::fvMesh& mesh,
-        const std::string nameT
-        )
-    :
-      T_(
-          const_cast<volScalarField*>
-          (
-              &mesh.lookupObject<volScalarField>(nameT)
-              )
-          ),
-      mesh_(mesh)
+    const Foam::fvMesh& mesh,
+    const std::string nameT
+)
+:
+T_(
+    const_cast<volScalarField*>
+    (
+        &mesh.lookupObject<volScalarField>(nameT)
+    )
+),
+mesh_(mesh)
 {
     dataType_ = scalar;
 }
@@ -62,9 +62,8 @@ void preciceAdapter::CHT::HeatFlux::write(double * buffer, bool meshConnectivity
                 // Q = - k * gradient(T)
                 //TODO: Interpolate kappa in case of a turbulent calculation
                 buffer[bufferIndex++]
-                        =
-                        -getKappaEffAt(i) * gradientPoints[i];
-
+                =
+                -getKappaEffAt(i) * gradientPoints[i];
             }
         }
         else
@@ -76,8 +75,8 @@ void preciceAdapter::CHT::HeatFlux::write(double * buffer, bool meshConnectivity
                 // Q = - k * gradient(T)
                 //TODO: Interpolate kappa in case of a turbulent calculation
                 buffer[bufferIndex++]
-                        =
-                        -getKappaEffAt(i) * gradientPatch[i];
+                =
+                -getKappaEffAt(i) * gradientPatch[i];
             }
         }
     }
@@ -113,8 +112,8 @@ void preciceAdapter::CHT::HeatFlux::read(double * buffer, const unsigned int dim
             // as the buffer contains the flux that enters the boundary:
             // gradient(T) = -Q / -k
             gradientPatch[i]
-                    =
-                    buffer[bufferIndex++] / getKappaEffAt(i);
+            =
+            buffer[bufferIndex++] / getKappaEffAt(i);
         }
     }
 }
@@ -123,12 +122,12 @@ void preciceAdapter::CHT::HeatFlux::read(double * buffer, const unsigned int dim
 
 preciceAdapter::CHT::HeatFlux_Compressible::HeatFlux_Compressible
 (
-        const Foam::fvMesh& mesh,
-        const std::string nameT
-        )
-    :
-      HeatFlux(mesh, nameT),
-      Kappa_(new KappaEff_Compressible(mesh))
+    const Foam::fvMesh& mesh,
+    const std::string nameT
+)
+:
+HeatFlux(mesh, nameT),
+Kappa_(new KappaEff_Compressible(mesh))
 {
 }
 
@@ -151,16 +150,16 @@ scalar preciceAdapter::CHT::HeatFlux_Compressible::getKappaEffAt(int i)
 
 preciceAdapter::CHT::HeatFlux_Incompressible::HeatFlux_Incompressible
 (
-        const Foam::fvMesh& mesh,
-        const std::string nameT,
-        const std::string nameRho,
-        const std::string nameCp,
-        const std::string namePr,
-        const std::string nameAlphat
-        )
-    :
-      HeatFlux(mesh, nameT),
-      Kappa_(new KappaEff_Incompressible(mesh, nameRho, nameCp, namePr, nameAlphat))
+    const Foam::fvMesh& mesh,
+    const std::string nameT,
+    const std::string nameRho,
+    const std::string nameCp,
+    const std::string namePr,
+    const std::string nameAlphat
+)
+:
+HeatFlux(mesh, nameT),
+Kappa_(new KappaEff_Incompressible(mesh, nameRho, nameCp, namePr, nameAlphat))
 {
 }
 
@@ -183,13 +182,13 @@ scalar preciceAdapter::CHT::HeatFlux_Incompressible::getKappaEffAt(int i)
 
 preciceAdapter::CHT::HeatFlux_Basic::HeatFlux_Basic
 (
-        const Foam::fvMesh& mesh,
-        const std::string nameT,
-        const std::string nameKappa
-        )
-    :
-      HeatFlux(mesh, nameT),
-      Kappa_(new KappaEff_Basic(mesh, nameKappa))
+    const Foam::fvMesh& mesh,
+    const std::string nameT,
+    const std::string nameKappa
+)
+:
+HeatFlux(mesh, nameT),
+Kappa_(new KappaEff_Basic(mesh, nameKappa))
 {
 }
 
