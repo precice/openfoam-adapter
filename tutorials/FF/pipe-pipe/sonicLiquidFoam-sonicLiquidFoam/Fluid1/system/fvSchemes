@@ -1,10 +1,3 @@
-/*--------------------------------*- C++ -*----------------------------------*\
-| =========                 |                                                 |
-| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
-|  \\    /   O peration     | Version:  5                                     |
-|   \\  /    A nd           | Web:      www.OpenFOAM.org                      |
-|    \\/     M anipulation  |                                                 |
-\*---------------------------------------------------------------------------*/
 FoamFile
 {
     version     2.0;
@@ -13,11 +6,9 @@ FoamFile
     location    "system";
     object      fvSchemes;
 }
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 ddtSchemes
 {
-    //default         Euler;
     default         CrankNicolson 0.45;
 }
 
@@ -47,6 +38,3 @@ snGradSchemes
 {
     default         corrected;
 }
-
-
-// ************************************************************************* //

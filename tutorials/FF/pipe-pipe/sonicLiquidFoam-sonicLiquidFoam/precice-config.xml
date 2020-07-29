@@ -73,7 +73,7 @@
             <time-windows-reused value="10" />
             <filter type="QR1" limit="1e-6" />
         </acceleration:IQN-ILS>
-        
+
     </coupling-scheme:parallel-implicit>
 
     </solver-interface>
