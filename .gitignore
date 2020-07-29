@@ -44,11 +44,4 @@ Make/linux64GccDPInt32Opt/
 .settings/
 
 *.swp
-
-
-[0-9]/
-[0-9].[0-9]/
-[0-9].[0-9][0-9]/
-polyMesh/
-
-precice-Fluid*-events.json
+.tags*

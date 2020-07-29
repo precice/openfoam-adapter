@@ -11,53 +11,42 @@ FoamFile
     format      ascii;
     class       dictionary;
     location    "system";
-    object      setFieldsDict;
+    object      fvSchemes;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-defaultFieldValues
-(
-    volScalarFieldValue alpha.water 0
-);
+ddtSchemes
+{
+    default         Euler;
+}
 
-xleft 0;
-xmiddle 4;
-xright 8;
+gradSchemes
+{
+    default         Gauss linear;
+}
 
-ybottom 0;
-ymiddle 5;
-ytop 10;
+divSchemes
+{
+    div(rhoPhi,U)  Gauss linearUpwind grad(U);
+    div(phi,alpha)  Gauss linear;
+    div(phirb,alpha) Gauss linear;
+    div(((rho*nuEff)*dev2(T(grad(U))))) Gauss linear;
+}
 
-zback 0;
-zmiddle 5;
-zfront 10;
+laplacianSchemes
+{
+    default         Gauss linear corrected;
+}
 
-rad 2;
+interpolationSchemes
+{
+    default         linear;
+}
 
-regions
-(
-    boxToCell
-    {
-        box ($xleft $ybottom $zback) ($xright $ymiddle $zfront);
-        fieldValues
-        (
-            volScalarFieldValue alpha.water 1
-        );
-    }
-
-    cylinderToCell
-    {
-
-        p1 ($xmiddle $ymiddle $zmiddle);
-        p2 ($xmiddle $ytop $zmiddle);
-        radius $rad;
-
-        fieldValues
-        (
-            volScalarFieldValue alpha.water 1
-        );
-    }
-);
+snGradSchemes
+{
+    default         corrected;
+}
 
 
 // ************************************************************************* //

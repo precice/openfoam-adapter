@@ -9,55 +9,47 @@ FoamFile
 {
     version     2.0;
     format      ascii;
-    class       dictionary;
-    location    "system";
-    object      setFieldsDict;
+    class       volScalarField;
+    object      alpha.water;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-defaultFieldValues
-(
-    volScalarFieldValue alpha.water 0
-);
+dimensions      [0 0 0 0 0 0 0];
 
-xleft 0;
-xmiddle 4;
-xright 8;
+internalField   uniform 0;
 
-ybottom 0;
-ymiddle 5;
-ytop 10;
-
-zback 0;
-zmiddle 5;
-zfront 10;
-
-rad 2;
-
-regions
-(
-    boxToCell
+boundaryField
+{
+    leftWall
     {
-        box ($xleft $ybottom $zback) ($xright $ymiddle $zfront);
-        fieldValues
-        (
-            volScalarFieldValue alpha.water 1
-        );
+        type            zeroGradient;
     }
 
-    cylinderToCell
+    rightWall_outlet
     {
+        type            zeroGradient;
 
-        p1 ($xmiddle $ymiddle $zmiddle);
-        p2 ($xmiddle $ytop $zmiddle);
-        radius $rad;
-
-        fieldValues
-        (
-            volScalarFieldValue alpha.water 1
-        );
+        // type            fixedGradient;
+        // inletValue      uniform 0;
+        // gradient      	uniform 0;
     }
-);
 
+    lowerWall
+    {
+        type            zeroGradient;
+    }
+
+    atmosphere
+    {
+        type            inletOutlet;
+        inletValue      uniform 0;
+        value           uniform 0;
+    }
+
+    defaultFaces
+    {
+        type            empty;
+    }
+}
 
 // ************************************************************************* //

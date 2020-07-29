@@ -58,7 +58,7 @@
     <m2n:sockets from="Fluid1" to="Fluid2" exchange-directory=".." />
 
     <coupling-scheme:serial-explicit>
-        <time-window-size value="0.05"/>
+        <time-window-size value="0.001"/>
         <max-time value="2.0"/>
         <participants first="Fluid1" second="Fluid2"/>
 

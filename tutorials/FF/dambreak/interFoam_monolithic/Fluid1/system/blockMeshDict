@@ -16,8 +16,8 @@ FoamFile
 
 convertToMeters 1;
 
-xleft 10;
-xmiddle 15;
+xleft 0;
+xmiddle 10;
 xright 20;
 
 ybottom 0;
@@ -29,7 +29,6 @@ zmiddle 5;
 zfront 10;
 
 res 20;
-
 
 vertices
 (
@@ -55,7 +54,7 @@ edges
 
 boundary
 (
-    leftWall_inlet
+    leftWall
     {
         type wall;
         faces
@@ -63,7 +62,7 @@ boundary
             (0 4 7 3)
         );
     }
-    rightWall
+    rightWall_outlet
     {
         type wall;
         faces

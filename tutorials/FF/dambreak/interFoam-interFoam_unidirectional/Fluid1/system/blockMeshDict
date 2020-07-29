@@ -28,6 +28,9 @@ zback 0;
 zmiddle 5;
 zfront 10;
 
+res 20;
+
+
 vertices
 (
     ($xleft $ybottom $zfront) //0
@@ -43,7 +46,7 @@ vertices
 
 blocks
 (
-    hex (0 1 2 3 4 5 6 7) (30 30 30) simpleGrading (1 1 1)
+    hex (0 1 2 3 4 5 6 7) ($res $res $res) simpleGrading (1 1 1)
 );
 
 edges

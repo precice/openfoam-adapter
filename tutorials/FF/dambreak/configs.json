@@ -1,0 +1,173 @@
+{
+"configurations": {
+    "config0" : {
+        "alias": "F1 Monolithic",
+        "Fluid1":{
+            "write": [],
+            "read" : [],
+            "variables": {
+                "velocity": {
+                    "leftWall":["noSlip", "na"],
+                    "rightWall": ["fixedGradient", 0]
+                },
+                "alpha": {
+                    "leftWall":["zeroGradient", "na"],
+                    "rightWall": ["zeroGradient", "na"]
+                },
+                "prgh": {
+                    "leftWall":["fixedGradient", 0],
+                    "rightWall": ["fixedValue", 0]
+                }
+            }
+        },
+        "Precice":{
+            "mapping": "nn, consistent",
+        },
+        "Results":{
+            "compiles": "yes",
+            "convergence": "yes",
+            "notes": "monolithic results look good"
+       }
+    },
+    "config1" : {
+        "alias": "F1-F2_unidirectional",
+        "Fluid1":{
+            "write": ["velocity", "alpha", "prgh"],
+            "read" : [],
+            "variables": {
+                "velocity": {
+                    "leftWall":["noSlip", "na"],
+                    "rightWall": ["fixedGradient", 0]
+                },
+                "alpha": {
+                    "leftWall":["zeroGradient", "na"],
+                    "rightWall": ["zeroGradient", "na"]
+                },
+                "prgh": {
+                    "leftWall":["fixedGradient", 0],
+                    "rightWall": ["fixedValue", 0]
+                }
+            }
+        },
+        "Fluid2":{
+            "write": [],
+            "read" : ["velocity", "alpha", "prgh"],
+            "variables": {
+                "velocity": {
+                    "leftWall":["fixedValue", 0],
+                    "rightWall": ["fixedGradient", 0]
+                },
+                "alpha": {
+                    "leftWall":["zeroGradient", 0],
+                    "rightWall": ["zeroGradient", "na"]
+                },
+                "prgh": {
+                    "leftWall":["fixedFluxPressure", 0],
+                    "rightWall": ["fixedFluxPressure", 0]
+                }
+            }
+        },
+        "Precice":{
+            "mapping": "nn, consistent",
+        },
+        "Results":{
+            "compiles": "yes",
+            "convergence": "yes",
+            "notes": "pressure has a strange jump"
+       }
+    },
+    "config2" : {
+        "alias": "F1-F2_bidirectional like pimple-pimple",
+        "Fluid1":{
+            "write": ["velocity", "alpha", "PrghGradient"],
+            "read" : ["Prgh"],
+            "variables": {
+                "velocity": {
+                    "leftWall":["noSlip", "na"],
+                    "rightWall_outlet": ["fixedGradient", 0]
+                },
+                "alpha": {
+                    "leftWall":["zeroGradient", "na"],
+                    "rightWall_outlet": ["zeroGradient", "na"]
+                },
+                "prgh": {
+                    "leftWall":["fixedGradient", 0],
+                    "rightWall_outlet": ["fixedValue", 0]
+                }
+            }
+        },
+        "Fluid2":{
+            "write": ["prgh"],
+            "read" : ["velocity", "alpha", "PrghGradient"],
+            "variables": {
+                "velocity": {
+                    "leftWall_inlet":["fixedValue", 0],
+                    "rightWall": ["fixedGradient", 0]
+                },
+                "alpha": {
+                    "leftWall_inlet":["zeroGradient", 0],
+                    "rightWall": ["zeroGradient", "na"]
+                },
+                "prgh": {
+                    "leftWall_inlet":["fixedGradient", 0],
+                    "rightWall": ["fixedValue", 0]
+                }
+            }
+        },
+        "Precice":{
+            "mapping": "nn, consistent",
+        },
+        "Results":{
+            "compiles": "yes",
+            "convergence": "no",
+            "notes": "no convergence"
+       }
+    },
+    "config3" : {
+        "alias": "",
+        "Fluid1":{
+            "write": ["velocity", "alpha", "PrghGradient"],
+            "read" : ["Prgh"],
+            "variables": {
+                "velocity": {
+                    "leftWall":["noSlip", "na"],
+                    "rightWall_outlet": ["fixedGradient", 0]
+                },
+                "alpha": {
+                    "leftWall":["zeroGradient", "na"],
+                    "rightWall_outlet": ["zeroGradient", "na"]
+                },
+                "prgh": {
+                    "leftWall":["fixedGradient", 0],
+                    "rightWall_outlet": ["fixedValue", 0]
+                }
+            }
+        },
+        "Fluid2":{
+            "write": ["prgh"],
+            "read" : ["velocity", "alpha", "PrghGradient"],
+            "variables": {
+                "velocity": {
+                    "leftWall_inlet":["fixedValue", 0],
+                    "rightWall": ["fixedGradient", 0]
+                },
+                "alpha": {
+                    "leftWall_inlet":["zeroGradient", 0],
+                    "rightWall": ["zeroGradient", "na"]
+                },
+                "prgh": {
+                    "leftWall_inlet":["fixedGradient", 0],
+                    "rightWall": ["fixedValue", 0]
+                }
+            }
+        },
+        "Precice":{
+            "mapping": "nn, consistent",
+        },
+        "Results":{
+            "compiles": "yes",
+            "convergence": "no",
+            "notes": "no convergence"
+       }
+    },
+}
