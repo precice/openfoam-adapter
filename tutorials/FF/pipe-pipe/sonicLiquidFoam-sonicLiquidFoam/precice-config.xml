@@ -50,7 +50,7 @@
 
     <m2n:sockets from="Fluid1" to="Fluid2"/>
 
-    <coupling-scheme:serial-implicit>
+    <coupling-scheme:parallel-implicit>
         <time-window-size value="0.01"/>
         <max-time value="1.0"/>
         <participants first="Fluid1" second="Fluid2"/>
@@ -60,18 +60,21 @@
         <!--<exchange data="VelocityGradient" mesh="Fluid2-Mesh" from="Fluid2" to="Fluid1"/>-->
 
         <max-iterations value="100"/>
-        <relative-convergence-measure limit="1.0e-6" data="Pressure" mesh="Fluid2-Mesh"/>
+        <relative-convergence-measure limit="1.0e-3" data="Pressure" mesh="Fluid2-Mesh"/>
         <!--<relative-convergence-measure limit="1.0e-6" data="PressureGradient" mesh="Fluid2-Mesh"/>-->
-        <relative-convergence-measure limit="1.0e-6" data="Velocity" mesh="Fluid1-Mesh"/>
+        <relative-convergence-measure limit="1.0e-3" data="Velocity" mesh="Fluid1-Mesh"/>
 
         <acceleration:IQN-ILS>
             <data mesh="Fluid2-Mesh" name="Pressure" />
-            <initial-relaxation value="0.01" />
+            <data mesh="Fluid1-Mesh" name="Velocity" />
+            <preconditioner type="residual-sum" />
+            <initial-relaxation value="0.1" />
             <max-used-iterations value="80" />
             <time-windows-reused value="10" />
-            <filter type="QR1" limit="1e-8" />
+            <filter type="QR1" limit="1e-6" />
         </acceleration:IQN-ILS>
-    </coupling-scheme:serial-implicit>
+        
+    </coupling-scheme:parallel-implicit>
 
     </solver-interface>
 </precice-configuration>
