@@ -37,15 +37,15 @@
             "variables": {
                 "velocity": {
                     "leftWall":["noSlip", "na"],
-                    "rightWall": ["fixedGradient", 0]
+                    "rightWall_outlet": ["fixedGradient", 0]
                 },
                 "alpha": {
                     "leftWall":["zeroGradient", "na"],
-                    "rightWall": ["zeroGradient", "na"]
+                    "rightWall_outlet": ["zeroGradient", "na"]
                 },
                 "prgh": {
-                    "leftWall":["fixedGradient", 0],
-                    "rightWall": ["fixedValue", 0]
+                    "leftWall":["fixedFluxPressure", 0],
+                    "rightWall_outlet": ["fixedValue", 0]
                 }
             }
         },
@@ -54,15 +54,15 @@
             "read" : ["velocity", "alpha", "prgh"],
             "variables": {
                 "velocity": {
-                    "leftWall":["fixedValue", 0],
+                    "leftWall_inlet":["fixedValue", 0],
                     "rightWall": ["fixedGradient", 0]
                 },
                 "alpha": {
-                    "leftWall":["zeroGradient", 0],
+                    "leftWall_inlet":["fixedValue", 0],
                     "rightWall": ["zeroGradient", "na"]
                 },
                 "prgh": {
-                    "leftWall":["fixedFluxPressure", 0],
+                    "leftWall_inlet":["fixedFluxPressure", 0],
                     "rightWall": ["fixedFluxPressure", 0]
                 }
             }
@@ -73,7 +73,7 @@
         "Results":{
             "compiles": "yes",
             "convergence": "yes",
-            "notes": "pressure has a strange jump"
+            "notes": "there is a considerable jump on boundary"
        }
     },
     "config2" : {
@@ -91,7 +91,7 @@
                     "rightWall_outlet": ["zeroGradient", "na"]
                 },
                 "prgh": {
-                    "leftWall":["fixedGradient", 0],
+                    "leftWall":["fixedFluxPressure", 0],
                     "rightWall_outlet": ["fixedValue", 0]
                 }
             }
@@ -105,11 +105,11 @@
                     "rightWall": ["fixedGradient", 0]
                 },
                 "alpha": {
-                    "leftWall_inlet":["zeroGradient", 0],
+                    "leftWall_inlet":["fixedValue", 0],
                     "rightWall": ["zeroGradient", "na"]
                 },
                 "prgh": {
-                    "leftWall_inlet":["fixedGradient", 0],
+                    "leftWall_inlet":["fixedFluxPressure", 0],
                     "rightWall": ["fixedValue", 0]
                 }
             }
@@ -119,12 +119,12 @@
         },
         "Results":{
             "compiles": "yes",
-            "convergence": "no",
-            "notes": "no convergence"
+            "convergence": "yes",
+            "notes": "improved results, still a little discrepancy, but a lot better"
        }
     },
     "config3" : {
-        "alias": "",
+        "alias": "F1-F2_bidirectional like pimple-pimple, but no fixedFluxPressure bc",
         "Fluid1":{
             "write": ["velocity", "alpha", "PrghGradient"],
             "read" : ["Prgh"],
@@ -167,7 +167,7 @@
         "Results":{
             "compiles": "yes",
             "convergence": "no",
-            "notes": "no convergence"
+            "notes": "no convergence, or too slow"
        }
     },
 }

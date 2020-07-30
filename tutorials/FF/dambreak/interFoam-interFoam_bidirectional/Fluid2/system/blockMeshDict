@@ -16,8 +16,8 @@ FoamFile
 
 convertToMeters 1;
 
-xleft 0;
-xmiddle 10;
+xleft 10;
+xmiddle 15;
 xright 20;
 
 ybottom 0;
@@ -29,6 +29,7 @@ zmiddle 5;
 zfront 10;
 
 res 20;
+
 
 vertices
 (
@@ -45,7 +46,7 @@ vertices
 
 blocks
 (
-    hex (0 1 2 3 4 5 6 7) (40 $res $res) simpleGrading (1 1 1)
+    hex (0 1 2 3 4 5 6 7) ($res $res $res) simpleGrading (1 1 1)
 );
 
 edges
@@ -54,7 +55,7 @@ edges
 
 boundary
 (
-    leftWall
+    leftWall_inlet
     {
         type wall;
         faces
@@ -62,7 +63,7 @@ boundary
             (0 4 7 3)
         );
     }
-    rightWall_outlet
+    rightWall
     {
         type wall;
         faces
