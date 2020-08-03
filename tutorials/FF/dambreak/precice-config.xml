@@ -1,0 +1,77 @@
+<?xml version="1.0"?>
+
+<precice-configuration>
+
+    <solver-interface dimensions="3">
+
+    <data:vector name="Velocity"/>
+    <data:scalar name="PrghGradient"/>
+    <data:scalar name="Alpha"/>
+    <data:vector name="VelocityGradient"/>
+    <data:scalar name="Prgh"/>
+    <data:scalar name="AlphaGradient"/>
+
+    <mesh name="SWE_solver-Mesh">
+        <use-data name="Velocity"/>
+        <use-data name="PrghGradient"/>
+        <use-data name="Alpha"/>
+        <use-data name="VelocityGradient"/>
+        <use-data name="Prgh"/>
+        <use-data name="AlphaGradient"/>
+    </mesh>
+
+    <mesh name="interFoam_solver-Mesh">
+        <use-data name="Velocity"/>
+        <use-data name="PrghGradient"/>
+        <use-data name="Alpha"/>
+        <use-data name="VelocityGradient"/>
+        <use-data name="Prgh"/>
+        <use-data name="AlphaGradient"/>
+    </mesh>
+
+    <participant name="SWE_solver">
+        <use-mesh name="SWE_solver-Mesh" provide="yes"/>
+        <use-mesh name="interFoam_solver-Mesh" from="interFoam_solver"/>
+        <!-- <read-data name="VelocityGradient" mesh="SWE_solver-Mesh"/> -->
+        <read-data name="Prgh" mesh="SWE_solver-Mesh"/>
+        <!-- <read-data name="AlphaGradient" mesh="SWE_solver-Mesh"/> -->
+
+        <write-data name="PrghGradient" mesh="SWE_solver-Mesh"/>
+        <write-data name="Velocity" mesh="SWE_solver-Mesh"/>
+        <!-- <write-data name="Prgh" mesh="SWE_solver-Mesh"/> -->
+        <write-data name="Alpha" mesh="SWE_solver-Mesh"/>
+	<mapping:nearest-neighbor direction="read" from="interFoam_solver-Mesh" to="SWE_solver-Mesh" 		constraint="consistent" />
+    </participant>
+
+    <participant name="interFoam_solver">
+        <use-mesh name="interFoam_solver-Mesh" provide="yes"/>
+        <use-mesh name="SWE_solver-Mesh" from="SWE_solver"/>
+        <!-- <write-data name="VelocityGradient" mesh="interFoam_solver-Mesh"/> -->
+        <write-data name="Prgh" mesh="interFoam_solver-Mesh"/>
+        <!-- <write-data name="AlphaGradient" mesh="interFoam_solver-Mesh"/> -->
+        <read-data name="Velocity" mesh="interFoam_solver-Mesh"/>
+        <read-data name="PrghGradient" mesh="interFoam_solver-Mesh"/>
+        <read-data name="Alpha" mesh="interFoam_solver-Mesh"/>
+	<mapping:nearest-neighbor direction="read" from="SWE_solver-Mesh" to="interFoam_solver-Mesh" 		constraint="consistent" />
+    </participant>
+
+    <m2n:sockets from="SWE_solver" to="interFoam_solver" exchange-directory=".." />
+
+    <coupling-scheme:serial-explicit>
+        <time-window-size value="0.001"/>
+        <max-time value="2.0"/>
+        <participants first="SWE_solver" second="interFoam_solver"/>
+
+        <!-- <exchange data="VelocityGradient" mesh="interFoam_solver-Mesh" from="interFoam_solver" to="SWE_solver"/> -->
+        <!-- <exchange data="Alpha" mesh="SWE_solver-Mesh" from="SWE_solver" to="interFoam_solver"/> -->
+        <exchange data="PrghGradient" mesh="SWE_solver-Mesh" from="SWE_solver" to="interFoam_solver"/>
+        <!-- <exchange data="AlphaGradient" mesh="interFoam_solver-Mesh" from="interFoam_solver" to="SWE_solver"/> -->
+
+	    <exchange data="Velocity" mesh="SWE_solver-Mesh" from="SWE_solver" to="interFoam_solver"/>
+        <exchange data="Alpha" mesh="SWE_solver-Mesh" from="SWE_solver" to="interFoam_solver"/>
+        <exchange data="Prgh" mesh="interFoam_solver-Mesh" from="interFoam_solver" to="SWE_solver"/>
+
+    </coupling-scheme:serial-explicit>
+
+    </solver-interface>
+</precice-configuration>

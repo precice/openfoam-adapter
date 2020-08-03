@@ -1,0 +1,48 @@
+#!/bin/bash
+cd ${0%/*} || exit 1    		    		# Run from this directory
+. $WM_PROJECT_DIR/bin/tools/RunFunctions    # Tutorial run functions
+
+# Fluid participant
+
+# Run this script in one terminal and the "runFluid2" script in another terminal.
+# These scripts present how the two participants would be started manually.
+# Alternatively, you may execute the "Allrun" script in one terminal.
+
+# Run this script with "-parallel" for parallel simulations
+
+# The script "Allclean" cleans-up the result and log files.
+
+# 1 for true, 0 for false
+parallel=0
+if [ "$1" = "-parallel" ]; then
+    parallel=1
+fi
+
+echo "Preparing and running the interFoam_solver participant..."
+
+# Prepare
+rm -rfv interFoam_solver/0/
+cp -r interFoam_solver/0.orig/ interFoam_solver/0/
+blockMesh -case interFoam_solver
+checkMesh -case interFoam_solver
+setFields -case interFoam_solver
+
+# Run
+cd interFoam_solver
+    solver=$(getApplication)
+cd ..
+if [ $parallel -eq 1 ]; then
+    decomposePar -case interFoam_solver
+    cd interFoam_solver
+        nproc=$(getNumberOfProcessors)
+    cd ..
+    mpirun -np $nproc $solver -parallel -case interFoam_solver
+    reconstructPar -case interFoam_solver
+else
+    $solver -case interFoam_solver
+fi
+
+#foamToVTK -case interFoam_solver
+
+# Workaround for issue #26
+./removeObsoleteFolders.sh
