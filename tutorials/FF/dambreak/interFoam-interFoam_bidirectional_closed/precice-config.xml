@@ -1,0 +1,77 @@
+<?xml version="1.0"?>
+
+<precice-configuration>
+
+    <solver-interface dimensions="3">
+
+    <data:vector name="Velocity"/>
+    <data:scalar name="PrghGradient"/>
+    <data:scalar name="Alpha"/>
+    <data:vector name="VelocityGradient"/>
+    <data:scalar name="Prgh"/>
+    <data:scalar name="AlphaGradient"/>
+
+    <mesh name="Fluid1-Mesh">
+        <use-data name="Velocity"/>
+        <use-data name="PrghGradient"/>
+        <use-data name="Alpha"/>
+        <use-data name="VelocityGradient"/>
+        <use-data name="Prgh"/>
+        <use-data name="AlphaGradient"/>
+    </mesh>
+
+    <mesh name="Fluid2-Mesh">
+        <use-data name="Velocity"/>
+        <use-data name="PrghGradient"/>
+        <use-data name="Alpha"/>
+        <use-data name="VelocityGradient"/>
+        <use-data name="Prgh"/>
+        <use-data name="AlphaGradient"/>
+    </mesh>
+
+    <participant name="Fluid1">
+        <use-mesh name="Fluid1-Mesh" provide="yes"/>
+        <use-mesh name="Fluid2-Mesh" from="Fluid2"/>
+        <!-- <read-data name="VelocityGradient" mesh="Fluid1-Mesh"/> -->
+        <read-data name="Prgh" mesh="Fluid1-Mesh"/>
+        <!-- <read-data name="AlphaGradient" mesh="Fluid1-Mesh"/> -->
+
+        <write-data name="PrghGradient" mesh="Fluid1-Mesh"/>
+        <write-data name="Velocity" mesh="Fluid1-Mesh"/>
+        <!-- <write-data name="Prgh" mesh="Fluid1-Mesh"/> -->
+        <write-data name="Alpha" mesh="Fluid1-Mesh"/>
+	<mapping:nearest-neighbor direction="read" from="Fluid2-Mesh" to="Fluid1-Mesh" 		constraint="consistent" />
+    </participant>
+
+    <participant name="Fluid2">
+        <use-mesh name="Fluid2-Mesh" provide="yes"/>
+        <use-mesh name="Fluid1-Mesh" from="Fluid1"/>
+        <!-- <write-data name="VelocityGradient" mesh="Fluid2-Mesh"/> -->
+        <write-data name="Prgh" mesh="Fluid2-Mesh"/>
+        <!-- <write-data name="AlphaGradient" mesh="Fluid2-Mesh"/> -->
+        <read-data name="Velocity" mesh="Fluid2-Mesh"/>
+        <read-data name="PrghGradient" mesh="Fluid2-Mesh"/>
+        <read-data name="Alpha" mesh="Fluid2-Mesh"/>
+	<mapping:nearest-neighbor direction="read" from="Fluid1-Mesh" to="Fluid2-Mesh" 		constraint="consistent" />
+    </participant>
+
+    <m2n:sockets from="Fluid1" to="Fluid2" exchange-directory=".." />
+
+    <coupling-scheme:serial-explicit>
+        <time-window-size value="0.05"/>
+        <max-time value="5.0"/>
+        <participants first="Fluid1" second="Fluid2"/>
+
+        <!-- <exchange data="VelocityGradient" mesh="Fluid2-Mesh" from="Fluid2" to="Fluid1"/> -->
+        <!-- <exchange data="Alpha" mesh="Fluid1-Mesh" from="Fluid1" to="Fluid2"/> -->
+        <exchange data="PrghGradient" mesh="Fluid1-Mesh" from="Fluid1" to="Fluid2"/>
+        <!-- <exchange data="AlphaGradient" mesh="Fluid2-Mesh" from="Fluid2" to="Fluid1"/> -->
+
+	    <exchange data="Velocity" mesh="Fluid1-Mesh" from="Fluid1" to="Fluid2"/>
+        <exchange data="Alpha" mesh="Fluid1-Mesh" from="Fluid1" to="Fluid2"/>
+        <exchange data="Prgh" mesh="Fluid2-Mesh" from="Fluid2" to="Fluid1"/>
+
+    </coupling-scheme:serial-explicit>
+
+    </solver-interface>
+</precice-configuration>

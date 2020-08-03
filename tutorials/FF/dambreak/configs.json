@@ -1,22 +1,21 @@
 {
 "configurations": {
-    "config0" : {
-        "alias": "F1 Monolithic",
+    "F1 Monolithic open" : {
         "Fluid1":{
             "write": [],
             "read" : [],
             "variables": {
                 "velocity": {
                     "leftWall":["noSlip", "na"],
-                    "rightWall": ["fixedGradient", 0]
+                    "rightWall_outlet": ["fixedGradient", 0]
                 },
                 "alpha": {
                     "leftWall":["zeroGradient", "na"],
-                    "rightWall": ["zeroGradient", "na"]
+                    "rightWall_outlet": ["zeroGradient", "na"]
                 },
                 "prgh": {
-                    "leftWall":["fixedGradient", 0],
-                    "rightWall": ["fixedValue", 0]
+                    "leftWall":["fixedFluxPressure", 0],
+                    "rightWall_outlet": ["fixedValue", 0]
                 }
             }
         },
@@ -29,8 +28,7 @@
             "notes": "monolithic results look good"
        }
     },
-    "config1" : {
-        "alias": "F1-F2_unidirectional",
+    "F1-F2_unidirectional open" : {
         "Fluid1":{
             "write": ["velocity", "alpha", "prgh"],
             "read" : [],
@@ -76,8 +74,7 @@
             "notes": "there is a considerable jump on boundary"
        }
     },
-    "config2" : {
-        "alias": "F1-F2_bidirectional like pimple-pimple",
+    "F1-F2_bidirectional like pimple-pimple open" : {
         "Fluid1":{
             "write": ["velocity", "alpha", "PrghGradient"],
             "read" : ["Prgh"],
@@ -123,8 +120,35 @@
             "notes": "improved results, still a little discrepancy, but a lot better"
        }
     },
-    "config3" : {
-        "alias": "F1-F2_bidirectional like pimple-pimple, but no fixedFluxPressure bc",
+    "F1 Monolithic closed" : {
+        "Fluid1":{
+            "write": [],
+            "read" : [],
+            "variables": {
+                "velocity": {
+                    "leftWall":["noSlip", "na"],
+                    "rightWall": ["noSlip", 0]
+                },
+                "alpha": {
+                    "leftWall":["zeroGradient", "na"],
+                    "rightWall": ["zeroGradient", "na"]
+                },
+                "prgh": {
+                    "leftWall":["fixedFluxPressure", 0],
+                    "rightWall": ["fixedFluxPressure", 0]
+                }
+            }
+        },
+        "Precice":{
+            "mapping": "nn, consistent",
+        },
+        "Results":{
+            "compiles": "yes",
+            "convergence": "yes",
+            "notes": "monolithic results look good"
+       }
+    },
+    "F1-F2_bidirectional like pimple-pimple,closed on the rightWall_outlet of Fluid2" : {
         "Fluid1":{
             "write": ["velocity", "alpha", "PrghGradient"],
             "read" : ["Prgh"],
@@ -138,7 +162,7 @@
                     "rightWall_outlet": ["zeroGradient", "na"]
                 },
                 "prgh": {
-                    "leftWall":["fixedGradient", 0],
+                    "leftWall":["fixedFluxPressure", 0],
                     "rightWall_outlet": ["fixedValue", 0]
                 }
             }
@@ -149,15 +173,15 @@
             "variables": {
                 "velocity": {
                     "leftWall_inlet":["fixedValue", 0],
-                    "rightWall": ["fixedGradient", 0]
+                    "rightWall": ["noSlip", "na"]
                 },
                 "alpha": {
-                    "leftWall_inlet":["zeroGradient", 0],
+                    "leftWall_inlet":["fixedValue", 0],
                     "rightWall": ["zeroGradient", "na"]
                 },
                 "prgh": {
-                    "leftWall_inlet":["fixedGradient", 0],
-                    "rightWall": ["fixedValue", 0]
+                    "leftWall_inlet":["fixedFluxPressure", 0],
+                    "rightWall": ["fixedFluxPressure", 0]
                 }
             }
         },
@@ -167,7 +191,7 @@
         "Results":{
             "compiles": "yes",
             "convergence": "no",
-            "notes": "no convergence, or too slow"
+            "notes": "when fluid comes back, the timestep goes super small, in the order of -7. It stops around 3s"
        }
     },
 }

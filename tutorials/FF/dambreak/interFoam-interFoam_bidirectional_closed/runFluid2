@@ -1,0 +1,44 @@
+#!/bin/bash
+cd ${0%/*} || exit 1    		    		# Run from this directory
+. $WM_PROJECT_DIR/bin/tools/RunFunctions    # Tutorial run functions
+
+# Fluid participant
+
+# Run this script in one terminal and the "runFluid1" script in another terminal.
+# These scripts present how the two participants would be started manually.
+# Alternatively, you may execute the "Allrun" script in one terminal.
+
+# Run this script with "-parallel" for parallel simulations
+
+# The script "Allclean" cleans-up the result and log files.
+
+# 1 for true, 0 for false
+parallel=0
+if [ "$1" = "-parallel" ]; then
+    parallel=1
+fi
+
+echo "Preparing and running the Fluid2 participant..."
+
+# Prepare
+rm -rfv Fluid2/0/
+cp -r Fluid2/0.orig/ Fluid2/0/
+blockMesh -case Fluid2
+checkMesh -case Fluid2
+setFields -case Fluid2
+
+
+# Run
+cd Fluid2
+	solver=$(getApplication)
+cd ..
+if [ $parallel -eq 1 ]; then
+    decomposePar -force -case Fluid2
+    cd Fluid2
+            nproc=$(getNumberOfProcessors)
+    cd ..
+    mpirun -np $nproc $solver -parallel -case Fluid2
+    reconstructPar -case Fluid2
+else
+    $solver -case Fluid2
+fi
