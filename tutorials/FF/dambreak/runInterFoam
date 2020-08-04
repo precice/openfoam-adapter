@@ -4,9 +4,7 @@ cd ${0%/*} || exit 1    		    		# Run from this directory
 
 # Fluid participant
 
-# Run this script in one terminal and the "runFluid2" script in another terminal.
 # These scripts present how the two participants would be started manually.
-# Alternatively, you may execute the "Allrun" script in one terminal.
 
 # Run this script with "-parallel" for parallel simulations
 

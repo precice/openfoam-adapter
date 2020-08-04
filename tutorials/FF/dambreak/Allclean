@@ -7,7 +7,7 @@ echo "Cleaning..."
 . $WM_PROJECT_DIR/bin/tools/CleanFunctions
 
 # Participant 1: Fluid1
-Participant1="Fluid1"
+Participant1="interFoam_solver"
 cd ${Participant1}
     # Clean the case
     cleanCase
@@ -24,25 +24,6 @@ rm -fv ${Participant1}_potentialFoam.log
 rm -fv ${Participant1}_decomposePar.log
 rm -fv ${Participant1}.log
 rm -fv ${Participant1}_reconstructPar.log
-
-# Participant 2: Fluid2
-Participant2="Fluid2"
-cd ${Participant2}
-    # Clean the case
-    cleanCase
-    rm -rfv 0
-    # Create an empty .foam file for ParaView
-    # Note: ".foam" triggers the native OpenFOAM reader of ParaView.
-    # Change to ".OpenFOAM" to use the OpenFOAM reader provided with OpenFOAM.
-    touch ${Participant2}.foam
-cd ..
-# Remove the log files
-rm -fv ${Participant2}_blockMesh.log
-rm -fv ${Participant2}_checkMesh.log
-rm -fv ${Participant2}_potentialFoam.log
-rm -fv ${Participant2}_decomposePar.log
-rm -fv ${Participant2}.log
-rm -fv ${Participant2}_reconstructPar.log
 
 
 # Remove the preCICE-related log files
@@ -63,7 +44,7 @@ rm -rfv precice-run
 rm -fv .*.address
 
 #Removing SWE files
-rm  SWE_couple/build/precice-Solver* SWE_couple/build/reference.xml SWE_couple/build/output/*
+rm -fv SWE_couple/build/precice-Solver* SWE_couple/build/reference.xml SWE_couple/build/output/*
 
 
 echo "Cleaning complete!"
