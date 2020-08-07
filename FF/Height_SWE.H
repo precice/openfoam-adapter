@@ -1,5 +1,5 @@
-#ifndef FF_ALPHA_H
-#define FF_ALPHA_H
+#ifndef FF_Height_SWE_H
+#define FF_Height_SWE_H
 
 #include "CouplingDataUser.H"
 
@@ -10,34 +10,31 @@ namespace preciceAdapter
 namespace FF
 {
 
-//- Class that writes and reads Alpha
-class Alpha : public CouplingDataUser
+//- Class that writes and reads height_SWE
+class height_SWE : public CouplingDataUser
 {
 
 private:
 
-    //- Alpha field
+    //- height_SWE field
     Foam::volScalarField * alpha_;
-    const Foam::fvMesh* mesh_;
 
 
 public:
 
     //- Constructor
-    Alpha
+    height_SWE
     (
         const Foam::fvMesh& mesh,
-        const std::string nameA
+        const std::string nameA_
     );
 
-    //- Write the Alpha values into the buffer
+    //- Write the height_SWE values into the buffer
     void write(double * buffer, bool meshConnectivity, const unsigned int dim);
 
-    //- Read the Alpha values from the buffer
+    //- Read the height_SWE values from the buffer
     void read(double * buffer, const unsigned int dim);
 
-    //- Get cell size on the boundary
-    double getBoundaryCellSize();
 };
 
 }

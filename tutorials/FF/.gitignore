@@ -4,3 +4,4 @@
 polyMesh/
 .tags
 precice-Fluid*-events.json
+precice-run/

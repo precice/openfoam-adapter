@@ -11,6 +11,10 @@
 #include "FF/PrghGradient.H"
 #include "FF/VelocityGradient.H"
 #include "FF/AlphaGradient.H"
+#include "FF/Height_SWE.H"
+#include "FF/HU_SWE.H"
+#include "FF/HV_SWE.H"
+
 
 #include "fvCFD.H"
 
@@ -34,7 +38,7 @@ protected:
 
     //- Name of the velocity field
     std::string nameU_ = "U";
-    
+
     //- Name of the pressure field
     std::string nameP_ = "p";
 
@@ -57,10 +61,10 @@ public:
 
     //- Configure
     bool configure(const IOdictionary& adapterConfig);
-    
+
     //- Add coupling data writers
     void addWriters(std::string dataName, Interface * interface);
-    
+
     //- Add coupling data readers
     void addReaders(std::string dataName, Interface * interface);
 };

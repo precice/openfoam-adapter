@@ -22,7 +22,9 @@ interfaces
 
     readData
     (
-      Alpha
+      hu_SWE
+      hv_SWE
+      height_SWE
     );
 
     writeData
