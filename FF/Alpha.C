@@ -16,7 +16,6 @@ alpha_(
 )
 {
     dataType_ = scalar;
-    mesh_ = &mesh;
 }
 
 void preciceAdapter::FF::Alpha::write(double * buffer, bool meshConnectivity, const unsigned int dim)
@@ -48,41 +47,13 @@ void preciceAdapter::FF::Alpha::read(double * buffer, const unsigned int dim)
     {
         int patchID = patchIDs_.at(j);
 
-        const vectorField faceCenters =
-            mesh_->boundaryMesh()[patchID].faceCentres();
-
         // For every cell of the patch
         forAll(alpha_->boundaryFieldRef()[patchID], i)
         {
-            //Mintgens algorithm for alpha
-            if (buffer[bufferIndex] <= faceCenters[i].y()){
-                buffer[bufferIndex] = 0.0;
-
-            } else if (buffer[bufferIndex] >= faceCenters[i].y()){
-                buffer[bufferIndex] = 1.0;
-
-            } else {
-                buffer[bufferIndex] = 0.5 + (buffer[bufferIndex] - faceCenters[i].y()) / this->getBoundaryCellSize();
-
-            }
-
             // Set the alpha as the buffer value
             alpha_->boundaryFieldRef()[patchID][i]
             =
             buffer[bufferIndex++];
-        }
-    }
-}
-
-double preciceAdapter::FF::Alpha::getBoundaryCellSize(){
-    //Ugly workaround for getting cell size.
-    //It works only for uniform grids and cellsize bigger than 0.000001
-
-    const surfaceVectorField& deltas = mesh_->delta();
-    double delta;
-    forAll(deltas, I){
-        if(deltas[I].x() > 0.000001){
-            return static_cast<double>(deltas[I].x());
         }
     }
 }

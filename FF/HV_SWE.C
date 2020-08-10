@@ -19,7 +19,7 @@ U_(
 }
 
 void preciceAdapter::FF::hv_SWE::write(double * buffer, bool meshConnectivity, const unsigned int dim)
-{
+{ //TODO
     int bufferIndex = 0;
 
     // For every boundary patch of the interface
@@ -30,22 +30,12 @@ void preciceAdapter::FF::hv_SWE::write(double * buffer, bool meshConnectivity, c
         // For every cell of the patch TODO
         forAll(U_->boundaryFieldRef()[patchID], i)
         {
-            // Copy the velocity into the buffer
-            // // x-dimension
-            // buffer[bufferIndex++]
-            // =
-            // U_->boundaryFieldRef()[patchID][i].x();
-
-            // y-dimension
+            // Copy the velocity into the buffer only in the x-dimension.
+            // y and z dimensions are done in HU_SWE.C
             buffer[bufferIndex++]
             =
             U_->boundaryFieldRef()[patchID][i].y();
 
-            // if(dim == 3)
-            //     // z-dimension
-            //     buffer[bufferIndex++]
-            //     =
-            //     U_->boundaryFieldRef()[patchID][i].z();
         }
     }
 }
@@ -62,22 +52,12 @@ void preciceAdapter::FF::hv_SWE::read(double * buffer, const unsigned int dim)
         // For every cell of the patch
         forAll(U_->boundaryFieldRef()[patchID], i)
         {
-            // Set the velocity as the buffer value
-            // x-dimension
-            U_->boundaryFieldRef()[patchID][i].x()
+            // Copy the velocity into the buffer only in the x-dimension.
+            // y and z dimensions are done in HU_SWE.C
+            U_->boundaryFieldRef()[patchID][i].y()
             =
             buffer[bufferIndex++];
 
-            // // y-dimension
-            // U_->boundaryFieldRef()[patchID][i].y()
-            // =
-            // buffer[bufferIndex++];
-
-            if(dim == 3)
-                // z-dimension
-                U_->boundaryFieldRef()[patchID][i].z()
-                =
-                buffer[bufferIndex++];
         }
     }
 }

@@ -18,8 +18,6 @@ private:
 
     //- Alpha field
     Foam::volScalarField * alpha_;
-    const Foam::fvMesh* mesh_;
-
 
 public:
 

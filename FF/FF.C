@@ -203,7 +203,9 @@ void preciceAdapter::FF::FluidFluid::addWriters(std::string dataName, Interface 
         interface->addCouplingDataWriter
         (
             dataName,
-            new height_SWE(mesh_, nameA_)
+            // new height_SWE(mesh_, nameA_, namePrgh_, nameP_)
+            new height_SWE(mesh_, nameA_, namePrgh_)
+
         );
         DEBUG(adapterInfo("Added writer: height_SWE."));
     }
@@ -316,7 +318,9 @@ void preciceAdapter::FF::FluidFluid::addReaders(std::string dataName, Interface 
         interface->addCouplingDataWriter
         (
             dataName,
-            new height_SWE(mesh_, nameA_)
+            // new height_SWE(mesh_, nameA_, namePrgh_, nameP_)
+            new height_SWE(mesh_, nameA_, namePrgh_)
+
         );
         DEBUG(adapterInfo("Added reader: height_SWE."));
     }

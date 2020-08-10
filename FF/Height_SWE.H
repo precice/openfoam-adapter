@@ -18,6 +18,9 @@ private:
 
     //- height_SWE field
     Foam::volScalarField * alpha_;
+    Foam::volScalarField * p_rgh_;
+    // Foam::volScalarField * p_;
+    const Foam::fvMesh* mesh_;
 
 
 public:
@@ -26,7 +29,10 @@ public:
     height_SWE
     (
         const Foam::fvMesh& mesh,
-        const std::string nameA_
+        const std::string nameA_,
+        const std::string namePrgh_
+        // const std::string nameP_
+
     );
 
     //- Write the height_SWE values into the buffer
@@ -34,6 +40,9 @@ public:
 
     //- Read the height_SWE values from the buffer
     void read(double * buffer, const unsigned int dim);
+
+    //- Get cell size on the boundary
+    double getBoundaryCellSize();
 
 };
 
