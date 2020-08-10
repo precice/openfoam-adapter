@@ -297,7 +297,7 @@ void preciceAdapter::FF::FluidFluid::addReaders(std::string dataName, Interface 
     }
     else if (dataName.find("hu_SWE") == 0)
     {
-        interface->addCouplingDataWriter
+        interface->addCouplingDataReader
         (
             dataName,
             new hu_SWE(mesh_, nameU_)
@@ -306,7 +306,7 @@ void preciceAdapter::FF::FluidFluid::addReaders(std::string dataName, Interface 
     }
     else if (dataName.find("hv_SWE") == 0)
     {
-        interface->addCouplingDataWriter
+        interface->addCouplingDataReader
         (
             dataName,
             new hv_SWE(mesh_, nameU_)
@@ -315,7 +315,7 @@ void preciceAdapter::FF::FluidFluid::addReaders(std::string dataName, Interface 
     }
     else if (dataName.find("height_SWE") == 0)
     {
-        interface->addCouplingDataWriter
+        interface->addCouplingDataReader
         (
             dataName,
             // new height_SWE(mesh_, nameA_, namePrgh_, nameP_)

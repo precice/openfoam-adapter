@@ -52,7 +52,6 @@ void preciceAdapter::FF::height_SWE::read(double * buffer, const unsigned int di
     int bufferIndex = 0;
 
     //TODO get the densities and gravity from transportPropertiesDict
-    // Use a single for
      double rho_water = 1000.0;
      double rho_air = 1.0;
      double g = 9.81;
