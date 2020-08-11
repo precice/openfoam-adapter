@@ -39,7 +39,7 @@ bool preciceAdapter::Adapter::configFileRead()
                 IOobject::NO_WRITE
             )
         );
-    
+
     // Read and display the preCICE configuration file name
     // NOTE: lookupType<T>("name") is deprecated in openfoam.com since v1812,
     // which recommends get<T>("name") instead. However, get<T>("name")
@@ -57,7 +57,7 @@ bool preciceAdapter::Adapter::configFileRead()
     for (auto module : modules_)
     {
         DEBUG(adapterInfo("  - " + module + "\n"));
-        
+
         // Set the modules switches
         if (module == "CHT") CHTenabled_ = true;
         if (module == "FSI") FSIenabled_ = true;
@@ -96,6 +96,7 @@ bool preciceAdapter::Adapter::configFileRead()
                 // By default, assume that no mesh connectivity is required (i.e. no nearest-projection mapping)
                 interfaceConfig.meshConnectivity = interfaceDict.lookupOrDefault<bool>("connectivity", false);
                 // Mesh connectivity only makes sense in case of faceNodes, check and raise a warning otherwise
+                //TODO maybe add locationsType inside the preciceDict?
                 if(interfaceConfig.meshConnectivity && interfaceConfig.locationsType == "faceCenters")
                 {
                     DEBUG(adapterInfo("Mesh connectivity is not supported for faceCenters. \n"
@@ -104,7 +105,7 @@ bool preciceAdapter::Adapter::configFileRead()
                     return false;
                 }
                 DEBUG(adapterInfo("    connectivity : " + std::to_string(interfaceConfig.meshConnectivity)));
-              
+
                 DEBUG(adapterInfo("    patches      : "));
                 wordList patches = interfaceDict.lookupType<wordList>("patches");
                 for (auto patch : patches)
@@ -112,7 +113,7 @@ bool preciceAdapter::Adapter::configFileRead()
                     interfaceConfig.patchNames.push_back(patch);
                     DEBUG(adapterInfo("      - " + patch));
                 }
-              
+
                 DEBUG(adapterInfo("    writeData    : "));
                 wordList writeData = interfaceDict.lookupType<wordList>("writeData");
                 for (auto writeDatum : writeData)
@@ -251,7 +252,7 @@ void preciceAdapter::Adapter::configure()
                 {
                     FSI_->addWriters(dataName, interface);
                 }
-                
+
                 // Add FF-related coupling data writers
                 if (FFenabled_)
                 {
@@ -277,7 +278,7 @@ void preciceAdapter::Adapter::configure()
                 {
                     FSI_->addReaders(dataName, interface);
                 }
-                
+
                 // Add FF-related coupling data readers
                 if (FFenabled_)
                 {
@@ -741,7 +742,7 @@ void preciceAdapter::Adapter::reloadMeshPoints()
     const_cast<fvMesh&>(mesh_).movePoints(meshPoints_);
 
     DEBUG(adapterInfo("Moved mesh points to their previous locations."));
-    
+
     // TODO The if statement can be removed in this case, but it is still included for clarity
     if ( meshCheckPointed )
     {
@@ -783,7 +784,7 @@ void preciceAdapter::Adapter::setupMeshCheckpointing()
         " in the list of checkpointed fields."
     );
 #endif
-    
+
 }
 
 void preciceAdapter::Adapter::setupMeshVolCheckpointing()
@@ -1664,7 +1665,7 @@ void preciceAdapter::Adapter::readMeshCheckpoint()
             meshVolVectorFields_.at(i)->oldTime().oldTime() == meshVolVectorFieldCopies_.at(i)->oldTime().oldTime();
         }
     }
-    
+
 #ifdef ADAPTER_DEBUG_MODE
     adapterInfo
     (
@@ -1708,7 +1709,7 @@ void preciceAdapter::Adapter::writeMeshCheckpoint()
     return;
 }
 
-// TODO for the volumes of the mesh, check this part for subcycling. 
+// TODO for the volumes of the mesh, check this part for subcycling.
 void preciceAdapter::Adapter::readVolCheckpoint()
 {
     DEBUG(adapterInfo("Reading the mesh volumes checkpoint..."));

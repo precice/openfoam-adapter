@@ -10,29 +10,29 @@ namespace preciceAdapter
 namespace FF
 {
 
-//- Class that writes and reads hu_SWE
-class hu_SWE : public CouplingDataUser
+//- Class that writes and reads HU_SWE
+class HU_SWE : public CouplingDataUser
 {
 
 private:
 
-    //- hu_SWE field
+    //- HU_SWE field
     Foam::volVectorField * U_;
 
 
 public:
 
     //- Constructor
-    hu_SWE
+    HU_SWE
     (
         const Foam::fvMesh& mesh,
         const std::string nameU
     );
 
-    //- Write the hu_SWE values into the buffer
+    //- Write the HU_SWE values into the buffer
     void write(double * buffer, bool meshConnectivity, const unsigned int dim);
 
-    //- Read the hu_SWE values from the buffer
+    //- Read the HU_SWE values from the buffer
     void read(double * buffer, const unsigned int dim);
 
 };

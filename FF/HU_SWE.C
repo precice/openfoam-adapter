@@ -2,7 +2,7 @@
 
 using namespace Foam;
 
-preciceAdapter::FF::hu_SWE::hu_SWE
+preciceAdapter::FF::HU_SWE::HU_SWE
 (
     const Foam::fvMesh& mesh,
     const std::string nameU
@@ -18,7 +18,7 @@ U_(
     dataType_ = vector;
 }
 
-void preciceAdapter::FF::hu_SWE::write(double * buffer, bool meshConnectivity, const unsigned int dim)
+void preciceAdapter::FF::HU_SWE::write(double * buffer, bool meshConnectivity, const unsigned int dim)
 { //TODO
     int bufferIndex = 0;
 
@@ -27,7 +27,7 @@ void preciceAdapter::FF::hu_SWE::write(double * buffer, bool meshConnectivity, c
     {
         int patchID = patchIDs_.at(j);
 
-        // For every cell of the patch 
+        // For every cell of the patch
         forAll(U_->boundaryFieldRef()[patchID], i)
         {
             // Copy the velocity into the buffer only in the x-dimension
@@ -44,7 +44,7 @@ void preciceAdapter::FF::hu_SWE::write(double * buffer, bool meshConnectivity, c
     }
 }
 
-void preciceAdapter::FF::hu_SWE::read(double * buffer, const unsigned int dim)
+void preciceAdapter::FF::HU_SWE::read(double * buffer, const unsigned int dim)
 {
     int bufferIndex = 0;
 
@@ -61,11 +61,15 @@ void preciceAdapter::FF::hu_SWE::read(double * buffer, const unsigned int dim)
             =
             buffer[bufferIndex++];
 
+            U_->boundaryFieldRef()[patchID][i].y()
+            =
+            buffer[bufferIndex++];
 
             if(dim == 3)
                 // z-dimension
                 U_->boundaryFieldRef()[patchID][i].z()
-                = 0.0;
+                =
+                buffer[bufferIndex++];
         }
     }
 }

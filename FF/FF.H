@@ -13,7 +13,6 @@
 #include "FF/AlphaGradient.H"
 #include "FF/Height_SWE.H"
 #include "FF/HU_SWE.H"
-#include "FF/HV_SWE.H"
 
 
 #include "fvCFD.H"

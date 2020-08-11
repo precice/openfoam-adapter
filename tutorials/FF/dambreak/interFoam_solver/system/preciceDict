@@ -22,8 +22,7 @@ interfaces
 
     readData
     (
-      hu_SWE
-      hv_SWE
+      HU_SWE
       height_SWE
     );
 

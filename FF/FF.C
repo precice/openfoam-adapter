@@ -180,23 +180,14 @@ void preciceAdapter::FF::FluidFluid::addWriters(std::string dataName, Interface 
         );
         DEBUG(adapterInfo("Added writer: Prgh."));
     }
-    else if (dataName.find("hu_SWE") == 0)
+    else if (dataName.find("HU_SWE") == 0)
     {
         interface->addCouplingDataWriter
         (
             dataName,
-            new hu_SWE(mesh_, nameU_)
+            new HU_SWE(mesh_, nameU_)
         );
-        DEBUG(adapterInfo("Added writer: hu_SWE."));
-    }
-    else if (dataName.find("hv_SWE") == 0)
-    {
-        interface->addCouplingDataWriter
-        (
-            dataName,
-            new hv_SWE(mesh_, nameU_)
-        );
-        DEBUG(adapterInfo("Added writer: hv_SWE."));
+        DEBUG(adapterInfo("Added writer: HU_SWE."));
     }
     else if (dataName.find("height_SWE") == 0)
     {
@@ -295,23 +286,14 @@ void preciceAdapter::FF::FluidFluid::addReaders(std::string dataName, Interface 
         );
         DEBUG(adapterInfo("Added reader: Prgh."));
     }
-    else if (dataName.find("hu_SWE") == 0)
+    else if (dataName.find("HU_SWE") == 0)
     {
         interface->addCouplingDataReader
         (
             dataName,
-            new hu_SWE(mesh_, nameU_)
+            new HU_SWE(mesh_, nameU_)
         );
-        DEBUG(adapterInfo("Added reader: hu_SWE."));
-    }
-    else if (dataName.find("hv_SWE") == 0)
-    {
-        interface->addCouplingDataReader
-        (
-            dataName,
-            new hv_SWE(mesh_, nameU_)
-        );
-        DEBUG(adapterInfo("Added reader: hv_SWE."));
+        DEBUG(adapterInfo("Added reader: HU_SWE."));
     }
     else if (dataName.find("height_SWE") == 0)
     {

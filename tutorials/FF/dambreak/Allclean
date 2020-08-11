@@ -44,7 +44,7 @@ rm -rfv precice-run
 rm -fv .*.address
 
 #Removing SWE files
-rm -fv SWE_couple/build/precice-Solver* SWE_couple/build/reference.xml SWE_couple/build/output/*
+rm -fv SWE_solver/build/precice-Solver* SWE_solver/build/reference.xml SWE_solver/build/output/*
 
 
 echo "Cleaning complete!"
