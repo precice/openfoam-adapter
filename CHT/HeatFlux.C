@@ -33,9 +33,13 @@ void preciceAdapter::CHT::HeatFlux::write(double * buffer, bool meshConnectivity
     {
         int patchID = patchIDs_.at(j);
 
-        scalarField gradientPatch=refCast<fixedValueFvPatchScalarField>
-                (T_->boundaryFieldRef()[patchID]
-                 ).snGrad();
+        scalarField gradientPatch
+        (
+            refCast<fixedValueFvPatchScalarField>
+            (
+                T_->boundaryFieldRef()[patchID]
+            ).snGrad()
+        );
 
         // Extract the effective conductivity on the patch
         extractKappaEff(patchID, meshConnectivity);
@@ -94,11 +98,12 @@ void preciceAdapter::CHT::HeatFlux::read(double * buffer, const unsigned int dim
 
         // Get the temperature gradient boundary patch
         scalarField & gradientPatch
-                =
-                refCast<fixedGradientFvPatchScalarField>
-                (
-                    T_->boundaryFieldRef()[patchID]
-                    ).gradient();
+        (
+            refCast<fixedGradientFvPatchScalarField>
+            (
+                T_->boundaryFieldRef()[patchID]
+            ).gradient()
+        );
 
         // For every cell of the patch
         forAll(gradientPatch, i)
