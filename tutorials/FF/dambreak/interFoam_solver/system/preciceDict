@@ -22,8 +22,9 @@ interfaces
 
     readData
     (
-      HU_SWE
-      height_SWE
+      Alpha
+      Prgh
+      Velocity
     );
 
     writeData

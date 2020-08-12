@@ -5,29 +5,30 @@
     <solver-interface dimensions="3">
 
     <!-- SWE solver variables -->
-    <data:scalar name="height_SWE"/>
-    <data:vector name="HU_SWE"/>
-
-
-    <!-- interFoam_solver variables -->
+    <data:scalar name="Alpha"/>
+    <data:scalar name="Prgh"/>
+    <data:vector name="Velocity"/>
 
 
     <mesh name="SWE_solver-Mesh">
-        <use-data name="height_SWE"/>
-        <use-data name="HU_SWE"/>
+        <use-data name="Alpha"/>
+        <use-data name="Prgh"/>
+        <use-data name="Velocity"/>
     </mesh>
 
     <mesh name="interFoam_solver-Mesh">
-        <use-data name="height_SWE"/>
-        <use-data name="HU_SWE"/>
+        <use-data name="Alpha"/>
+        <use-data name="Prgh"/>
+        <use-data name="Velocity"/>
     </mesh>
 
     <participant name="SWE_solver">
         <use-mesh name="SWE_solver-Mesh" provide="yes"/>
         <use-mesh name="interFoam_solver-Mesh" from="interFoam_solver"/>
 
-        <write-data name="height_SWE" mesh="SWE_solver-Mesh"/>
-        <write-data name="HU_SWE" mesh="SWE_solver-Mesh"/>
+        <write-data name="Alpha" mesh="SWE_solver-Mesh"/>
+        <write-data name="Prgh" mesh="SWE_solver-Mesh"/>
+        <write-data name="Velocity" mesh="SWE_solver-Mesh"/>
 
 	    <!-- <mapping:nearest-neighbor direction="read" from="interFoam_solver-Mesh" to="SWE_solver-Mesh" constraint="consistent" /> -->
     </participant>
@@ -36,8 +37,9 @@
         <use-mesh name="interFoam_solver-Mesh" provide="yes"/>
         <use-mesh name="SWE_solver-Mesh" from="SWE_solver"/>
 
-        <read-data name="height_SWE" mesh="interFoam_solver-Mesh"/>
-        <read-data name="HU_SWE" mesh="interFoam_solver-Mesh"/>
+        <read-data name="Alpha" mesh="interFoam_solver-Mesh"/>
+        <read-data name="Prgh" mesh="interFoam_solver-Mesh"/>
+        <read-data name="Velocity" mesh="interFoam_solver-Mesh"/>
 
 	    <mapping:nearest-neighbor direction="read" from="SWE_solver-Mesh" to="interFoam_solver-Mesh" constraint="consistent" />
     </participant>
@@ -50,8 +52,10 @@
 
         <max-time value="5.0"/>
         <participants first="SWE_solver" second="interFoam_solver"/>
-        <exchange data="height_SWE" mesh="SWE_solver-Mesh" from="SWE_solver" to="interFoam_solver"/>
-        <exchange data="HU_SWE" mesh="SWE_solver-Mesh" from="SWE_solver" to="interFoam_solver"/>
+        <exchange data="Alpha" mesh="SWE_solver-Mesh" from="SWE_solver" to="interFoam_solver"/>
+        <exchange data="Prgh" mesh="SWE_solver-Mesh" from="SWE_solver" to="interFoam_solver"/>
+        <exchange data="Velocity" mesh="SWE_solver-Mesh" from="SWE_solver" to="interFoam_solver"/>
+
     </coupling-scheme:serial-explicit>
 
     </solver-interface>
