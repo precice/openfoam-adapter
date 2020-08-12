@@ -28,7 +28,7 @@ boundaryField
 
     rightWall
     {
-        type            fixedValue;
+        type            fixedFluxPressure;
         value           uniform 0;
     }
 

@@ -45,8 +45,8 @@
     <m2n:sockets from="SWE_solver" to="interFoam_solver" exchange-directory=".." />
 
     <coupling-scheme:serial-explicit>
-        <time-window-size value="0.0009765625"/>
-        <!-- <time-window-size value="0.125"/> -->
+        <!-- <time-window-size value="0.0009765625"/> -->
+        <time-window-size value="0.125"/>
 
         <max-time value="2.0"/>
         <participants first="SWE_solver" second="interFoam_solver"/>

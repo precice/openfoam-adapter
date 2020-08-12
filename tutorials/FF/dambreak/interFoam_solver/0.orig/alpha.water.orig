@@ -22,8 +22,11 @@ boundaryField
 {
     leftWall_inlet
     {
+        // type            zeroGradient;
+
         type            fixedValue;
         value           $internalField;
+
         // type            fixedGradient;
         // inletValue      uniform 0;
         // gradient      	uniform 0;

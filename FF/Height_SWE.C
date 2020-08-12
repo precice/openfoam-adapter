@@ -78,6 +78,8 @@ void preciceAdapter::FF::height_SWE::read(double * buffer, const unsigned int di
         forAll(alpha_->boundaryFieldRef()[patchID], i)
         {
         //*****Set alpha from SWE height*****
+        // std::cout << "faceCenter: " << faceCenters[i].y() << " Cell#: " << i << " buffer: " << buffer[bufferIndex] << '\n';
+
             //Mintgen's algorithm for alpha
             double alphaLocal = 0.0;
 
