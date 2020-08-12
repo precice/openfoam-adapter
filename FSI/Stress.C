@@ -13,7 +13,6 @@ preciceAdapter::FSI::Stress::Stress
     */
 )
 :
-Force(mesh,solverType),
 mesh_(mesh),
 solverType_(solverType)
 {
