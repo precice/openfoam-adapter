@@ -16,6 +16,9 @@ if [ "$1" = "-parallel" ]; then
     parallel=1
 fi
 
+# echo "Compiling the adapter"
+# ./../../../Allwmake
+
 echo "Preparing and running the interFoam_solver participant..."
 
 # Prepare

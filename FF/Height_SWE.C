@@ -49,6 +49,14 @@ void preciceAdapter::FF::height_SWE::write(double * buffer, bool meshConnectivit
 
 void preciceAdapter::FF::height_SWE::read(double * buffer, const unsigned int dim)
 {
+    // int count = 0;
+    // for (size_t i = 0; i < 20; i++) {
+    //     for (size_t j = 0; j < 20; j++) {
+    //         std::cout << buffer[count++] << " ";
+    //     }
+    //     std::cout << '\n';
+    // }
+
     int bufferIndex = 0;
 
     //TODO get the densities and gravity from transportPropertiesDict
@@ -71,26 +79,26 @@ void preciceAdapter::FF::height_SWE::read(double * buffer, const unsigned int di
         {
         //*****Set alpha from SWE height*****
             //Mintgen's algorithm for alpha
-            double alphaLoc = 0.0;
+            double alphaLocal = 0.0;
 
-            if (buffer[bufferIndex] <= faceCenters[i].y()){
-                //do nothing, alphaLoc is already 0.0
+            if (faceCenters[i].y() >= buffer[bufferIndex]){
+                //do nothing, alphaLocal is already 0.0
 
-            } else if (buffer[bufferIndex] >= faceCenters[i].y()){
-                alphaLoc = 1.0;
+            } else if (faceCenters[i].y() <= buffer[bufferIndex] ){
+                alphaLocal = 1.0;
 
             } else {
-                alphaLoc =
+                alphaLocal =
                 0.5 + (buffer[bufferIndex] - faceCenters[i].y()) / this->getBoundaryCellSize();
 
             }
 
             // Set alpha, TODO cast?
-            alpha_->boundaryFieldRef()[patchID][i] = alphaLoc;
+            alpha_->boundaryFieldRef()[patchID][i] = alphaLocal;
 
         //*****Set p_rgh from SWE height*****
             // double p = p_->boundaryFieldRef()[patchID][i];
-            double rho_mixed = rho_water * alphaLoc + rho_air * (1 - alphaLoc);
+            double rho_mixed = rho_water * alphaLocal + rho_air * (1 - alphaLocal);
 
             // Set p_rgh according to page 85, eq 5.16 mintgen, TODO cast?
             p_rgh_->boundaryFieldRef()[patchID][i] =

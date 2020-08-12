@@ -44,6 +44,7 @@ public:
     //- Get cell size on the boundary
     double getBoundaryCellSize();
 
+    // TODO add destructor?
 };
 
 }

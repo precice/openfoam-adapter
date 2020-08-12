@@ -9,3 +9,4 @@ polyMesh/
 .tags
 precice-*-events.json
 precice-run/
+VTK/
