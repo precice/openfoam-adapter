@@ -22,7 +22,7 @@ namespace FSI
 // cell face. Thus, a consistent quantity. Calculation concept has been copied
 // from the force module, but the scaled version here is commonly used in FEM
 // applications.
-class Stress : virtual public Force {
+class Stress : public Force {
 
 private:
 
