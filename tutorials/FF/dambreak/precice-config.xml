@@ -50,7 +50,7 @@
         <!-- <time-window-size value="0.0009765625"/> -->
         <time-window-size value="0.125"/>
 
-        <max-time value="3.0"/>
+        <max-time value="5.0"/>
         <participants first="SWE_solver" second="interFoam_solver"/>
         <exchange data="Alpha" mesh="SWE_solver-Mesh" from="SWE_solver" to="interFoam_solver"/>
         <exchange data="Prgh" mesh="SWE_solver-Mesh" from="SWE_solver" to="interFoam_solver"/>

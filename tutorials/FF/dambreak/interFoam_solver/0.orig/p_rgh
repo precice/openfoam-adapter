@@ -23,7 +23,11 @@ boundaryField
     leftWall_inlet
     {
         type            fixedFluxPressure;
+        // // type            fixedGradient;
         gradient        $internalField;
+
+        // type            fixedValue;
+        // value           uniform 0;
     }
 
     rightWall

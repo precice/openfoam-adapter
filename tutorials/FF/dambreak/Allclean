@@ -25,6 +25,8 @@ rm -fv ${Participant1}_decomposePar.log
 rm -fv ${Participant1}.log
 rm -fv ${Participant1}_reconstructPar.log
 
+rm -rfv ../precice-run
+
 
 # Remove the preCICE-related log files
 echo "Deleting the preCICE log files..."
