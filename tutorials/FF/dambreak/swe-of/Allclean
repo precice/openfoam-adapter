@@ -25,9 +25,6 @@ rm -fv ${Participant1}_decomposePar.log
 rm -fv ${Participant1}.log
 rm -fv ${Participant1}_reconstructPar.log
 
-rm -rfv ../precice-run
-
-
 # Remove the preCICE-related log files
 echo "Deleting the preCICE log files..."
 rm -fv \
@@ -43,10 +40,11 @@ rm -fv \
 
 # Remove the preCICE address files
 rm -rfv precice-run
+rm -rfv ../precice-run
 rm -fv .*.address
 
 #Removing SWE files
-rm -fv SWE_solver/build/precice-Solver* SWE_solver/build/reference.xml SWE_solver/build/output/*
+rm -fv SWE_solver/build/precice-Solver* SWE_solver/build/reference.xml SWEoutput/*
 
 
 echo "Cleaning complete!"
