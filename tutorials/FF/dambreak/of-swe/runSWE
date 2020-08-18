@@ -1,3 +1,4 @@
 #!/bin/bash
-
-./SWE_solver/run
+type=1;
+domain1="swe_solver_of-swe"
+. ./SWE_solver/run.sh
