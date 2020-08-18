@@ -28,7 +28,7 @@ zback 0;
 zmiddle 5;
 zfront 10;
 
-res 40;
+res 20;
 
 
 vertices
