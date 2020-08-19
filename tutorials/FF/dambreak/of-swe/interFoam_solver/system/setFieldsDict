@@ -32,7 +32,7 @@ zback 0;
 zmiddle 5;
 zfront 10;
 
-rad 2;
+rad 1;
 
 regions
 (
