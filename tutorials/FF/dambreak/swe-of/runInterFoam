@@ -43,7 +43,7 @@ else
     $solver -case interFoam_solver
 fi
 
-#foamToVTK -case interFoam_solver
+foamToVTK -case interFoam_solver
 
 # Workaround for issue #26
 ./removeObsoleteFolders.sh
