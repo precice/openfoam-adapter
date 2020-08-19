@@ -20,9 +20,9 @@ defaultFieldValues
     volScalarFieldValue alpha.water 0
 );
 
-xleft 10;
-xmiddle 15;
-xright 20;
+xleft 0;
+xmiddle 5;
+xright 10;
 
 ybottom 0;
 ymiddle 5;
@@ -31,6 +31,8 @@ ytop 10;
 zback 0;
 zmiddle 5;
 zfront 10;
+
+rad 2;
 
 regions
 (
@@ -42,6 +44,19 @@ regions
             volScalarFieldValue alpha.water 1
         );
     }
+
+    cylinderToCell
+   {
+
+       p1 ($xmiddle $ymiddle $zmiddle);
+       p2 ($xmiddle $ytop $zmiddle);
+       radius $rad;
+
+       fieldValues
+       (
+           volScalarFieldValue alpha.water 1
+       );
+   }
 );
 
 

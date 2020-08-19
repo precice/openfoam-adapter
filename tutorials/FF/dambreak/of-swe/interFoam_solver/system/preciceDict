@@ -18,16 +18,17 @@ interfaces
   Interface1
   {
     mesh              interFoam_solver-Mesh;
-    patches           (leftWall_inlet);
+    patches           (rightwall_outlet);
 
     readData
     (
-      Alpha
-      Velocity
+
     );
 
     writeData
     (
+    Alpha
+    Velocity
     );
   };
 };
