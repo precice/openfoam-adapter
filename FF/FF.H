@@ -11,6 +11,7 @@
 #include "FF/PrghGradient.H"
 #include "FF/VelocityGradient.H"
 #include "FF/AlphaGradient.H"
+#include "FF/TempVelocity3d.H"
 
 #include "fvCFD.H"
 
@@ -38,7 +39,7 @@ protected:
     //- Name of the pressure field
     std::string nameP_ = "p";
 
-    //- Name of the pressure field
+    //- Name of the alpha field
     std::string nameA_ = "alpha.water";
 
     //- Name of the pressure field

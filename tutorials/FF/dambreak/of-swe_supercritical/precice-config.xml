@@ -8,18 +8,21 @@
     <data:scalar name="Alpha"/>
     <data:scalar name="Prgh"/>
     <data:vector name="Velocity"/>
+    <data:vector name="TempVelocity3d"/>
 
 
     <mesh name="SWE_solver-Mesh">
         <use-data name="Alpha"/>
         <use-data name="Prgh"/>
         <use-data name="Velocity"/>
+        <use-data name="TempVelocity3d"/>
     </mesh>
 
     <mesh name="interFoam_solver-Mesh">
         <use-data name="Alpha"/>
         <use-data name="Prgh"/>
         <use-data name="Velocity"/>
+        <use-data name="TempVelocity3d"/>
     </mesh>
 
     <participant name="SWE_solver">

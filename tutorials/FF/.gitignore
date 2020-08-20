@@ -2,6 +2,8 @@
 [0-9].*/
 [0-9][0-9].*/
 
+!0.orig
+
 polyMesh/
 .tags
 precice-*-events.json
