@@ -19,31 +19,31 @@ fi
 # echo "Compiling the adapter"
 # ./../../../Allwmake
 
-echo "Preparing and running the interFoam_solver participant..."
+echo "Preparing and running the interFoam_solver_swe-of_supercritical participant..."
 
 # Prepare
-rm -rfv interFoam_solver/0/
-cp -r interFoam_solver/0.orig/ interFoam_solver/0/
-blockMesh -case interFoam_solver
-checkMesh -case interFoam_solver
-setFields -case interFoam_solver
+rm -rfv interFoam_solver_swe-of_supercritical/0/
+cp -r interFoam_solver_swe-of_supercritical/0.orig/ interFoam_solver_swe-of_supercritical/0/
+blockMesh -case interFoam_solver_swe-of_supercritical
+checkMesh -case interFoam_solver_swe-of_supercritical
+setFields -case interFoam_solver_swe-of_supercritical
 
 # Run
-cd interFoam_solver
+cd interFoam_solver_swe-of_supercritical
     solver=$(getApplication)
 cd ..
 if [ $parallel -eq 1 ]; then
-    decomposePar -case interFoam_solver
-    cd interFoam_solver
+    decomposePar -case interFoam_solver_swe-of_supercritical
+    cd interFoam_solver_swe-of_supercritical
         nproc=$(getNumberOfProcessors)
     cd ..
-    mpirun -np $nproc $solver -parallel -case interFoam_solver
-    reconstructPar -case interFoam_solver
+    mpirun -np $nproc $solver -parallel -case interFoam_solver_swe-of_supercritical
+    reconstructPar -case interFoam_solver_swe-of_supercritical
 else
-    $solver -case interFoam_solver
+    $solver -case interFoam_solver_swe-of_supercritical
 fi
 
-# foamToVTK -case interFoam_solver
+# foamToVTK -case interFoam_solver_swe-of_supercritical
 
 # Workaround for issue #26
 ./removeObsoleteFolders.sh

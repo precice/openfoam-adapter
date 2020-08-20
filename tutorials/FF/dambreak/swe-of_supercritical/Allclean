@@ -7,7 +7,7 @@ echo "Cleaning..."
 . $WM_PROJECT_DIR/bin/tools/CleanFunctions
 
 # Participant 1: Fluid1
-Participant1="interFoam_solver"
+Participant1="interFoam_solver_swe-of_supercritical"
 cd ${Participant1}
     # Clean the case
     cleanCase

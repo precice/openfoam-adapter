@@ -9,7 +9,7 @@ FoamFile
 
 preciceConfig "precice-config.xml";
 
-participant interFoam_solver;
+participant interFoam_solver_swe-of_supercritical;
 
 modules (FF);
 
@@ -17,18 +17,17 @@ interfaces
 {
   Interface1
   {
-    mesh              interFoam_solver-Mesh;
-    patches           (rightwall_outlet);
+    mesh              interFoam_solver_swe-of_supercritical-Mesh;
+    patches           (leftWall_inlet);
 
     readData
     (
-
+      Alpha
+      Velocity
     );
 
     writeData
     (
-    Alpha
-    Velocity
     );
   };
 };
