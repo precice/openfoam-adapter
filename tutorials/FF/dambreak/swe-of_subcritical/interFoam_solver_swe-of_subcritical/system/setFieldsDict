@@ -11,54 +11,53 @@ FoamFile
     format      ascii;
     class       dictionary;
     location    "system";
-    object      controlDict;
+    object      setFieldsDict;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-application     interFoam;
+defaultFieldValues
+(
+    volScalarFieldValue alpha.water 0
+);
 
-startFrom       startTime;
+xleft 10;
+xmiddle 15;
+xright 20;
 
-startTime       0;
+ybottom 0;
+ymiddle 5;
+ytop 10;
 
-stopAt          endTime;
+zback 0;
+zmiddle 5;
+zfront 10;
 
-endTime         1.5;
+rad 1;
 
-deltaT          0.001;
-
-writeControl    runTime;
-
-writeInterval   0.1;
-
-purgeWrite      0;
-
-writeFormat     ascii;
-
-writePrecision  6;
-
-writeCompression off;
-
-timeFormat      general;
-
-timePrecision   6;
-
-runTimeModifiable yes;
-
-adjustTimeStep  yes;
-
-maxCo           1;
-maxAlphaCo      1;
-
-maxDeltaT       1;
-
-functions
-{
-    preCICE_Adapter
+regions
+(
+    boxToCell
     {
-        type preciceAdapterFunctionObject;
-        libs ("libpreciceAdapterFunctionObject.so");
+        box ($xleft $ybottom $zback) ($xright $ymiddle $zfront);
+        fieldValues
+        (
+            volScalarFieldValue alpha.water 1
+        );
     }
-}
+
+    cylinderToCell
+    {
+
+        p1 ($xmiddle $ymiddle $zmiddle);
+        p2 ($xmiddle $ytop $zmiddle);
+        radius $rad;
+
+        fieldValues
+        (
+            volScalarFieldValue alpha.water 1
+        );
+    }
+);
+
 
 // ************************************************************************* //

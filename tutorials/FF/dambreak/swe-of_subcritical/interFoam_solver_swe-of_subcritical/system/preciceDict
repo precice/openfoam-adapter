@@ -1,0 +1,33 @@
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      preciceDict;
+}
+
+preciceConfig "precice-config.xml";
+
+participant interFoam_solver_swe-of_subcritical;
+
+modules (FF);
+
+interfaces
+{
+  Interface1
+  {
+    mesh              interFoam_solver_swe-of_subcritical-Mesh;
+    patches           (leftWall_inlet);
+
+    readData
+    (
+        Velocity
+    );
+
+    writeData
+    (
+        Alpha
+    );
+  };
+};

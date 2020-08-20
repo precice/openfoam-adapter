@@ -1,6 +1,5 @@
 #!/bin/bash
 type=4
-output="SWEoutput_swe_solver_of-swe_supercritical/swe_solver_swe_solver_of-swe_supercritical"
-domain1=""
+output="SWEoutput_of-swe_supercritical/swe_solver_of-swe_supercritical"
 size=20
 . ./SWE_solver/run.sh

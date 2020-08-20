@@ -1,0 +1,49 @@
+#!/bin/bash
+cd ${0%/*} || exit 1    		    		# Run from this directory
+. $WM_PROJECT_DIR/bin/tools/RunFunctions    # Tutorial run functions
+
+# Fluid participant
+
+# These scripts present how the two participants would be started manually.
+
+# Run this script with "-parallel" for parallel simulations
+
+# The script "Allclean" cleans-up the result and log files.
+
+# 1 for true, 0 for false
+parallel=0
+if [ "$1" = "-parallel" ]; then
+    parallel=1
+fi
+
+# echo "Compiling the adapter"
+# ./../../../Allwmake
+
+echo "Preparing and running the interFoam_solver_swe-of_subcritical participant..."
+
+# Prepare
+rm -rfv interFoam_solver_swe-of_subcritical/0/
+cp -r interFoam_solver_swe-of_subcritical/0.orig/ interFoam_solver_swe-of_subcritical/0/
+blockMesh -case interFoam_solver_swe-of_subcritical
+checkMesh -case interFoam_solver_swe-of_subcritical
+setFields -case interFoam_solver_swe-of_subcritical
+
+# Run
+cd interFoam_solver_swe-of_subcritical
+    solver=$(getApplication)
+cd ..
+if [ $parallel -eq 1 ]; then
+    decomposePar -case interFoam_solver_swe-of_subcritical
+    cd interFoam_solver_swe-of_subcritical
+        nproc=$(getNumberOfProcessors)
+    cd ..
+    mpirun -np $nproc $solver -parallel -case interFoam_solver_swe-of_subcritical
+    reconstructPar -case interFoam_solver_swe-of_subcritical
+else
+    $solver -case interFoam_solver_swe-of_subcritical
+fi
+
+# foamToVTK -case interFoam_solver_swe-of_subcritical
+
+# Workaround for issue #26
+./removeObsoleteFolders.sh

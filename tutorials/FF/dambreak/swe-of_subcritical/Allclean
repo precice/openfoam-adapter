@@ -1,0 +1,51 @@
+#!/bin/sh
+cd ${0%/*} || exit 1    # Run from this directory
+
+echo "Cleaning..."
+
+# Source tutorial clean functions
+. $WM_PROJECT_DIR/bin/tools/CleanFunctions
+
+# Participant 1: Fluid1
+Participant1="interFoam_solver_swe-of_subcritical"
+cd ${Participant1}
+    # Clean the case
+    cleanCase
+    rm -rfv 0
+    # Create an empty .foam file for ParaView
+    # Note: ".foam" triggers the native OpenFOAM reader of ParaView.
+    # Change to ".OpenFOAM" to use the OpenFOAM reader provided with OpenFOAM.
+    touch ${Participant1}.foam
+cd ..
+# Remove the log files
+rm -fv ${Participant1}_blockMesh.log
+rm -fv ${Participant1}_checkMesh.log
+rm -fv ${Participant1}_potentialFoam.log
+rm -fv ${Participant1}_decomposePar.log
+rm -fv ${Participant1}.log
+rm -fv ${Participant1}_reconstructPar.log
+
+# Remove the preCICE-related log files
+echo "Deleting the preCICE log files..."
+rm -fv \
+    precice-*.log \
+    precice-*.json \
+
+# Output files for preCICE versions before 1.2:
+rm -fv \
+    iterations-${Participant1}.txt iterations-${Participant2}.txt \
+    convergence-${Participant1}.txt convergence-${Participant2}.txt \
+    Events-${Participant1}.log Events-${Participant2}.log \
+    EventTimings-${Participant1}.log EventTimings-${Participant2}.log
+
+# Remove the preCICE address files
+rm -rfv precice-run
+rm -rfv ../precice-run
+rm -fv .*.address
+
+#Removing SWE files
+rm -fv SWE_solver/build/precice-Solver* SWE_solver/build/reference.xml SWEoutput*/*
+
+
+echo "Cleaning complete!"
+#------------------------------------------------------------------------------
