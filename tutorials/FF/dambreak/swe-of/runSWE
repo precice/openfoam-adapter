@@ -1,5 +1,0 @@
-#!/bin/bash
-type=0
-domain1="swe_solver_swe-of"
-size=40
-. ./SWE_solver/run.sh
