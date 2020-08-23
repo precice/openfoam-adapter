@@ -1,0 +1,3 @@
+#!/bin/bash
+cd interFoam_solver_of-swe_subcritical && foamToVTK
+cd ..
