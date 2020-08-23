@@ -53,31 +53,19 @@
     <m2n:sockets from="interFoam_solver_of-swe_subcritical" to="SWE_solver" exchange-directory=".." />
 
     <coupling-scheme:serial-explicit>
-    <!-- <coupling-scheme:serial-implicit> -->
+        <!-- <time-window-size value="0.0009765625"/> -->
+        <time-window-size value="0.125"/>
 
-        <time-window-size value="0.0009765625"/>
-        <!-- <time-window-size value="0.125"/> -->
-        <!-- <max-iterations value="20"/> -->
         <max-time value="5.0"/>
+        <!-- <participants first="SWE_solver" second="interFoam_solver_of-swe_subcritical"/>
+        <exchange data="Alpha" mesh="SWE_solver-Mesh" from="SWE_solver" to="interFoam_solver_of-swe_subcritical"/> -->
+        <exchange data="Prgh" mesh="SWE_solver-Mesh" from="SWE_solver" to="interFoam_solver_of-swe_subcritical"/>
+        <!-- <exchange data="Velocity" mesh="SWE_solver-Mesh" from="SWE_solver" to="interFoam_solver_of-swe_subcritical"/>  -->
 
         <participants first="interFoam_solver_of-swe_subcritical" second="SWE_solver"/>
-
-        <exchange data="Prgh" mesh="SWE_solver-Mesh" from="SWE_solver" to="interFoam_solver_of-swe_subcritical"/>
         <exchange data="Alpha" mesh="interFoam_solver_of-swe_subcritical-Mesh" from="interFoam_solver_of-swe_subcritical" to="SWE_solver"/>
         <exchange data="Velocity" mesh="interFoam_solver_of-swe_subcritical-Mesh" from="interFoam_solver_of-swe_subcritical" to="SWE_solver"/>
 
-        <!-- <relative-convergence-measure data="Velocity" mesh="interFoam_solver_of-swe_subcritical-Mesh" limit="1e-2"/> -->
-        <!-- <relative-convergence-measure data="Alpha" mesh="interFoam_solver_of-swe_subcritical-Mesh" limit="1e-2"/> --> -->
-        <!-- <relative-convergence-measure data="Prgh" mesh="SWE_solver-Mesh" limit="1e-2"/> --> -->
-
-       <!-- <extrapolation-order value="2"/> -->
-
-        <!-- <acceleration:aitken> -->
-         <!-- <data name="Prgh" mesh="SWE_solver-Mesh"/> -->
-         <!-- <initial-relaxation value="0.1"/> -->
-       <!-- </acceleration:aitken> -->
-
-    <!-- </coupling-scheme:serial-implicit> -->
     </coupling-scheme:serial-explicit>
 
     </solver-interface>
