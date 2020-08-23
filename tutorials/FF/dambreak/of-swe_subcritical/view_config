@@ -1,0 +1,4 @@
+#!/bin/bash
+
+cat precice-config.xml | precice-config-visualizer  | dot -Tpdf > precice-config.pdf
+xdg-open precice-config.pdf
