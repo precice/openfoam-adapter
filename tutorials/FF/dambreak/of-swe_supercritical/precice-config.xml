@@ -6,21 +6,21 @@
 
     <!-- SWE solver variables -->
     <data:scalar name="Alpha"/>
-    <data:scalar name="Prgh"/>
+    <data:scalar name="Gh"/>
     <data:vector name="Velocity"/>
     <data:vector name="TempVelocity3d"/>
 
 
     <mesh name="SWE_solver-Mesh">
         <use-data name="Alpha"/>
-        <use-data name="Prgh"/>
+        <use-data name="Gh"/>
         <use-data name="Velocity"/>
         <use-data name="TempVelocity3d"/>
     </mesh>
 
     <mesh name="interFoam_solver_of-swe_supercritical-Mesh">
         <use-data name="Alpha"/>
-        <use-data name="Prgh"/>
+        <use-data name="Gh"/>
         <use-data name="Velocity"/>
         <use-data name="TempVelocity3d"/>
     </mesh>
@@ -30,7 +30,7 @@
         <use-mesh name="interFoam_solver_of-swe_supercritical-Mesh" from="interFoam_solver_of-swe_supercritical"/>
 
         <read-data name="Alpha" mesh="SWE_solver-Mesh"/>
-        <read-data name="Prgh" mesh="SWE_solver-Mesh"/>
+        <read-data name="Gh" mesh="SWE_solver-Mesh"/>
         <read-data name="Velocity" mesh="SWE_solver-Mesh"/>
 
 	    <mapping:nearest-neighbor direction="read" from="interFoam_solver_of-swe_supercritical-Mesh" to="SWE_solver-Mesh" constraint="consistent" />
@@ -41,7 +41,7 @@
         <use-mesh name="SWE_solver-Mesh" from="SWE_solver"/>
 
         <write-data name="Alpha" mesh="interFoam_solver_of-swe_supercritical-Mesh"/>
-        <write-data name="Prgh" mesh="interFoam_solver_of-swe_supercritical-Mesh"/>
+        <write-data name="Gh" mesh="interFoam_solver_of-swe_supercritical-Mesh"/>
         <write-data name="Velocity" mesh="interFoam_solver_of-swe_supercritical-Mesh"/>
 
 	    <!-- <mapping:nearest-neighbor direction="read" from="SWE_solver-Mesh" to="interFoam_solver_of-swe_supercritical-Mesh" constraint="consistent" /> -->
@@ -57,12 +57,12 @@
         <max-time value="5.0"/>
         <!-- <participants first="SWE_solver" second="interFoam_solver_of-swe_supercritical"/>
         <exchange data="Alpha" mesh="SWE_solver-Mesh" from="SWE_solver" to="interFoam_solver_of-swe_supercritical"/>
-        <exchange data="Prgh" mesh="SWE_solver-Mesh" from="SWE_solver" to="interFoam_solver_of-swe_supercritical"/>
+        <exchange data="Gh" mesh="SWE_solver-Mesh" from="SWE_solver" to="interFoam_solver_of-swe_supercritical"/>
         <exchange data="Velocity" mesh="SWE_solver-Mesh" from="SWE_solver" to="interFoam_solver_of-swe_supercritical"/> -->
 
         <participants first="interFoam_solver_of-swe_supercritical" second="SWE_solver"/>
         <exchange data="Alpha" mesh="interFoam_solver_of-swe_supercritical-Mesh" from="interFoam_solver_of-swe_supercritical" to="SWE_solver"/>
-        <exchange data="Prgh" mesh="interFoam_solver_of-swe_supercritical-Mesh" from="interFoam_solver_of-swe_supercritical" to="SWE_solver"/>
+        <exchange data="Gh" mesh="interFoam_solver_of-swe_supercritical-Mesh" from="interFoam_solver_of-swe_supercritical" to="SWE_solver"/>
         <exchange data="Velocity" mesh="interFoam_solver_of-swe_supercritical-Mesh" from="interFoam_solver_of-swe_supercritical" to="SWE_solver"/>
 
     </coupling-scheme:serial-explicit>

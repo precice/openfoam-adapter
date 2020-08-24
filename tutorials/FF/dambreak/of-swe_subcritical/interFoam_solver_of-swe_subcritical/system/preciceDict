@@ -22,7 +22,7 @@ interfaces
 
     readData
     (
-        Prgh
+        Gh
     );
 
     writeData

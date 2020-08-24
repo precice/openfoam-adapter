@@ -9,3 +9,4 @@ polyMesh/
 precice-*-events.json
 precice-run/
 VTK/
+of-swe_subcritical_experiment/

@@ -275,6 +275,15 @@ void preciceAdapter::FF::FluidFluid::addReaders(std::string dataName, Interface 
         );
         DEBUG(adapterInfo("Added reader: Prgh."));
     }
+    else if (dataName.find("Gh") == 0)
+    {
+        interface->addCouplingDataReader
+        (
+            dataName,
+            new Gh(mesh_, namePrgh_)
+        );
+        DEBUG(adapterInfo("Added reader: Gh."));
+    }
     else if (dataName.find("TempVelocity3d") == 0)
     {
         interface->addCouplingDataReader

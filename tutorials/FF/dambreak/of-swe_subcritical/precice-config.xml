@@ -6,21 +6,21 @@
 
     <!-- SWE solver variables -->
     <data:scalar name="Alpha"/>
-    <data:scalar name="Prgh"/>
+    <data:scalar name="Gh"/>
     <data:vector name="Velocity"/>
     <data:vector name="TempVelocity3d"/>
 
 
     <mesh name="SWE_solver-Mesh">
         <use-data name="Alpha"/>
-        <use-data name="Prgh"/>
+        <use-data name="Gh"/>
         <use-data name="Velocity"/>
         <use-data name="TempVelocity3d"/>
     </mesh>
 
     <mesh name="interFoam_solver_of-swe_subcritical-Mesh">
         <use-data name="Alpha"/>
-        <use-data name="Prgh"/>
+        <use-data name="Gh"/>
         <use-data name="Velocity"/>
         <use-data name="TempVelocity3d"/>
     </mesh>
@@ -32,7 +32,7 @@
         <read-data name="Alpha" mesh="SWE_solver-Mesh"/>
         <read-data name="Velocity" mesh="SWE_solver-Mesh"/>
 
-        <write-data name="Prgh" mesh="SWE_solver-Mesh"/>
+        <write-data name="Gh" mesh="SWE_solver-Mesh"/>
 
 	    <mapping:nearest-neighbor direction="read" from="interFoam_solver_of-swe_subcritical-Mesh" to="SWE_solver-Mesh" constraint="consistent" />
     </participant>
@@ -41,7 +41,7 @@
         <use-mesh name="interFoam_solver_of-swe_subcritical-Mesh" provide="yes"/>
         <use-mesh name="SWE_solver-Mesh" from="SWE_solver"/>
 
-        <read-data name="Prgh" mesh="interFoam_solver_of-swe_subcritical-Mesh"/>
+        <read-data name="Gh" mesh="interFoam_solver_of-swe_subcritical-Mesh"/>
 
         <write-data name="Alpha" mesh="interFoam_solver_of-swe_subcritical-Mesh"/>
         <write-data name="Velocity" mesh="interFoam_solver_of-swe_subcritical-Mesh"/>
@@ -53,13 +53,13 @@
     <m2n:sockets from="interFoam_solver_of-swe_subcritical" to="SWE_solver" exchange-directory=".." />
 
     <coupling-scheme:serial-explicit>
-        <!-- <time-window-size value="0.0009765625"/> -->
-        <time-window-size value="0.125"/>
+        <time-window-size value="0.0009765625"/>
+        <!-- <time-window-size value="0.125"/> -->
 
         <max-time value="5.0"/>
         <!-- <participants first="SWE_solver" second="interFoam_solver_of-swe_subcritical"/>
         <exchange data="Alpha" mesh="SWE_solver-Mesh" from="SWE_solver" to="interFoam_solver_of-swe_subcritical"/> -->
-        <exchange data="Prgh" mesh="SWE_solver-Mesh" from="SWE_solver" to="interFoam_solver_of-swe_subcritical"/>
+        <exchange data="Gh" mesh="SWE_solver-Mesh" from="SWE_solver" to="interFoam_solver_of-swe_subcritical"/>
         <!-- <exchange data="Velocity" mesh="SWE_solver-Mesh" from="SWE_solver" to="interFoam_solver_of-swe_subcritical"/>  -->
 
         <participants first="interFoam_solver_of-swe_subcritical" second="SWE_solver"/>
