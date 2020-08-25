@@ -55,7 +55,7 @@ edges
 
 boundary
 (
-    leftWall_inlet
+    leftWall_boundary
     {
         type wall;
         faces

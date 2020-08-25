@@ -25,7 +25,7 @@ boundaryField
         type            zeroGradient;
     }
 
-    rightwall_outlet
+    rightwall_boundary
     {
         type            zeroGradient;
 

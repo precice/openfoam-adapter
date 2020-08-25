@@ -63,7 +63,7 @@ boundary
             (0 4 7 3)
         );
     }
-    rightwall_outlet
+    rightwall_boundary
     {
         type wall;
         faces

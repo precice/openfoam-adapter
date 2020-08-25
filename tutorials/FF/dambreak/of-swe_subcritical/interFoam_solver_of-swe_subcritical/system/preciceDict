@@ -18,7 +18,7 @@ interfaces
   Interface1
   {
     mesh              interFoam_solver_of-swe_subcritical-Mesh;
-    patches           (rightwall_outlet);
+    patches           (rightwall_boundary);
 
     readData
     (

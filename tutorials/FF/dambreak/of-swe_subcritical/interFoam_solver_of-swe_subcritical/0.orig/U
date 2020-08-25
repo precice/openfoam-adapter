@@ -28,7 +28,7 @@ boundaryField
 
         // type            noSlip;
     }
-    rightwall_outlet
+    rightwall_boundary
     {
 
         type            fixedGradient;
