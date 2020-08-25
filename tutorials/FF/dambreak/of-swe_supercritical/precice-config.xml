@@ -42,7 +42,6 @@
         <write-data name="Alpha" mesh="interFoam_solver_of-swe_supercritical-Mesh"/>
         <write-data name="Velocity" mesh="interFoam_solver_of-swe_supercritical-Mesh"/>
 
-	    <!-- <mapping:nearest-neighbor direction="read" from="SWE_solver-Mesh" to="interFoam_solver_of-swe_supercritical-Mesh" constraint="consistent" /> -->
     </participant>
 
     <m2n:sockets from="interFoam_solver_of-swe_supercritical" to="SWE_solver" exchange-directory=".." />
@@ -50,7 +49,7 @@
     <coupling-scheme:serial-explicit>
         <!-- <time-window-size value="0.0009765625"/> -->
         <time-window-size value="0.125"/>
-        <max-time value="5.0"/>
+        <max-time value="8.0"/>
 
         <participants first="interFoam_solver_of-swe_supercritical" second="SWE_solver"/>
         <exchange data="Alpha" mesh="interFoam_solver_of-swe_supercritical-Mesh" from="interFoam_solver_of-swe_supercritical" to="SWE_solver"/>
