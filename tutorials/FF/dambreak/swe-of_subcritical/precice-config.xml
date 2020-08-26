@@ -56,7 +56,7 @@
         <!-- <time-window-size value="0.0009765625"/> -->
         <time-window-size value="0.125"/>
 
-        <max-time value="20.0"/>
+        <max-time value="10.0"/>
         <participants first="SWE_solver" second="interFoam_solver_swe-of_subcritical"/>
         <exchange data="Velocity" mesh="SWE_solver-Mesh" from="SWE_solver" to="interFoam_solver_swe-of_subcritical"/>
         <exchange data="Alpha" mesh="interFoam_solver_swe-of_subcritical-Mesh" from="interFoam_solver_swe-of_subcritical" to="SWE_solver"/>
