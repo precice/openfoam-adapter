@@ -43,7 +43,7 @@ else
     $solver -case interFoam_solver_swe-of_subcritical
 fi
 
-# foamToVTK -case interFoam_solver_swe-of_subcritical
+foamToVTK -case interFoam_solver_swe-of_subcritical
 
 # Workaround for issue #26
 ./removeObsoleteFolders.sh

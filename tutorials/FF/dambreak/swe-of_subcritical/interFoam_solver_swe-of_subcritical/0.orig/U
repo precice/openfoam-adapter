@@ -30,9 +30,9 @@ boundaryField
     }
     rightWall
     {
-        type            fixedGradient;
-        gradient        uniform (0 0 0);
-        // type            noSlip;
+        // type            fixedGradient;
+        // gradient        uniform (0 0 0);
+        type            noSlip;
     }
     lowerWall
     {
