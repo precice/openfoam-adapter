@@ -24,7 +24,7 @@ boundaryField
     leftWall_water
     {
         type            fixedValue;
-        value           uniform (0.6 0 0);
+        value           uniform (1.6 0 0);
     }
     leftWall_air
     {

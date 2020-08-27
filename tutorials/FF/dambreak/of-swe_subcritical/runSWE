@@ -1,5 +1,6 @@
 #!/bin/bash
 type=5
 output="SWEoutput_of-swe_subcritical/swe_solver_of-swe_subcritical"
-size=20
+sizeX=10
+sizeY=20
 . ./SWE_solver/run.sh

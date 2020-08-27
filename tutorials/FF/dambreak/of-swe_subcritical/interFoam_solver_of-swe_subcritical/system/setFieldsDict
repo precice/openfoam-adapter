@@ -18,6 +18,7 @@ FoamFile
 defaultFieldValues
 (
     volScalarFieldValue alpha.water 0
+    volVectorFieldValue U (0 0 0)
 );
 
 xleft 0;
@@ -42,21 +43,21 @@ regions
         fieldValues
         (
             volScalarFieldValue alpha.water 1
+            volVectorFieldValue U (1.6 0 0)
+
         );
     }
 
-   //  cylinderToCell
-   // {
-   //
-   //     p1 ($xmiddle $ymiddle $zmiddle);
-   //     p2 ($xmiddle $ytop $zmiddle);
-   //     radius $rad;
-   //
-   //     fieldValues
-   //     (
-   //         volScalarFieldValue alpha.water 0
-   //     );
-   // }
+    // boxToCell
+    // {
+    //     box ($xleft $ybottom $zback) ($xmiddle $ymiddle $zfront);
+    //     fieldValues
+    //     (
+    //         volVectorFieldValue U (1.6 0 0)
+    //     );
+    // }
+
+
 );
 
 
