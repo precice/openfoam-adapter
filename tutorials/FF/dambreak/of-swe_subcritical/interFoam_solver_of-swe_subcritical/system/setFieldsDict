@@ -45,18 +45,18 @@ regions
         );
     }
 
-    cylinderToCell
-   {
-
-       p1 ($xmiddle $ymiddle $zmiddle);
-       p2 ($xmiddle $ytop $zmiddle);
-       radius $rad;
-
-       fieldValues
-       (
-           volScalarFieldValue alpha.water 0
-       );
-   }
+   //  cylinderToCell
+   // {
+   //
+   //     p1 ($xmiddle $ymiddle $zmiddle);
+   //     p2 ($xmiddle $ytop $zmiddle);
+   //     radius $rad;
+   //
+   //     fieldValues
+   //     (
+   //         volScalarFieldValue alpha.water 0
+   //     );
+   // }
 );
 
 

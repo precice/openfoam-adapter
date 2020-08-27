@@ -20,7 +20,12 @@ internalField   uniform 0;
 
 boundaryField
 {
-    leftwall
+    leftWall_air
+    {
+        type            fixedFluxPressure;
+        value           uniform 0;
+    }
+    leftWall_water
     {
         type            fixedFluxPressure;
         value           uniform 0;
@@ -28,14 +33,10 @@ boundaryField
 
     rightwall_boundary
     {
-        // type            fixedFluxPressure;
-        // value           uniform 0;
-
-        // // type            fixedGradient;
-        // gradient        $internalField;
-
         type            fixedValue;
         value           uniform 0;
+        // type            fixedFluxPressure;
+        // value           uniform 0;
     }
 
     lowerWall

@@ -8,21 +8,21 @@
     <data:scalar name="Alpha"/>
     <data:scalar name="Gh"/>
     <data:vector name="Velocity"/>
-    <data:vector name="TempVelocity3d"/>
+    <data:vector name="VelocityGradient"/>
 
 
     <mesh name="SWE_solver-Mesh">
         <use-data name="Alpha"/>
         <use-data name="Gh"/>
         <use-data name="Velocity"/>
-        <use-data name="TempVelocity3d"/>
+        <use-data name="VelocityGradient"/>
     </mesh>
 
     <mesh name="interFoam_solver_of-swe_subcritical-Mesh">
         <use-data name="Alpha"/>
         <use-data name="Gh"/>
         <use-data name="Velocity"/>
-        <use-data name="TempVelocity3d"/>
+        <use-data name="VelocityGradient"/>
     </mesh>
 
     <participant name="SWE_solver">
@@ -56,7 +56,7 @@
         <time-window-size value="0.0009765625"/>
         <!-- <time-window-size value="0.125"/> -->
 
-        <max-time value="5.0"/>
+        <max-time value="10.0"/>
         <!-- <participants first="SWE_solver" second="interFoam_solver_of-swe_subcritical"/>
         <exchange data="Alpha" mesh="SWE_solver-Mesh" from="SWE_solver" to="interFoam_solver_of-swe_subcritical"/> -->
         <exchange data="Gh" mesh="SWE_solver-Mesh" from="SWE_solver" to="interFoam_solver_of-swe_subcritical"/>

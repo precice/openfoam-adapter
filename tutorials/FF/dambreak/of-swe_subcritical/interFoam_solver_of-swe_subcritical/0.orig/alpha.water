@@ -20,17 +20,21 @@ internalField   uniform 0;
 
 boundaryField
 {
-    leftwall
+    leftWall_air
     {
-        type            zeroGradient;
+        type            fixedValue;
+        value           0;
+    }
+
+    leftWall_water
+    {
+        type            fixedValue;
+        value           1;
     }
 
     rightwall_boundary
     {
         type            zeroGradient;
-
-        // type            fixedValue;
-        // value           $internalField;
 
         // type            fixedGradient;
         // inletValue      uniform 0;

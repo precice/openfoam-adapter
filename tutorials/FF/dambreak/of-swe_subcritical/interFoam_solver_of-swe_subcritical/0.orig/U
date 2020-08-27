@@ -21,23 +21,20 @@ internalField   uniform (0 0 0);
 
 boundaryField
 {
-    leftwall
+    leftWall_water
     {
-        type            fixedGradient;
-        gradient        uniform (0 0 0);
-
-        // type            noSlip;
+        type            fixedValue;
+        value           uniform (0.6 0 0);
+    }
+    leftWall_air
+    {
+        type            fixedValue;
+        value           uniform (0 0 0);
     }
     rightwall_boundary
     {
-
         type            fixedGradient;
         gradient        uniform (0 0 0);
-
-        // type            noSlip;
-
-        // type            fixedValue;
-        // value           $internalField;
     }
     lowerWall
     {

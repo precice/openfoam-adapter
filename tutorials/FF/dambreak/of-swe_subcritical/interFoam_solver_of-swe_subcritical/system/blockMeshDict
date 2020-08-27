@@ -17,7 +17,7 @@ FoamFile
 convertToMeters 1;
 
 xleft 0;
-xmiddle 5;
+xmiddle 10;
 xright 10;
 
 ybottom 0;
@@ -30,23 +30,28 @@ zfront 10;
 
 res 20;
 
-
 vertices
 (
-    ($xleft $ybottom $zfront) //0
-    ($xright $ybottom $zfront) //1
-    ($xright $ybottom $zback) //2
-    ($xleft $ybottom $zback) //3
-    ($xleft $ytop $zfront) //4
-    ($xright $ytop $zfront) //5
-    ($xright $ytop $zback) //6
-    ($xleft $ytop $zback) //7
+    ($xleft $ybottom $zback) //0
+    ($xright $ybottom $zback) //1
+    ($xleft $ymiddle $zback) //2
+    ($xright $ymiddle $zback) //3
+    ($xleft $ytop $zback) //4
+    ($xright $ytop $zback) //5
+
+    ($xleft $ybottom $zfront) //6
+    ($xright $ybottom $zfront) //7
+    ($xleft $ymiddle $zfront) //8
+    ($xright $ymiddle $zfront) //9
+    ($xleft $ytop $zfront) //10
+    ($xright $ytop $zfront) //11
 
 );
 
 blocks
 (
-    hex (0 1 2 3 4 5 6 7) ($res $res $res) simpleGrading (1 1 1)
+    hex (0 1 3 2 6 7 9 8) ($res $res $res) simpleGrading (1 1 1)
+    hex (2 3 5 4 8 9 11 10) ($res $res $res) simpleGrading (1 1 1)
 );
 
 edges
@@ -55,20 +60,31 @@ edges
 
 boundary
 (
-    leftwall
+    leftWall_air
     {
-        type wall;
+        type patch;
         faces
         (
-            (0 4 7 3)
+            (2 8 10 4)
         );
     }
-    rightwall_boundary
+
+    leftWall_water
     {
-        type wall;
+        type patch;
         faces
         (
-            (1 2 6 5)
+            (0 6 8 2)
+        );
+    }
+
+    rightwall_boundary
+    {
+        type patch;
+        faces
+        (
+            (1 3 9 7)
+            (3 5 11 9)
         );
     }
     lowerWall
@@ -76,7 +92,7 @@ boundary
         type wall;
         faces
         (
-            (0 3 2 1)
+            (0 1 7 6)
         );
     }
     atmosphere
@@ -84,7 +100,7 @@ boundary
         type patch;
         faces
         (
-        (5 6 7 4)
+        (4 5 10 11)
         );
     }
 );
