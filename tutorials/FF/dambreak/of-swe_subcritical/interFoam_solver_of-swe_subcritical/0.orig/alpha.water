@@ -22,8 +22,8 @@ boundaryField
 {
     leftWall_air
     {
-        type            fixedValue;
-        value           0;
+        type            zeroGradient;
+        // value           0;
     }
 
     leftWall_water

@@ -59,6 +59,8 @@ void preciceAdapter::FF::Gh::read(double * buffer, const unsigned int dim)
         forAll(p_rgh_->boundaryFieldRef()[patchID], i)
         {
             // Set the pressure as the buffer value
+            std::cout << buffer[bufferIndex] << '\n';
+            
             p_rgh_->boundaryFieldRef()[patchID][i]
             =
             buffer[bufferIndex++] * (rho_water * std::abs(alpha_->boundaryFieldRef()[patchID][i]) + rho_air * (1 - std::abs(alpha_->boundaryFieldRef()[patchID][i])));
