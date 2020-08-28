@@ -22,16 +22,16 @@ defaultFieldValues
 );
 
 xleft 0;
-xmiddle 5;
-xright 10;
+xmiddle 10;
+xright 20;
 
 ybottom 0;
-ymiddle 5;
+ymiddle 2;
 ytop 10;
 
 zback 0;
-zmiddle 5;
-zfront 10;
+zmiddle 2.5;
+zfront 5;
 
 rad 1;
 

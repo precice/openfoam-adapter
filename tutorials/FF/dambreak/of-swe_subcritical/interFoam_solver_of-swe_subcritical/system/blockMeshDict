@@ -18,17 +18,19 @@ convertToMeters 1;
 
 xleft 0;
 xmiddle 10;
-xright 10;
+xright 7;
 
 ybottom 0;
-ymiddle 5;
-ytop 10;
+ymiddle 2;
+ytop 7;
 
 zback 0;
-zmiddle 5;
-zfront 10;
+zmiddle 2.5;
+zfront 5;
 
-res 20;
+resx 15;
+resy $ytop;
+resz 40;
 
 vertices
 (
@@ -50,8 +52,8 @@ vertices
 
 blocks
 (
-    hex (0 1 3 2 6 7 9 8) ($res $res $res) simpleGrading (1 1 1)
-    hex (2 3 5 4 8 9 11 10) ($res $res $res) simpleGrading (1 1 1)
+    hex (0 1 3 2 6 7 9 8) ($resx 15 $resz) simpleGrading (1 1 1)
+    hex (2 3 5 4 8 9 11 10) ($resx 15 $resz) simpleGrading (1 1 1)
 );
 
 edges
