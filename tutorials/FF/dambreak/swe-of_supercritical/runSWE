@@ -3,4 +3,6 @@ type=2
 output="SWEoutput_swe-of_supercritical/swe_solver_swe-of_supercritical"
 sizeX=20
 sizeY=20
+build=~/thesis/both/tutorials/FF/dambreak/swe-of_supercritical/SWE_gnu.py
+solverNum=1
 . ./SWE_solver/run.sh

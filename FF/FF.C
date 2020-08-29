@@ -180,15 +180,6 @@ void preciceAdapter::FF::FluidFluid::addWriters(std::string dataName, Interface 
         );
         DEBUG(adapterInfo("Added writer: Prgh."));
     }
-    else if (dataName.find("TempVelocity3d") == 0)
-    {
-        interface->addCouplingDataWriter
-        (
-            dataName,
-            new TempVelocity3d(mesh_, nameU_)
-        );
-        DEBUG(adapterInfo("Added writer: TempVelocity3d."));
-    }
     else
     {
         adapterInfo("Unknown data type - cannot add " + dataName +".", "error");
@@ -283,15 +274,6 @@ void preciceAdapter::FF::FluidFluid::addReaders(std::string dataName, Interface 
             new Gh(mesh_, namePrgh_)
         );
         DEBUG(adapterInfo("Added reader: Gh."));
-    }
-    else if (dataName.find("TempVelocity3d") == 0)
-    {
-        interface->addCouplingDataReader
-        (
-            dataName,
-            new TempVelocity3d(mesh_, nameU_)
-        );
-        DEBUG(adapterInfo("Added reader: TempVelocity3d."));
     }
     else
     {

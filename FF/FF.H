@@ -11,7 +11,6 @@
 #include "FF/PrghGradient.H"
 #include "FF/VelocityGradient.H"
 #include "FF/AlphaGradient.H"
-#include "FF/TempVelocity3d.H"
 #include "FF/Gh.H"
 
 #include "fvCFD.H"

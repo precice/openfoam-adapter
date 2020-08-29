@@ -1,0 +1,98 @@
+<?xml version="1.0"?>
+
+<precice-configuration>
+
+  <log>
+     <sink filter= "%Severity% > debug" format="---[precice] %ColorizedSeverity% %Message%" enabled="true" />
+   </log>
+
+  <solver-interface dimensions="2">
+
+    <data:scalar name="heightS1"/>
+    <data:scalar name="huS1"/>
+    <data:scalar name="hvS1"/>
+    <data:scalar name="heightGrad"/>
+    <data:scalar name="huGrad"/>
+    <data:scalar name="hvGrad"/>
+
+    <mesh name="SWE_solver-Mesh">
+      <use-data name="heightS1"/>
+      <use-data name="huS1"/>
+      <use-data name="hvS1"/>
+      <use-data name="heightGrad"/>
+      <use-data name="huGrad"/>
+      <use-data name="hvGrad"/>
+    </mesh>
+
+    <mesh name="SWE_solver_right-Mesh">
+      <use-data name="heightS1"/>
+      <use-data name="huS1"/>
+      <use-data name="hvS1"/>
+      <use-data name="heightGrad"/>
+      <use-data name="huGrad"/>
+      <use-data name="hvGrad"/>
+    </mesh>
+
+    <participant name="SWE_solver">
+      <!-- Makes the named mesh available to the participant. Mesh is provided by the solver directly. -->
+      <use-mesh name="SWE_solver-Mesh" provide="yes"/>
+      <use-mesh name="SWE_solver_right-Mesh" from="SWE_solver_right"/>
+      <write-data name="heightS1" mesh="SWE_solver-Mesh"/>
+      <write-data name="huS1" mesh="SWE_solver-Mesh"/>
+      <write-data name="hvS1" mesh="SWE_solver-Mesh"/>
+      <read-data name="heightGrad" mesh="SWE_solver-Mesh"/>
+      <read-data name="huGrad" mesh="SWE_solver-Mesh"/>
+      <read-data name="hvGrad" mesh="SWE_solver-Mesh"/>
+      <!-- Define input/output of the solver.  -->
+      <mapping:nearest-neighbor direction="read" from="SWE_solver_right-Mesh" to="SWE_solver-Mesh" constraint="consistent" timing="initial"/>
+    </participant>
+
+    <participant name="SWE_solver_right">
+      <use-mesh name="SWE_solver_right-Mesh" provide="yes"/>
+      <use-mesh name="SWE_solver-Mesh" from="SWE_solver"/>
+      <write-data  name="heightGrad" mesh="SWE_solver_right-Mesh"/>
+      <write-data  name="huGrad" mesh="SWE_solver_right-Mesh"/>
+      <write-data  name="hvGrad" mesh="SWE_solver_right-Mesh"/>
+      <read-data  name="heightS1" mesh="SWE_solver_right-Mesh"/>
+      <read-data  name="huS1" mesh="SWE_solver_right-Mesh"/>
+      <read-data  name="hvS1" mesh="SWE_solver_right-Mesh"/>
+      <mapping:nearest-neighbor direction="read" from="SWE_solver-Mesh" to="SWE_solver_right-Mesh" constraint="consistent" timing="initial"/>
+    </participant>
+
+    <m2n:sockets from="SWE_solver" to="SWE_solver_right" network="lo"/>
+
+    <coupling-scheme:serial-explicit>
+
+    <!-- <coupling-scheme:serial-implicit> -->
+        <participants first="SWE_solver_right" second="SWE_solver"/>
+        <time-window-size value="0.125"/>
+        <max-time value="20.0"/>
+        <!-- <max-iterations value="20"/> -->
+
+        <exchange data="heightS1" mesh="SWE_solver-Mesh" from="SWE_solver" to="SWE_solver_right" initialize="true"/>
+        <exchange data="huS1" mesh="SWE_solver-Mesh" from="SWE_solver" to="SWE_solver_right" initialize="true"/>
+        <exchange data="hvS1" mesh="SWE_solver-Mesh" from="SWE_solver" to="SWE_solver_right" initialize="true"/>
+        <!-- <relative-convergence-measure data="heightS1"    mesh="SWE_solver-Mesh" limit="1e-2"/>
+        <relative-convergence-measure data="huS1"    mesh="SWE_solver-Mesh" limit="1e-2"/>
+        <relative-convergence-measure data="hvS1"    mesh="SWE_solver-Mesh" limit="1e-2"/> -->
+
+        <exchange data="heightGrad" mesh="SWE_solver_right-Mesh" from="SWE_solver_right" to="SWE_solver" initialize="false"/>
+        <exchange data="huGrad" mesh="SWE_solver_right-Mesh" from="SWE_solver_right" to="SWE_solver" initialize="false"/>
+        <exchange data="hvGrad" mesh="SWE_solver_right-Mesh" from="SWE_solver_right" to="SWE_solver" initialize="false"/>
+        <!-- <relative-convergence-measure data="heightGrad" mesh="SWE_solver_right-Mesh" limit="1e-2"/>
+        <relative-convergence-measure data="huGrad" mesh="SWE_solver_right-Mesh" limit="1e-2"/>
+        <relative-convergence-measure data="hvGrad" mesh="SWE_solver_right-Mesh" limit="1e-2"/> -->
+
+        <!-- <extrapolation-order value="2"/> -->
+
+        <!-- <acceleration:aitken>
+          <data name="heightGrad" mesh="SWE_solver_right-Mesh"/>
+          <initial-relaxation value="0.1"/>
+        </acceleration:aitken>
+
+      </coupling-scheme:serial-implicit> -->
+
+    </coupling-scheme:serial-explicit>
+
+  </solver-interface>
+</precice-configuration>
