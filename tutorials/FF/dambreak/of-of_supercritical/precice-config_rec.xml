@@ -1,0 +1,77 @@
+<?xml version="1.0"?>
+
+<precice-configuration>
+
+    <log>
+        <sink type="stream" output="stdout" filter="%Severity% > debug" enabled="true"/>
+    </log>
+
+    <solver-interface dimensions="3">
+
+    <data:vector name="VelocityGradient"/>
+    <data:scalar name="Pressure"/>
+    <data:vector name="Velocity"/>
+    <data:scalar name="PressureGradient"/>
+
+
+    <mesh name="IF_Left-Mesh">
+        <use-data name="VelocityGradient"/>
+        <use-data name="Pressure"/>
+        <use-data name="Velocity"/>
+        <use-data name="PressureGradient"/>        
+    </mesh>
+
+    <mesh name="IF_Right-Mesh">
+        <use-data name="VelocityGradient"/>
+        <use-data name="Pressure"/>
+        <use-data name="Velocity"/>
+        <use-data name="PressureGradient"/>
+    </mesh>
+
+    <participant name="IF_Left">
+        <use-mesh name="IF_Left-Mesh" provide="yes"/>
+        <use-mesh name="IF_Right-Mesh" from="IF_Right"/>
+        <write-data name="Velocity" mesh="IF_Left-Mesh"/>
+        <write-data name="PressureGradient" mesh="IF_Left-Mesh"/>
+        <read-data name="Pressure" mesh="IF_Left-Mesh"/>
+        <read-data name="VelocityGradient" mesh="IF_Left-Mesh"/>
+        <mapping:nearest-neighbor direction="read" from="IF_Right-Mesh" to="IF_Left-Mesh" constraint="consistent" />
+    </participant>
+
+    <participant name="IF_Right">
+        <use-mesh name="IF_Right-Mesh" provide="yes"/>
+        <use-mesh name="IF_Left-Mesh" from="IF_Left"/>
+        <read-data name="Velocity" mesh="IF_Right-Mesh"/>
+        <read-data name="PressureGradient" mesh="IF_Right-Mesh"/>
+        <write-data name="Pressure" mesh="IF_Right-Mesh"/>
+        <write-data name="VelocityGradient" mesh="IF_Right-Mesh"/>
+        <mapping:nearest-neighbor direction="read" from="IF_Left-Mesh" to="IF_Right-Mesh" constraint="consistent" />
+    </participant>
+
+    <m2n:sockets from="IF_Left" to="IF_Right"/>
+
+    <coupling-scheme:serial-implicit>
+        <time-window-size value="0.01"/>
+        <max-time value="1.0"/>
+        <participants first="IF_Left" second="IF_Right"/>
+        <exchange data="Velocity" mesh="IF_Left-Mesh" from="IF_Left" to="IF_Right"/>
+        <exchange data="PressureGradient" mesh="IF_Left-Mesh" from="IF_Left" to="IF_Right"/>
+        <exchange data="Pressure" mesh="IF_Right-Mesh" from="IF_Right" to="IF_Left"/>
+        <!--<exchange data="VelocityGradient" mesh="IF_Right-Mesh" from="IF_Right" to="IF_Left"/>-->
+
+        <max-iterations value="100"/>
+        <relative-convergence-measure limit="1.0e-6" data="Pressure" mesh="IF_Right-Mesh"/>
+        <!--<relative-convergence-measure limit="1.0e-6" data="PressureGradient" mesh="IF_Right-Mesh"/>-->
+        <relative-convergence-measure limit="1.0e-6" data="Velocity" mesh="IF_Left-Mesh"/>
+
+        <acceleration:IQN-ILS>
+            <data mesh="IF_Right-Mesh" name="Pressure" />
+            <initial-relaxation value="0.01" />
+            <max-used-iterations value="80" />
+            <time-windows-reused value="10" />
+            <filter type="QR1" limit="1e-8" />
+        </acceleration:IQN-ILS>
+    </coupling-scheme:serial-implicit>
+
+    </solver-interface>
+</precice-configuration>

@@ -33,9 +33,6 @@ public:
 
     //- Read the Alpha values from the buffer
     void read(double * buffer, const unsigned int dim);
-
-    //- Get cell size on the boundary
-    double getBoundaryCellSize();
 };
 
 }
