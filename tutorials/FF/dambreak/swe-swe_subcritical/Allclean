@@ -1,0 +1,33 @@
+#!/bin/sh
+
+echo "Cleaning..."
+
+# Source tutorial clean functions
+. $WM_PROJECT_DIR/bin/tools/CleanFunctions
+
+
+
+# Remove the preCICE-related log files
+echo "Deleting the preCICE log files..."
+rm -fv \
+    precice-*.log \
+    precice-*.json \
+
+# Output files for preCICE versions before 1.2:
+rm -fv \
+    iterations-${Participant1}.txt iterations-${Participant2}.txt \
+    convergence-${Participant1}.txt convergence-${Participant2}.txt \
+    Events-${Participant1}.log Events-${Participant2}.log \
+    EventTimings-${Participant1}.log EventTimings-${Participant2}.log
+
+# Remove the preCICE address files
+rm -rfv precice-run
+rm -rfv ../precice-run
+rm -fv .*.address
+
+#Removing SWE files
+rm -fv SWE_solver/build/precice-SWE_Solver* SWE_solver/build/reference.xml SWEoutput*/*
+
+
+echo "Cleaning complete!"
+#------------------------------------------------------------------------------
