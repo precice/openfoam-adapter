@@ -30,6 +30,10 @@ private:
     //- Force field
     Foam::volVectorField * Force_;
 
+    // Needed for inheritance to the Stress data field to avoid creating the Force
+    // field in case it is not required
+    const bool force_field_created;
+
 protected:
     //- Stress tensor (see the OpenFOAM "Forces" function object)
     Foam::tmp<Foam::volSymmTensorField> devRhoReff() const;

@@ -8,7 +8,9 @@ preciceAdapter::FSI::Force::Force
         const std::string solverType
 )
 :
-mesh_(mesh),solverType_(solverType)
+mesh_(mesh),
+solverType_(solverType),
+force_field_created(false)
 {}
 
 
@@ -23,7 +25,9 @@ preciceAdapter::FSI::Force::Force
     */
 )
 :
-Force(mesh, solverType)
+mesh_(mesh),
+solverType_(solverType),
+force_field_created(true)
 {
     //What about type "basic"?
     if (solverType_.compare("incompressible") != 0 && solverType_.compare("compressible") != 0) 
@@ -282,5 +286,6 @@ void preciceAdapter::FSI::Force::read(double * buffer, const unsigned int dim)
 
 preciceAdapter::FSI::Force::~Force()
 {
+  if(force_field_created)
     delete Force_;
 }
