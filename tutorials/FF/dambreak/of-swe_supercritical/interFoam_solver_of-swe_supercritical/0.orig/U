@@ -23,10 +23,10 @@ boundaryField
 {
     leftwall
     {
-        type            fixedGradient;
-        gradient        uniform (0 0 0);
+        // type            fixedGradient;
+        // gradient        uniform (0 0 0);
 
-        // type            noSlip;
+        type            noSlip;
     }
     rightwall_outlet
     {
