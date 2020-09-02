@@ -1,0 +1,77 @@
+<?xml version="1.0"?>
+
+<precice-configuration>
+
+    <solver-interface dimensions="3">
+
+    <data:vector name="Velocity"/>
+    <data:scalar name="PrghGradient"/>
+    <data:scalar name="Alpha"/>
+    <data:vector name="VelocityGradient"/>
+    <data:scalar name="Prgh"/>
+    <data:scalar name="AlphaGradient"/>
+
+    <mesh name="IF_Left-Mesh">
+        <use-data name="Velocity"/>
+        <use-data name="PrghGradient"/>
+        <use-data name="Alpha"/>
+        <use-data name="VelocityGradient"/>
+        <use-data name="Prgh"/>
+        <use-data name="AlphaGradient"/>
+    </mesh>
+
+    <mesh name="IF_Right-Mesh">
+        <use-data name="Velocity"/>
+        <use-data name="PrghGradient"/>
+        <use-data name="Alpha"/>
+        <use-data name="VelocityGradient"/>
+        <use-data name="Prgh"/>
+        <use-data name="AlphaGradient"/>
+    </mesh>
+
+    <participant name="IF_Left">
+        <use-mesh name="IF_Left-Mesh" provide="yes"/>
+        <use-mesh name="IF_Right-Mesh" from="IF_Right"/>
+        <!-- <read-data name="VelocityGradient" mesh="IF_Left-Mesh"/> -->
+        <read-data name="Prgh" mesh="IF_Left-Mesh"/>
+        <!-- <read-data name="AlphaGradient" mesh="IF_Left-Mesh"/> -->
+
+        <write-data name="PrghGradient" mesh="IF_Left-Mesh"/>
+        <write-data name="Velocity" mesh="IF_Left-Mesh"/>
+        <!-- <write-data name="Prgh" mesh="IF_Left-Mesh"/> -->
+        <write-data name="Alpha" mesh="IF_Left-Mesh"/>
+	<mapping:nearest-neighbor direction="read" from="IF_Right-Mesh" to="IF_Left-Mesh" 		constraint="consistent" />
+    </participant>
+
+    <participant name="IF_Right">
+        <use-mesh name="IF_Right-Mesh" provide="yes"/>
+        <use-mesh name="IF_Left-Mesh" from="IF_Left"/>
+        <!-- <write-data name="VelocityGradient" mesh="IF_Right-Mesh"/> -->
+        <write-data name="Prgh" mesh="IF_Right-Mesh"/>
+        <!-- <write-data name="AlphaGradient" mesh="IF_Right-Mesh"/> -->
+        <read-data name="Velocity" mesh="IF_Right-Mesh"/>
+        <read-data name="PrghGradient" mesh="IF_Right-Mesh"/>
+        <read-data name="Alpha" mesh="IF_Right-Mesh"/>
+	<mapping:nearest-neighbor direction="read" from="IF_Left-Mesh" to="IF_Right-Mesh" 		constraint="consistent" />
+    </participant>
+
+    <m2n:sockets from="IF_Left" to="IF_Right" exchange-directory=".." />
+
+    <coupling-scheme:serial-explicit>
+        <time-window-size value="0.001"/>
+        <max-time value="2.0"/>
+        <participants first="IF_Left" second="IF_Right"/>
+
+        <!-- <exchange data="VelocityGradient" mesh="IF_Right-Mesh" from="IF_Right" to="IF_Left"/> -->
+        <!-- <exchange data="Alpha" mesh="IF_Left-Mesh" from="IF_Left" to="IF_Right"/> -->
+        <exchange data="PrghGradient" mesh="IF_Left-Mesh" from="IF_Left" to="IF_Right"/>
+        <!-- <exchange data="AlphaGradient" mesh="IF_Right-Mesh" from="IF_Right" to="IF_Left"/> -->
+
+	    <exchange data="Velocity" mesh="IF_Left-Mesh" from="IF_Left" to="IF_Right"/>
+        <exchange data="Alpha" mesh="IF_Left-Mesh" from="IF_Left" to="IF_Right"/>
+        <exchange data="Prgh" mesh="IF_Right-Mesh" from="IF_Right" to="IF_Left"/>
+
+    </coupling-scheme:serial-explicit>
+
+    </solver-interface>
+</precice-configuration>

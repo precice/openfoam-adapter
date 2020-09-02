@@ -68,6 +68,10 @@ bool preciceAdapter::FF::FluidFluid::readConfig(const IOdictionary& adapterConfi
     namePrgh_ = FFdict.lookupOrDefault<word>("namePrgh", "p_rgh");
     DEBUG(adapterInfo("    p_rgh field name : " + namePrgh_));
 
+    // Read the name of the prgh field (if different)
+    nameRho_ = FFdict.lookupOrDefault<word>("nameRho", "rho");
+    DEBUG(adapterInfo("    rho field name : " + nameRho_));
+
     return true;
 }
 
@@ -180,6 +184,15 @@ void preciceAdapter::FF::FluidFluid::addWriters(std::string dataName, Interface 
         );
         DEBUG(adapterInfo("Added writer: Prgh."));
     }
+    else if (dataName.find("ThreeDGh") == 0)
+    {
+        interface->addCouplingDataWriter
+        (
+            dataName,
+            new ThreeDGh(mesh_, namePrgh_)
+        );
+        DEBUG(adapterInfo("Added writer: ThreeDGh."));
+    }
     else
     {
         adapterInfo("Unknown data type - cannot add " + dataName +".", "error");
@@ -274,6 +287,15 @@ void preciceAdapter::FF::FluidFluid::addReaders(std::string dataName, Interface 
             new Gh(mesh_, namePrgh_)
         );
         DEBUG(adapterInfo("Added reader: Gh."));
+    }
+    else if (dataName.find("ThreeDGh") == 0)
+    {
+        interface->addCouplingDataReader
+        (
+            dataName,
+            new ThreeDGh(mesh_, namePrgh_)
+        );
+        DEBUG(adapterInfo("Added reader: ThreeDGh."));
     }
     else
     {

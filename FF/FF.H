@@ -12,6 +12,7 @@
 #include "FF/VelocityGradient.H"
 #include "FF/AlphaGradient.H"
 #include "FF/Gh.H"
+#include "FF/ThreeDGh.H"
 
 #include "fvCFD.H"
 
@@ -44,6 +45,9 @@ protected:
 
     //- Name of the pressure field
     std::string namePrgh_ = "p_rgh";
+
+    //- Name of the density field
+    std::string nameRho_ = "rho";
 
     //- Determine the solver type
     std::string determineSolverType();
