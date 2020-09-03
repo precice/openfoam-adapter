@@ -36,7 +36,7 @@
         <read-data name="Prgh" mesh="IF_Left-Mesh"/>
         <!-- <read-data name="AlphaGradient" mesh="IF_Left-Mesh"/> -->
 
-        <write-data name="PrghGradient" mesh="IF_Left-Mesh"/>
+        <!-- <write-data name="PrghGradient" mesh="IF_Left-Mesh"/> -->
         <write-data name="Velocity" mesh="IF_Left-Mesh"/>
         <!-- <write-data name="Prgh" mesh="IF_Left-Mesh"/> -->
         <write-data name="Alpha" mesh="IF_Left-Mesh"/>
@@ -50,7 +50,7 @@
         <write-data name="Prgh" mesh="IF_Right-Mesh"/>
         <!-- <write-data name="AlphaGradient" mesh="IF_Right-Mesh"/> -->
         <read-data name="Velocity" mesh="IF_Right-Mesh"/>
-        <read-data name="PrghGradient" mesh="IF_Right-Mesh"/>
+        <!-- <read-data name="PrghGradient" mesh="IF_Right-Mesh"/> -->
         <read-data name="Alpha" mesh="IF_Right-Mesh"/>
 	<mapping:nearest-neighbor direction="read" from="IF_Left-Mesh" to="IF_Right-Mesh" 		constraint="consistent" />
     </participant>
@@ -64,7 +64,7 @@
 
         <!-- <exchange data="VelocityGradient" mesh="IF_Right-Mesh" from="IF_Right" to="IF_Left"/> -->
         <!-- <exchange data="Alpha" mesh="IF_Left-Mesh" from="IF_Left" to="IF_Right"/> -->
-        <exchange data="PrghGradient" mesh="IF_Left-Mesh" from="IF_Left" to="IF_Right"/>
+        <!-- <exchange data="PrghGradient" mesh="IF_Left-Mesh" from="IF_Left" to="IF_Right"/> -->
         <!-- <exchange data="AlphaGradient" mesh="IF_Right-Mesh" from="IF_Right" to="IF_Left"/> -->
 
 	    <exchange data="Velocity" mesh="IF_Left-Mesh" from="IF_Left" to="IF_Right"/>
