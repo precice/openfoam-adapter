@@ -1,0 +1,11 @@
+#!/bin/bash
+
+for d in */; do
+
+#rm -i $d*.json
+#ls $d*.json
+#sleep .2
+mkdir $d/animation
+#cp makeavi $d;
+
+done

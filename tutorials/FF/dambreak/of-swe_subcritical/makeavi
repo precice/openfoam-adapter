@@ -1,0 +1,4 @@
+#!/bin/bash
+
+ffmpeg -framerate $1 -i animation/$2.%04d.jpg -c:v libx264 -profile:v high -crf 20 -pix_fmt yuv420p animation/$2.mp4
+
