@@ -3,6 +3,6 @@ type=0
 output="SWEoutput_swe-swe_supercritical/swe_solver_swe-swe_supercritical_Right"
 sizeX=40
 sizeY=40
-build=~/thesis/both/tutorials/FF/dambreak/swe-swe_supercritical/SWE_gnu.py
+build=~/thesis/SWEOF/tutorials/FF/dambreak/swe-swe_supercritical/SWE_gnu.py
 solverNum=2
 . ./SWE_solver/run.sh

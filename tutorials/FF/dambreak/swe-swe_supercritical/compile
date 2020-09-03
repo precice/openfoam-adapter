@@ -1,6 +1,6 @@
 #!/bin/bash
 
 cd SWE_solver
-build=~/thesis/both/tutorials/FF/dambreak/swe-swe_supercritical/SWE_gnu.py
+build=~/thesis/SWEOF/tutorials/FF/dambreak/swe-swe_supercritical/SWE_gnu.py
 . ./compile
 cd ..
