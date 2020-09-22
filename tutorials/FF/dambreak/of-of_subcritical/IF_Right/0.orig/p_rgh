@@ -28,8 +28,8 @@ boundaryField
 
     rightWall
     {
-        type            fixedValue;
-        value           uniform 0;
+      type            fixedFluxPressure;
+      gradient        $internalField;
     }
 
     lowerWall

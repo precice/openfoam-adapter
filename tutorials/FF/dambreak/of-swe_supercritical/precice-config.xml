@@ -48,7 +48,8 @@
 
     <coupling-scheme:serial-explicit>
         <!-- <time-window-size value="0.0009765625"/> -->
-        <time-window-size value="0.125"/>
+        <time-window-size value="0.001"/>
+        <!-- <time-window-size value="0.125"/> -->
         <max-time value="8.0"/>
 
         <participants first="interFoam_solver_of-swe_supercritical" second="SWE_solver"/>

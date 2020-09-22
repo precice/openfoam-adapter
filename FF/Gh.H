@@ -19,6 +19,7 @@ private:
     //- Pressure field
     Foam::volScalarField * p_rgh_;
     Foam::volScalarField * alpha_;
+    Foam::volScalarField * p_;
 
 public:
 

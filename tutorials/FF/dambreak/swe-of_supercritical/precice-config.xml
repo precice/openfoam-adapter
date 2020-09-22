@@ -8,21 +8,21 @@
     <data:scalar name="Alpha"/>
     <data:scalar name="Gh"/>
     <data:vector name="Velocity"/>
-    <data:vector name="VelocityGradient"/>
+    <!-- <data:vector name="VelocityGradient"/> -->
 
 
     <mesh name="SWE_solver-Mesh">
         <use-data name="Alpha"/>
         <use-data name="Gh"/>
         <use-data name="Velocity"/>
-        <use-data name="VelocityGradient"/>
+        <!-- <use-data name="VelocityGradient"/> -->
     </mesh>
 
     <mesh name="interFoam_solver_swe-of_supercritical-Mesh">
         <use-data name="Alpha"/>
         <use-data name="Gh"/>
         <use-data name="Velocity"/>
-        <use-data name="VelocityGradient"/>
+        <!-- <use-data name="VelocityGradient"/> -->
 
     </mesh>
 
@@ -33,7 +33,7 @@
         <write-data name="Alpha" mesh="SWE_solver-Mesh"/>
         <write-data name="Velocity" mesh="SWE_solver-Mesh"/>
 
-        <read-data name="VelocityGradient" mesh="SWE_solver-Mesh"/>
+        <!-- <read-data name="VelocityGradient" mesh="SWE_solver-Mesh"/> -->
 
 	    <mapping:nearest-neighbor direction="read" from="interFoam_solver_swe-of_supercritical-Mesh" to="SWE_solver-Mesh" constraint="consistent" />
     </participant>
@@ -45,7 +45,7 @@
         <read-data name="Alpha" mesh="interFoam_solver_swe-of_supercritical-Mesh"/>
         <read-data name="Velocity" mesh="interFoam_solver_swe-of_supercritical-Mesh"/>
 
-        <write-data name="VelocityGradient" mesh="interFoam_solver_swe-of_supercritical-Mesh"/>
+        <!-- <write-data name="VelocityGradient" mesh="interFoam_solver_swe-of_supercritical-Mesh"/> -->
 
 	    <mapping:nearest-neighbor direction="read" from="SWE_solver-Mesh" to="interFoam_solver_swe-of_supercritical-Mesh" constraint="consistent" />
     </participant>
@@ -53,15 +53,15 @@
     <m2n:sockets from="SWE_solver" to="interFoam_solver_swe-of_supercritical" exchange-directory=".." />
 
     <coupling-scheme:serial-explicit>
-        <!-- <time-window-size value="0.0009765625"/> -->
-        <time-window-size value="0.125"/>
+        <time-window-size value="0.0009765625"/>
+        <!-- <time-window-size value="0.125"/> -->
 
         <max-time value="5.0"/>
         <participants first="SWE_solver" second="interFoam_solver_swe-of_supercritical"/>
         <exchange data="Alpha" mesh="SWE_solver-Mesh" from="SWE_solver" to="interFoam_solver_swe-of_supercritical"/>
         <exchange data="Velocity" mesh="SWE_solver-Mesh" from="SWE_solver" to="interFoam_solver_swe-of_supercritical"/>
 
-        <exchange data="VelocityGradient" mesh="interFoam_solver_swe-of_supercritical-Mesh" from="interFoam_solver_swe-of_supercritical" to="SWE_solver" initialize="true"/>
+        <!-- <exchange data="VelocityGradient" mesh="interFoam_solver_swe-of_supercritical-Mesh" from="interFoam_solver_swe-of_supercritical" to="SWE_solver" initialize="true"/> -->
 
     </coupling-scheme:serial-explicit>
 

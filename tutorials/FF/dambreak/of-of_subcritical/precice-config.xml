@@ -59,7 +59,7 @@
 
     <coupling-scheme:serial-explicit>
         <time-window-size value="0.001"/>
-        <max-time value="2.0"/>
+        <max-time value="5.0"/>
         <participants first="IF_Left" second="IF_Right"/>
 
         <!-- <exchange data="VelocityGradient" mesh="IF_Right-Mesh" from="IF_Right" to="IF_Left"/> -->

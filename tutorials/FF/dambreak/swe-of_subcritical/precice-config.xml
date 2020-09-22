@@ -8,21 +8,21 @@
     <data:scalar name="Alpha"/>
     <data:scalar name="Gh"/>
     <data:vector name="Velocity"/>
-    <data:vector name="VelocityGradient"/>
+    <!-- <data:vector name="VelocityGradient"/> -->
 
 
     <mesh name="SWE_solver-Mesh">
         <use-data name="Alpha"/>
         <use-data name="Gh"/>
         <use-data name="Velocity"/>
-        <use-data name="VelocityGradient"/>
+        <!-- <use-data name="VelocityGradient"/> -->
     </mesh>
 
     <mesh name="interFoam_solver_swe-of_subcritical-Mesh">
         <use-data name="Alpha"/>
         <use-data name="Gh"/>
         <use-data name="Velocity"/>
-        <use-data name="VelocityGradient"/>
+        <!-- <use-data name="VelocityGradient"/> -->
 
     </mesh>
 
@@ -33,7 +33,7 @@
         <write-data name="Velocity" mesh="SWE_solver-Mesh"/>
 
         <read-data name="Alpha" mesh="SWE_solver-Mesh"/>
-        <read-data name="VelocityGradient" mesh="SWE_solver-Mesh"/>
+        <!-- <read-data name="VelocityGradient" mesh="SWE_solver-Mesh"/> -->
 
 	    <mapping:nearest-neighbor direction="read" from="interFoam_solver_swe-of_subcritical-Mesh" to="SWE_solver-Mesh" constraint="consistent" />
     </participant>
@@ -45,7 +45,7 @@
         <read-data name="Velocity" mesh="interFoam_solver_swe-of_subcritical-Mesh"/>
 
         <write-data name="Alpha" mesh="interFoam_solver_swe-of_subcritical-Mesh"/>
-        <write-data name="VelocityGradient" mesh="interFoam_solver_swe-of_subcritical-Mesh"/>
+        <!-- <write-data name="VelocityGradient" mesh="interFoam_solver_swe-of_subcritical-Mesh"/> -->
 
 	    <mapping:nearest-neighbor direction="read" from="SWE_solver-Mesh" to="interFoam_solver_swe-of_subcritical-Mesh" constraint="consistent" />
     </participant>
@@ -60,7 +60,7 @@
         <participants first="SWE_solver" second="interFoam_solver_swe-of_subcritical"/>
         <exchange data="Velocity" mesh="SWE_solver-Mesh" from="SWE_solver" to="interFoam_solver_swe-of_subcritical"/>
         <exchange data="Alpha" mesh="interFoam_solver_swe-of_subcritical-Mesh" from="interFoam_solver_swe-of_subcritical" to="SWE_solver"/>
-        <exchange data="VelocityGradient" mesh="interFoam_solver_swe-of_subcritical-Mesh" from="interFoam_solver_swe-of_subcritical" to="SWE_solver"/>
+        <!-- <exchange data="VelocityGradient" mesh="interFoam_solver_swe-of_subcritical-Mesh" from="interFoam_solver_swe-of_subcritical" to="SWE_solver"/> -->
 
     </coupling-scheme:serial-explicit>
 
