@@ -1,8 +1,8 @@
 #!/bin/bash
 type=0
 output="SWEoutput_swe-swe_supercritical/swe_solver_swe-swe_supercritical_Left"
-sizeX=40
-sizeY=40
+sizeX=120
+sizeY=120
 build=~/thesis/SWEOF/tutorials/FF/dambreak/swe-swe_supercritical/SWE_gnu.py
 solverNum=1
 . ./SWE_solver/run.sh

@@ -1,8 +1,8 @@
 #!/bin/bash
 type=3
 output="SWEoutput_swe-of_subcritical/swe_solver_swe-of_subcritical"
-sizeX=20
-sizeY=20
+sizeX=30
+sizeY=30
 build=~/thesis/SWEOF/tutorials/FF/dambreak/swe-of_subcritical/SWE_gnu.py
 solverNum=1
 . ./SWE_solver/run.sh

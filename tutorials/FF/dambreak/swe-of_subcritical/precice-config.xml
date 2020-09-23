@@ -8,21 +8,21 @@
     <data:scalar name="Alpha"/>
     <data:scalar name="Gh"/>
     <data:vector name="Velocity"/>
-    <!-- <data:vector name="VelocityGradient"/> -->
+    <data:vector name="VelocityGradient"/>
 
 
     <mesh name="SWE_solver-Mesh">
         <use-data name="Alpha"/>
         <use-data name="Gh"/>
         <use-data name="Velocity"/>
-        <!-- <use-data name="VelocityGradient"/> -->
+        <use-data name="VelocityGradient"/>
     </mesh>
 
     <mesh name="interFoam_solver_swe-of_subcritical-Mesh">
         <use-data name="Alpha"/>
         <use-data name="Gh"/>
         <use-data name="Velocity"/>
-        <!-- <use-data name="VelocityGradient"/> -->
+        <use-data name="VelocityGradient"/>
 
     </mesh>
 
