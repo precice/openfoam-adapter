@@ -25,14 +25,14 @@ xmiddle 2.5;
 xright 5;
 
 ybottom 0;
-ymiddle 2.5;
+ymiddle 1.5;
 ytop 5;
 
 zback 0;
 zmiddle 0.05;
 zfront 0.1;
 
-rad 1;
+rad 0.5;
 
 regions
 (

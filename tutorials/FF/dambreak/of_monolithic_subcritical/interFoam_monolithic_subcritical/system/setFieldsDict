@@ -37,10 +37,10 @@ defaultFieldValues
 
 xleft 0;
 xmiddle 2;
-xright 4;
+xright 10;
 
 ybottom 0;
-ymiddle 2.5;
+ymiddle 1.5;
 ytop 5;
 
 zback 0;
