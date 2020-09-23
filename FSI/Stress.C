@@ -52,19 +52,25 @@ void preciceAdapter::FSI::Stress::write(double * buffer, bool meshConnectivity, 
     // Compute stress. See the Forces function object.
 
     // Stress tensor boundary field
-    tmp<volSymmTensorField> tdevRhoReff = this->devRhoReff();
-    const volSymmTensorField::Boundary& devRhoReffb =
-        tdevRhoReff().boundaryField();
+    tmp<volSymmTensorField> tdevRhoReff(this->devRhoReff());
+    const volSymmTensorField::Boundary& devRhoReffb
+    (
+        tdevRhoReff().boundaryField()
+    );
 
     // Density boundary field
-    tmp<volScalarField> trho = this->rho();
-    const volScalarField::Boundary& rhob =
-        trho().boundaryField();
+    tmp<volScalarField> trho(this->rho());
+    const volScalarField::Boundary& rhob
+    (
+        trho().boundaryField()
+    );
 
     // Pressure boundary field
-    tmp<volScalarField> tp = mesh_.lookupObject<volScalarField>("p");
-    const volScalarField::Boundary& pb =
-        tp().boundaryField();        
+    tmp<volScalarField> tp(mesh_.lookupObject<volScalarField>("p"));
+    const volScalarField::Boundary& pb
+    (
+        tp().boundaryField()
+    );
 
     int bufferIndex = 0;
     // For every boundary patch of the interface

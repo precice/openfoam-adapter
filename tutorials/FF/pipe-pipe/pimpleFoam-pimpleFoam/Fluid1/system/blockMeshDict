@@ -1,0 +1,104 @@
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "constant/polyMesh";
+    object      blockMeshDict;
+}
+
+convertToMeters 1;
+
+
+zmin   0;
+zmax  20;
+
+xcells 10; // per block (5 blocks)
+ycells 10; // per block (5 blocks)
+zcells 20;
+
+vertices
+(
+    (-3.535534 -3.535534 $zmin) // 0
+    ( 3.535534 -3.535534 $zmin) // 1
+    ( 3.535534  3.535534 $zmin) // 2
+    (-3.535534  3.535534 $zmin) // 3
+    (-1.414214 -1.414214 $zmin) // 4
+    ( 1.414214 -1.414214 $zmin) // 5
+    ( 1.414214  1.414214 $zmin) // 6
+    (-1.414214  1.414214 $zmin) // 7
+
+    (-3.535534 -3.535534 $zmax) // 8
+    ( 3.535534 -3.535534 $zmax) // 9
+    ( 3.535534  3.535534 $zmax) // 10
+    (-3.535534  3.535534 $zmax) // 11
+    (-1.414214 -1.414214 $zmax) // 12
+    ( 1.414214 -1.414214 $zmax) // 13
+    ( 1.414214  1.414214 $zmax) // 14
+    (-1.414214  1.414214 $zmax) // 15
+);
+
+blocks
+(
+hex (0 1 5 4 8 9 13 12)   pipe ($xcells $ycells $zcells)  edgeGrading (1 1 1 1 1 1 1 1 1 1 1 1)
+hex (1 2 6 5 9 10 14 13)  pipe ($xcells $ycells $zcells)  edgeGrading (1 1 1 1 1 1 1 1 1 1 1 1)
+hex (2 3 7 6 10 11 15 14) pipe ($xcells $ycells $zcells)  edgeGrading (1 1 1 1 1 1 1 1 1 1 1 1)
+hex (3 0 4 7 11 8 12 15)  pipe ($xcells $ycells $zcells)  edgeGrading (1 1 1 1 1 1 1 1 1 1 1 1)
+hex (4 5 6 7 12 13 14 15) pipe ($xcells $ycells $zcells)  edgeGrading (1 1 1 1 1 1 1 1 1 1 1 1)
+);
+
+edges
+(
+arc 0 1   ( 0   -5   $zmin)
+arc 1 2   ( 5    0   $zmin)
+arc 2 3   ( 0    5   $zmin)
+arc 3 0   (-5    0   $zmin)
+arc 4 5   ( 0   -1.5 $zmin)
+arc 5 6   ( 1.5  0   $zmin)
+arc 6 7   ( 0    1.5 $zmin)
+arc 7 4   (-1.5  0   $zmin)
+
+arc 8 9   ( 0  -5   $zmax)
+arc 9 10  ( 5   0   $zmax)
+arc 10 11 ( 0   5   $zmax)
+arc 11 8  (-5   0   $zmax)
+arc 12 13 ( 0  -1.5 $zmax)
+arc 13 14 (1.5  0   $zmax)
+arc 14 15 ( 0   1.5 $zmax)
+arc 15 12 (-1.5 0   $zmax)
+);
+
+
+patches
+(
+
+    patch fixedWalls
+    (
+        (0 1 9   8)
+        (1 2 10  9)
+        (2 3 11 10)
+        (3 0 8  11)
+    )
+    
+    patch inlet
+    (
+        (0 1 5 4)
+        (1 2 6 5)
+        (2 3 7 6)
+        (3 0 4 7)
+        (4 5 6 7)
+    )
+    
+    patch outlet
+    (
+        (8 9 13   12)
+        (9 10 14  13)
+        (10 11 15 14)
+        (12 13 14 15)
+        (11 8 12  15)
+    )
+);
+
+mergePatchPairs
+(
+);

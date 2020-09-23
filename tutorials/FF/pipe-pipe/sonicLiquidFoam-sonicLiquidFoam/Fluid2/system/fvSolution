@@ -1,0 +1,43 @@
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      fvSolution;
+}
+
+solvers
+{
+    "p.*"
+    {
+        solver          PBiCG;
+        preconditioner  DILU
+        tolerance       1e-06;
+        relTol          0.01;
+    }
+
+    "U.*"
+    {
+        $p;
+        solver          PBiCG;
+        preconditioner  DILU;
+        tolerance       1e-05;
+        relTol          0.1;
+    }
+
+    "rho.*"
+    {
+        solver          PCG;
+        preconditioner  DIC;
+        tolerance       1e-05;
+        relTol          0.1;
+    }
+}
+
+PIMPLE
+{
+    nOuterCorrectors 4;
+    nCorrectors      2;
+    nNonOrthogonalCorrectors 0;
+}

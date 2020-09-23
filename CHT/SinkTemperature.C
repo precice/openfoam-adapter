@@ -5,18 +5,17 @@ using namespace Foam;
 
 preciceAdapter::CHT::SinkTemperature::SinkTemperature
 (
-        const Foam::fvMesh& mesh,
-        const std::string nameT
-        )
-    :
-      T_(
-          const_cast<volScalarField*>
-          (
-              &mesh.lookupObject<volScalarField>(nameT)
-              )
-          ),
-
-      mesh_(mesh)
+    const Foam::fvMesh& mesh,
+    const std::string nameT
+    )
+:
+T_(
+    const_cast<volScalarField*>
+    (
+        &mesh.lookupObject<volScalarField>(nameT)
+    )
+),
+mesh_(mesh)
 {
     dataType_ = scalar;
 }
@@ -31,11 +30,13 @@ void preciceAdapter::CHT::SinkTemperature::write(double * buffer, bool meshConne
         int patchID = patchIDs_.at(j);
 
         // Get the boundary field of Temperature on the patch
-        fvPatchScalarField & TPatch =
-                refCast<fvPatchScalarField>
-                (
-                    T_->boundaryFieldRef()[patchID]
-                    );
+        fvPatchScalarField & TPatch
+        (
+            refCast<fvPatchScalarField>
+            (
+                T_->boundaryFieldRef()[patchID]
+            )
+        );
 
         // Get the internal field next to the patch // TODO: Simplify?
         tmp<scalarField> patchInternalFieldTmp = TPatch.patchInternalField();
@@ -57,8 +58,8 @@ void preciceAdapter::CHT::SinkTemperature::write(double * buffer, bool meshConne
             {
                 // Copy the temperature into the buffer
                 buffer[bufferIndex++]
-                        =
-                        patchInternalPointField[i];
+                =
+                patchInternalPointField[i];
             }
         }
         else
@@ -68,8 +69,8 @@ void preciceAdapter::CHT::SinkTemperature::write(double * buffer, bool meshConne
             {
                 // Copy the internal field (sink) temperature into the buffer
                 buffer[bufferIndex++]
-                        =
-                        patchInternalField[i];
+                =
+                patchInternalField[i];
             }
         }
 
@@ -88,11 +89,13 @@ void preciceAdapter::CHT::SinkTemperature::read(double * buffer, const unsigned 
         int patchID = patchIDs_.at(j);
 
         // Get the boundary field of the temperature on the patch
-        mixedFvPatchScalarField & TPatch =
-                refCast<mixedFvPatchScalarField>
-                (
-                    T_->boundaryFieldRef()[patchID]
-                    );
+        mixedFvPatchScalarField & TPatch
+        (
+            refCast<mixedFvPatchScalarField>
+            (
+                T_->boundaryFieldRef()[patchID]
+            )
+        );
 
         // Get a reference to the reference value on the patch
         scalarField & Tref = TPatch.refValue();
@@ -102,8 +105,8 @@ void preciceAdapter::CHT::SinkTemperature::read(double * buffer, const unsigned 
         {
             // Set the reference value as the buffer value
             Tref[i]
-                    =
-                    buffer[bufferIndex++];
+            =
+            buffer[bufferIndex++];
         }
     }
 }
