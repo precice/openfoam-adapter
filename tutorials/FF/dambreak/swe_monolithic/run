@@ -1,0 +1,10 @@
+#!/bin/bash
+
+#Todo uncomment/comment running sub/supercritical case. Do the same on line 90/91 under src/examples/swe_simple.cpp
+name='swe_monolithic_supercritical'
+# name='swe_monolithic_subcritical'
+
+cd build
+rm output/*
+./SWE_gnu_release_none_fwave -x 120 -y 120 -o output/$name
+cd ..

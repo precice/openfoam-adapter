@@ -1,0 +1,3 @@
+#!/bin/bash
+
+scons buildVariablesFile=build/options/SWE_gnu.py

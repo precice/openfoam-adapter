@@ -1,0 +1,111 @@
+#! /usr/bin/python
+
+# @file
+# This file is part of SWE.
+#
+# @author Alexander Breuer (breuera AT in.tum.de, http://www5.in.tum.de/wiki/index.php/Dipl.-Math._Alexander_Breuer)
+# @author Sebastian Rettenberger (rettenbs AT in.tum.de, http://www5.in.tum.de/wiki/index.php/Sebastian_Rettenberger,_M.Sc.)
+#
+# @section LICENSE
+#
+# SWE is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# SWE is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with SWE.  If not, see <http://www.gnu.org/licenses/>.
+#
+#
+# @section DESCRIPTION
+#
+# Definition of the source files.
+#
+
+import sys
+
+Import('env')
+
+# Code without CUDA
+if env['parallelization'] not in ['cuda', 'mpi_with_cuda']:
+  if env['solver'] == 'rusanov':
+    sourceFiles = ['blocks/rusanov/SWE_RusanovBlock.cpp']
+  elif env['solver'] == 'augrie_simd' or env['simdExtensions'] != 'NONE':
+    sourceFiles = ['blocks/SWE_WavePropagationBlockSIMD.cpp']
+  elif env['solver'] == 'augriefun' or env['solver'] == 'fwavevec':
+    sourceFiles = ['blocks/SWE_WaveAccumulationBlock.cpp']
+  else:
+    sourceFiles = ['blocks/SWE_WavePropagationBlock.cpp']
+
+# Code with CUDA
+else:
+  sourceFiles = [ 'blocks/cuda/SWE_BlockCUDA.cu',
+                  'blocks/cuda/SWE_BlockCUDA_kernels.cu']
+  if env['solver'] == 'rusanov':
+    sourceFiles.append( [ 'blocks/rusanov/SWE_RusanovBlockCUDA.cu',
+                          'blocks/rusanov/SWE_RusanovBlockCUDA_kernels.cu']
+                      )
+  elif env['solver'] == 'fwave' or env['solver'] == 'augrie':
+    sourceFiles.append( [ 'blocks/cuda/SWE_WavePropagationBlockCuda.cu',
+                          'blocks/cuda/SWE_WavePropagationBlockCuda_kernels.cu']
+                      )
+  if env['openGL'] == True:
+    sourceFiles.append( ['opengl/simulation.cu'] )
+  
+# compile the files defined so far, important step because of possible different compilers                  
+for i in sourceFiles:
+  env.src_files.append(env.Object(i))
+
+# SWE_Block and Logger is used in every implementation
+sourceFiles = ['blocks/SWE_Block.cpp', 'tools/Logger.cpp']
+
+# OpenGL CPU-files
+if env['openGL'] == True:
+  sourceFiles.append( ['opengl/camera.cpp'] )
+  sourceFiles.append( ['opengl/controller.cpp'] )
+  sourceFiles.append( ['opengl/shader.cpp'] )
+  sourceFiles.append( ['opengl/visualization.cpp'] )
+  sourceFiles.append( ['opengl/vbo.cpp'] )
+  if env['openGL_instr'] == True:
+    sourceFiles.append( ['opengl/text.cpp'] )
+
+# Asagi scenario
+if env['asagi'] == True:
+  sourceFiles.append( ['scenarios/SWE_AsagiScenario.cpp'] )
+
+# netCDF writer
+if env['writeNetCDF'] == True:
+  sourceFiles.append( ['writer/NetCdfWriter.cpp'] )
+else:
+  sourceFiles.append( ['writer/VtkWriter.cpp'] )
+
+# xml reader
+if env['xmlRuntime'] == True:
+  sourceFiles.append( ['tools/CXMLConfig.cpp'] )
+
+# file containing the main-function
+if env['parallelization'] in ['none', 'cuda']:
+  if env['solver'] != 'rusanov':
+    if env['openGL'] == False:
+      sourceFiles.append( ['examples/swe_simple.cpp'] )
+    else:
+      sourceFiles.append( ['examples/swe_opengl.cpp'] )
+  else:
+   print >> sys.stderr, '** The selected configuration is not implemented.'
+   Exit(1)
+elif env['parallelization'] in ['mpi_with_cuda', 'mpi']:
+    sourceFiles.append( ['examples/swe_mpi.cpp'] )
+else:
+  print >> sys.stderr, '** The selected configuration is not implemented.'
+  Exit(1)
+
+# CPU compilation for sure
+for i in sourceFiles:
+  env.src_files.append(env.Object(i))
+
+Export('env')
