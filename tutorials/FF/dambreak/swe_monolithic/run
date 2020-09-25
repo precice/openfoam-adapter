@@ -5,6 +5,6 @@ name='swe_monolithic_supercritical'
 # name='swe_monolithic_subcritical'
 
 cd build
-rm output/*
-./SWE_gnu_release_none_fwave -x 120 -y 120 -o output/$name
+# rm output/*
+./SWE_gnu_release_none_fwave -x 240 -y 120 -o output/$name
 cd ..

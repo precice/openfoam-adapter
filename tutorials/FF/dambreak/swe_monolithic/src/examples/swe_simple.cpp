@@ -32,16 +32,8 @@
 #include <iostream>
 
 #include "blocks/SWE_WavePropagationBlock.hh"
-
 #include "writer/VtkWriter.hh"
-
-
-
 #include "scenarios/SWE_simple_scenarios.hh"
-
-
-
-
 #include "tools/args.hh"
 #include "tools/help.hh"
 #include "tools/Logger.hh"
@@ -84,12 +76,9 @@ int main( int argc, char** argv ) {
   l_nY = args.getArgument<int>("grid-size-y");
   l_baseName = args.getArgument<std::string>("output-basepath");
 
-
-
   // create a simple artificial scenario
   SWE_RadialDamBreakScenario_supercritical l_scenario;
   // SWE_RadialDamBreakScenario_subcritical l_scenario;
-
 
   //! number of checkpoints for visualization (at each checkpoint in time, an output file is written).
   int l_numberOfCheckPoints = 50;
@@ -105,7 +94,6 @@ int main( int argc, char** argv ) {
 
   SWE_WavePropagationBlock l_wavePropgationBlock(l_nX,l_nY,l_dX,l_dY);
 
-
   //! origin of the simulation domain in x- and y-direction
   float l_originX, l_originY;
 
@@ -115,7 +103,6 @@ int main( int argc, char** argv ) {
 
   // initialize the wave propagation block
   l_wavePropgationBlock.initScenario(l_originX, l_originY, l_scenario);
-
 
   //! time when the simulation ends.
   float l_endSimulation = l_scenario.endSimulation();
@@ -187,7 +174,9 @@ int main( int argc, char** argv ) {
       l_wavePropgationBlock.computeNumericalFluxes();
 
       //! maximum allowed time step width.
-      float l_maxTimeStepWidth = l_wavePropgationBlock.getMaxTimestep();
+      // float l_maxTimeStepWidth = l_wavePropgationBlock.getMaxTimestep();
+      float l_maxTimeStepWidth = 0.125f;
+
 
       // update the cell values
       l_wavePropgationBlock.updateUnknowns(l_maxTimeStepWidth);
