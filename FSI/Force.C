@@ -8,7 +8,9 @@ preciceAdapter::FSI::Force::Force
         const std::string solverType
 )
 :
-mesh_(mesh),solverType_(solverType)
+mesh_(mesh),
+solverType_(solverType),
+force_field_created(false)
 {}
 
 
@@ -23,7 +25,9 @@ preciceAdapter::FSI::Force::Force
     */
 )
 :
-Force(mesh, solverType)
+mesh_(mesh),
+solverType_(solverType),
+force_field_created(true)
 {
     //What about type "basic"?
     if (solverType_.compare("incompressible") != 0 && solverType_.compare("compressible") != 0) 
@@ -64,24 +68,31 @@ Foam::tmp<Foam::volSymmTensorField> preciceAdapter::FSI::Force::devRhoReff() con
     typedef incompressible::turbulenceModel icoTurbModel;   
     
     if (mesh_.foundObject<cmpTurbModel>(cmpTurbModel::propertiesName))
-    {        
-        const cmpTurbModel& turb =
-            mesh_.lookupObject<cmpTurbModel>(cmpTurbModel::propertiesName);    
-        
+    {
+        const cmpTurbModel & turb
+        (
+            mesh_.lookupObject<cmpTurbModel>(cmpTurbModel::propertiesName)
+        );
+
         return turb.devRhoReff();
 
-    }    
+    }
     else if (mesh_.foundObject<icoTurbModel>(icoTurbModel::propertiesName))
-    {        
-        const incompressible::turbulenceModel& turb =
-            mesh_.lookupObject<icoTurbModel>(icoTurbModel::propertiesName);
-            
+    {
+        const incompressible::turbulenceModel& turb
+        (
+            mesh_.lookupObject<icoTurbModel>(icoTurbModel::propertiesName)
+        );
+
         return rho()*turb.devReff();        
     }
     else
     {        
         // For laminar flows get the velocity  
-        const volVectorField& U = mesh_.lookupObject<volVectorField>("U");
+        const volVectorField & U
+        (
+            mesh_.lookupObject<volVectorField>("U")
+        );
         
         return -mu()*dev(twoSymm(fvc::grad(U)));
     }
@@ -139,8 +150,10 @@ Foam::tmp<Foam::volScalarField> preciceAdapter::FSI::Force::mu() const
         typedef immiscibleIncompressibleTwoPhaseMixture iitpMixture;
         if (mesh_.foundObject<iitpMixture>("mixture"))
         {
-            const iitpMixture& mixture =
-                mesh_.lookupObject<iitpMixture>("mixture");
+            const iitpMixture& mixture
+            (
+                mesh_.lookupObject<iitpMixture>("mixture")
+            );
                 
             return mixture.mu();
         }
@@ -181,23 +194,29 @@ void preciceAdapter::FSI::Force::write(double * buffer, bool meshConnectivity, c
     // Compute forces. See the Forces function object.
 
     // Normal vectors on the boundary, multiplied with the face areas
-    const surfaceVectorField::Boundary& Sfb =
-        mesh_.Sf().boundaryField();
+    const surfaceVectorField::Boundary& Sfb
+    (
+        mesh_.Sf().boundaryField()
+    );
 
     // Stress tensor boundary field
-    tmp<volSymmTensorField> tdevRhoReff = devRhoReff();
-    const volSymmTensorField::Boundary& devRhoReffb =
-        tdevRhoReff().boundaryField();
+    tmp<volSymmTensorField> tdevRhoReff(devRhoReff());
+    const volSymmTensorField::Boundary& devRhoReffb
+    (
+        tdevRhoReff().boundaryField()
+    );
 
     // Density boundary field
-    tmp<volScalarField> trho = rho();
+    tmp<volScalarField> trho(rho());
     const volScalarField::Boundary& rhob =
         trho().boundaryField();
 
     // Pressure boundary field
     tmp<volScalarField> tp = mesh_.lookupObject<volScalarField>("p");
-    const volScalarField::Boundary& pb =
-        tp().boundaryField();        
+    const volScalarField::Boundary& pb
+    (
+        tp().boundaryField()
+    );
 
     int bufferIndex = 0;
     // For every boundary patch of the interface
@@ -267,5 +286,6 @@ void preciceAdapter::FSI::Force::read(double * buffer, const unsigned int dim)
 
 preciceAdapter::FSI::Force::~Force()
 {
+  if(force_field_created)
     delete Force_;
 }
