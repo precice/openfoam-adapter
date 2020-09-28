@@ -5,7 +5,6 @@
 
 #include "fvCFD.H"
 
-// TEMPORARY
 #include "pointFields.H"
 #include "vectorField.H"
 #include "immiscibleIncompressibleTwoPhaseMixture.H"
@@ -31,7 +30,11 @@ private:
     //- Force field
     Foam::volVectorField * Force_;
 
+    // Needed for inheritance to the Stress data field to avoid creating the Force
+    // field in case it is not required
+    const bool force_field_created;
 
+protected:
     //- Stress tensor (see the OpenFOAM "Forces" function object)
     Foam::tmp<Foam::volSymmTensorField> devRhoReff() const;
     
@@ -56,10 +59,17 @@ public:
         */
     );
 
-    //- Write the displacement values into the buffer
+    //- Constructor
+    Force
+    (
+        const Foam::fvMesh& mesh,
+        const std::string solverType
+    );
+
+    //- Write the forces values into the buffer
     void write(double * buffer, bool meshConnectivity, const unsigned int dim);
 
-    //- Read the displacement values from the buffer
+    //- Read the forces values from the buffer
     void read(double * buffer, const unsigned int dim);
 
     //- Destructor
