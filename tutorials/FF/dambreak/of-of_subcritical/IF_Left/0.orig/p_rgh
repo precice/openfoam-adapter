@@ -28,7 +28,9 @@ boundaryField
 
     rightWall_outlet
     {
-        type            fixedValue;
+        // type            fixedValue;
+        // value           uniform 0;
+        type            fixedFluxPressure;
         value           uniform 0;
     }
 
