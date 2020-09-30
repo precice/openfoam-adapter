@@ -1,0 +1,3 @@
+[submodule "tutorials/FF/dambreak/swe_solver"]
+	path = tutorials/FF/dambreak/swe_solver
+	url = https://github.com/pachesp/swe_solver.git

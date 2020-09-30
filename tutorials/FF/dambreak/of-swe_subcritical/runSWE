@@ -3,6 +3,6 @@ type=5
 output="SWEoutput_of-swe_subcritical/swe_solver_of-swe_subcritical"
 sizeX=20
 sizeY=40
-build=~/thesis/SWEOF/tutorials/FF/dambreak/of-swe_subcritical/SWE_gnu.py
+build=build/options/SWE_gnu.py
 solverNum=1
 . ./SWE_solver/run.sh
