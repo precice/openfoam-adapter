@@ -5,7 +5,6 @@ Interface.C
 CouplingDataUser.C
 
 CHT/Temperature.C
-CHT/KappaEffective.C
 CHT/HeatFlux.C
 CHT/HeatTransferCoefficient.C
 CHT/SinkTemperature.C
