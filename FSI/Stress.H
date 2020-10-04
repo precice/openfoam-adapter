@@ -49,13 +49,13 @@ public:
     );
 
     //- Write the stress values into the buffer
-    void write(double * buffer, bool meshConnectivity, const unsigned int dim);
+    void write(std::vector<double> &dataBuffer, bool meshConnectivity, const unsigned int dim) override;
 
     //- Read the stress values from the buffer
-    void read(double * buffer, const unsigned int dim);
+    void read(const std::vector<double> &dataBuffer, const unsigned int dim) override;
 
     //- Destructor
-    ~Stress();
+    virtual ~Stress();
 };
 }
 }

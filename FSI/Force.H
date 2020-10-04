@@ -66,14 +66,14 @@ public:
         const std::string solverType
     );
 
+    //- Destructor
+    virtual ~Force();
+
     //- Write the forces values into the buffer
-    void write(double * buffer, bool meshConnectivity, const unsigned int dim);
+    void write(std::vector<double> &dataBuffer, bool meshConnectivity, const unsigned int dim) override;
 
     //- Read the forces values from the buffer
-    void read(double * buffer, const unsigned int dim);
-
-    //- Destructor
-    ~Force();
+    void read(const std::vector<double> &dataBuffer, const unsigned int dim) override;
 
 };
 

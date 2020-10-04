@@ -1,66 +1,74 @@
 #ifndef CHT_H
 #define CHT_H
 
-#include "Interface.H"
+#include <optional>
 
-#include "CHT/Temperature.H"
-#include "CHT/HeatFlux.H"
-#include "CHT/SinkTemperature.H"
-#include "CHT/HeatTransferCoefficient.H"
+// forward declaration of foam space
+namespace foam
+{
 
-#include "fvCFD.H"
+class fvMesh;
+class IOdictionary;
+
+}
 
 namespace preciceAdapter
 {
+
+// forward declaration
+class Interface;
+
 namespace CHT
 {
 
+// Helper for parameter names.
+struct CHTParameterNames
+{
+    //- Name of the temperature field
+    std::string T = "T";
+
+    // //- Name of the thermal conductivity for a basic solver
+    // std::string Kappa = "k";
+
+    // //- Name of the density for an incompressible solver
+    // std::string Rho = "rho";
+
+    // //- Name of the heat capacity for an incompressible solver
+    // std::string Cp = "Cp";
+
+    // //- Name of the Prandtl number for an incompressible solver
+    // std::string Pr = "Pr";
+
+    // //- Name of the turbulent thermal diffusivity field for an incompressible solver
+    // std::string Alphat = "alphat";
+};
+
+//
 class ConjugateHeatTransfer
 {
 
-protected:
+private:
 
     //- OpenFOAM fvMesh object
     const Foam::fvMesh& mesh_;
 
-    // TODO: Create a struct for all the parameter names
-
-    //- Solver type
-    std::string solverType_ = "none";
-
-    //- Name of the temperature field
-    std::string nameT_ = "T";
-
-    //- Name of the thermal conductivity for a basic solver
-    std::string nameKappa_ = "k";
-
-    //- Name of the density for an incompressible solver
-    std::string nameRho_ = "rho";
-
-    //- Name of the heat capacity for an incompressible solver
-    std::string nameCp_ = "Cp";
-
-    //- Name of the Prandtl number for an incompressible solver
-    std::string namePr_ = "Pr";
-
-    //- Name of the turbulent thermal diffusivity field for an incompressible solver
-    std::string nameAlphat_ = "alphat";
-
-protected:
-
-    //- Determine the solver type
-    std::string determineSolverType();
-
-    //- Read the CHT-related options from the adapter's configuraiton file
-    bool readConfig(const IOdictionary& adapterConfig);
+    // All the parameter names
+    const CHTParameterNames parameterName_;
 
 public:
 
     //- Constructor
-    ConjugateHeatTransfer(const Foam::fvMesh& mesh);
+    ConjugateHeatTransfer(const Foam::fvMesh& mesh, const CHTParameterNames names);
 
-    //- Configure
-    bool configure(const IOdictionary& adapterConfig);
+public:
+
+    // 
+    static std::optional<std::shared_ptr<ConjugateHeatTransfer>> CreateInstance
+    (
+        const Foam::fvMesh& mesh, const IOdictionary& adapterConfig
+    );
+
+public:
 
     //- Add coupling data writers
     void addWriters(std::string dataName, Interface * interface);

@@ -1,3 +1,4 @@
+
 #include "Interface.H"
 #include "Utilities.H"
 #include "faceTriangulation.H"
@@ -19,6 +20,8 @@ preciceAdapter::Interface::Interface
       meshName_(meshName),
       locationsType_(locationsType),
       patchNames_(patchNames),
+      vertexIDs_(),
+      dataBuffer_(),
       meshConnectivity_(meshConnectivity)
 {
     // Get the meshID from preCICE
@@ -32,10 +35,10 @@ preciceAdapter::Interface::Interface
                           "Have a look in the adapter wiki on Github or the tutorial case for detailed information.", "warning"));
 
     // For every patch that participates in the coupling
-    for (uint j = 0; j < patchNames.size(); j++)
+    for (std::size_t j = 0; j < patchNames.size(); j++)
     {
         // Get the patchID
-        int patchID = mesh.boundaryMesh().findPatchID(patchNames.at(j));
+        const auto patchID = mesh.boundaryMesh().findPatchID(patchNames.at(j));
 
         // Throw an error if the patch was not found
         if (patchID == -1)
@@ -65,7 +68,7 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh)
     if (locationsType_ == "faceCenters" || locationsType_ == "faceCentres")
     {
         // Count the data locations for all the patches
-        for (uint j = 0; j < patchIDs_.size(); j++)
+        for (std::size_t j = 0; j < patchIDs_.size(); j++)
         {
             numDataLocations_ +=
                     mesh.boundaryMesh()[patchIDs_.at(j)].faceCentres().size();
@@ -78,21 +81,21 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh)
 
         // Array of the indices of the mesh vertices.
         // Each vertex has one index, but three coordinates.
-        vertexIDs_ = new int[numDataLocations_];
+        vertexIDs_.resize(numDataLocations_);
 
         // Initialize the index of the vertices array
-        int verticesIndex = 0;
+        std::size_t verticesIndex = 0;
 
         // Get the locations of the mesh vertices (here: face centers)
         // for all the patches
-        for (uint j = 0; j < patchIDs_.size(); j++)
+        for (std::size_t j = 0; j < patchIDs_.size(); j++)
         {
             // Get the face centers of the current patch
             const vectorField faceCenters =
                     mesh.boundaryMesh()[patchIDs_.at(j)].faceCentres();
 
             // Assign the (x,y,z) locations to the vertices
-            for (int i = 0; i < faceCenters.size(); i++)
+            for (Foam::label i = 0; i < faceCenters.size(); i++)
             {
                 vertices[verticesIndex++] = faceCenters[i].x();
                 vertices[verticesIndex++] = faceCenters[i].y();
@@ -102,12 +105,12 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh)
         }
 
         // Pass the mesh vertices information to preCICE
-        precice_.setMeshVertices(meshID_, numDataLocations_, vertices, vertexIDs_);
+        precice_.setMeshVertices(meshID_, numDataLocations_, vertices, vertexIDs_.data());
     }
     else if (locationsType_ == "faceNodes")
     {
         // Count the data locations for all the patches
-        for (uint j = 0; j < patchIDs_.size(); j++)
+        for (std::size_t j = 0; j < patchIDs_.size(); j++)
         {
             numDataLocations_ +=
                     mesh.boundaryMesh()[patchIDs_.at(j)].localPoints().size();
@@ -120,14 +123,14 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh)
 
         // Array of the indices of the mesh vertices.
         // Each vertex has one index, but three coordinates.
-        vertexIDs_ = new int[numDataLocations_];
+        vertexIDs_.resize(numDataLocations_);
 
         // Initialize the index of the vertices array
-        int verticesIndex = 0;
+        std::size_t verticesIndex = 0;
 
         // Get the locations of the mesh vertices (here: face nodes)
         // for all the patches
-        for (uint j = 0; j < patchIDs_.size(); j++)
+        for (std::size_t j = 0; j < patchIDs_.size(); j++)
         {
             // Get the face nodes of the current patch
             // TODO: Check if this is correct.
@@ -139,7 +142,7 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh)
 
             // Assign the (x,y,z) locations to the vertices
             // TODO: Ensure consistent order when writing/reading
-            for (int i = 0; i < faceNodes.size(); i++)
+            for (Foam::label i = 0; i < faceNodes.size(); i++)
             {
                 vertices[verticesIndex++] = faceNodes[i].x();
                 vertices[verticesIndex++] = faceNodes[i].y();
@@ -149,13 +152,13 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh)
         }
 
         // Pass the mesh vertices information to preCICE
-        precice_.setMeshVertices(meshID_, numDataLocations_, vertices, vertexIDs_);
+        precice_.setMeshVertices(meshID_, numDataLocations_, vertices, vertexIDs_.data());
 
         // meshConnectivity for prototype neglected
         // Only set the triangles, if necessary
         if (meshConnectivity_)
         {
-            for (uint j = 0; j < patchIDs_.size(); j++)
+            for (std::size_t j = 0; j < patchIDs_.size(); j++)
             {
                 // Define triangles
                 // This is done in the following way:
@@ -171,9 +174,9 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh)
                 // interpolated in the data classes (e.g. CHT)
 
                 // Define constants
-                const int       triaPerQuad = 2;
-                const int      nodesPerTria = 3;
-                const int componentsPerNode = 3;
+                const Foam::label       triaPerQuad = 2;
+                const Foam::label      nodesPerTria = 3;
+                const Foam::label componentsPerNode = 3;
 
                 // Get the list of faces and coordinates at the interface patch
                 const List<face>     faceField = mesh.boundaryMesh()[patchIDs_.at(j)].localFaces();
@@ -182,7 +185,7 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh)
                 // Array to store coordiantes in preCICE format
                 double triCoords[faceField.size()*triaPerQuad*nodesPerTria*componentsPerNode];
 
-                unsigned int coordIndex=0;
+                std::size_t coordIndex=0;
 
                 // Iterate over faces
                 forAll(faceField,facei){
@@ -190,16 +193,16 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh)
 
                     faceTriangulation faceTri(pointCoords,faceQuad,false);
 
-                    for(uint triIndex=0; triIndex < triaPerQuad; triIndex++){
-                        for(uint nodeIndex=0; nodeIndex < nodesPerTria; nodeIndex++){
-                            for(uint xyz=0; xyz < componentsPerNode; xyz++)
+                    for(std::size_t triIndex=0; triIndex < triaPerQuad; triIndex++){
+                        for(std::size_t nodeIndex=0; nodeIndex < nodesPerTria; nodeIndex++){
+                            for(std::size_t xyz=0; xyz < componentsPerNode; xyz++)
                                 triCoords[coordIndex++]=pointCoords[faceTri[triIndex][nodeIndex]][xyz];
                         }
                     }
                 }
 
                 //Array to store the IDs we get from preCICE
-                int triVertIDs[faceField.size()*(triaPerQuad*nodesPerTria)];
+                Foam::label triVertIDs[faceField.size()*(triaPerQuad*nodesPerTria)];
 
                 //Get preCICE IDs
                 precice_.getMeshVertexIDsFromPositions(meshID_,faceField.size()*(triaPerQuad*nodesPerTria),triCoords,triVertIDs);
@@ -207,7 +210,7 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh)
                 DEBUG(adapterInfo("Number of triangles: " + std::to_string(faceField.size()* triaPerQuad)));
 
                 //Set Triangles
-                for(int facei=0; facei<faceField.size()* triaPerQuad; facei++){
+                for(Foam::label facei=0; facei<faceField.size()* triaPerQuad; facei++){
                     precice_.setMeshTriangleWithEdges(meshID_,triVertIDs[facei*nodesPerTria],triVertIDs[facei*nodesPerTria+1], triVertIDs[facei*nodesPerTria+2]);
                 }
             }
@@ -227,9 +230,9 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh)
 
 void preciceAdapter::Interface::addCouplingDataWriter
 (
-        std::string dataName,
-        CouplingDataUser * couplingDataWriter
-        )
+    std::string dataName,
+    std::shared_ptr<preciceAdapter::CouplingDataUser> couplingDataWriter
+)
 {
     // Set the dataID (from preCICE)
     couplingDataWriter->setDataID(precice_.getDataID(dataName, meshID_));
@@ -244,9 +247,9 @@ void preciceAdapter::Interface::addCouplingDataWriter
 
 void preciceAdapter::Interface::addCouplingDataReader
 (
-        std::string dataName,
-        preciceAdapter::CouplingDataUser * couplingDataReader
-        )
+    std::string dataName,
+    std::shared_ptr<preciceAdapter::CouplingDataUser> couplingDataReader
+)
 {
     // Set the patchIDs of the patches that form the interface
     couplingDataReader->setDataID(precice_.getDataID(dataName, meshID_));
@@ -260,10 +263,10 @@ void preciceAdapter::Interface::createBuffer()
 {
     // Will the interface buffer need to store 3D vector data?
     bool needsVectorData = false;
-    int dataBufferSize = 0;
+    std::size_t dataBufferSize = 0;
 
     // Check all the coupling data readers
-    for (uint i = 0; i < couplingDataReaders_.size(); i++)
+    for (std::size_t i = 0; i < couplingDataReaders_.size(); i++)
     {
         if (couplingDataReaders_.at(i)->hasVectorData())
         {
@@ -272,7 +275,7 @@ void preciceAdapter::Interface::createBuffer()
     }
 
     // Check all the coupling data writers
-    for (uint i = 0; i < couplingDataWriters_.size(); i++)
+    for (std::size_t i = 0; i < couplingDataWriters_.size(); i++)
     {
         if (couplingDataWriters_.at(i)->hasVectorData())
         {
@@ -297,7 +300,7 @@ void preciceAdapter::Interface::createBuffer()
     // scalar and vector coupling data users in an interface. With the current
     // preCICE implementation, it should work as, when writing scalars,
     // it should  only use the first 1/3 elements of the buffer.
-    dataBuffer_ = new double[dataBufferSize]();
+    dataBuffer_.resize(dataBufferSize);
 }
 
 void preciceAdapter::Interface::readCouplingData()
@@ -306,11 +309,10 @@ void preciceAdapter::Interface::readCouplingData()
     if (precice_.isReadDataAvailable())
     {
         // Make every coupling data reader read
-        for (uint i = 0; i < couplingDataReaders_.size(); i++)
+        for (std::size_t i = 0; i < couplingDataReaders_.size(); i++)
         {
             // Pointer to the current reader
-            preciceAdapter::CouplingDataUser *
-                    couplingDataReader = couplingDataReaders_.at(i);
+            auto & couplingDataReader = couplingDataReaders_.at(i);
 
             // Make preCICE read vector or scalar data
             // and fill the adapter's buffer
@@ -320,9 +322,9 @@ void preciceAdapter::Interface::readCouplingData()
                         (
                             couplingDataReader->dataID(),
                             numDataLocations_,
-                            vertexIDs_,
-                            dataBuffer_
-                            );
+                            vertexIDs_.data(),
+                            dataBuffer_.data()
+                        );
             }
             else
             {
@@ -330,9 +332,9 @@ void preciceAdapter::Interface::readCouplingData()
                         (
                             couplingDataReader->dataID(),
                             numDataLocations_,
-                            vertexIDs_,
-                            dataBuffer_
-                            );
+                            vertexIDs_.data(),
+                            dataBuffer_.data()
+                        );
             }
 
             // Read the received data from the buffer
@@ -348,11 +350,10 @@ void preciceAdapter::Interface::writeCouplingData()
     // if (precice_.isWriteDataRequired(computedTimestepLength))
     // {
         // Make every coupling data writer write
-        for (uint i = 0; i < couplingDataWriters_.size(); i++)
+        for (std::size_t i = 0; i < couplingDataWriters_.size(); i++)
         {
             // Pointer to the current reader
-            preciceAdapter::CouplingDataUser *
-                    couplingDataWriter = couplingDataWriters_.at(i);
+            auto & couplingDataWriter = couplingDataWriters_.at(i);
 
             // Write the data into the adapter's buffer
             couplingDataWriter->write(dataBuffer_, meshConnectivity_, dim_);
@@ -364,9 +365,9 @@ void preciceAdapter::Interface::writeCouplingData()
                         (
                             couplingDataWriter->dataID(),
                             numDataLocations_,
-                            vertexIDs_,
-                            dataBuffer_
-                            );
+                            vertexIDs_.data(),
+                            dataBuffer_.data()
+                        );
             }
             else
             {
@@ -374,9 +375,9 @@ void preciceAdapter::Interface::writeCouplingData()
                         (
                             couplingDataWriter->dataID(),
                             numDataLocations_,
-                            vertexIDs_,
-                            dataBuffer_
-                            );
+                            vertexIDs_.data(),
+                            dataBuffer_.data()
+                        );
             }
         }
     // }
@@ -385,23 +386,8 @@ void preciceAdapter::Interface::writeCouplingData()
 preciceAdapter::Interface::~Interface()
 {
     // Delete all the coupling data readers
-    for (uint i = 0; i < couplingDataReaders_.size(); i++)
-    {
-        delete couplingDataReaders_.at(i);
-    }
     couplingDataReaders_.clear();
 
     // Delete all the coupling data writers
-    for (uint i = 0; i < couplingDataWriters_.size(); i++)
-    {
-        delete couplingDataWriters_.at(i);
-    }
     couplingDataWriters_.clear();
-
-    // Delete the vertexIDs_
-    delete [] vertexIDs_;
-
-    // Delete the shared data buffer
-    delete [] dataBuffer_;
-
 }

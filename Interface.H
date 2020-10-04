@@ -1,8 +1,10 @@
 #ifndef INTERFACE_H
 #define INTERFACE_H
 
+#include <memory>
 #include <string>
 #include <vector>
+
 #include "fvCFD.H"
 #include "CouplingDataUser.H"
 #include "precice/SolverInterface.hpp"
@@ -37,16 +39,16 @@ protected:
     int numDataLocations_ = 0;
 
     //- Vertex IDs assigned by preCICE
-    int * vertexIDs_;
+    std::vector<int> vertexIDs_;
 
     //- Buffer for the coupling data
-    double * dataBuffer_;
+    std::vector<double> dataBuffer_;
 
     //- Vector of CouplingDataReaders
-    std::vector<CouplingDataUser*> couplingDataReaders_;
+    std::vector<std::shared_ptr<CouplingDataUser>> couplingDataReaders_;
 
     //- Vector of CouplingDataWriters
-    std::vector<CouplingDataUser*> couplingDataWriters_;
+    std::vector<std::shared_ptr<CouplingDataUser>> couplingDataWriters_;
 
     //Switch for faceTriangulation (nearest projection)
     bool meshConnectivity_;
@@ -63,28 +65,28 @@ public:
     //- Constructor
     Interface
     (
-            precice::SolverInterface & precice,
-            const Foam::fvMesh& mesh,
-            std::string meshName,
-            std::string locationsType,
-            std::vector<std::string> patchNames,
-            bool meshConnectivity
-            );
+        precice::SolverInterface & precice,
+        const Foam::fvMesh& mesh,
+        std::string meshName,
+        std::string locationsType,
+        std::vector<std::string> patchNames,
+        bool meshConnectivity
+    );
 
     //- Add a CouplingDataUser to read data from the interface
     void addCouplingDataReader
     (
-            std::string dataName,
-            CouplingDataUser * couplingDataReader
-            );
+        std::string dataName,
+        std::shared_ptr<CouplingDataUser> couplingDataReader
+    );
 
 
     //- Add a CouplingDataUser to write data on the interface
     void addCouplingDataWriter
     (
-            std::string dataName,
-            CouplingDataUser * couplingDataWriter
-            );
+        std::string dataName,
+        std::shared_ptr<CouplingDataUser> couplingDataWriter
+    );
 
     //- Allocate an appropriate buffer for scalar or vector data.
     //  If at least one couplingDataUser has vector data, then

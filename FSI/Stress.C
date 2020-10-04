@@ -24,8 +24,6 @@ solverType_(solverType)
             << "compressible or incompressible solver type."
             << exit(FatalError);
     }
-    
-    dataType_ = vector;
 
     Stress_ = new volVectorField
     (
@@ -47,7 +45,7 @@ solverType_(solverType)
     );
 }
 
-void preciceAdapter::FSI::Stress::write(double * buffer, bool meshConnectivity, const unsigned int dim)
+void preciceAdapter::FSI::Stress::write(std::vector<double> &dataBuffer, bool meshConnectivity, const unsigned int dim)
 {
     // Compute stress. See the Forces function object.
 
@@ -72,12 +70,11 @@ void preciceAdapter::FSI::Stress::write(double * buffer, bool meshConnectivity, 
         tp().boundaryField()
     );
 
-    int bufferIndex = 0;
+    std::size_t bufferIndex = 0;
     // For every boundary patch of the interface
-    for (uint j = 0; j < patchIDs_.size(); j++)
+    for (std::size_t j = 0; j < patchIDs_.size(); j++)
     {
-
-        int patchID = patchIDs_.at(j);
+        const auto patchID = patchIDs_.at(j);
 
         // Compute normal vectors on each patch
         const vectorField nV = mesh_.boundary()[patchID].nf();
@@ -111,25 +108,25 @@ void preciceAdapter::FSI::Stress::write(double * buffer, bool meshConnectivity, 
         {
             // Copy the stress into the buffer
             // x-dimension
-            buffer[bufferIndex++]
+            dataBuffer[bufferIndex++]
             = 
             Stress_->boundaryFieldRef()[patchID][i].x();
 
             // y-dimension
-            buffer[bufferIndex++]
+            dataBuffer[bufferIndex++]
             =
             Stress_->boundaryFieldRef()[patchID][i].y();
 
             if(dim == 3)
                 // z-dimension
-                buffer[bufferIndex++]
+                dataBuffer[bufferIndex++]
                         =
                         Stress_->boundaryFieldRef()[patchID][i].z();
         }
     }
 }
 
-void preciceAdapter::FSI::Stress::read(double * buffer, const unsigned int dim)
+void preciceAdapter::FSI::Stress::read(const std::vector<double> &dataBuffer, const unsigned int dim)
 {
     /* TODO: Implement
     * We need two nested for-loops for each patch,

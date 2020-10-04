@@ -1,5 +1,6 @@
+
 #include "Adapter.H"
-#include "Interface.H"
+
 #include "Utilities.H"
 
 #include "IOstreams.H"
@@ -44,16 +45,28 @@ bool preciceAdapter::Adapter::configFileRead()
     // NOTE: lookupType<T>("name") is deprecated in openfoam.com since v1812,
     // which recommends get<T>("name") instead. However, get<T>("name")
     // is not implemented in openfoam.org at the moment.
+#if (defined OPENFOAM_PLUS && (OPENFOAM_PLUS >= 1812) ) || (defined OPENFOAM && (OPENFOAM >= 1812))
+    preciceConfigFilename_ = preciceDict.get<fileName>("preciceConfig");
+#else
     preciceConfigFilename_ = preciceDict.lookupType<fileName>("preciceConfig");
+#endif
     DEBUG(adapterInfo("  precice-config-file : " + preciceConfigFilename_));
 
     // Read and display the participant name
+#if (defined OPENFOAM_PLUS && (OPENFOAM_PLUS >= 1812) ) || (defined OPENFOAM && (OPENFOAM >= 1812))
+    participantName_ = preciceDict.get<word>("participant");
+#else
     participantName_ = preciceDict.lookupType<word>("participant");
+#endif
     DEBUG(adapterInfo("  participant name    : " + participantName_));
 
     // Read and display the list of modules
     DEBUG(adapterInfo("  modules requested   : "));
+#if (defined OPENFOAM_PLUS && (OPENFOAM_PLUS >= 1812) ) || (defined OPENFOAM && (OPENFOAM >= 1812))
+    wordList modules_ = preciceDict.get<wordList>("modules");
+#else
     wordList modules_ = preciceDict.lookupType<wordList>("modules");
+#endif
     for (auto module : modules_)
     {
         DEBUG(adapterInfo("  - " + module + "\n"));
@@ -66,7 +79,11 @@ bool preciceAdapter::Adapter::configFileRead()
     // Every interface is a subdictionary of "interfaces",
     // each with an arbitrary name. Read all of them and create
     // a list (here: pointer) of dictionaries.
+#if (defined OPENFOAM_PLUS && (OPENFOAM_PLUS >= 1812) ) || (defined OPENFOAM && (OPENFOAM >= 1812))
+    const dictionary * interfaceDictPtr = preciceDict.findDict("interfaces");
+#else
     const dictionary * interfaceDictPtr = preciceDict.subDictPtr("interfaces");
+#endif
     DEBUG(adapterInfo("  interfaces : "));
 
     // Check if we found any interfaces
@@ -85,7 +102,11 @@ bool preciceAdapter::Adapter::configFileRead()
           dictionary interfaceDict = interfaceDictEntry.dict();
           struct InterfaceConfig interfaceConfig;
           
+#if (defined OPENFOAM_PLUS && (OPENFOAM_PLUS >= 1812) ) || (defined OPENFOAM && (OPENFOAM >= 1812))
+          interfaceConfig.meshName = interfaceDict.get<word>("mesh");
+#else
           interfaceConfig.meshName = interfaceDict.lookupType<word>("mesh");
+#endif
           DEBUG(adapterInfo("  - mesh         : " + interfaceConfig.meshName));
           
           // By default, assume "faceCenters" as locationsType
@@ -105,7 +126,11 @@ bool preciceAdapter::Adapter::configFileRead()
           DEBUG(adapterInfo("    connectivity : " + std::to_string(interfaceConfig.meshConnectivity)));
           
           DEBUG(adapterInfo("    patches      : "));
+#if (defined OPENFOAM_PLUS && (OPENFOAM_PLUS >= 1812) ) || (defined OPENFOAM && (OPENFOAM >= 1812))
+          wordList patches = interfaceDict.get<wordList>("patches");
+#else
           wordList patches = interfaceDict.lookupType<wordList>("patches");
+#endif
           for (auto patch : patches)
           {
             interfaceConfig.patchNames.push_back(patch);
@@ -113,7 +138,11 @@ bool preciceAdapter::Adapter::configFileRead()
           }
           
           DEBUG(adapterInfo("    writeData    : "));
+#if (defined OPENFOAM_PLUS && (OPENFOAM_PLUS >= 1812) ) || (defined OPENFOAM && (OPENFOAM >= 1812))
+          wordList writeData = interfaceDict.get<wordList>("writeData");
+#else
           wordList writeData = interfaceDict.lookupType<wordList>("writeData");
+#endif
           for (auto writeDatum : writeData)
           {
             interfaceConfig.writeData.push_back(writeDatum);
@@ -121,7 +150,11 @@ bool preciceAdapter::Adapter::configFileRead()
           }
           
           DEBUG(adapterInfo("    readData     : "));
+#if (defined OPENFOAM_PLUS && (OPENFOAM_PLUS >= 1812) ) || (defined OPENFOAM && (OPENFOAM >= 1812))
+          wordList readData = interfaceDict.get<wordList>("readData");
+#else
           wordList readData = interfaceDict.lookupType<wordList>("readData");
+#endif
           for (auto readDatum : readData)
           {
             interfaceConfig.readData.push_back(readDatum);
@@ -136,8 +169,16 @@ bool preciceAdapter::Adapter::configFileRead()
     // CHT-specific options and configure it.
     if (CHTenabled_)
     {
-        CHT_ = new CHT::ConjugateHeatTransfer(mesh_);
-        if (!CHT_->configure(preciceDict)) return false;
+        auto instance = CHT::ConjugateHeatTransfer::CreateInstance
+        (
+            mesh_,
+            preciceDict
+        );
+        //
+        if(!instance.has_value())
+            return false;
+        //
+        instance.value().swap(CHT_);
     }
 
     // If the FSI module is enabled, create it, read the
@@ -220,14 +261,14 @@ void preciceAdapter::Adapter::configure()
 
         // Create interfaces
         DEBUG(adapterInfo("Creating interfaces..."));
-        for (uint i = 0; i < interfacesConfig_.size(); i++)
+        for (std::size_t i = 0; i < interfacesConfig_.size(); i++)
         {
             Interface * interface = new Interface(*precice_, mesh_, interfacesConfig_.at(i).meshName, interfacesConfig_.at(i).locationsType, interfacesConfig_.at(i).patchNames, interfacesConfig_.at(i).meshConnectivity);
             interfaces_.push_back(interface);
             DEBUG(adapterInfo("Interface created on mesh " + interfacesConfig_.at(i).meshName));
 
             DEBUG(adapterInfo("Adding coupling data writers..."));
-            for (uint j = 0; j < interfacesConfig_.at(i).writeData.size(); j++)
+            for (std::size_t j = 0; j < interfacesConfig_.at(i).writeData.size(); j++)
             {
                 std::string dataName = interfacesConfig_.at(i).writeData.at(j);
 
@@ -247,7 +288,7 @@ void preciceAdapter::Adapter::configure()
             } // end add coupling data writers
 
             DEBUG(adapterInfo("Adding coupling data readers..."));
-            for (uint j = 0; j < interfacesConfig_.at(i).readData.size(); j++)
+            for (std::size_t j = 0; j < interfacesConfig_.at(i).readData.size(); j++)
             {
                 std::string dataName = interfacesConfig_.at(i).readData.at(j);
 
@@ -1869,14 +1910,6 @@ void preciceAdapter::Adapter::teardown()
         // NOTE: Add here delete for other types, if needed
 
         checkpointing_ = false;
-    }
-
-    // Delete the CHT module
-    if(NULL != CHT_)
-    {
-        DEBUG(adapterInfo("Destroying the CHT module..."));
-        delete CHT_;
-        CHT_ = NULL;
     }
 
     // Delete the FSI module

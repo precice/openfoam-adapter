@@ -8,6 +8,7 @@ preciceAdapter::FSI::Force::Force
         const std::string solverType
 )
 :
+CouplingDataUser(DT_Vector),
 mesh_(mesh),
 solverType_(solverType),
 force_field_created(false)
@@ -25,6 +26,7 @@ preciceAdapter::FSI::Force::Force
     */
 )
 :
+CouplingDataUser(DT_Vector),
 mesh_(mesh),
 solverType_(solverType),
 force_field_created(true)
@@ -37,8 +39,6 @@ force_field_created(true)
             << "compressible or incompressible solver type."
             << exit(FatalError);
     }
-    
-    dataType_ = vector;
 
     Force_ = new volVectorField
     (
@@ -126,7 +126,8 @@ Foam::tmp<Foam::volScalarField> preciceAdapter::FSI::Force::rho() const
                     IOobject::NO_WRITE
                 ),
                 mesh_,
-                dimensionedScalar(FSIDict.lookup("rho"))
+                //dimensionedScalar(FSIDict.lookup("rho"))
+                dimensionedScalar("rho", FSIDict)
             )
         );
         
@@ -163,7 +164,8 @@ Foam::tmp<Foam::volScalarField> preciceAdapter::FSI::Force::mu() const
             const dictionary& FSIDict =
                 mesh_.lookupObject<IOdictionary>("preciceDict").subOrEmptyDict("FSI");
                 
-            dimensionedScalar nu(FSIDict.lookup("nu"));       
+            //dimensionedScalar nu(FSIDict.lookup("nu"));
+            const auto nu = dimensionedScalar("nu", FSIDict);
             
             return tmp<volScalarField>
             (
@@ -189,7 +191,7 @@ Foam::tmp<Foam::volScalarField> preciceAdapter::FSI::Force::mu() const
     }
 }
 
-void preciceAdapter::FSI::Force::write(double * buffer, bool meshConnectivity, const unsigned int dim)
+void preciceAdapter::FSI::Force::write(std::vector<double> &dataBuffer, bool meshConnectivity, const unsigned int dim)
 {
     // Compute forces. See the Forces function object.
 
@@ -218,12 +220,12 @@ void preciceAdapter::FSI::Force::write(double * buffer, bool meshConnectivity, c
         tp().boundaryField()
     );
 
-    int bufferIndex = 0;
+    std::size_t bufferIndex = 0;
     // For every boundary patch of the interface
-    for (uint j = 0; j < patchIDs_.size(); j++)
+    for (std::size_t j = 0; j < patchIDs_.size(); j++)
     {
 
-        int patchID = patchIDs_.at(j);
+        const auto patchID = patchIDs_.at(j);
 
         // Pressure forces
         if (solverType_.compare("incompressible") == 0)
@@ -254,25 +256,25 @@ void preciceAdapter::FSI::Force::write(double * buffer, bool meshConnectivity, c
         {
             // Copy the force into the buffer
             // x-dimension
-            buffer[bufferIndex++]
+            dataBuffer[bufferIndex++]
             = 
             Force_->boundaryFieldRef()[patchID][i].x();
 
             // y-dimension
-            buffer[bufferIndex++]
+            dataBuffer[bufferIndex++]
             =
             Force_->boundaryFieldRef()[patchID][i].y();
 
             if(dim == 3)
                 // z-dimension
-                buffer[bufferIndex++]
+                dataBuffer[bufferIndex++]
                         =
                         Force_->boundaryFieldRef()[patchID][i].z();
         }
     }
 }
 
-void preciceAdapter::FSI::Force::read(double * buffer, const unsigned int dim)
+void preciceAdapter::FSI::Force::read(const std::vector<double> &dataBuffer, const unsigned int dim)
 {
     /* TODO: Implement
     * We need two nested for-loops for each patch,

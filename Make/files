@@ -8,15 +8,13 @@ CHT/Temperature.C
 CHT/HeatFlux.C
 CHT/HeatTransferCoefficient.C
 CHT/SinkTemperature.C
-
 CHT/CHT.C
 
-//FSI/FSI.C
-//FSI/Force.C
-//FSI/Stress.C
-//FSI/Displacement.C
-//FSI/DisplacementDelta.C
-
+FSI/Force.C
+FSI/Stress.C
+FSI/Displacement.C
+FSI/DisplacementDelta.C
+FSI/FSI.C
 
 Adapter.C
 

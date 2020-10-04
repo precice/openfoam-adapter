@@ -1,0 +1,481 @@
+
+#include "apiCoupledTemperatureMixedFvPatchScalarField.H"
+
+#include "fvPatchFieldMapper.H"
+#include "volFields.H"
+
+#include "autoPtr.H"
+#include "Enum.H"
+#include "Function1.H"
+
+#include <limits>
+#include <algorithm>
+
+
+// * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
+
+const Foam::Enum
+<
+    Foam::apiCoupledTemperatureMixedFvPatchScalarField::operationMode
+>
+Foam::apiCoupledTemperatureMixedFvPatchScalarField::operationModeNames
+({
+    { operationMode::fixedHeatFlux, "flux" },
+    { operationMode::fixedMixedTemperatureHTC, "mixed" },
+});
+
+
+// * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
+
+
+Foam::apiCoupledTemperatureMixedFvPatchScalarField::
+apiCoupledTemperatureMixedFvPatchScalarField
+(
+    const fvPatch& p,
+    const DimensionedField<scalar, volMesh>& iF
+)
+:
+	mixedFvPatchScalarField(p, iF),
+    temperatureCoupledBase
+    (
+        patch(),
+        "undefined",
+        "undefined",
+        "undefined-K",
+        "undefined-alpha"
+    ),
+    mode_(fixedHeatFlux),
+    qrName_("undefined-qr"),
+    relaxation_(1),
+    qrRelaxation_(1),
+    T_neighbour_(),
+    h_neighbour_(),
+    heatflux_()
+{
+    refValue() = 0;
+    refGrad() = 0;
+    valueFraction() = 1;
+}
+
+
+Foam::apiCoupledTemperatureMixedFvPatchScalarField::
+apiCoupledTemperatureMixedFvPatchScalarField
+(
+    const apiCoupledTemperatureMixedFvPatchScalarField& rhs,
+    const fvPatch& p,
+    const DimensionedField<scalar, volMesh>& iF,
+    const fvPatchFieldMapper& mapper
+)
+:
+	mixedFvPatchScalarField(rhs, p, iF, mapper),
+    temperatureCoupledBase(patch(), rhs),
+    mode_(rhs.mode_),
+    qrName_(rhs.qrName_),
+    relaxation_(rhs.relaxation_),
+    qrRelaxation_(rhs.qrRelaxation_),
+{
+    switch (mode_)
+    {
+    case fixedHeatFlux:
+        heatflux_.resize(mapper.size());
+        heatflux_.map(rhs.heatflux_, mapper);
+        break;
+
+    case fixedMixedTemperatureHTC:
+        T_neighbour_.resize(mapper.size());
+        T_neighbour_.map(rhs.T_neighbour_, mapper);
+
+        h_neighbour_.resize(mapper.size());
+        h_neighbour_.map(rhs.h_neighbour_, mapper);
+        break;
+    }
+    
+    if (qrName_ != "none")
+    {
+        qrPrevious_.resize(mapper.size());
+        qrPrevious_.map(rhs.qrPrevious_, mapper);
+    }
+}
+
+
+Foam::apiCoupledTemperatureMixedFvPatchScalarField::
+apiCoupledTemperatureMixedFvPatchScalarField
+(
+    const fvPatch& p,
+    const DimensionedField<scalar, volMesh>& iF,
+    const dictionary& dict
+)
+:
+	//mixedFvPatchField<scalar>(p, iF, dict),
+	mixedFvPatchScalarField(p, iF),
+    temperatureCoupledBase(patch(), dict),
+    mode_(operationModeNames.get("mode", dict)),
+    qrName_(dict.getOrDefault<word>("qr", "none")),
+    relaxation_(dict.getOrDefault<scalar>("relaxation", scalar(1))),
+    qrRelaxation_(dict.getOrDefault<scalar>("qrRelaxation", scalar(1)))
+{
+    switch (mode_)
+    {
+    case fixedHeatFlux:
+        heatflux_.resize(p.size(), Zero);
+        break;
+
+    case fixedMixedTemperatureHTC:
+        T_neighbour_.resize(p.size(), Zero);
+        h_neighbour_.resize(p.size(), Zero);
+        break;
+    }
+
+    // field value
+    if (dict.found("value"))
+    {
+        fvPatchScalarField::operator=(scalarField("value", dict, p.size()));
+    }
+
+    // mixed value
+    if (dict.found("refValue"))
+    {
+        refValue() = scalarField("refValue", dict, p.size());
+    }
+    else
+    {
+        refValue() = *this;
+    }
+
+    if (dict.found("refGradient"))
+    {
+        refGrad() = scalarField("refGradient", dict, p.size());
+    }
+    else
+    {
+        refGrad() = scalar(0);
+    }
+
+    if (dict.found("valueFraction"))
+    {
+        valueFraction() = scalarField("valueFraction", dict, p.size());
+    }
+    else
+    {
+        valueFraction() = scalar(1);
+    }
+
+    // radiation field
+    if (qrName_ != "none")
+    {
+        if (dict.found("qrPrevious"))
+        {
+            qrPrevious_ = scalarField("qrPrevious", dict, p.size());
+        }
+        else
+        {
+            qrPrevious_.resize(p.size(), Zero);
+        }
+    }
+}
+
+
+Foam::apiCoupledTemperatureMixedFvPatchScalarField::
+apiCoupledTemperatureMixedFvPatchScalarField
+(
+    const apiCoupledTemperatureMixedFvPatchScalarField& rhs
+)
+:
+	mixedFvPatchScalarField(rhs),
+    temperatureCoupledBase(rhs),
+    mode_(rhs.mode_),
+    qrName_(rhs.qrName_),
+    relaxation_(rhs.relaxation_),
+    qrPrevious_(rhs.qrPrevious_),
+    qrRelaxation_(rhs.qrRelaxation_),
+    T_neighbour_(rhs.T_neighbour_),
+    h_neighbour_(rhs.h_neighbour_),
+    heatflux_(rhs.heatflux_)
+{}
+
+
+Foam::apiCoupledTemperatureMixedFvPatchScalarField::
+apiCoupledTemperatureMixedFvPatchScalarField
+(
+    const apiCoupledTemperatureMixedFvPatchScalarField& rhs,
+    const DimensionedField<scalar, volMesh>& iF
+)
+:
+	mixedFvPatchScalarField(rhs, iF),
+    temperatureCoupledBase(patch(), rhs),
+    mode_(rhs.mode_),
+    qrName_(rhs.qrName_),
+    relaxation_(rhs.relaxation_),
+    qrPrevious_(rhs.qrPrevious_),
+    qrRelaxation_(rhs.qrRelaxation_),
+    T_neighbour_(rhs.T_neighbour_),
+    h_neighbour_(rhs.h_neighbour_),
+    heatflux_(rhs.heatflux_)
+{}
+
+
+// * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
+
+void Foam::apiCoupledTemperatureMixedFvPatchScalarField::autoMap
+(
+    const fvPatchFieldMapper& mapper
+)
+{
+    mixedFvPatchScalarField::autoMap(mapper);
+
+    switch (mode_)
+    {
+    case fixedHeatFlux:
+        heatflux_.autoMap(mapper);
+        break;
+    case fixedMixedTemperatureHTC:
+        T_neighbour_.autoMap(mapper);
+        h_neighbour_.autoMap(mapper);
+        break;
+    }
+
+    if (qrName_ != "none")
+    {
+        qrPrevious_.autoMap(mapper);
+    }
+}
+
+
+void Foam::apiCoupledTemperatureMixedFvPatchScalarField::rmap
+(
+    const fvPatchScalarField& ptf,
+    const labelList& addr
+)
+{
+    mixedFvPatchScalarField::rmap(ptf, addr);
+    const auto& rhs = refCast<const apiCoupledTemperatureMixedFvPatchScalarField>(ptf);
+
+    switch (mode_)
+    {
+    case fixedHeatFlux:
+        heatflux_.rmap(rhs.heatflux_, addr);
+        break;
+    case fixedMixedTemperatureHTC:
+        T_neighbour_.rmap(rhs.T_neighbour_, addr);
+        h_neighbour_.rmap(rhs.h_neighbour_, addr);
+        break;
+    }
+
+
+    if (qrName_ != "none")
+    {
+        qrPrevious_.rmap(rhs.qrPrevious_, addr);
+    }
+}
+
+
+// https://www.openfoam.com/documentation/guides/latest/api/turbulentTemperatureCoupledBaffleMixedFvPatchScalarField_8C_source.html
+//
+// Both sides agree on
+// - temperature : (myKDelta*fld + nbrKDelta*nbrFld)/(myKDelta+nbrKDelta)
+// - gradient    : (temperature-fld)*delta
+// We've got a degree of freedom in how to implement this in a mixed bc.
+// (what gradient, what fixedValue and mixing coefficient)
+// Two reasonable choices:
+// 1. specify above temperature on one side (preferentially the high side)
+//    and above gradient on the other. So this will switch between pure
+//    fixedvalue and pure fixedgradient
+// 2. specify gradient and temperature such that the equations are the
+//    same on both sides. This leads to the choice of
+//    - refGradient = zero gradient
+//    - refValue = neighbour value
+//    - mixFraction = nbrKDelta / (nbrKDelta + myKDelta())
+//
+
+Foam::tmp<Foam::scalarField> Foam::apiCoupledTemperatureMixedFvPatchScalarField::getWallHeatFlux
+() const
+{
+    const scalarField&  Twall (*this);
+    return kappa(Twall) * patch().magSf() * snGrad();
+}
+
+Foam::tmp<Foam::scalarField> Foam::apiCoupledTemperatureMixedFvPatchScalarField::getHeatTransferCoeff
+() const
+{
+    const scalarField&  Twall (*this);
+    return kappa(Twall) * patch().deltaCoeffs();
+}
+
+const Foam::scalarField& Foam::apiCoupledTemperatureMixedFvPatchScalarField::T_Wall
+() const
+{
+    return *this;
+}
+
+Foam::tmp<Foam::scalarField> Foam::apiCoupledTemperatureMixedFvPatchScalarField::T_Cell
+() const
+{
+    return patchInternalField();
+}
+
+Foam::scalarField& Foam::apiCoupledTemperatureMixedFvPatchScalarField::h_Neighbour()
+{
+    h_neighbour_;
+}
+
+Foam::scalarField& Foam::apiCoupledTemperatureMixedFvPatchScalarField::T_Neighbour()
+{
+    T_neighbour_;
+}
+
+Foam::scalarField& Foam::apiCoupledTemperatureMixedFvPatchScalarField::heatFlux()
+{
+    return heatflux_;
+}
+
+//                               T_wall
+//                                 |
+//  ******************************** *   *   *   *   *   *   *   * 
+//  *  domain_1 = cell             *   domain_2                   *
+//  *                              *                              
+//  *                         q_1  *   q_2                        *
+//  *            T_1           <-- * <--         T_2              
+//  *             *            <-- * <--          *               *
+//  *                          <-- * <--                          
+//  *                              *                              *
+//  *                 q_radiation  *                              
+//  *                          <-- *                              *
+//  *                          <-- *                              
+//  *                          <-- *                              *
+//  *                              *                              
+//  *                              *                              *
+//  ******************************** *   *   *   *   *   *   *   * 
+//                |----- dx_1 -----|---- dx_2 ----|
+//
+//  q_1 + q_{radiation} = -q2 \approx \frac{kappa_2}{\Delta_2} \cdot \left( T_{wall} - T_2 \right)
+//
+void Foam::apiCoupledTemperatureMixedFvPatchScalarField::updateCoeffs
+()
+{
+    // stop if up-to-date
+    if (updated()) return;
+
+    // qr field
+    auto qr_get_field = [&](Foam::label patchSize)
+    {
+        scalarField qr_tmp(patchSize, Zero);
+        //
+        if (qrName_ != "none")
+        {
+            qr_tmp = qrRelaxation_ * patch().lookupPatchField<volScalarField, scalar>(qrName_) + (1 - qrRelaxation_) * qrPrevious_;
+            qrPrevious_ = qr_tmp;
+        }
+        //
+        return qr_tmp;
+    };
+
+    //
+    const scalarField&  Twall   (*this);
+    const scalarField   qr      (qr_get_field(Twall.size()));
+
+    // do update depending on operation mode
+    switch (mode_)
+    {
+    case fixedHeatFlux:
+        refGrad() = (heatflux_ + qr) / kappa(Twall);
+        refValue() = 0;
+        valueFraction() = 0;
+
+        break;
+
+    case fixedMixedTemperatureHTC:
+        // get values from mixed-value boundary field
+        scalarField &value(refValue());
+        scalarField &fract(valueFraction());
+        const scalarField valueFraction0(value);
+        const scalarField refValue0(fract);
+        const scalarField h_cell_(kappa(Twall) * patch().deltaCoeffs());
+
+        forAll(Twall, i)
+        {
+            const scalar h1 = h_cell_[i];
+            const scalar h2 = h_neighbour_[i];
+            const scalar T2 = T_neighbour_[i];
+
+            const scalar h2T2 = h2 * T2;
+
+            if (qr[i] < 0)
+            {
+                // qr < 0 := cooling wall by radiation flux (into the fluid region)
+                const scalar h2_qr = h2 - qr[i] / Twall[i];
+
+                value[i] = h2T2 / h2_qr;
+                fract[i] = h2_qr / (h2_qr + h1);
+            }
+            else
+            {
+                // qr >= 0 := heating wall with the incomming radiation flux
+                value[i] = (h2T2 + qr[i]) / h2;
+                fract[i] = h2 / (h2 + h1);
+            }
+        }
+
+        //
+        fract = relaxation_ * fract + (1 - relaxation_) * valueFraction0;
+        value = relaxation_ * value + (1 - relaxation_) * refValue0;
+
+        //
+        refGrad() = 0;
+        break;
+    }
+
+    //
+    mixedFvPatchScalarField::updateCoeffs();
+
+    //
+    DebugInfo
+        << patch().boundaryMesh().mesh().name() << ':' << patch().name() << ':' << nl
+        << internalField().name() << " :" << nl
+        << "\t- heat transfer rate:" << gSum(kappa(Twall) * patch().magSf() * snGrad()) << nl
+        << "\t- wall temperature:" << nl
+        << "\t\t- min:" << gMin(*this) << nl
+        << "\t\t- max:" << gMax(*this) << nl
+        << "\t\t- avg:" << gAverage(*this) << nl;
+}
+
+void Foam::apiCoupledTemperatureMixedFvPatchScalarField::write
+(
+    Ostream& os
+) const
+{
+    fvPatchScalarField::write(os);
+    temperatureCoupledBase::write(os);
+
+    T_neighbour_.writeEntry("T_neighbour", os);
+    h_neighbour_.writeEntry("h_neighbour", os);
+
+    if (relaxation_ < 1)
+        os.writeEntry("relaxation", relaxation_);
+
+    os.writeEntry("qr", qrName_);
+
+    if (qrName_ != "none")
+    {
+        os.writeEntry("qrRelaxation", qrRelaxation_);
+        qrPrevious_.writeEntry("qrPrevious", os);
+    }
+
+    refValue().writeEntry("refValue", os);
+    refGrad().writeEntry("refGradient", os);
+    valueFraction().writeEntry("valueFraction", os);
+    writeEntry("value", os);
+}
+
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+namespace Foam
+{
+    makePatchTypeField
+    (
+        fvPatchScalarField,
+        apiCoupledTemperatureMixedFvPatchScalarField
+    );
+}
+
+// ************************************************************************* //

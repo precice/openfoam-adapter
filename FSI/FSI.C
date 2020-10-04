@@ -1,6 +1,8 @@
-#include "FSI.H"
 
+#include "FSI.H"
 #include "Utilities.H"
+
+#include <memory>
 
 using namespace Foam;
 
@@ -107,7 +109,7 @@ void preciceAdapter::FSI::FluidStructureInteraction::addWriters(std::string data
             interface->addCouplingDataWriter
             (
                 dataName,
-                new Force(mesh_, runTime_.timeName(), solverType_) /* TODO: Add any other arguments here */
+                std::make_shared<Force>(mesh_, runTime_.timeName(), solverType_) /* TODO: Add any other arguments here */
             );
             DEBUG(adapterInfo("Added writer: Force."));        
     }    
@@ -116,7 +118,7 @@ void preciceAdapter::FSI::FluidStructureInteraction::addWriters(std::string data
         interface->addCouplingDataWriter
         (
             dataName,
-            new DisplacementDelta(mesh_, namePointDisplacement_)
+            std::make_shared<DisplacementDelta>(mesh_, namePointDisplacement_)
         );
         DEBUG(adapterInfo("Added writer: DisplacementDelta."));
     }
@@ -125,7 +127,7 @@ void preciceAdapter::FSI::FluidStructureInteraction::addWriters(std::string data
         interface->addCouplingDataWriter
         (
             dataName,
-            new Displacement(mesh_, namePointDisplacement_)
+            std::make_shared<Displacement>(mesh_, namePointDisplacement_)
         );
         DEBUG(adapterInfo("Added writer: Displacement."));
     }
@@ -134,8 +136,8 @@ void preciceAdapter::FSI::FluidStructureInteraction::addWriters(std::string data
       interface->addCouplingDataWriter
           (
               dataName,
-              new Stress(mesh_, runTime_.timeName(), solverType_) /* TODO: Add any other arguments here */
-              );
+              std::make_shared<Stress>(mesh_, runTime_.timeName(), solverType_) /* TODO: Add any other arguments here */
+          );
       DEBUG(adapterInfo("Added writer: Stress."));
     }
 
@@ -153,7 +155,7 @@ void preciceAdapter::FSI::FluidStructureInteraction::addReaders(std::string data
         interface->addCouplingDataReader
         (
             dataName,
-            new Force(mesh_, runTime_.timeName(), solverType_) /* TODO: Add any other arguments here */
+            std::make_shared<Force>(mesh_, runTime_.timeName(), solverType_) /* TODO: Add any other arguments here */
         );
         DEBUG(adapterInfo("Added reader: Force."));
     }
@@ -162,7 +164,7 @@ void preciceAdapter::FSI::FluidStructureInteraction::addReaders(std::string data
         interface->addCouplingDataReader
         (
             dataName,
-            new DisplacementDelta(mesh_, namePointDisplacement_)
+            std::make_shared<DisplacementDelta>(mesh_, namePointDisplacement_)
         );
         DEBUG(adapterInfo("Added reader: DisplacementDelta."));
     }
@@ -171,7 +173,7 @@ void preciceAdapter::FSI::FluidStructureInteraction::addReaders(std::string data
         interface->addCouplingDataReader
         (
             dataName,
-            new Displacement(mesh_, namePointDisplacement_)
+            std::make_shared<Displacement>(mesh_, namePointDisplacement_)
         );
         DEBUG(adapterInfo("Added reader: Displacement."));
     }
@@ -180,8 +182,8 @@ void preciceAdapter::FSI::FluidStructureInteraction::addReaders(std::string data
       interface->addCouplingDataReader
           (
               dataName,
-              new Stress(mesh_, runTime_.timeName(), solverType_) /* TODO: Add any other arguments here */
-              );
+              std::make_shared<Stress>(mesh_, runTime_.timeName(), solverType_) /* TODO: Add any other arguments here */
+          );
       DEBUG(adapterInfo("Added reader: Stress."));
     }
 

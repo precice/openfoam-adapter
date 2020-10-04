@@ -9,12 +9,20 @@ namespace preciceAdapter
 class CouplingDataUser
 {
 
+public:
+
+    enum DataType
+    {
+        DT_Scalar = 0,
+        DT_Vector = 1
+    };
+
 protected:
 
-    enum DataType {scalar, vector};
+    //TODO: move protected class memembers to private and add getter methods, Thomas Enzinger
 
     //- Type of the coupling data (scalar or vector)
-    DataType dataType_ = scalar;
+    const DataType dataType_ ;
 
     //- OpenFOAM patches that form the interface
     std::vector<int> patchIDs_;
@@ -22,10 +30,14 @@ protected:
     //- preCICE data ID
     int dataID_;
 
+private:
+
+    CouplingDataUser() = default;
+
 public:
 
     //- Constructor
-    CouplingDataUser();
+    CouplingDataUser(DataType type);
 
     //- Returns true if the data are scalar
     bool hasScalarData();
@@ -43,10 +55,10 @@ public:
     void setPatchIDs(std::vector<int> patchIDs);
 
     //- Write the coupling data to the buffer
-    virtual void write(double * dataBuffer, bool meshConnectivity, const unsigned int dim) = 0;
+    virtual void write(std::vector<double> &dataBuffer, bool meshConnectivity, const unsigned int dim) = 0;
 
     //- Read the coupling data from the buffer
-    virtual void read(double * dataBuffer, const unsigned int dim) = 0;
+    virtual void read(const std::vector<double> &dataBuffer, const unsigned int dim) = 0;
 
     //- Destructor
     virtual ~CouplingDataUser() {}

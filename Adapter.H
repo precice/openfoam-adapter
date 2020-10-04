@@ -1,6 +1,8 @@
 #ifndef PRECICEADAPTER_H
 #define PRECICEADAPTER_H
 
+#include <memory>
+
 #include "Interface.H"
 
 // Conjugate Heat Transfer module
@@ -90,7 +92,7 @@ private:
     bool preciceInitialized_ = false;
 
     //- Conjugate Heat Transfer module object
-    CHT::ConjugateHeatTransfer * CHT_ = NULL;
+    std::shared_ptr<CHT::ConjugateHeatTransfer> CHT_ = NULL;
 
     //- Fluid-Structure Interaction module object
     FSI::FluidStructureInteraction * FSI_ = NULL;

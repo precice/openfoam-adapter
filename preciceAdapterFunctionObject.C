@@ -29,17 +29,6 @@ License
 #include "fvMesh.H"
 #include "addToRunTimeSelectionTable.H"
 
-// * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
-
-namespace Foam
-{
-namespace functionObjects
-{
-    defineTypeNameAndDebug(preciceAdapterFunctionObject, 0);
-    addToRunTimeSelectionTable(functionObject, preciceAdapterFunctionObject, dictionary);
-}
-}
-
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
@@ -61,13 +50,6 @@ Foam::functionObjects::preciceAdapterFunctionObject::preciceAdapterFunctionObjec
     #endif
 
     read(dict);
-}
-
-
-// * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
-
-Foam::functionObjects::preciceAdapterFunctionObject::~preciceAdapterFunctionObject()
-{
 }
 
 
@@ -110,3 +92,15 @@ bool Foam::functionObjects::preciceAdapterFunctionObject::adjustTimeStep()
 }
 
 // ************************************************************************* //
+
+
+// * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
+
+namespace Foam
+{
+namespace functionObjects
+{
+    defineTypeNameAndDebug(preciceAdapterFunctionObject, 0);
+    addToRunTimeSelectionTable(functionObject, preciceAdapterFunctionObject, dictionary);
+}
+}

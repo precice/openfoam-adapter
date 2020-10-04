@@ -1,17 +1,20 @@
 #include "CouplingDataUser.H"
 
-preciceAdapter::CouplingDataUser::CouplingDataUser()
-{
-}
+preciceAdapter::CouplingDataUser::CouplingDataUser(DataType type)
+:
+    dataType_(type),
+    patchIDs_(),
+    dataID_(0)
+{}
 
 bool preciceAdapter::CouplingDataUser::hasScalarData()
 {
-    return dataType_ == scalar;
+    return dataType_ == DT_Scalar;
 }
 
 bool preciceAdapter::CouplingDataUser::hasVectorData()
 {
-    return dataType_ == vector;
+    return dataType_ == DT_Vector;
 }
 
 void preciceAdapter::CouplingDataUser::setDataID(int dataID)

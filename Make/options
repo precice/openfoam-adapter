@@ -16,6 +16,7 @@ EXE_INC = \
     -I$(ADAPTER_PRECICE_ROOT)/src \
     $(ADAPTER_PKG_CONFIG_CFLAGS) \
     -I../ \
+    -std=c++17 \
     $(ADAPTER_PREP_FLAGS)
 
 LIB_LIBS = \

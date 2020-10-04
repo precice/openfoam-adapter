@@ -8,17 +8,16 @@ preciceAdapter::FSI::DisplacementDelta::DisplacementDelta
     const std::string namePointDisplacement
 )
 :
+CouplingDataUser(DT_Vector),
 pointDisplacement_(
     const_cast<pointVectorField*>
     (
         &mesh.lookupObject<pointVectorField>(namePointDisplacement)
     )
 )
-{
-    dataType_ = vector;
-}
+{}
 
-void preciceAdapter::FSI::DisplacementDelta::write(double * buffer, bool meshConnectivity, const unsigned int dim)
+void preciceAdapter::FSI::DisplacementDelta::write(std::vector<double> &dataBuffer, bool meshConnectivity, const unsigned int dim)
 {
     /* TODO: Implement
     * We need two nested for-loops for each patch,
@@ -31,15 +30,15 @@ void preciceAdapter::FSI::DisplacementDelta::write(double * buffer, bool meshCon
 }
 
 // return the displacement to use later in the velocity?
-void preciceAdapter::FSI::DisplacementDelta::read(double * buffer, const unsigned int dim)
+void preciceAdapter::FSI::DisplacementDelta::read(const std::vector<double> &dataBuffer, const unsigned int dim)
 {
     // For every element in the buffer
-    int bufferIndex = 0;
+    std::size_t bufferIndex = 0;
 
     // For every boundary patch of the interface
-    for (uint j = 0; j < patchIDs_.size(); j++)
+    for (std::size_t j = 0; j < patchIDs_.size(); j++)
     {
-        int patchID = patchIDs_.at(j);
+        const auto  patchID = patchIDs_.at(j);
 
         // Get the displacement on the patch
         fixedValuePointPatchVectorField& pointDisplacementFluidPatch
@@ -54,10 +53,10 @@ void preciceAdapter::FSI::DisplacementDelta::read(double * buffer, const unsigne
         forAll(pointDisplacement_->boundaryFieldRef()[patchID], i)
         {
             // Add the received delta to the actual displacement
-            pointDisplacementFluidPatch[i][0] += buffer[bufferIndex++];
-            pointDisplacementFluidPatch[i][1] += buffer[bufferIndex++];
+            pointDisplacementFluidPatch[i][0] += dataBuffer[bufferIndex++];
+            pointDisplacementFluidPatch[i][1] += dataBuffer[bufferIndex++];
             if(dim==3)
-                pointDisplacementFluidPatch[i][2] += buffer[bufferIndex++];
+                pointDisplacementFluidPatch[i][2] += dataBuffer[bufferIndex++];
         }
     }
 }
