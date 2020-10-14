@@ -25,7 +25,7 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::apiCoupledTemperatureMixedFvPatchScalarField
+    Foam::apiCoupledTemperatureFvPatchScalarField
 
 Group
     grpThermoBoundaryConditions grpWallBoundaryConditions
@@ -98,8 +98,8 @@ SourceFiles
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef apiCoupledTemperatureMixedFvPatchScalarField_H
-#define apiCoupledTemperatureMixedFvPatchScalarField_H
+#ifndef apiCoupledTemperatureFvPatchScalarField_H
+#define apiCoupledTemperatureFvPatchScalarField_H
 
 #include <iterator>
 
@@ -125,7 +125,7 @@ template<class EnumType>
 class Enum;
 
 // class declaration
-class apiCoupledTemperatureMixedFvPatchScalarField
+class apiCoupledTemperatureFvPatchScalarField
 :
     public mixedFvPatchScalarField,
     public temperatureCoupledBase
@@ -182,14 +182,14 @@ public:
     // Constructors
 
         //- Construct from patch and internal field
-    	apiCoupledTemperatureMixedFvPatchScalarField
+    	apiCoupledTemperatureFvPatchScalarField
         (
             const fvPatch&,
             const DimensionedField<scalar, volMesh>&
         );
 
         //- Construct from patch, internal field and dictionary
-    	apiCoupledTemperatureMixedFvPatchScalarField
+    	apiCoupledTemperatureFvPatchScalarField
         (
             const fvPatch&,
             const DimensionedField<scalar, volMesh>&,
@@ -198,18 +198,18 @@ public:
 
         //- Construct by mapping given
         //  externalCoupledTemperatureMixedFvPatchScalarField onto a new patch
-    	apiCoupledTemperatureMixedFvPatchScalarField
+    	apiCoupledTemperatureFvPatchScalarField
         (
-            const apiCoupledTemperatureMixedFvPatchScalarField&,
+            const apiCoupledTemperatureFvPatchScalarField&,
             const fvPatch&,
             const DimensionedField<scalar, volMesh>&,
             const fvPatchFieldMapper&
         );
 
         //- Construct as copy
-    	apiCoupledTemperatureMixedFvPatchScalarField
+    	apiCoupledTemperatureFvPatchScalarField
         (
-            const apiCoupledTemperatureMixedFvPatchScalarField&
+            const apiCoupledTemperatureFvPatchScalarField&
         );
 
         //- Construct and return a clone
@@ -217,14 +217,14 @@ public:
         {
             return tmp<fvPatchField<scalar>>
             (
-                new apiCoupledTemperatureMixedFvPatchScalarField(*this)
+                new apiCoupledTemperatureFvPatchScalarField(*this)
             );
         }
 
         //- Construct as copy setting internal field reference
-        apiCoupledTemperatureMixedFvPatchScalarField
+        apiCoupledTemperatureFvPatchScalarField
         (
-            const apiCoupledTemperatureMixedFvPatchScalarField&,
+            const apiCoupledTemperatureFvPatchScalarField&,
             const DimensionedField<scalar, volMesh>&
         );
 
@@ -236,7 +236,7 @@ public:
         {
             return tmp<fvPatchField<scalar>>
             (
-                new apiCoupledTemperatureMixedFvPatchScalarField
+                new apiCoupledTemperatureFvPatchScalarField
                 (
                     *this,
                     iF
@@ -246,7 +246,7 @@ public:
 
 
     //- Destructor
-    virtual ~apiCoupledTemperatureMixedFvPatchScalarField() = default;
+    virtual ~apiCoupledTemperatureFvPatchScalarField() = default;
 
 
     // Member Functions

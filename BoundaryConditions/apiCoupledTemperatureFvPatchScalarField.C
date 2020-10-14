@@ -1,5 +1,5 @@
 
-#include "apiCoupledTemperatureMixedFvPatchScalarField.H"
+#include "apiCoupledTemperatureFvPatchScalarField.H"
 
 #include "addToRunTimeSelectionTable.H"
 #include "fvPatchFieldMapper.H"
@@ -18,9 +18,9 @@
 
 const Foam::Enum
 <
-    Foam::apiCoupledTemperatureMixedFvPatchScalarField::operationMode
+    Foam::apiCoupledTemperatureFvPatchScalarField::operationMode
 >
-Foam::apiCoupledTemperatureMixedFvPatchScalarField::operationModeNames
+Foam::apiCoupledTemperatureFvPatchScalarField::operationModeNames
 ({
     { operationMode::fixedHeatFlux, "flux" },
     { operationMode::fixedMixedTemperatureHTC, "mixed" },
@@ -30,8 +30,8 @@ Foam::apiCoupledTemperatureMixedFvPatchScalarField::operationModeNames
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
 
-Foam::apiCoupledTemperatureMixedFvPatchScalarField::
-apiCoupledTemperatureMixedFvPatchScalarField
+Foam::apiCoupledTemperatureFvPatchScalarField::
+apiCoupledTemperatureFvPatchScalarField
 (
     const fvPatch& p,
     const DimensionedField<scalar, volMesh>& iF
@@ -60,10 +60,10 @@ apiCoupledTemperatureMixedFvPatchScalarField
 }
 
 
-Foam::apiCoupledTemperatureMixedFvPatchScalarField::
-apiCoupledTemperatureMixedFvPatchScalarField
+Foam::apiCoupledTemperatureFvPatchScalarField::
+apiCoupledTemperatureFvPatchScalarField
 (
-    const apiCoupledTemperatureMixedFvPatchScalarField& rhs,
+    const apiCoupledTemperatureFvPatchScalarField& rhs,
     const fvPatch& p,
     const DimensionedField<scalar, volMesh>& iF,
     const fvPatchFieldMapper& mapper
@@ -104,8 +104,8 @@ apiCoupledTemperatureMixedFvPatchScalarField
 }
 
 
-Foam::apiCoupledTemperatureMixedFvPatchScalarField::
-apiCoupledTemperatureMixedFvPatchScalarField
+Foam::apiCoupledTemperatureFvPatchScalarField::
+apiCoupledTemperatureFvPatchScalarField
 (
     const fvPatch& p,
     const DimensionedField<scalar, volMesh>& iF,
@@ -181,10 +181,10 @@ apiCoupledTemperatureMixedFvPatchScalarField
 }
 
 
-Foam::apiCoupledTemperatureMixedFvPatchScalarField::
-apiCoupledTemperatureMixedFvPatchScalarField
+Foam::apiCoupledTemperatureFvPatchScalarField::
+apiCoupledTemperatureFvPatchScalarField
 (
-    const apiCoupledTemperatureMixedFvPatchScalarField& rhs
+    const apiCoupledTemperatureFvPatchScalarField& rhs
 )
 :
 	mixedFvPatchScalarField(rhs),
@@ -200,10 +200,10 @@ apiCoupledTemperatureMixedFvPatchScalarField
 {}
 
 
-Foam::apiCoupledTemperatureMixedFvPatchScalarField::
-apiCoupledTemperatureMixedFvPatchScalarField
+Foam::apiCoupledTemperatureFvPatchScalarField::
+apiCoupledTemperatureFvPatchScalarField
 (
-    const apiCoupledTemperatureMixedFvPatchScalarField& rhs,
+    const apiCoupledTemperatureFvPatchScalarField& rhs,
     const DimensionedField<scalar, volMesh>& iF
 )
 :
@@ -222,7 +222,7 @@ apiCoupledTemperatureMixedFvPatchScalarField
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-void Foam::apiCoupledTemperatureMixedFvPatchScalarField::autoMap
+void Foam::apiCoupledTemperatureFvPatchScalarField::autoMap
 (
     const fvPatchFieldMapper& mapper
 )
@@ -247,14 +247,14 @@ void Foam::apiCoupledTemperatureMixedFvPatchScalarField::autoMap
 }
 
 
-void Foam::apiCoupledTemperatureMixedFvPatchScalarField::rmap
+void Foam::apiCoupledTemperatureFvPatchScalarField::rmap
 (
     const fvPatchScalarField& ptf,
     const labelList& addr
 )
 {
     mixedFvPatchScalarField::rmap(ptf, addr);
-    const auto& rhs = refCast<const apiCoupledTemperatureMixedFvPatchScalarField>(ptf);
+    const auto& rhs = refCast<const apiCoupledTemperatureFvPatchScalarField>(ptf);
 
     switch (mode_)
     {
@@ -293,57 +293,57 @@ void Foam::apiCoupledTemperatureMixedFvPatchScalarField::rmap
 //    - mixFraction = nbrKDelta / (nbrKDelta + myKDelta())
 //
 
-Foam::tmp<Foam::scalarField> Foam::apiCoupledTemperatureMixedFvPatchScalarField::getWallHeatFlux
+Foam::tmp<Foam::scalarField> Foam::apiCoupledTemperatureFvPatchScalarField::getWallHeatFlux
 () const
 {
     const scalarField&  Twall (*this);
     return kappa(Twall) * patch().magSf() * snGrad();
 }
 
-Foam::tmp<Foam::scalarField> Foam::apiCoupledTemperatureMixedFvPatchScalarField::getHeatTransferCoeff
+Foam::tmp<Foam::scalarField> Foam::apiCoupledTemperatureFvPatchScalarField::getHeatTransferCoeff
 () const
 {
     const scalarField&  Twall (*this);
     return kappa(Twall) * patch().deltaCoeffs();
 }
 
-const Foam::scalarField& Foam::apiCoupledTemperatureMixedFvPatchScalarField::T_Wall
+const Foam::scalarField& Foam::apiCoupledTemperatureFvPatchScalarField::T_Wall
 () const
 {
     return *this;
 }
 
-Foam::tmp<Foam::scalarField> Foam::apiCoupledTemperatureMixedFvPatchScalarField::T_Cell
+Foam::tmp<Foam::scalarField> Foam::apiCoupledTemperatureFvPatchScalarField::T_Cell
 () const
 {
     return patchInternalField();
 }
 
-Foam::scalarField& Foam::apiCoupledTemperatureMixedFvPatchScalarField::h_Neighbour()
+Foam::scalarField& Foam::apiCoupledTemperatureFvPatchScalarField::h_Neighbour()
 {
     return h_neighbour_;
 }
-const Foam::scalarField& Foam::apiCoupledTemperatureMixedFvPatchScalarField::h_Neighbour
+const Foam::scalarField& Foam::apiCoupledTemperatureFvPatchScalarField::h_Neighbour
 () const
 {
     return h_neighbour_;
 }
 
-Foam::scalarField& Foam::apiCoupledTemperatureMixedFvPatchScalarField::T_Neighbour()
+Foam::scalarField& Foam::apiCoupledTemperatureFvPatchScalarField::T_Neighbour()
 {
     return T_neighbour_;
 }
-const Foam::scalarField& Foam::apiCoupledTemperatureMixedFvPatchScalarField::T_Neighbour
+const Foam::scalarField& Foam::apiCoupledTemperatureFvPatchScalarField::T_Neighbour
 () const
 {
     return T_neighbour_;
 }
 
-Foam::scalarField& Foam::apiCoupledTemperatureMixedFvPatchScalarField::heatFlux()
+Foam::scalarField& Foam::apiCoupledTemperatureFvPatchScalarField::heatFlux()
 {
     return heatflux_;
 }
-const Foam::scalarField& Foam::apiCoupledTemperatureMixedFvPatchScalarField::heatFlux
+const Foam::scalarField& Foam::apiCoupledTemperatureFvPatchScalarField::heatFlux
 () const
 {
     return heatflux_;
@@ -370,7 +370,7 @@ const Foam::scalarField& Foam::apiCoupledTemperatureMixedFvPatchScalarField::hea
 //
 //  q_1 + q_{radiation} = -q2 \approx \frac{kappa_2}{\Delta_2} \cdot \left( T_{wall} - T_2 \right)
 //
-void Foam::apiCoupledTemperatureMixedFvPatchScalarField::updateCoeffs
+void Foam::apiCoupledTemperatureFvPatchScalarField::updateCoeffs
 ()
 {
     // stop if up-to-date
@@ -459,7 +459,7 @@ void Foam::apiCoupledTemperatureMixedFvPatchScalarField::updateCoeffs
         << "\t\t- avg:" << gAverage(*this) << nl;
 }
 
-void Foam::apiCoupledTemperatureMixedFvPatchScalarField::write
+void Foam::apiCoupledTemperatureFvPatchScalarField::write
 (
     Ostream& os
 ) const
@@ -495,7 +495,7 @@ namespace Foam
     makePatchTypeField
     (
         fvPatchScalarField,
-        apiCoupledTemperatureMixedFvPatchScalarField
+        apiCoupledTemperatureFvPatchScalarField
     );
 }
 
