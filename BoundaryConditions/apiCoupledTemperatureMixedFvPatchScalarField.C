@@ -1,8 +1,10 @@
 
 #include "apiCoupledTemperatureMixedFvPatchScalarField.H"
 
+#include "addToRunTimeSelectionTable.H"
 #include "fvPatchFieldMapper.H"
 #include "volFields.H"
+#include "physicoChemicalConstants.H"
 
 #include "autoPtr.H"
 #include "Enum.H"
@@ -72,7 +74,11 @@ apiCoupledTemperatureMixedFvPatchScalarField
     mode_(rhs.mode_),
     qrName_(rhs.qrName_),
     relaxation_(rhs.relaxation_),
+    qrPrevious_(rhs.qrPrevious_),
     qrRelaxation_(rhs.qrRelaxation_),
+    T_neighbour_(rhs.T_neighbour_),
+    h_neighbour_(rhs.h_neighbour_),
+    heatflux_(rhs.heatflux_)
 {
     switch (mode_)
     {
@@ -315,15 +321,30 @@ Foam::tmp<Foam::scalarField> Foam::apiCoupledTemperatureMixedFvPatchScalarField:
 
 Foam::scalarField& Foam::apiCoupledTemperatureMixedFvPatchScalarField::h_Neighbour()
 {
-    h_neighbour_;
+    return h_neighbour_;
+}
+const Foam::scalarField& Foam::apiCoupledTemperatureMixedFvPatchScalarField::h_Neighbour
+() const
+{
+    return h_neighbour_;
 }
 
 Foam::scalarField& Foam::apiCoupledTemperatureMixedFvPatchScalarField::T_Neighbour()
 {
-    T_neighbour_;
+    return T_neighbour_;
+}
+const Foam::scalarField& Foam::apiCoupledTemperatureMixedFvPatchScalarField::T_Neighbour
+() const
+{
+    return T_neighbour_;
 }
 
 Foam::scalarField& Foam::apiCoupledTemperatureMixedFvPatchScalarField::heatFlux()
+{
+    return heatflux_;
+}
+const Foam::scalarField& Foam::apiCoupledTemperatureMixedFvPatchScalarField::heatFlux
+() const
 {
     return heatflux_;
 }

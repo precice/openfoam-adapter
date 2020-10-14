@@ -52,12 +52,15 @@ Description
 
 Usage
     \table
-        Property      | Description                         | Required | Default
-        mode          | operation mode (mixed, )
-        refValue      | fixed value                         | no       |
-        refGradient   | patch normal gradient               | no       |
-        valueFraction | value weighting (0-1)               | no       |
-        value         | nothing, only for result plots      | no       |
+        Property      | Description                           | Required | Default
+        mode          | operation mode (mixed | flux )        | no       | mixed
+        refValue      | fixed value                           | no       | value
+        refGradient   | patch normal gradient                 | no       | 0.0
+        valueFraction | value weighting (0-1)                 | no       | 1.0
+        value         | nothing, only for result plots        | no       | -
+        relaxation    | relaxation factor                     | no       | 1.0
+        qr            | Name of radiation field               | no       | -
+        qrRelaxation  | relaxation factor of radiation field  | no       | 1.0
     \endtable
 
     Example of the boundary condition specification:
@@ -65,6 +68,7 @@ Usage
     <patchName>
     {
         type            apiCoupledTemperature;
+        mode            mixed;
 
         refValue        $internalField;
         refGradient     uniform 0;
@@ -147,6 +151,18 @@ private:
         //- Operation mode
         const operationMode mode_;
 
+        // radiation field
+        const word qrName_;
+
+        //- Relaxation for the wall temperature (thermal inertia)
+        scalar relaxation_;
+
+        //- Cache qr for relaxation
+        scalarField qrPrevious_;
+
+        //- Relaxation for qr
+        scalar qrRelaxation_;
+
         //- T_cell of neighbour cell
         scalarField T_neighbour_;
 
@@ -155,18 +171,6 @@ private:
 
         //- heat flux through wall
         scalarField heatflux_;
-
-        //- Relaxation for the wall temperature (thermal inertia)
-        scalar relaxation_;
-
-        // radiation field
-        const word qrName_;
-
-        //- Cache qr for relaxation
-        scalarField qrPrevious_;
-
-        //- Relaxation for qr
-        scalar qrRelaxation_;
 
 
 public:
@@ -296,12 +300,15 @@ public:
 
         //
         scalarField& h_Neighbour();
+        const scalarField& h_Neighbour() const;
 
         //
         scalarField& T_Neighbour();
+        const scalarField& T_Neighbour() const;
 
         //
         scalarField& heatFlux();
+        const scalarField& heatFlux() const;
 
 };
 

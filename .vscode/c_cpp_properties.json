@@ -9,7 +9,7 @@
             ],
             "defines": [
                 "WM_SPDP",
-                "WM_LABEL_SIZE=64"
+                "WM_LABEL_SIZE=32"
             ],
             "compilerPath": "/usr/bin/clang",
             "cStandard": "c11",

@@ -1,5 +1,7 @@
 Utilities.C
 
+BoundaryConditions/apiCoupledTemperatureMixedFvPatchScalarField.C
+
 Interface.C
 
 CouplingDataUser.C

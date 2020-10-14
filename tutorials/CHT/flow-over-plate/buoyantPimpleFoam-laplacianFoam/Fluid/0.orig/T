@@ -22,8 +22,13 @@ boundaryField
 {
     interface
     {
-        type            fixedGradient;
-        gradient        uniform 0;
+        type            apiCoupledTemperature;
+        mode            mixed;
+        
+        refValue        $internalField;
+        refGradient     uniform 0;
+        valueFraction   uniform 1;
+        value           $internalField;
     }
     inlet
     {
