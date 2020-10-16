@@ -49,6 +49,8 @@ libs ("libpreciceAdapterBoundaryConditions");
 
 functions
 {
+    #include "readFields"
+    
     preCICE_Adapter
     {
         type preciceAdapterFunctionObject;

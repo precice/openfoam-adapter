@@ -20,10 +20,17 @@ internalField   uniform 310;
 
 boundaryField
 {
+    #includeEtc "caseDicts/setConstraintTypes"
+    
     interface
     {
-        type            fixedValue;
+        type            apiCoupledTemperature;
+        mode            fixedHeatFlux;
+        
         value           $internalField;
+        
+        kappaMethod     lookup;
+        kappa           kappa;
     }
     left
     {

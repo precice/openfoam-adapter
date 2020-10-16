@@ -86,16 +86,16 @@ private:
     std::vector<Interface*> interfaces_;
 
     //- preCICE solver interface
-    precice::SolverInterface * precice_ = NULL;
+    precice::SolverInterface * precice_ = nullptr;
 
     //- preCICE solver interface initialized
     bool preciceInitialized_ = false;
 
     //- Conjugate Heat Transfer module object
-    std::shared_ptr<CHT::ConjugateHeatTransfer> CHT_ = NULL;
+    std::shared_ptr<CHT::ConjugateHeatTransfer> CHT_ = nullptr;
 
     //- Fluid-Structure Interaction module object
-    FSI::FluidStructureInteraction * FSI_ = NULL;
+    FSI::FluidStructureInteraction * FSI_ = nullptr;
 
     // NOTE: Add here a pointer for your new module object
 

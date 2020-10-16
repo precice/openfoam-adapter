@@ -21,6 +21,8 @@ internalField   uniform 0.01;
 
 boundaryField
 {
+    #includeEtc "caseDicts/setConstraintTypes"
+    
     interface
     {
         type            epsilonWallFunction;

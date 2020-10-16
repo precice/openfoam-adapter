@@ -20,6 +20,8 @@ internalField   uniform 103500;
 
 boundaryField
 {
+    #includeEtc "caseDicts/setConstraintTypes"
+    
     interface
     {
         type            calculated;

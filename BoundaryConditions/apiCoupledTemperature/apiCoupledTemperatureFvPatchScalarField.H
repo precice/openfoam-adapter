@@ -52,15 +52,16 @@ Description
 
 Usage
     \table
-        Property      | Description                           | Required | Default
-        mode          | operation mode (mixed | flux )        | no       | mixed
-        refValue      | fixed value                           | no       | value
-        refGradient   | patch normal gradient                 | no       | 0.0
-        valueFraction | value weighting (0-1)                 | no       | 1.0
-        value         | nothing, only for result plots        | no       | -
-        relaxation    | relaxation factor                     | no       | 1.0
-        qr            | Name of radiation field               | no       | -
-        qrRelaxation  | relaxation factor of radiation field  | no       | 1.0
+        Property         | Description                           | Required | Default
+        mode             | operation mode (fixedTemperature | fixedHeatFlux | HTC ) | yes | -
+        refValue         | fixed value                           | no       | value
+        refGradient      | patch normal gradient                 | no       | 0.0
+        valueFraction    | value weighting (0-1)                 | no       | 1.0
+        value            | nothing, only for result plots        | no       | -
+        relaxation       | relaxation factor                     | no       | 1.0
+        qr               | Name of radiation field               | no       | -
+        qrRelaxation     | relaxation factor of radiation field  | no       | 1.0
+        initialHeatflux  | Initial heat flux in mode "flux"      | no       | 0.0
     \endtable
 
     Example of the boundary condition specification:
@@ -137,6 +138,7 @@ public:
         //- Operation mode enumeration
         enum operationMode
         {
+            fixedTemperature,
             fixedHeatFlux,
             fixedMixedTemperatureHTC,
         };
@@ -169,7 +171,7 @@ private:
         //- heat transfer coefficient of neighbour cell
         scalarField h_neighbour_;
 
-        //- heat flux through wall
+        //- heat flux
         scalarField heatflux_;
 
 

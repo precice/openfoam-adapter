@@ -175,10 +175,10 @@ bool preciceAdapter::Adapter::configFileRead()
             preciceDict
         );
         //
-        if(!instance.has_value())
-            return false;
-        //
-        instance.value().swap(CHT_);
+        if(instance.has_value())
+        {
+            instance.value().swap(CHT_);
+        }
     }
 
     // If the FSI module is enabled, create it, read the

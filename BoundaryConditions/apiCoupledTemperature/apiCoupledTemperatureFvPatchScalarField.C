@@ -22,8 +22,9 @@ const Foam::Enum
 >
 Foam::apiCoupledTemperatureFvPatchScalarField::operationModeNames
 ({
-    { operationMode::fixedHeatFlux, "flux" },
-    { operationMode::fixedMixedTemperatureHTC, "mixed" },
+    { operationMode::fixedTemperature, "fixedTemperature" },
+    { operationMode::fixedHeatFlux, "fixedHeatFlux" },
+    { operationMode::fixedMixedTemperatureHTC, "HTC" },
 });
 
 
@@ -46,9 +47,10 @@ apiCoupledTemperatureFvPatchScalarField
         "undefined-K",
         "undefined-alpha"
     ),
-    mode_(fixedHeatFlux),
+    mode_(fixedTemperature),
     qrName_("undefined-qr"),
     relaxation_(1),
+    qrPrevious_(),
     qrRelaxation_(1),
     T_neighbour_(),
     h_neighbour_(),
@@ -124,6 +126,7 @@ apiCoupledTemperatureFvPatchScalarField
     {
     case fixedHeatFlux:
         heatflux_.resize(p.size(), Zero);
+        heatflux_ = dict.getOrDefault<scalar>("initialHeatflux", Zero);
         break;
 
     case fixedMixedTemperatureHTC:
@@ -297,7 +300,18 @@ Foam::tmp<Foam::scalarField> Foam::apiCoupledTemperatureFvPatchScalarField::getW
 () const
 {
     const scalarField&  Twall (*this);
-    return kappa(Twall) * patch().magSf() * snGrad();
+    auto heatflux (kappa(Twall) * patch().magSf() * snGrad());
+
+    if (qrName_ != "none")
+    {
+        auto & flux (heatflux.ref());
+        forAll(flux, i)
+        {
+            flux[i] -= qrPrevious_[i];
+        }
+    }
+
+    return heatflux;
 }
 
 Foam::tmp<Foam::scalarField> Foam::apiCoupledTemperatureFvPatchScalarField::getHeatTransferCoeff
@@ -401,7 +415,6 @@ void Foam::apiCoupledTemperatureFvPatchScalarField::updateCoeffs
         refGrad() = (heatflux_ + qr) / kappa(Twall);
         refValue() = 0;
         valueFraction() = 0;
-
         break;
 
     case fixedMixedTemperatureHTC:
@@ -437,8 +450,8 @@ void Foam::apiCoupledTemperatureFvPatchScalarField::updateCoeffs
         }
 
         //
-        fract = relaxation_ * fract + (1 - relaxation_) * valueFraction0;
         value = relaxation_ * value + (1 - relaxation_) * refValue0;
+        fract = relaxation_ * fract + (1 - relaxation_) * valueFraction0;
 
         //
         refGrad() = 0;
@@ -453,6 +466,7 @@ void Foam::apiCoupledTemperatureFvPatchScalarField::updateCoeffs
         << patch().boundaryMesh().mesh().name() << ':' << patch().name() << ':' << nl
         << internalField().name() << " :" << nl
         << "\t- heat transfer rate:" << gSum(kappa(Twall) * patch().magSf() * snGrad()) << nl
+        << "\t- wall heat flux:" << gSum(getWallHeatFlux()) << nl
         << "\t- wall temperature:" << nl
         << "\t\t- min:" << gMin(*this) << nl
         << "\t\t- max:" << gMax(*this) << nl
@@ -465,10 +479,12 @@ void Foam::apiCoupledTemperatureFvPatchScalarField::write
 ) const
 {
     fvPatchScalarField::write(os);
+    os.writeEntry("mode", operationModeNames[mode_]);
     temperatureCoupledBase::write(os);
 
     T_neighbour_.writeEntry("T_neighbour", os);
     h_neighbour_.writeEntry("h_neighbour", os);
+    heatflux_.writeEntry("heatflux", os);
 
     if (relaxation_ < 1)
         os.writeEntry("relaxation", relaxation_);
