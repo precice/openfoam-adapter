@@ -126,7 +126,7 @@ apiCoupledTemperatureFvPatchScalarField
     {
     case fixedHeatFlux:
         heatflux_.resize(p.size(), Zero);
-        heatflux_ = dict.getOrDefault<scalar>("initialHeatflux", Zero);
+        heatflux_ = dict.getOrDefault<scalar>("heatFlux", Zero);
         break;
 
     case fixedMixedTemperatureHTC:
@@ -466,6 +466,7 @@ void Foam::apiCoupledTemperatureFvPatchScalarField::updateCoeffs
         << patch().boundaryMesh().mesh().name() << ':' << patch().name() << ':' << nl
         << internalField().name() << " :" << nl
         << "\t- heat transfer rate:" << gSum(kappa(Twall) * patch().magSf() * snGrad()) << nl
+        << "\t- radiation flux:" << gSum(qrPrevious_) << nl
         << "\t- wall heat flux:" << gSum(getWallHeatFlux()) << nl
         << "\t- wall temperature:" << nl
         << "\t\t- min:" << gMin(*this) << nl

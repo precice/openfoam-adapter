@@ -61,7 +61,7 @@ Usage
         relaxation       | relaxation factor                     | no       | 1.0
         qr               | Name of radiation field               | no       | -
         qrRelaxation     | relaxation factor of radiation field  | no       | 1.0
-        initialHeatflux  | Initial heat flux in mode "flux"      | no       | 0.0
+        heatFlux         | Initial heat flux in mode "flux"      | no       | 0.0
     \endtable
 
     Example of the boundary condition specification:
