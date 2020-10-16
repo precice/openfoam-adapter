@@ -1,10 +1,7 @@
-Utilities.C
 
-BoundaryConditions/apiCoupledTemperatureMixedFvPatchScalarField.C
-
-Interface.C
-
-CouplingDataUser.C
+Core/Utilities.C
+Core/Interface.C
+Core/CouplingDataUser.C
 
 CHT/Temperature.C
 CHT/HeatFlux.C
@@ -18,8 +15,7 @@ FSI/Displacement.C
 FSI/DisplacementDelta.C
 FSI/FSI.C
 
-Adapter.C
-
-preciceAdapterFunctionObject.C
+Core/Adapter.C
+Core/preciceAdapterFunctionObject.C
 
 LIB = $(ADAPTER_TARGET_DIR)/libpreciceAdapterFunctionObject

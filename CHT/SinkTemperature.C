@@ -3,7 +3,7 @@
 #include "primitivePatchInterpolation.H"
 #include "volFields.H"
 
-#include "apiCoupledTemperatureMixedFvPatchScalarField.H"
+#include "apiCoupledTemperatureFvPatchScalarField.H"
 
 using namespace Foam;
 
@@ -25,7 +25,7 @@ void preciceAdapter::CHT::SinkTemperature::write(std::vector<double> &buffer, bo
     for (std::size_t j = 0; j < patchIDs_.size(); j++ )
     {
         const auto   patchID          (patchIDs_.at(j));
-        const auto & boundaryPatch    (refCast<const apiCoupledTemperatureMixedFvPatchScalarField> (T_.boundaryField()[patchID]));
+        const auto & boundaryPatch    (refCast<const apiCoupledTemperatureFvPatchScalarField> (T_.boundaryField()[patchID]));
         const auto   patchValue       (boundaryPatch.T_Cell()());
 
         //If we use the mesh connectivity, we interpolate from the centres to the nodes
@@ -61,7 +61,7 @@ void preciceAdapter::CHT::SinkTemperature::read(const std::vector<double> &buffe
     for (std::size_t j = 0; j < patchIDs_.size(); j++)
     {
         const auto patchID    (patchIDs_.at(j));
-        auto boundaryPatch    (refCast<apiCoupledTemperatureMixedFvPatchScalarField> (T_.boundaryFieldRef()[patchID]));
+        auto boundaryPatch    (refCast<apiCoupledTemperatureFvPatchScalarField> (T_.boundaryFieldRef()[patchID]));
         auto patchValue       (boundaryPatch.T_Neighbour());
 
         // For every cell of the patch

@@ -45,6 +45,8 @@ timePrecision   6;
 
 runTimeModifiable false;
 
+libs ("libpreciceAdapterBoundaryConditions");
+
 functions
 {
     preCICE_Adapter

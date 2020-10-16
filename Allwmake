@@ -1,6 +1,11 @@
 #!/bin/sh
 cd ${0%/*} || exit 1    # Run from this directory
 
+# make sure boundary condition library is build
+cd BoundaryConditions
+./Allwmake
+cd ..
+
 ########## CONFIGURATION - You may want to change these ########################
 # preCICE root path (should be already globally set)
 ADAPTER_PRECICE_ROOT="${PRECICE_ROOT}"
@@ -143,6 +148,7 @@ else
         log "- Is preCICE discoverable at runtime? Check the content of ADAPTER_PKG_CONFIG_LIBS and ADAPTER_GLOBAL_LD_LIBRARY_PATHS above."
         log "- If preCICE is (in purpose) only build as a static library, please set the ADAPTER_PRECICE_DEP in this script appropriately (see comments)."
         log "See wmake.log and ldd.log for more details."
+        exit 1
     else
         log "=== OK: Building completed successfully! ==="
         log "Next step: Run an example from the tutorials/ directory."

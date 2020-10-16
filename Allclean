@@ -13,3 +13,8 @@ wclean && echo "Cleaning complete!"
 
 # Delete the log files
 rm -f Allwmake.log wmake.log ldd.log
+
+# clean up boundary condition build
+cd BoundaryConditions
+./Allclean
+cd ..
