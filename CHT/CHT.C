@@ -72,7 +72,7 @@ void preciceAdapter::CHT::ConjugateHeatTransfer::addWriters
         dataName.find("Sink-Temperature") == 0
     )
     {
-        interface->addCouplingDataReader
+        interface->addCouplingDataWriter
         (
             dataName,
             std::make_shared<SinkTemperature>(mesh_, parameterName_.T)
@@ -84,7 +84,7 @@ void preciceAdapter::CHT::ConjugateHeatTransfer::addWriters
         dataName.find("Temperature") == 0
     )
     {
-        interface->addCouplingDataReader
+        interface->addCouplingDataWriter
         (
             dataName,
             std::make_shared<Temperature>(mesh_, parameterName_.T)
@@ -96,7 +96,7 @@ void preciceAdapter::CHT::ConjugateHeatTransfer::addWriters
         dataName.find("Heat-Flux") == 0
     )
     {
-        interface->addCouplingDataReader
+        interface->addCouplingDataWriter
         (
             dataName,
             std::make_shared<HeatFlux>(mesh_, parameterName_.T)
@@ -108,7 +108,7 @@ void preciceAdapter::CHT::ConjugateHeatTransfer::addWriters
         dataName.find("Heat-Transfer-Coefficient") == 0
     )
     {
-        interface->addCouplingDataReader
+        interface->addCouplingDataWriter
         (
             dataName,
             std::make_shared<HeatTransferCoefficient>(mesh_, parameterName_.T)

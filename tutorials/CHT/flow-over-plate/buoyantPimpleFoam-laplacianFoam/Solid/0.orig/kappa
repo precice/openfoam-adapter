@@ -30,17 +30,20 @@ boundaryField
 
     left
     {
-        type            empty;
+        type            fixedValue;
+        value           $internalField;
     }
 
     right
     {
-        type            empty;
+        type            fixedValue;
+        value           $internalField;
     }
 
     bottom
     {
-        type            empty;
+        type            fixedValue;
+        value           $internalField;
     }
     
     defaultFaces

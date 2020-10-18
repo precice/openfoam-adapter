@@ -26,6 +26,9 @@ boundaryField
     {
         type            apiCoupledTemperature;
         mode            fixedHeatFlux;
+
+        kappaMethod     fluidThermo;
+        kappa           kappa;
         
         value           $internalField;
     }
