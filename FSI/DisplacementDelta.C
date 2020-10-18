@@ -38,7 +38,7 @@ void preciceAdapter::FSI::DisplacementDelta::read(const std::vector<double> &dat
     // For every boundary patch of the interface
     for (std::size_t j = 0; j < patchIDs_.size(); j++)
     {
-        const auto  patchID = patchIDs_.at(j);
+        const auto patchID = patchIDs_.at(j);
 
         // Get the displacement on the patch
         fixedValuePointPatchVectorField& pointDisplacementFluidPatch
@@ -55,7 +55,7 @@ void preciceAdapter::FSI::DisplacementDelta::read(const std::vector<double> &dat
             // Add the received delta to the actual displacement
             pointDisplacementFluidPatch[i][0] += dataBuffer[bufferIndex++];
             pointDisplacementFluidPatch[i][1] += dataBuffer[bufferIndex++];
-            if(dim==3)
+            if(dim == 3)
                 pointDisplacementFluidPatch[i][2] += dataBuffer[bufferIndex++];
         }
     }

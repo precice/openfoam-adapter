@@ -3,6 +3,8 @@
 #include "primitivePatchInterpolation.H"
 #include "volFields.H"
 
+#include "apiCoupledTemperatureFvPatchScalarField.H"
+
 using namespace Foam;
 
 preciceAdapter::CHT::Temperature::Temperature
@@ -59,11 +61,26 @@ void preciceAdapter::CHT::Temperature::read(const std::vector<double> &buffer, c
         const auto  patchID          (patchIDs_.at(j));
         auto &      boundaryPatch    (T_.boundaryFieldRef()[patchID]);
 
-        // For every cell of the patch
-        forAll(boundaryPatch, i)
+        if (auto * mixedFieldPatch = dynamic_cast<mixedFvPatchScalarField*>(&boundaryPatch))
         {
-            // Set the temperature as the buffer value
-            boundaryPatch[i] = buffer[bufferIndex++];
+            auto & ref = mixedFieldPatch->refValue();
+
+            forAll(ref, i)
+            {
+                // Set the temperature as the buffer value
+                ref[i] = buffer[bufferIndex++];
+            }
+        }
+        else
+        {
+            // assume fixed value field or similar behaivor type
+
+            // For every cell of the patch
+            forAll(boundaryPatch, i)
+            {
+                // Set the temperature as the buffer value
+                boundaryPatch[i] = buffer[bufferIndex++];
+            }
         }
     }
 }
