@@ -11,6 +11,7 @@ preciceAdapter::FSI::Force::Force
 CouplingDataUser(DT_Vector),
 mesh_(mesh),
 solverType_(solverType),
+Force_(std::make_shared<volVectorField>(nullptr)),
 force_field_created(false)
 {}
 
@@ -29,6 +30,23 @@ preciceAdapter::FSI::Force::Force
 CouplingDataUser(DT_Vector),
 mesh_(mesh),
 solverType_(solverType),
+Force_(std::make_shared<volVectorField>(
+    IOobject
+    (
+        "Force",
+        timeName,
+        mesh,
+        IOobject::NO_READ,
+        IOobject::AUTO_WRITE
+    ),
+    mesh,
+    dimensionedVector
+    (
+        "fdim",
+        dimensionSet(1,1,-2,0,0,0,0),
+        Foam::vector::zero
+     )
+)),
 force_field_created(true)
 {
     //What about type "basic"?
@@ -39,25 +57,6 @@ force_field_created(true)
             << "compressible or incompressible solver type."
             << exit(FatalError);
     }
-
-    Force_ = new volVectorField
-    (
-        IOobject
-        (
-            "Force",
-            timeName,
-            mesh,
-            IOobject::NO_READ,
-            IOobject::AUTO_WRITE
-        ),
-        mesh,
-        dimensionedVector
-        (
-            "fdim",
-            dimensionSet(1,1,-2,0,0,0,0),
-            Foam::vector::zero
-        )
-    );
 }
 
 //Calculate viscous force
@@ -287,7 +286,4 @@ void preciceAdapter::FSI::Force::read(const std::vector<double> &dataBuffer, con
 }
 
 preciceAdapter::FSI::Force::~Force()
-{
-  if(force_field_created)
-    delete Force_;
-}
+{}

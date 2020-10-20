@@ -1,19 +1,10 @@
 #!/bin/bash -xe
 
 cd "${0%/*}" || exit                                # Run from this directory
-. ${WM_PROJECT_DIR:?}/bin/tools/RunFunctions        # Tutorial run functions
+. ${WM_PROJECT_DIR:?}/bin/tools/RunFunctions        # run functions
 
-# clean up
-./Allclean
-
-# Restore initial fields
-cd Fluid
-restore0Dir
-
-cd ../Solid
-restore0Dir
-
-cd ..
+#
+./Allrun.pre
 
 # Participant 1: Fluid
 Participant1="Fluid"

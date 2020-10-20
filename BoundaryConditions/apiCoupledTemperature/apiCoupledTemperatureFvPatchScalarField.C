@@ -391,23 +391,20 @@ void Foam::apiCoupledTemperatureFvPatchScalarField::updateCoeffs
     // stop if up-to-date
     if (updated()) return;
 
+    //
+    const scalarField&  Twall   (*this);
+
     // qr field
-    auto qr_get_field = [&](Foam::label patchSize)
     {
-        scalarField qr_tmp(patchSize, Zero);
+        scalarField qr_tmp(Twall.size(), Zero);
         //
         if (qrName_ != "none")
         {
             qr_tmp = qrRelaxation_ * patch().lookupPatchField<volScalarField, scalar>(qrName_) + (1 - qrRelaxation_) * qrPrevious_;
             qrPrevious_ = qr_tmp;
         }
-        //
-        return qr_tmp;
     };
-
-    //
-    const scalarField&  Twall   (*this);
-    const scalarField   qr      (qr_get_field(Twall.size()));
+    const scalarField&  qr      (qrPrevious_);
 
     // do update depending on operation mode
     switch (mode_)

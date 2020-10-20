@@ -1,0 +1,34 @@
+#!/bin/bash -xe
+
+. ${WM_PROJECT_DIR:?}/bin/tools/RunFunctions        # run functions
+
+# clean up
+./Allclean
+
+# Restore initial fields
+cd Fluid
+restore0Dir
+
+cd ../Solid
+restore0Dir
+
+cd ..
+
+# setup preCICE
+if [ -n "$doHeatSink" ] ; then
+
+    cp -f precice-config.xml.sink precice-config.xml
+    cp -f Fluid/system/preciceDict.default Fluid/system/preciceDict
+    cp -f Solid/system/preciceDict.default Solid/system/preciceDict
+
+elif [ -n "$doNearestProjection" ] ; then
+
+    cp -f precice-config.xml.nearest-projection precice-config.xml
+    cp -f Fluid/system/preciceDict.nearest Fluid/system/preciceDict
+    cp -f Solid/system/preciceDict.nearest Solid/system/preciceDict
+
+else
+    cp -f precice-config.xml.temperature precice-config.xml
+    cp -f Fluid/system/preciceDict.default Fluid/system/preciceDict
+    cp -f Solid/system/preciceDict.default Solid/system/preciceDict
+fi

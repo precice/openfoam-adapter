@@ -1,6 +1,8 @@
 #ifndef FSI_STRESS_H
 #define FSI_STRESS_H
 
+#include <memory>
+
 #include "CouplingDataUser.H"
 #include "Force.H"
 
@@ -32,7 +34,7 @@ private:
     const std::string solverType_;
 
     //- Stress field
-    Foam::volVectorField * Stress_;
+    std::shared_ptr<Foam::volVectorField> Stress_;
 
 
 public:

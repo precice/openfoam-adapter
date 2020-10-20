@@ -15,35 +15,25 @@ preciceAdapter::FSI::Stress::Stress
 :
 Force(mesh,solverType),
 mesh_(mesh),
-solverType_(solverType)
-{
-    if (solverType_.compare("incompressible") != 0 && solverType_.compare("compressible") != 0)
-    {
-        FatalErrorInFunction
-            << "Stresses calculation only supports "
-            << "compressible or incompressible solver type."
-            << exit(FatalError);
-    }
-
-    Stress_ = new volVectorField
+solverType_(solverType),
+Stress_(std::make_shared<volVectorField>(
+    IOobject
     (
-        IOobject
-        (
-            "Stress",
-            timeName,
-            mesh,
-            IOobject::NO_READ,
-            IOobject::AUTO_WRITE
-        ),
+        "Stress",
+        timeName,
         mesh,
-        dimensionedVector
-        (
-            "pdim",
-            dimensionSet(1,-1,-2,0,0,0,0),
-            Foam::vector::zero
-        )
-    );
-}
+        IOobject::NO_READ,
+        IOobject::AUTO_WRITE
+    ),
+    mesh,
+    dimensionedVector
+    (
+        "pdim",
+        dimensionSet(1,-1,-2,0,0,0,0),
+        Foam::vector::zero
+    )
+))
+{}
 
 void preciceAdapter::FSI::Stress::write(std::vector<double> &dataBuffer, bool meshConnectivity, const unsigned int dim)
 {
@@ -139,6 +129,4 @@ void preciceAdapter::FSI::Stress::read(const std::vector<double> &dataBuffer, co
 }
 
 preciceAdapter::FSI::Stress::~Stress()
-{
-    delete Stress_;
-}
+{}

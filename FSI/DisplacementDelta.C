@@ -9,12 +9,7 @@ preciceAdapter::FSI::DisplacementDelta::DisplacementDelta
 )
 :
 CouplingDataUser(DT_Vector),
-pointDisplacement_(
-    const_cast<pointVectorField*>
-    (
-        &mesh.lookupObject<pointVectorField>(namePointDisplacement)
-    )
-)
+pointDisplacement_(mesh.lookupObjectRef<pointVectorField>(namePointDisplacement))
 {}
 
 void preciceAdapter::FSI::DisplacementDelta::write(std::vector<double> &dataBuffer, bool meshConnectivity, const unsigned int dim)
@@ -45,12 +40,12 @@ void preciceAdapter::FSI::DisplacementDelta::read(const std::vector<double> &dat
         (
             refCast<fixedValuePointPatchVectorField>
             (
-                pointDisplacement_->boundaryFieldRef()[patchID]
+                pointDisplacement_.boundaryFieldRef()[patchID]
             )
         );
 
         // For every cell of the patch
-        forAll(pointDisplacement_->boundaryFieldRef()[patchID], i)
+        forAll(pointDisplacement_.boundaryFieldRef()[patchID], i)
         {
             // Add the received delta to the actual displacement
             pointDisplacementFluidPatch[i][0] += dataBuffer[bufferIndex++];

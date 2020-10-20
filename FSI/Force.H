@@ -1,6 +1,8 @@
 #ifndef FSI_FORCE_H
 #define FSI_FORCE_H
 
+#include <memory>
+
 #include "CouplingDataUser.H"
 
 #include "fvCFD.H"
@@ -28,7 +30,7 @@ private:
     const std::string solverType_;
 
     //- Force field
-    Foam::volVectorField * Force_;
+    std::shared_ptr<Foam::volVectorField> Force_;
 
     // Needed for inheritance to the Stress data field to avoid creating the Force
     // field in case it is not required

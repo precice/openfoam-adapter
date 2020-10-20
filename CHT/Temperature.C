@@ -34,7 +34,7 @@ void preciceAdapter::CHT::Temperature::write(std::vector<double> &buffer, bool m
             primitivePatchInterpolation patchInterpolator(mesh_.boundaryMesh()[patchID]);
 
             //Interpolate from centers to nodes
-            const auto pointValue (patchInterpolator.faceToPointInterpolate(boundaryPatch)());
+            const scalarField pointValue (patchInterpolator.faceToPointInterpolate(boundaryPatch));
 
             forAll(pointValue, i)
             {

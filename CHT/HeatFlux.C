@@ -27,9 +27,9 @@ void preciceAdapter::CHT::HeatFlux::write(std::vector<double> &buffer, bool mesh
     // For every boundary patch of the interface
     for (std::size_t j = 0; j < patchIDs_.size(); j++ )
     {
-        const auto   patchID          (patchIDs_.at(j));
-        const auto & boundaryPatch    (refCast<const apiCoupledTemperatureFvPatchScalarField> (T_.boundaryField()[patchID]));
-        const auto   patchValue       (boundaryPatch.getWallHeatFlux()());
+        const auto          patchID          (patchIDs_.at(j));
+        const auto &        boundaryPatch    (refCast<const apiCoupledTemperatureFvPatchScalarField> (T_.boundaryField()[patchID]));
+        const scalarField   patchValue       (boundaryPatch.getWallHeatFlux());
 
         // If we use the mesh connectivity, we interpolate from the centres to the nodes
         if(meshConnectivity)
@@ -38,7 +38,7 @@ void preciceAdapter::CHT::HeatFlux::write(std::vector<double> &buffer, bool mesh
             const primitivePatchInterpolation patchInterpolator(mesh_.boundaryMesh()[patchID]);
 
             //Interpolate
-            const auto pointValue (patchInterpolator.faceToPointInterpolate(patchValue)());
+            const scalarField pointValue (patchInterpolator.faceToPointInterpolate(patchValue));
 
             // For every cell of the patch
             forAll(pointValue, i)

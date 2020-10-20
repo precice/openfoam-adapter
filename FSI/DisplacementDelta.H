@@ -18,7 +18,7 @@ class DisplacementDelta : public CouplingDataUser
 private:
 
     // Displacement pointVectorField
-    Foam::pointVectorField * pointDisplacement_;
+    Foam::pointVectorField& pointDisplacement_;
 
 public:
 

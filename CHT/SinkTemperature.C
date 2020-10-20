@@ -24,9 +24,9 @@ void preciceAdapter::CHT::SinkTemperature::write(std::vector<double> &buffer, bo
     // For every boundary patch of the interface
     for (std::size_t j = 0; j < patchIDs_.size(); j++ )
     {
-        const auto   patchID          (patchIDs_.at(j));
-        const auto & boundaryPatch    (refCast<const apiCoupledTemperatureFvPatchScalarField> (T_.boundaryField()[patchID]));
-        const auto   patchValue       (boundaryPatch.T_Cell()());
+        const auto          patchID          (patchIDs_.at(j));
+        const auto &        boundaryPatch    (refCast<const apiCoupledTemperatureFvPatchScalarField> (T_.boundaryField()[patchID]));
+        const scalarField   patchValue       (boundaryPatch.T_Cell());
 
         //If we use the mesh connectivity, we interpolate from the centres to the nodes
         if(meshConnectivity)
@@ -35,7 +35,7 @@ void preciceAdapter::CHT::SinkTemperature::write(std::vector<double> &buffer, bo
             primitivePatchInterpolation patchInterpolator(mesh_.boundaryMesh()[patchID]);
 
             //Interpolate from centers to nodes
-            const auto pointValue (patchInterpolator.faceToPointInterpolate(patchValue)());
+            const scalarField pointValue (patchInterpolator.faceToPointInterpolate(patchValue));
             
             // For all the cells on the patch
             forAll(pointValue, i)

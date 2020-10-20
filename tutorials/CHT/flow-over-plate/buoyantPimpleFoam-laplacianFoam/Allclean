@@ -57,5 +57,9 @@ rm -fv \
 rm -rfv precice-run
 rm -fv .*.address
 
+rm -f precice-config.xml
+rm -f Fluid/system/preciceDict
+rm -f Solid/system/preciceDict
+
 echo "Cleaning complete!"
 #------------------------------------------------------------------------------
