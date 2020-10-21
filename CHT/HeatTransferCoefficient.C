@@ -27,9 +27,9 @@ void preciceAdapter::CHT::HeatTransferCoefficient::write(std::vector<double> &bu
     // For every boundary patch of the interface
     for (std::size_t j = 0; j < patchIDs_.size(); j++ )
     {
-        const auto          patchID          (patchIDs_.at(j));
-        const auto &        boundaryPatch    (refCast<const apiCoupledTemperatureFvPatchScalarField> (T_.boundaryField()[patchID]));
-        const scalarField   patchValue       (boundaryPatch.getHeatTransferCoeff());
+        const auto      patchID         (patchIDs_.at(j));
+        const auto &    boundaryPatch   (refCast<const apiCoupledTemperatureFvPatchScalarField> (T_.boundaryField()[patchID]));
+        auto            value           (boundaryPatch.getHeatTransferCoeff());
 
         //If we use the mesh connectivity, we interpolate from the centres to the nodes
         if(meshConnectivity)
@@ -38,20 +38,14 @@ void preciceAdapter::CHT::HeatTransferCoefficient::write(std::vector<double> &bu
             primitivePatchInterpolation patchInterpolator(mesh_.boundaryMesh()[patchID]);
 
             //Interpolate
-            const scalarField pointValue (patchInterpolator.faceToPointInterpolate(patchValue));
-
-            // For all the cells on the patch
-            forAll(pointValue, i)
-            {
-                buffer[bufferIndex++] = pointValue[i];
-            }
+            value =  (patchInterpolator.faceToPointInterpolate(value));
         }
-        else
+
+        //
+        const scalarField & data (value.cref());
+        forAll(data, i)
         {
-            forAll(patchValue, i)
-            {
-                buffer[bufferIndex++] = patchValue[i];
-            }
+            buffer[bufferIndex++] = data[i];
         }
     }
 }
@@ -63,9 +57,9 @@ void preciceAdapter::CHT::HeatTransferCoefficient::read(const std::vector<double
     // For every boundary patch of the interface
     for (std::size_t j = 0; j < patchIDs_.size(); j++)
     {
-        const auto  patchID    (patchIDs_.at(j));
-        auto &      boundaryPatch    (refCast<apiCoupledTemperatureFvPatchScalarField> (T_.boundaryFieldRef()[patchID]));
-        auto &      patchValue       (boundaryPatch.h_Neighbour());
+        const auto  patchID         (patchIDs_.at(j));
+        auto &      boundaryPatch   (refCast<apiCoupledTemperatureFvPatchScalarField> (T_.boundaryFieldRef()[patchID]));
+        auto &      patchValue      (boundaryPatch.h_Neighbour());
 
         // For every cell on the patch
         forAll(patchValue, i)
