@@ -35,7 +35,7 @@ void preciceAdapter::CHT::SinkTemperature::write(std::vector<double> &buffer, bo
             primitivePatchInterpolation patchInterpolator(mesh_.boundaryMesh()[patchID]);
 
             //Interpolate from centers to nodes
-            value = (patchInterpolator.faceToPointInterpolate(value));
+            value = patchInterpolator.faceToPointInterpolate(value);
         }
 
         //

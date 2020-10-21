@@ -38,7 +38,7 @@ void preciceAdapter::CHT::HeatFlux::write(std::vector<double> &buffer, bool mesh
             const primitivePatchInterpolation patchInterpolator(mesh_.boundaryMesh()[patchID]);
 
             //Interpolate
-            value = (patchInterpolator.faceToPointInterpolate(value));
+            value = patchInterpolator.faceToPointInterpolate(value);
         }
 
         //
