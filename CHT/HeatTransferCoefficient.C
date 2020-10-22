@@ -22,6 +22,7 @@ preciceAdapter::CHT::HeatTransferCoefficient::HeatTransferCoefficient
 
 void preciceAdapter::CHT::HeatTransferCoefficient::write(std::vector<double> &buffer, bool meshConnectivity, const unsigned int dim)
 {
+    std::cout << "HeatTransferCoefficient::write - start" << std::endl;
     std::size_t bufferIndex = 0;
 
     // For every boundary patch of the interface
@@ -48,10 +49,12 @@ void preciceAdapter::CHT::HeatTransferCoefficient::write(std::vector<double> &bu
             buffer[bufferIndex++] = data[i];
         }
     }
+    std::cout << "HeatTransferCoefficient::write - end" << std::endl;
 }
 
 void preciceAdapter::CHT::HeatTransferCoefficient::read(const std::vector<double> &buffer, const unsigned int dim)
 {
+    std::cout << "HeatTransferCoefficient::read - start" << std::endl;
     std::size_t bufferIndex = 0;
 
     // For every boundary patch of the interface
@@ -67,4 +70,5 @@ void preciceAdapter::CHT::HeatTransferCoefficient::read(const std::vector<double
             patchValue[i] = buffer[bufferIndex++];
         }
     }
+    std::cout << "HeatTransferCoefficient::read - end" << std::endl;
 }

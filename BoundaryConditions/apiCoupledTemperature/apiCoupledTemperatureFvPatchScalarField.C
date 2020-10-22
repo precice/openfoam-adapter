@@ -13,8 +13,6 @@
 #include <limits>
 #include <algorithm>
 
-#include <iostream>
-
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
 
 const Foam::Enum

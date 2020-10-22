@@ -5,6 +5,8 @@
 
 #include "apiCoupledTemperatureFvPatchScalarField.H"
 
+#include <iostream>
+
 using namespace Foam;
 
 preciceAdapter::CHT::SinkTemperature::SinkTemperature
@@ -19,6 +21,7 @@ preciceAdapter::CHT::SinkTemperature::SinkTemperature
 
 void preciceAdapter::CHT::SinkTemperature::write(std::vector<double> &buffer, bool meshConnectivity, const unsigned int dim)
 {
+    std::cout << "SinkTemperature::write - start" << std::endl;
     std::size_t bufferIndex = 0;
 
     // For every boundary patch of the interface
@@ -45,10 +48,12 @@ void preciceAdapter::CHT::SinkTemperature::write(std::vector<double> &buffer, bo
             buffer[bufferIndex++] = data[i];
         }
     }
+    std::cout << "SinkTemperature::write - end" << std::endl;
 }
 
 void preciceAdapter::CHT::SinkTemperature::read(const std::vector<double> &buffer, const unsigned int dim)
 {
+    std::cout << "SinkTemperature::read - start" << std::endl;
     std::size_t bufferIndex = 0;
 
     // For every boundary patch of the interface
@@ -64,4 +69,5 @@ void preciceAdapter::CHT::SinkTemperature::read(const std::vector<double> &buffe
             patchValue[i] = buffer[bufferIndex++];
         }
     }
+    std::cout << "SinkTemperature::read - end" << std::endl;
 }
