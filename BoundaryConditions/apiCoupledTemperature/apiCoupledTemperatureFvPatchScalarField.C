@@ -419,6 +419,8 @@ void Foam::apiCoupledTemperatureFvPatchScalarField::updateCoeffs
         std::cout << "refValue0.size(): " << refValue0.size() << "\n";
         std::cout << "h_cell_.size(): " << h_cell_.size() << "\n";
         std::cout << "qr.size(): " << qr.size() << "\n";
+        std::cout << "h_neighbour_.size(): " << h_neighbour_.size() << "\n";
+        std::cout << "T_neighbour_.size(): " << T_neighbour_.size() << "\n";
         std::cout << "Twall.size(): " << Twall.size() << "\n" << "\n-------------------------------------\n";
 
         forAll(Twall, i)
