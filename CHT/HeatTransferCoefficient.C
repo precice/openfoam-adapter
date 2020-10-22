@@ -5,6 +5,8 @@
 
 #include "apiCoupledTemperatureFvPatchScalarField.H"
 
+#include <iostream>
+
 using namespace Foam;
 
 //----- preciceAdapter::CHT::HeatTransferCoefficient --------------------------
