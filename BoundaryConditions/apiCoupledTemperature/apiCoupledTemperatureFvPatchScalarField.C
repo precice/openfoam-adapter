@@ -123,13 +123,13 @@ apiCoupledTemperatureFvPatchScalarField
     switch (mode_)
     {
     case fixedHeatFlux:
-        heatflux_.resize(p.size(), Zero);
-        heatflux_ = dict.getOrDefault<scalar>("heatFlux", Zero);
+        heatflux_.resize(p.size(), scalar(0));
+        heatflux_ = dict.getOrDefault<scalar>("heatFlux", scalar(0));
         break;
 
     case fixedMixedTemperatureHTC:
-        T_neighbour_.resize(p.size(), Zero);
-        h_neighbour_.resize(p.size(), Zero);
+        T_neighbour_.resize(p.size(), scalar(0));
+        h_neighbour_.resize(p.size(), scalar(0));
         break;
     }
 
@@ -174,7 +174,7 @@ apiCoupledTemperatureFvPatchScalarField
     }
     else
     {
-        qrPrevious_.resize(p.size(), Zero);
+        qrPrevious_.resize(p.size(), scalar(0));
     }
     
 }
@@ -430,16 +430,23 @@ void Foam::apiCoupledTemperatureFvPatchScalarField::updateCoeffs
 
             const scalar h2T2 = h2 * T2;
 
-            if (qr[i] < 0)
+            if (qr[i] < 0.0)
             {
+                std::cout << "qr[i] < 0: " << qr[i] << std::endl;
+                std::cout << "Twall[i]: " << Twall[i] << std::endl;
                 // qr < 0 := cooling wall by radiation flux (into the fluid region)
                 const scalar h2_qr = h2 - qr[i] / Twall[i];
 
+                std::cout << "h2_qr: " << h2_qr << std::endl;
+                std::cout << "h2_qr + h1: " << h2_qr + h1 << std::endl;
                 value[i] = h2T2 / h2_qr;
                 fract[i] = h2_qr / (h2_qr + h1);
             }
             else
             {
+                std::cout << "qr[i] >= 0: " << qr[i] << std::endl;
+                std::cout << "h2: " << h2 << std::endl;
+                std::cout << "h2 + h1: " << h2 + h1 << std::endl;
                 // qr >= 0 := heating wall with the incomming radiation flux
                 value[i] = (h2T2 + qr[i]) / h2;
                 fract[i] = h2 / (h2 + h1);
