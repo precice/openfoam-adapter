@@ -126,19 +126,6 @@ apiCoupledTemperatureFvPatchScalarField
         fvPatchScalarField::operator=(scalarField("value", dict, p.size()));
     }
 
-    switch (mode_)
-    {
-    case fixedHeatFlux:
-        heatflux_.resize(p.size(), dict.getOrDefault<scalar>("heatFlux", scalar(0)));
-        break;
-
-    case fixedMixedTemperatureHTC:
-        const scalar T2 (dict.getOrDefault<scalar>("T2", dict.getOrDefault<scalar>("refValue", dict.getOrDefault<scalar>("value", 0))));
-        T_neighbour_.resize(p.size(), T2);
-        h_neighbour_.resize(p.size(), dict.getOrDefault<scalar>("h2", scalar(1)));
-        break;
-    }
-
     // mixed value
     if (dict.found("refValue"))
     {
@@ -165,6 +152,41 @@ apiCoupledTemperatureFvPatchScalarField
     else
     {
         valueFraction() = scalar(1);
+    }
+
+    switch (mode_)
+    {
+    case fixedHeatFlux:
+        heatflux_.resize(p.size(), dict.getOrDefault<scalar>("heatFlux", scalar(0)));
+        break;
+
+    case fixedMixedTemperatureHTC:
+        h_neighbour_.resize(p.size(), dict.getOrDefault<scalar>("h2", scalar(1)));
+        T_neighbour_.resize(p.size(), scalar(0));
+
+        if (dict.found("T2"))
+        {
+            scalarField field ("T2", dict, p.size());
+            forAll(T_neighbour_, i)
+            {
+                T_neighbour_[i] = field[i];
+            }
+        } else if (dict.found("refValue"))
+        {
+            const scalarField& field (refValue());
+            forAll(T_neighbour_, i)
+            {
+                T_neighbour_[i] = field[i];
+            }
+        } else if (dict.found("value"))
+        {
+            const scalarField& field (*this);
+            forAll(T_neighbour_, i)
+            {
+                T_neighbour_[i] = field[i];
+            }
+        }
+        break;
     }
 
     // radiation field
