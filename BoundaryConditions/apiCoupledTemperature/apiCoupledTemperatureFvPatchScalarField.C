@@ -382,7 +382,6 @@ void Foam::apiCoupledTemperatureFvPatchScalarField::updateCoeffs
     if (updated()) return;
 
     // qr field
-    std::cout << "qr field" << std::endl;
     if (qrName_ != "none")
     {
         const auto data = qrRelaxation_ * patch().lookupPatchField<volScalarField, scalar>(qrName_) + (1 - qrRelaxation_) * qrPrevious_;
@@ -392,9 +391,7 @@ void Foam::apiCoupledTemperatureFvPatchScalarField::updateCoeffs
     };
 
     //
-    std::cout << "Twall" << std::endl;
     const scalarField&  Twall   (*this);
-    std::cout << "qr" << std::endl;
     const scalarField&  qr      (qrPrevious_);
 
     // do update depending on operation mode
@@ -407,7 +404,6 @@ void Foam::apiCoupledTemperatureFvPatchScalarField::updateCoeffs
         break;
 
     case fixedMixedTemperatureHTC:
-        std::cout << "enter switch" << std::endl;
         // get values from mixed-value boundary field
         scalarField &value(refValue());
         scalarField &fract(valueFraction());
@@ -415,10 +411,19 @@ void Foam::apiCoupledTemperatureFvPatchScalarField::updateCoeffs
         const scalarField refValue0(fract);
         const scalarField h_cell_(kappa(Twall) * patch().deltaCoeffs());
 
-        std::cout << "fixedMixedTemperatureHTC" << std::endl;
+        std::cout << "fixedMixedTemperatureHTC" << "\n";
+
+        std::cout << "value.size(): " << value.size() << "\n";
+        std::cout << "fract.size(): " << fract.size() << "\n";
+        std::cout << "valueFraction0.size(): " << valueFraction0.size() << "\n";
+        std::cout << "refValue0.size(): " << refValue0.size() << "\n";
+        std::cout << "h_cell_.size(): " << h_cell_.size() << "\n";
+        std::cout << "qr.size(): " << qr.size() << "\n";
+        std::cout << "Twall.size(): " << Twall.size() << "\n" << "\n-------------------------------------\n";
 
         forAll(Twall, i)
         {
+            std::cout << "i: " << i << std::endl;
             const scalar h1 = h_cell_[i];
             const scalar h2 = h_neighbour_[i];
             const scalar T2 = T_neighbour_[i];
@@ -452,7 +457,6 @@ void Foam::apiCoupledTemperatureFvPatchScalarField::updateCoeffs
     }
 
     //
-    std::cout << "mixedFvPatchScalarField::updateCoeffs" << std::endl;
     mixedFvPatchScalarField::updateCoeffs();
 
     //
