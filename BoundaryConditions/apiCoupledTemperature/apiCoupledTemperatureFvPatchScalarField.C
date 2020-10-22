@@ -98,11 +98,8 @@ apiCoupledTemperatureFvPatchScalarField
         break;
     }
     
-    if (qrName_ != "none")
-    {
-        qrPrevious_.resize(mapper.size());
-        qrPrevious_.map(rhs.qrPrevious_, mapper);
-    }
+    qrPrevious_.resize(mapper.size());
+    qrPrevious_.map(rhs.qrPrevious_, mapper);
 }
 
 
@@ -120,6 +117,7 @@ apiCoupledTemperatureFvPatchScalarField
     mode_(operationModeNames.get("mode", dict)),
     qrName_(dict.getOrDefault<word>("qr", "none")),
     relaxation_(dict.getOrDefault<scalar>("relaxation", scalar(1))),
+    qrPrevious_(p.size(), Zero),
     qrRelaxation_(dict.getOrDefault<scalar>("qrRelaxation", scalar(1)))
 {
     switch (mode_)
@@ -243,10 +241,7 @@ void Foam::apiCoupledTemperatureFvPatchScalarField::autoMap
         break;
     }
 
-    if (qrName_ != "none")
-    {
-        qrPrevious_.autoMap(mapper);
-    }
+    qrPrevious_.autoMap(mapper);
 }
 
 
@@ -271,10 +266,7 @@ void Foam::apiCoupledTemperatureFvPatchScalarField::rmap
     }
 
 
-    if (qrName_ != "none")
-    {
-        qrPrevious_.rmap(rhs.qrPrevious_, addr);
-    }
+    qrPrevious_.rmap(rhs.qrPrevious_, addr);
 }
 
 
@@ -391,19 +383,17 @@ void Foam::apiCoupledTemperatureFvPatchScalarField::updateCoeffs
     // stop if up-to-date
     if (updated()) return;
 
+    // qr field
+    if (qrName_ != "none")
+    {
+        const auto data = qrRelaxation_ * patch().lookupPatchField<volScalarField, scalar>(qrName_) + (1 - qrRelaxation_) * qrPrevious_;
+
+        // copy to
+        qrPrevious_ = data.cref();
+    };
+
     //
     const scalarField&  Twall   (*this);
-
-    // qr field
-    {
-        scalarField qr_tmp(Twall.size(), Zero);
-        //
-        if (qrName_ != "none")
-        {
-            qr_tmp = qrRelaxation_ * patch().lookupPatchField<volScalarField, scalar>(qrName_) + (1 - qrRelaxation_) * qrPrevious_;
-            qrPrevious_ = qr_tmp;
-        }
-    };
     const scalarField&  qr      (qrPrevious_);
 
     // do update depending on operation mode
