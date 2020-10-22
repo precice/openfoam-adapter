@@ -120,23 +120,23 @@ apiCoupledTemperatureFvPatchScalarField
     relaxation_(dict.getOrDefault<scalar>("relaxation", scalar(1))),
     qrRelaxation_(dict.getOrDefault<scalar>("qrRelaxation", scalar(1)))
 {
-    switch (mode_)
-    {
-    case fixedHeatFlux:
-        heatflux_.resize(p.size(), scalar(0));
-        heatflux_ = dict.getOrDefault<scalar>("heatFlux", scalar(0));
-        break;
-
-    case fixedMixedTemperatureHTC:
-        T_neighbour_.resize(p.size(), scalar(0));
-        h_neighbour_.resize(p.size(), scalar(0));
-        break;
-    }
-
     // field value
     if (dict.found("value"))
     {
         fvPatchScalarField::operator=(scalarField("value", dict, p.size()));
+    }
+
+    switch (mode_)
+    {
+    case fixedHeatFlux:
+        heatflux_.resize(p.size(), dict.getOrDefault<scalar>("heatFlux", scalar(0)));
+        break;
+
+    case fixedMixedTemperatureHTC:
+        const scalar T2 (dict.getOrDefault<scalar>("T2", dict.getOrDefault<scalar>("refValue", dict.getOrDefault<scalar>("value", 0))));
+        T_neighbour_.resize(p.size(), T2);
+        h_neighbour_.resize(p.size(), dict.getOrDefault<scalar>("h2", scalar(1)));
+        break;
     }
 
     // mixed value
@@ -411,21 +411,8 @@ void Foam::apiCoupledTemperatureFvPatchScalarField::updateCoeffs
         const scalarField refValue0(fract);
         const scalarField h_cell_(kappa(Twall) * patch().deltaCoeffs());
 
-        std::cout << "fixedMixedTemperatureHTC" << "\n";
-
-        std::cout << "value.size(): " << value.size() << "\n";
-        std::cout << "fract.size(): " << fract.size() << "\n";
-        std::cout << "valueFraction0.size(): " << valueFraction0.size() << "\n";
-        std::cout << "refValue0.size(): " << refValue0.size() << "\n";
-        std::cout << "h_cell_.size(): " << h_cell_.size() << "\n";
-        std::cout << "qr.size(): " << qr.size() << "\n";
-        std::cout << "h_neighbour_.size(): " << h_neighbour_.size() << "\n";
-        std::cout << "T_neighbour_.size(): " << T_neighbour_.size() << "\n";
-        std::cout << "Twall.size(): " << Twall.size() << "\n" << "\n-------------------------------------\n";
-
         forAll(Twall, i)
         {
-            std::cout << "i: " << i << std::endl;
             const scalar h1 = h_cell_[i];
             const scalar h2 = h_neighbour_[i];
             const scalar T2 = T_neighbour_[i];
@@ -434,27 +421,19 @@ void Foam::apiCoupledTemperatureFvPatchScalarField::updateCoeffs
 
             if (qr[i] < 0.0)
             {
-                std::cout << "qr[i] < 0: " << qr[i] << std::endl;
-                std::cout << "Twall[i]: " << Twall[i] << std::endl;
                 // qr < 0 := cooling wall by radiation flux (into the fluid region)
                 const scalar h2_qr = h2 - qr[i] / Twall[i];
 
-                std::cout << "h2_qr: " << h2_qr << std::endl;
-                std::cout << "h2_qr + h1: " << h2_qr + h1 << std::endl;
                 value[i] = h2T2 / h2_qr;
                 fract[i] = h2_qr / (h2_qr + h1);
             }
             else
             {
-                std::cout << "qr[i] >= 0: " << qr[i] << std::endl;
-                std::cout << "h2: " << h2 << std::endl;
-                std::cout << "h2 + h1: " << h2 + h1 << std::endl;
                 // qr >= 0 := heating wall with the incomming radiation flux
                 value[i] = (h2T2 + qr[i]) / h2;
                 fract[i] = h2 / (h2 + h1);
             }
         }
-        std::cout << "fixedMixedTemperatureHTC 2" << std::endl;
 
         //
         value = relaxation_ * value + (1 - relaxation_) * refValue0;
