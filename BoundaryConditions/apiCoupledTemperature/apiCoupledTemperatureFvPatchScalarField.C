@@ -13,6 +13,7 @@
 #include <limits>
 #include <algorithm>
 
+#include <iostream>
 
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
 
@@ -117,7 +118,6 @@ apiCoupledTemperatureFvPatchScalarField
     mode_(operationModeNames.get("mode", dict)),
     qrName_(dict.getOrDefault<word>("qr", "none")),
     relaxation_(dict.getOrDefault<scalar>("relaxation", scalar(1))),
-    qrPrevious_(p.size(), Zero),
     qrRelaxation_(dict.getOrDefault<scalar>("qrRelaxation", scalar(1)))
 {
     switch (mode_)
@@ -168,17 +168,15 @@ apiCoupledTemperatureFvPatchScalarField
     }
 
     // radiation field
-    if (qrName_ != "none")
+    if (qrName_ != "none" && dict.found("qrPrevious"))
     {
-        if (dict.found("qrPrevious"))
-        {
-            qrPrevious_ = scalarField("qrPrevious", dict, p.size());
-        }
-        else
-        {
-            qrPrevious_.resize(p.size(), Zero);
-        }
+        qrPrevious_ = scalarField("qrPrevious", dict, p.size());
     }
+    else
+    {
+        qrPrevious_.resize(p.size(), Zero);
+    }
+    
 }
 
 
@@ -384,6 +382,7 @@ void Foam::apiCoupledTemperatureFvPatchScalarField::updateCoeffs
     if (updated()) return;
 
     // qr field
+    std::cout << "qr field" << std::endl;
     if (qrName_ != "none")
     {
         const auto data = qrRelaxation_ * patch().lookupPatchField<volScalarField, scalar>(qrName_) + (1 - qrRelaxation_) * qrPrevious_;
@@ -393,7 +392,9 @@ void Foam::apiCoupledTemperatureFvPatchScalarField::updateCoeffs
     };
 
     //
+    std::cout << "Twall" << std::endl;
     const scalarField&  Twall   (*this);
+    std::cout << "qr" << std::endl;
     const scalarField&  qr      (qrPrevious_);
 
     // do update depending on operation mode
@@ -406,12 +407,15 @@ void Foam::apiCoupledTemperatureFvPatchScalarField::updateCoeffs
         break;
 
     case fixedMixedTemperatureHTC:
+        std::cout << "enter switch" << std::endl;
         // get values from mixed-value boundary field
         scalarField &value(refValue());
         scalarField &fract(valueFraction());
         const scalarField valueFraction0(value);
         const scalarField refValue0(fract);
         const scalarField h_cell_(kappa(Twall) * patch().deltaCoeffs());
+
+        std::cout << "fixedMixedTemperatureHTC" << std::endl;
 
         forAll(Twall, i)
         {
@@ -436,6 +440,7 @@ void Foam::apiCoupledTemperatureFvPatchScalarField::updateCoeffs
                 fract[i] = h2 / (h2 + h1);
             }
         }
+        std::cout << "fixedMixedTemperatureHTC 2" << std::endl;
 
         //
         value = relaxation_ * value + (1 - relaxation_) * refValue0;
@@ -447,6 +452,7 @@ void Foam::apiCoupledTemperatureFvPatchScalarField::updateCoeffs
     }
 
     //
+    std::cout << "mixedFvPatchScalarField::updateCoeffs" << std::endl;
     mixedFvPatchScalarField::updateCoeffs();
 
     //
