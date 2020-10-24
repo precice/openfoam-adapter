@@ -24,7 +24,6 @@ preciceAdapter::CHT::HeatTransferCoefficient::HeatTransferCoefficient
 
 void preciceAdapter::CHT::HeatTransferCoefficient::write(std::vector<double> &buffer, bool meshConnectivity, const unsigned int dim)
 {
-    std::cout << "HeatTransferCoefficient::write - start" << std::endl;
     std::size_t bufferIndex = 0;
 
     // For every boundary patch of the interface
@@ -46,17 +45,17 @@ void preciceAdapter::CHT::HeatTransferCoefficient::write(std::vector<double> &bu
 
         //
         const scalarField & data (value.cref());
+        std::cout << "Write temperatures: ";
         forAll(data, i)
         {
             buffer[bufferIndex++] = data[i];
+            std::cout << data[i] << " , ";
         }
     }
-    std::cout << "HeatTransferCoefficient::write - end" << std::endl;
 }
 
 void preciceAdapter::CHT::HeatTransferCoefficient::read(const std::vector<double> &buffer, const unsigned int dim)
 {
-    std::cout << "HeatTransferCoefficient::read - start" << std::endl;
     std::size_t bufferIndex = 0;
 
     // For every boundary patch of the interface
@@ -67,10 +66,12 @@ void preciceAdapter::CHT::HeatTransferCoefficient::read(const std::vector<double
         auto &      patchValue      (boundaryPatch.h_Neighbour());
 
         // For every cell on the patch
+        std::cout << "Read temperatures: ";
         forAll(patchValue, i)
         {
             patchValue[i] = buffer[bufferIndex++];
+            std::cout << buffer[i] << " , ";
         }
+        std::cout << std::endl;
     }
-    std::cout << "HeatTransferCoefficient::read - end" << std::endl;
 }
