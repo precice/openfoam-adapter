@@ -60,7 +60,7 @@ void preciceAdapter::CHT::SinkTemperature::read(const std::vector<double> &buffe
     for (std::size_t j = 0; j < patchIDs_.size(); j++)
     {
         const auto  patchID         (patchIDs_.at(j));
-        auto        boundaryPatch   (refCast<apiCoupledTemperatureFvPatchScalarField> (T_.boundaryFieldRef()[patchID]));
+        auto&       boundaryPatch   (refCast<apiCoupledTemperatureFvPatchScalarField> (T_.boundaryFieldRef()[patchID]));
         auto&       patchValue      (boundaryPatch.T_Neighbour());
 
         // For every cell of the patch
