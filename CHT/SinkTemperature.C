@@ -68,7 +68,7 @@ void preciceAdapter::CHT::SinkTemperature::read(const std::vector<double> &buffe
         forAll(patchValue, i)
         {
             patchValue[i] = buffer[bufferIndex++];
-            std::cout << buffer[i] << " , ";
+            std::cout << patchValue[i] << " , ";
         }
         std::cout << std::endl;
     }

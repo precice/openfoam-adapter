@@ -71,7 +71,7 @@ void preciceAdapter::CHT::HeatTransferCoefficient::read(const std::vector<double
         forAll(patchValue, i)
         {
             patchValue[i] = buffer[bufferIndex++];
-            std::cout << buffer[i] << " , ";
+            std::cout << patchValue[i] << " , ";
         }
         std::cout << std::endl;
     }
