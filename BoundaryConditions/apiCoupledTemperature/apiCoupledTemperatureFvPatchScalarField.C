@@ -426,10 +426,10 @@ void Foam::apiCoupledTemperatureFvPatchScalarField::updateCoeffs
 
     case fixedMixedTemperatureHTC:
         // get values from mixed-value boundary field
-        scalarField &value(refValue());
-        scalarField &fract(valueFraction());
-        const scalarField valueFraction0(value);
-        const scalarField refValue0(fract);
+        //scalarField &value(refValue());
+        //scalarField &fract(valueFraction());
+        const scalarField valueFraction0(refValue());
+        const scalarField refValue0(valueFraction());
         const scalarField h_cell_(kappa(Twall) * patch().deltaCoeffs());
 
         forAll(Twall, i)
@@ -445,20 +445,20 @@ void Foam::apiCoupledTemperatureFvPatchScalarField::updateCoeffs
                 // qr < 0 := cooling wall by radiation flux (into the fluid region)
                 const scalar h2_qr = h2 - qr[i] / Twall[i];
 
-                value[i] = h2T2 / h2_qr;
-                fract[i] = h2_qr / (h2_qr + h1);
+                refValue()[i] = h2T2 / h2_qr;
+                valueFraction()[i] = h2_qr / (h2_qr + h1);
             }
             else
             {
                 // qr >= 0 := heating wall with the incomming radiation flux
-                value[i] = (h2T2 + qr[i]) / h2;
-                fract[i] = h2 / (h2 + h1);
+                refValue()[i] = (h2T2 + qr[i]) / h2;
+                valueFraction()[i] = h2 / (h2 + h1);
             }
         }
 
         //
-        value = relaxation_ * value + (1 - relaxation_) * refValue0;
-        fract = relaxation_ * fract + (1 - relaxation_) * valueFraction0;
+        refValue() = relaxation_ * refValue() + (1 - relaxation_) * refValue0;
+        valueFraction() = relaxation_ * valueFraction() + (1 - relaxation_) * valueFraction0;
 
         std::cout << "temperature0 value: ";
         forAll(refValue0, i)
@@ -468,16 +468,16 @@ void Foam::apiCoupledTemperatureFvPatchScalarField::updateCoeffs
         std::cout << std::endl;
         
         std::cout << "temperature value: ";
-        forAll(value, i)
+        forAll(refValue(), i)
         {
-            std::cout << value[i] << " , ";
+            std::cout << refValue()[i] << " , ";
         }
         std::cout << std::endl;
         
         std::cout << "fract value: ";
-        forAll(fract, i)
+        forAll(valueFraction(), i)
         {
-            std::cout << fract[i] << " , ";
+            std::cout << valueFraction()[i] << " , ";
         }
         std::cout << std::endl;
 
