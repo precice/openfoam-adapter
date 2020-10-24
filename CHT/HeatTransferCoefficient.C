@@ -5,8 +5,6 @@
 
 #include "apiCoupledTemperatureFvPatchScalarField.H"
 
-#include <iostream>
-
 using namespace Foam;
 
 //----- preciceAdapter::CHT::HeatTransferCoefficient --------------------------
@@ -45,13 +43,10 @@ void preciceAdapter::CHT::HeatTransferCoefficient::write(std::vector<double> &bu
 
         //
         const scalarField & data (value.cref());
-        std::cout << "Write HTC: ";
         forAll(data, i)
         {
             buffer[bufferIndex++] = data[i];
-            std::cout << data[i] << " , ";
         }
-        std::cout << std::endl;
     }
 }
 
@@ -67,12 +62,9 @@ void preciceAdapter::CHT::HeatTransferCoefficient::read(const std::vector<double
         auto &      patchValue      (boundaryPatch.h_Neighbour());
 
         // For every cell on the patch
-        std::cout << "Read HTC: ";
         forAll(patchValue, i)
         {
             patchValue[i] = buffer[bufferIndex++];
-            std::cout << patchValue[i] << " , ";
         }
-        std::cout << std::endl;
     }
 }

@@ -5,6 +5,37 @@
 # clean up
 ./Allclean
 
+# setup preCICE
+if [ -n "$doHeatSink" ] ; then
+
+    cp -f precice-config.xml.sink precice-config.xml
+
+    cp -f Fluid/0.orig/T.sink Fluid/0.orig/T
+    cp -f Solid/0.orig/T.sink Solid/0.orig/T
+
+    cp -f Fluid/system/preciceDict.sink Fluid/system/preciceDict
+    cp -f Solid/system/preciceDict.sink Solid/system/preciceDict
+
+elif [ -n "$doNearestProjection" ] ; then
+
+    cp -f precice-config.xml.nearest-projection precice-config.xml
+
+    cp -f Fluid/0.orig/T.default Fluid/0.orig/T
+    cp -f Solid/0.orig/T.default Solid/0.orig/T
+
+    cp -f Fluid/system/preciceDict.nearest Fluid/system/preciceDict
+    cp -f Solid/system/preciceDict.nearest Solid/system/preciceDict
+
+else
+    cp -f precice-config.xml.temperature precice-config.xml
+
+    cp -f Fluid/0.orig/T.default Fluid/0.orig/T
+    cp -f Solid/0.orig/T.default Solid/0.orig/T
+
+    cp -f Fluid/system/preciceDict.default Fluid/system/preciceDict
+    cp -f Solid/system/preciceDict.default Solid/system/preciceDict
+fi
+
 # Restore initial fields
 cd Fluid
 restore0Dir
@@ -13,22 +44,3 @@ cd ../Solid
 restore0Dir
 
 cd ..
-
-# setup preCICE
-if [ -n "$doHeatSink" ] ; then
-
-    cp -f precice-config.xml.sink precice-config.xml
-    cp -f Fluid/system/preciceDict.default Fluid/system/preciceDict
-    cp -f Solid/system/preciceDict.default Solid/system/preciceDict
-
-elif [ -n "$doNearestProjection" ] ; then
-
-    cp -f precice-config.xml.nearest-projection precice-config.xml
-    cp -f Fluid/system/preciceDict.nearest Fluid/system/preciceDict
-    cp -f Solid/system/preciceDict.nearest Solid/system/preciceDict
-
-else
-    cp -f precice-config.xml.temperature precice-config.xml
-    cp -f Fluid/system/preciceDict.default Fluid/system/preciceDict
-    cp -f Solid/system/preciceDict.default Solid/system/preciceDict
-fi

@@ -5,8 +5,6 @@
 
 #include "apiCoupledTemperatureFvPatchScalarField.H"
 
-#include <iostream>
-
 using namespace Foam;
 
 preciceAdapter::CHT::SinkTemperature::SinkTemperature
@@ -42,13 +40,10 @@ void preciceAdapter::CHT::SinkTemperature::write(std::vector<double> &buffer, bo
 
         //
         const scalarField & data (value.cref());
-        std::cout << "Write temperatures: ";
         forAll(data, i)
         {
             buffer[bufferIndex++] = data[i];
-            std::cout << data[i] << " , ";
         }
-        std::cout << std::endl;
     }
 }
 
@@ -64,12 +59,9 @@ void preciceAdapter::CHT::SinkTemperature::read(const std::vector<double> &buffe
         auto&       patchValue      (boundaryPatch.T_Neighbour());
 
         // For every cell of the patch
-        std::cout << "Read temperatures: ";
         forAll(patchValue, i)
         {
             patchValue[i] = buffer[bufferIndex++];
-            std::cout << patchValue[i] << " , ";
         }
-        std::cout << std::endl;
     }
 }

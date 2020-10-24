@@ -60,6 +60,8 @@ rm -fv .*.address
 rm -f precice-config.xml
 rm -f Fluid/system/preciceDict
 rm -f Solid/system/preciceDict
+rm -f Fluid/0.orig/T
+rm -f Solid/0.orig/T
 
 echo "Cleaning complete!"
 #------------------------------------------------------------------------------

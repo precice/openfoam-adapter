@@ -319,7 +319,6 @@ Foam::tmp<Foam::scalarField> Foam::apiCoupledTemperatureFvPatchScalarField::getW
 {
     const scalarField&  Twall (*this);
     auto heatflux (kappa(Twall) * patch().magSf() * snGrad());
-    //auto heatflux (kappa(Twall) * snGrad());
 
     if (qrName_ != "none")
     {
@@ -423,7 +422,6 @@ void Foam::apiCoupledTemperatureFvPatchScalarField::updateCoeffs
     const scalarField&  qr      (qrPrevious_);
 
     // do update depending on operation mode
-    std::cout << "updateCoeffs - mode: " << mode_ << std::endl;
     switch (mode_)
     {
     case fixedHeatFlux:
@@ -440,56 +438,6 @@ void Foam::apiCoupledTemperatureFvPatchScalarField::updateCoeffs
         const scalarField refValue0(value);
         const scalarField valueFraction0(fract);
         const scalarField h_cell_(kappa(Twall) * patch().deltaCoeffs());
-
-        std::cout << "Twall: ";
-        forAll(Twall, i)
-        {
-            std::cout << Twall[i] << " , ";
-        }
-        std::cout << "\n";
-
-        std::cout << "kappa: ";
-        auto kap = kappa(Twall)();
-        forAll(kap, i)
-        {
-            std::cout << kap[i] << " , ";
-        }
-        std::cout << "\n";
-
-        std::cout << "refValue0: ";
-        forAll(refValue0, i)
-        {
-            std::cout << refValue0[i] << " , ";
-        }
-        std::cout << "\n";
-        
-        std::cout << "valueFraction0: ";
-        forAll(valueFraction0, i)
-        {
-            std::cout << valueFraction0[i] << " , ";
-        }
-        std::cout << "\n";
-        
-        std::cout << "h_cell_: ";
-        forAll(h_cell_, i)
-        {
-            std::cout << h_cell_[i] << " , ";
-        }
-        std::cout << "\n";
-        
-        std::cout << "h_neighbour_: ";
-        forAll(h_neighbour_, i)
-        {
-            std::cout << h_neighbour_[i] << " , ";
-        }
-        std::cout << "\n";
-        
-        std::cout << "T_neighbour_: ";
-        forAll(T_neighbour_, i)
-        {
-            std::cout << T_neighbour_[i] << " , ";
-        }
-        std::cout << "\n";
 
         forAll(Twall, i)
         {
@@ -518,21 +466,6 @@ void Foam::apiCoupledTemperatureFvPatchScalarField::updateCoeffs
         //
         value = relaxation_ * value + (1 - relaxation_) * refValue0;
         fract = relaxation_ * fract + (1 - relaxation_) * valueFraction0;
-
-        std::cout << "value: ";
-        forAll(value, i)
-        {
-            std::cout << value[i] << " , ";
-        }
-        std::cout << "\n";
-        
-        std::cout << "fract: ";
-        forAll(fract, i)
-        {
-            std::cout << fract[i] << " , ";
-        }
-        std::cout << "\n";
-        std::cout.flush();
 
         //
         refGrad() = 0;
