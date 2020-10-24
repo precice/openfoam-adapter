@@ -45,7 +45,7 @@ void preciceAdapter::CHT::HeatTransferCoefficient::write(std::vector<double> &bu
 
         //
         const scalarField & data (value.cref());
-        std::cout << "Write temperatures: ";
+        std::cout << "Write HTC: ";
         forAll(data, i)
         {
             buffer[bufferIndex++] = data[i];
@@ -66,7 +66,7 @@ void preciceAdapter::CHT::HeatTransferCoefficient::read(const std::vector<double
         auto &      patchValue      (boundaryPatch.h_Neighbour());
 
         // For every cell on the patch
-        std::cout << "Read temperatures: ";
+        std::cout << "Read HTC: ";
         forAll(patchValue, i)
         {
             patchValue[i] = buffer[bufferIndex++];
