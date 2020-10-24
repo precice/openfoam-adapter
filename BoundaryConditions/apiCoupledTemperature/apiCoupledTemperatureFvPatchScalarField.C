@@ -441,6 +441,21 @@ void Foam::apiCoupledTemperatureFvPatchScalarField::updateCoeffs
         const scalarField valueFraction0(fract);
         const scalarField h_cell_(kappa(Twall) * patch().deltaCoeffs());
 
+        std::cout << "Twall: ";
+        forAll(Twall, i)
+        {
+            std::cout << Twall[i] << " , ";
+        }
+        std::cout << "\n";
+
+        std::cout << "kappa: ";
+        auto kap = kappa(Twall)();
+        forAll(kap, i)
+        {
+            std::cout << kap[i] << " , ";
+        }
+        std::cout << "\n";
+
         std::cout << "refValue0: ";
         forAll(refValue0, i)
         {
@@ -459,6 +474,20 @@ void Foam::apiCoupledTemperatureFvPatchScalarField::updateCoeffs
         forAll(h_cell_, i)
         {
             std::cout << h_cell_[i] << " , ";
+        }
+        std::cout << "\n";
+        
+        std::cout << "h_neighbour_: ";
+        forAll(h_neighbour_, i)
+        {
+            std::cout << h_neighbour_[i] << " , ";
+        }
+        std::cout << "\n";
+        
+        std::cout << "T_neighbour_: ";
+        forAll(T_neighbour_, i)
+        {
+            std::cout << T_neighbour_[i] << " , ";
         }
         std::cout << "\n";
 
