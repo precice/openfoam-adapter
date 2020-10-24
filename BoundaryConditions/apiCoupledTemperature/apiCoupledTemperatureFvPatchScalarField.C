@@ -398,10 +398,8 @@ const Foam::scalarField& Foam::apiCoupledTemperatureFvPatchScalarField::heatFlux
 void Foam::apiCoupledTemperatureFvPatchScalarField::updateCoeffs
 ()
 {
-    std::cout << "updateCoeffs = false or .... ";
     // stop if up-to-date
     if (updated()) return;
-    std::cout << "do update :)" << std::endl;
 
     // qr field
     if (qrName_ != "none")
@@ -417,6 +415,7 @@ void Foam::apiCoupledTemperatureFvPatchScalarField::updateCoeffs
     const scalarField&  qr      (qrPrevious_);
 
     // do update depending on operation mode
+    std::cout << "updateCoeffs - mode: " << mode_ << std::endl;
     switch (mode_)
     {
     case fixedHeatFlux:
