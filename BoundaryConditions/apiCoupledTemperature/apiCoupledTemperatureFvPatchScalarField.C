@@ -159,12 +159,21 @@ apiCoupledTemperatureFvPatchScalarField
         break;
 
     case fixedMixedTemperatureHTC:
-        h_neighbour_.resize(p.size(), dict.getOrDefault<scalar>("h2", scalar(1)));
+        h_neighbour_.resize(p.size(), scalar(1.0e-6));
         T_neighbour_.resize(p.size(), scalar(0));
 
-        if (dict.found("T2"))
+        if (dict.found("hNeighbour"))
         {
-            scalarField field ("T2", dict, p.size());
+            auto field = dict.get<scalarField>("hNeighbour");
+            forAll(field, i)
+            {
+                h_neighbour_[i] = field[i];
+            }
+        }
+
+        if (dict.found("TNeighbour"))
+        {
+            scalarField field ("TNeighbour", dict, p.size());
             forAll(T_neighbour_, i)
             {
                 T_neighbour_[i] = field[i];
@@ -196,7 +205,6 @@ apiCoupledTemperatureFvPatchScalarField
     {
         qrPrevious_.resize(p.size(), scalar(0));
     }
-    
 }
 
 
@@ -426,11 +434,33 @@ void Foam::apiCoupledTemperatureFvPatchScalarField::updateCoeffs
 
     case fixedMixedTemperatureHTC:
         // get values from mixed-value boundary field
-        //scalarField &value(refValue());
-        //scalarField &fract(valueFraction());
-        const scalarField valueFraction0(refValue());
-        const scalarField refValue0(valueFraction());
+        scalarField &value(refValue());
+        scalarField &fract(valueFraction());
+
+        const scalarField refValue0(value);
+        const scalarField valueFraction0(fract);
         const scalarField h_cell_(kappa(Twall) * patch().deltaCoeffs());
+
+        std::cout << "refValue0: ";
+        forAll(refValue0, i)
+        {
+            std::cout << refValue0[i] << " , ";
+        }
+        std::cout << "\n";
+        
+        std::cout << "valueFraction0: ";
+        forAll(valueFraction0, i)
+        {
+            std::cout << valueFraction0[i] << " , ";
+        }
+        std::cout << "\n";
+        
+        std::cout << "h_cell_: ";
+        forAll(h_cell_, i)
+        {
+            std::cout << h_cell_[i] << " , ";
+        }
+        std::cout << "\n";
 
         forAll(Twall, i)
         {
@@ -445,41 +475,35 @@ void Foam::apiCoupledTemperatureFvPatchScalarField::updateCoeffs
                 // qr < 0 := cooling wall by radiation flux (into the fluid region)
                 const scalar h2_qr = h2 - qr[i] / Twall[i];
 
-                refValue()[i] = h2T2 / h2_qr;
-                valueFraction()[i] = h2_qr / (h2_qr + h1);
+                value[i] = h2T2 / h2_qr;
+                fract[i] = h2_qr / (h2_qr + h1);
             }
             else
             {
                 // qr >= 0 := heating wall with the incomming radiation flux
-                refValue()[i] = (h2T2 + qr[i]) / h2;
-                valueFraction()[i] = h2 / (h2 + h1);
+                value[i] = (h2T2 + qr[i]) / h2;
+                fract[i] = h2 / (h2 + h1);
             }
         }
 
         //
-        refValue() = relaxation_ * refValue() + (1 - relaxation_) * refValue0;
-        valueFraction() = relaxation_ * valueFraction() + (1 - relaxation_) * valueFraction0;
+        value = relaxation_ * value + (1 - relaxation_) * refValue0;
+        fract = relaxation_ * fract + (1 - relaxation_) * valueFraction0;
 
-        std::cout << "temperature0 value: ";
-        forAll(refValue0, i)
+        std::cout << "value: ";
+        forAll(value, i)
         {
-            std::cout << refValue0[i] << " , ";
+            std::cout << value[i] << " , ";
         }
-        std::cout << std::endl;
+        std::cout << "\n";
         
-        std::cout << "temperature value: ";
-        forAll(refValue(), i)
+        std::cout << "fract: ";
+        forAll(fract, i)
         {
-            std::cout << refValue()[i] << " , ";
+            std::cout << fract[i] << " , ";
         }
-        std::cout << std::endl;
-        
-        std::cout << "fract value: ";
-        forAll(valueFraction(), i)
-        {
-            std::cout << valueFraction()[i] << " , ";
-        }
-        std::cout << std::endl;
+        std::cout << "\n";
+        std::cout.flush();
 
         //
         refGrad() = 0;

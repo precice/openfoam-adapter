@@ -51,6 +51,7 @@ void preciceAdapter::CHT::HeatTransferCoefficient::write(std::vector<double> &bu
             buffer[bufferIndex++] = data[i];
             std::cout << data[i] << " , ";
         }
+        std::cout << std::endl;
     }
 }
 
