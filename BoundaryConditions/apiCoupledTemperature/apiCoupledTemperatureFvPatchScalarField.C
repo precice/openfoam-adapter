@@ -398,8 +398,10 @@ const Foam::scalarField& Foam::apiCoupledTemperatureFvPatchScalarField::heatFlux
 void Foam::apiCoupledTemperatureFvPatchScalarField::updateCoeffs
 ()
 {
+    std::cout << "updateCoeffs = false or .... ";
     // stop if up-to-date
     if (updated()) return;
+    std::cout << "do update :)" << std::endl;
 
     // qr field
     if (qrName_ != "none")
@@ -458,6 +460,27 @@ void Foam::apiCoupledTemperatureFvPatchScalarField::updateCoeffs
         //
         value = relaxation_ * value + (1 - relaxation_) * refValue0;
         fract = relaxation_ * fract + (1 - relaxation_) * valueFraction0;
+
+        std::cout << "temperature0 value: ";
+        forAll(refValue0, i)
+        {
+            std::cout << refValue0[i] << " , ";
+        }
+        std::cout << std::endl;
+        
+        std::cout << "temperature value: ";
+        forAll(value, i)
+        {
+            std::cout << value[i] << " , ";
+        }
+        std::cout << std::endl;
+        
+        std::cout << "fract value: ";
+        forAll(fract, i)
+        {
+            std::cout << fract[i] << " , ";
+        }
+        std::cout << std::endl;
 
         //
         refGrad() = 0;
