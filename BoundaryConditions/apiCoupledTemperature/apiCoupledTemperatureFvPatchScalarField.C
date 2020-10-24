@@ -164,7 +164,7 @@ apiCoupledTemperatureFvPatchScalarField
 
         if (dict.found("hNeighbour"))
         {
-            auto field = dict.get<scalarField>("hNeighbour");
+            scalarField field ("hNeighbour", dict, p.size());
             forAll(field, i)
             {
                 h_neighbour_[i] = field[i];
