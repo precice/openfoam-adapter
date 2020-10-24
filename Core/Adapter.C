@@ -391,6 +391,7 @@ void preciceAdapter::Adapter::execute()
 
     // Advance preCICE
     advance();
+    std::cout << "1" << std::endl;
 
     // Read checkpoint if required
     if (isReadCheckpointRequired())
@@ -398,15 +399,20 @@ void preciceAdapter::Adapter::execute()
         readCheckpoint();
         fulfilledReadCheckpoint();
     }
+    std::cout << "2" << std::endl;
+
 
     // Read the received coupling data from the buffer
     readCouplingData();
+
+    std::cout << "3" << std::endl;
 
     // Adjust the timestep, if it is fixed
     if (!adjustableTimestep_)
     {
         adjustSolverTimeStep();
     }
+    std::cout << "4" << std::endl;
 
     // Write checkpoint if required
     if (isWriteCheckpointRequired())
@@ -414,6 +420,7 @@ void preciceAdapter::Adapter::execute()
         writeCheckpoint();
         fulfilledWriteCheckpoint();
     }
+    std::cout << "5" << std::endl;
 
     // As soon as OpenFOAM writes the results, it will not try to write again
     // if the time takes the same value again. Therefore, during an implicit
@@ -435,6 +442,7 @@ void preciceAdapter::Adapter::execute()
             const_cast<Time&>(runTime_).writeNow();
         }
     }
+    std::cout << "6" << std::endl;
 
     // If the coupling is not going to continue, tear down everything
     // and stop the simulation.
@@ -458,6 +466,7 @@ void preciceAdapter::Adapter::execute()
         const_cast<Time&>(runTime_).functionObjects().end();
     }
 
+    std::cout << "7" << std::endl;
     return;
 }
 
