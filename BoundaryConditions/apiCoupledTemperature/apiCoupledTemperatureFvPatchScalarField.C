@@ -318,7 +318,6 @@ Foam::tmp<Foam::scalarField> Foam::apiCoupledTemperatureFvPatchScalarField::getW
 () const
 {
     const scalarField&  Twall (*this);
-    //auto heatflux (kappa(Twall) * patch().magSf() * snGrad());
     auto heatflux (kappa(Twall) * snGrad());
 
     if (qrName_ != "none")
