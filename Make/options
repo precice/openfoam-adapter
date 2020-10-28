@@ -20,6 +20,7 @@ EXE_INC = \
     $(ADAPTER_PREP_FLAGS)
 
 LIB_LIBS = \
+    -lcompressibleTransportModels \
     -lfiniteVolume \
     -lmeshTools \
     -lcompressibleTurbulenceModels \

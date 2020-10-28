@@ -21,4 +21,7 @@ LIB_LIBS = \
     -lsolidThermo \
     -lsolidSpecie \
     -lturbulenceModels \
+    -lcompressibleTurbulenceModels \
+    -lincompressibleTurbulenceModels \
+    -limmiscibleIncompressibleTwoPhaseMixture \
     -lspecie
