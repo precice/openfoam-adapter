@@ -31,6 +31,9 @@ boundaryField
         kappa           kappa;
         
         value           $internalField;
+        refValue        $internalField;
+        refGrad         uniform 0;
+        valueFraction   uniform 0;
     }
     
     inlet

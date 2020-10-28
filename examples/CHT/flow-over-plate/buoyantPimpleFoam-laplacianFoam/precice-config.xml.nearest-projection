@@ -49,16 +49,6 @@
 
     <m2n:sockets from="Fluid" to="Solid"/>
 
-    <!--
-    <coupling-scheme:serial-explicit>
-        <time-window-size value="0.01"/>
-        <max-time value="1"/>
-        <participants first="Fluid" second="Solid"/>
-        <exchange data="Temperature" mesh="Fluid-Mesh-Nodes" from="Fluid" to="Solid"/>
-        <exchange data="Heat-Flux" mesh="Solid-Mesh-Nodes" from="Solid" to="Fluid"/>
-    </coupling-scheme:serial-explicit>
-    -->
-
     <coupling-scheme:serial-implicit>
         <time-window-size value="0.01"/>
         <max-time value="1"/>
@@ -66,9 +56,11 @@
         <exchange data="Temperature" mesh="Fluid-Mesh-Nodes" from="Fluid" to="Solid"/>
         <exchange data="Heat-Flux" mesh="Solid-Mesh-Nodes" from="Solid" to="Fluid"/>
         <max-iterations value="200"/>
-        <relative-convergence-measure limit="1.0e-6" data="Temperature" mesh="Fluid-Mesh-Nodes"/>
+        <relative-convergence-measure limit="1.0e-6" data="Temperature" mesh="Fluid-Mesh"/>
+        <relative-convergence-measure limit="1.0e-6" data="Heat-Flux" mesh="Solid-Mesh"/>
         <acceleration:IQN-ILS>
-            <data mesh="Solid-Mesh-Nodes" name="Heat-Flux" />
+            <data mesh="Fluid-Mesh" name="Temperature" />
+            <data mesh="Solid-Mesh" name="Heat-Flux" />
             <initial-relaxation value="0.01" />
             <max-used-iterations value="80" />
             <time-windows-reused value="10" />

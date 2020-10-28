@@ -1,4 +1,9 @@
 #!/bin/bash -xe
+#
+#                       ./Allrun    run's the temperature example
+# doHeatSink=1          ./Allrun    run's the heat-sink example
+# doNearestProjection=1 ./Allrun    run's the nearest projection example
+#
 
 cd "${0%/*}" || exit                                # Run from this directory
 . ${WM_PROJECT_DIR:?}/bin/tools/RunFunctions        # run functions
