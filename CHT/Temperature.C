@@ -58,29 +58,13 @@ void preciceAdapter::CHT::Temperature::read(const std::vector<double> &buffer, c
     // For every boundary patch of the interface
     for (std::size_t j = 0; j < patchIDs_.size(); j++)
     {
-        const auto  patchID          (patchIDs_.at(j));
-        auto &      boundaryPatch    (T_.boundaryFieldRef()[patchID]);
+        const auto  patchID         (patchIDs_.at(j));
+        auto &      boundaryPatch   (refCast<apiCoupledTemperatureFvPatchScalarField> (T_.boundaryFieldRef()[patchID]));
+        auto &      value           (boundaryPatch.refValue());
 
-        if (auto * mixedFieldPatch = dynamic_cast<mixedFvPatchScalarField*>(&boundaryPatch))
+        forAll(value, i)
         {
-            auto & ref = mixedFieldPatch->refValue();
-
-            forAll(ref, i)
-            {
-                // Set the temperature as the buffer value
-                ref[i] = buffer[bufferIndex++];
-            }
-        }
-        else
-        {
-            // assume fixed value field or similar behaivor type
-
-            // For every cell of the patch
-            forAll(boundaryPatch, i)
-            {
-                // Set the temperature as the buffer value
-                boundaryPatch[i] = buffer[bufferIndex++];
-            }
+            value[i] = buffer[bufferIndex++];
         }
     }
 }
