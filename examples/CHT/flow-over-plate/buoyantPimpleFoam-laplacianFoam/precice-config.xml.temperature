@@ -55,7 +55,6 @@
         <relative-convergence-measure limit="1.0e-6" data="Temperature" mesh="Fluid-Mesh"/>
         <relative-convergence-measure limit="1.0e-6" data="Heat-Flux" mesh="Solid-Mesh"/>
         <acceleration:IQN-ILS>
-            <data mesh="Fluid-Mesh" name="Temperature" />
             <data mesh="Solid-Mesh" name="Heat-Flux" />
             <initial-relaxation value="0.01" />
             <max-used-iterations value="80" />
