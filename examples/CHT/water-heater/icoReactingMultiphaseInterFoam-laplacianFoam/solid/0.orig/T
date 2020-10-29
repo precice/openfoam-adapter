@@ -1,0 +1,45 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2006                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volScalarField;
+    object      T;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+dimensions      [0 0 0 1 0 0 0];
+
+internalField   uniform 295;
+
+boundaryField
+{
+    #includeEtc "caseDicts/setConstraintTypes"
+
+    "InterfaceHeater.*"
+    {
+        type            apiCoupledTemperature;
+        mode            fixedHeatFlux;
+
+        kappaMethod     lookup;
+        kappa           kappa;
+
+        value           $internalField;
+        refValue        $internalField;
+        refGrad         uniform 0;
+        valueFraction   uniform 1;
+    }
+
+    frontAndBack
+    {
+        type            empty;
+    }
+}
+
+// ************************************************************************* //
