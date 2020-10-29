@@ -3,6 +3,9 @@
 #include "Utilities.H"
 #include "faceTriangulation.H"
 
+#include <cassert>
+#include <limits>
+
 
 using namespace Foam;
 
@@ -202,10 +205,16 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh)
                 }
 
                 //Array to store the IDs we get from preCICE
-                Foam::label triVertIDs[faceField.size()*(triaPerQuad*nodesPerTria)];
+                int triVertIDs[faceField.size()*(triaPerQuad*nodesPerTria)];
 
                 //Get preCICE IDs
-                precice_.getMeshVertexIDsFromPositions(meshID_,faceField.size()*(triaPerQuad*nodesPerTria),triCoords,triVertIDs);
+                assert(faceField.size()*(triaPerQuad*nodesPerTria) < std::numeric_limits<int>::max());
+                precice_.getMeshVertexIDsFromPositions(
+                    meshID_,
+                    int(faceField.size()*(triaPerQuad*nodesPerTria)),
+                    triCoords,
+                    triVertIDs
+                );
 
                 DEBUG(adapterInfo("Number of triangles: " + std::to_string(faceField.size()* triaPerQuad)));
 
