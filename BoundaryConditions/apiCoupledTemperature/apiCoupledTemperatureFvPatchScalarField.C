@@ -155,12 +155,31 @@ apiCoupledTemperatureFvPatchScalarField
     switch (mode_)
     {
     case fixedHeatFlux:
-        heatflux_.resize(p.size(), dict.getOrDefault<scalar>("heatFlux", scalar(0)));
+        if (dict.found("heatFlux"))
+            heatflux_ = scalarField("heatFlux", dict, p.size());
+        else
+            heatflux_.resize(p.size(), scalar(0));
+
+        if(!dict.found("refValue"))
+                refValue() = 0;
+        
+        if(!dict.found("valueFraction"))
+            valueFraction() = 0;
         break;
 
     case fixedMixedTemperatureHTC:
-        h_neighbour_.resize(p.size(), scalar(1.0e-6));
-        T_neighbour_.resize(p.size(), scalar(0));
+        if (dict.found("h_Neighbour"))
+            h_neighbour_ = scalarField("h_Neighbour_", dict, p.size());
+        else
+            h_neighbour_.resize(p.size(), scalar(1e-6));
+        
+        if (dict.found("T_Neighbour"))
+            T_neighbour_ = scalarField("T_Neighbour", dict, p.size());
+        else
+            T_neighbour_.resize(p.size(), scalar(1));
+
+        if(!dict.found("refGradient"))
+            refGrad() = 0;
 
         if (dict.found("hNeighbour"))
         {
@@ -295,25 +314,6 @@ void Foam::apiCoupledTemperatureFvPatchScalarField::rmap
     qrPrevious_.rmap(rhs.qrPrevious_, addr);
 }
 
-
-// https://www.openfoam.com/documentation/guides/latest/api/turbulentTemperatureCoupledBaffleMixedFvPatchScalarField_8C_source.html
-//
-// Both sides agree on
-// - temperature : (myKDelta*fld + nbrKDelta*nbrFld)/(myKDelta+nbrKDelta)
-// - gradient    : (temperature-fld)*delta
-// We've got a degree of freedom in how to implement this in a mixed bc.
-// (what gradient, what fixedValue and mixing coefficient)
-// Two reasonable choices:
-// 1. specify above temperature on one side (preferentially the high side)
-//    and above gradient on the other. So this will switch between pure
-//    fixedvalue and pure fixedgradient
-// 2. specify gradient and temperature such that the equations are the
-//    same on both sides. This leads to the choice of
-//    - refGradient = zero gradient
-//    - refValue = neighbour value
-//    - mixFraction = nbrKDelta / (nbrKDelta + myKDelta())
-//
-
 Foam::tmp<Foam::scalarField> Foam::apiCoupledTemperatureFvPatchScalarField::getWallHeatFlux
 () const
 {
@@ -400,13 +400,38 @@ const Foam::scalarField& Foam::apiCoupledTemperatureFvPatchScalarField::heatFlux
 //  ******************************** *   *   *   *   *   *   *   * 
 //                |----- dx_1 -----|---- dx_2 ----|
 //
-//  q_1 + q_{radiation} = -q2 \approx \frac{kappa_2}{\Delta_2} \cdot \left( T_{wall} - T_2 \right)
 //
+
+// https://www.openfoam.com/documentation/guides/latest/api/turbulentTemperatureCoupledBaffleMixedFvPatchScalarField_8C_source.html
+//
+// Both sides agree on
+// - temperature : (myKDelta*fld + nbrKDelta*nbrFld)/(myKDelta+nbrKDelta)
+// - gradient    : (temperature-fld)*delta
+// We've got a degree of freedom in how to implement this in a mixed bc.
+// (what gradient, what fixedValue and mixing coefficient)
+// Two reasonable choices:
+// 1. specify above temperature on one side (preferentially the high side)
+//    and above gradient on the other. So this will switch between pure
+//    fixedvalue and pure fixedgradient
+// 2. specify gradient and temperature such that the equations are the
+//    same on both sides. This leads to the choice of
+//    - refGradient = zero gradient
+//    - refValue = neighbour value
+//    - mixFraction = nbrKDelta / (nbrKDelta + myKDelta())
+//
+
 void Foam::apiCoupledTemperatureFvPatchScalarField::updateCoeffs
 ()
 {
     // stop if up-to-date
     if (updated()) return;
+
+    // update coeff's needed?
+    if(mode_ != fixedHeatFlux || mode_ != fixedMixedTemperatureHTC)
+    {
+        mixedFvPatchScalarField::updateCoeffs();
+        return;
+    }
 
     // qr field
     if (qrName_ != "none")
@@ -426,8 +451,6 @@ void Foam::apiCoupledTemperatureFvPatchScalarField::updateCoeffs
     {
     case fixedHeatFlux:
         refGrad() = (heatflux_ + qr) / kappa(Twall);
-        refValue() = 0;
-        valueFraction() = 0;
         break;
 
     case fixedMixedTemperatureHTC:
@@ -449,7 +472,7 @@ void Foam::apiCoupledTemperatureFvPatchScalarField::updateCoeffs
 
             if (qr[i] < 0.0)
             {
-                // qr < 0 := cooling wall by radiation flux (into the fluid region)
+                // case 2
                 const scalar h2_qr = h2 - qr[i] / Twall[i];
 
                 value[i] = h2T2 / h2_qr;
@@ -457,7 +480,7 @@ void Foam::apiCoupledTemperatureFvPatchScalarField::updateCoeffs
             }
             else
             {
-                // qr >= 0 := heating wall with the incomming radiation flux
+                // case 1
                 value[i] = (h2T2 + qr[i]) / h2;
                 fract[i] = h2 / (h2 + h1);
             }
@@ -466,9 +489,6 @@ void Foam::apiCoupledTemperatureFvPatchScalarField::updateCoeffs
         //
         value = relaxation_ * value + (1 - relaxation_) * refValue0;
         fract = relaxation_ * fract + (1 - relaxation_) * valueFraction0;
-
-        //
-        refGrad() = 0;
         break;
     }
 

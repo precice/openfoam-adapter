@@ -6,7 +6,7 @@
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
     Copyright (C) 2011-2017 OpenFOAM Foundation
-    Copyright (C) 2019 OpenCFD Ltd.
+    Copyright (C) 2019-2020 OpenCFD Ltd.
 -------------------------------------------------------------------------------
 License
     This file is part of OpenFOAM.
@@ -31,37 +31,24 @@ Group
     grpThermoBoundaryConditions grpWallBoundaryConditions
 
 Description
-    This boundary condition provides a base class for 'mixed' type boundary
-    conditions, i.e. conditions that mix fixed value and patch-normal gradient
-    conditions.
-
-    The respective contributions from each is determined by a weight field:
-
-        \f[
-            x_p = w x_p + (1-w) \left(x_c + \frac{\nabla_\perp x}{\Delta}\right)
-        \f]
-
-    where
-    \vartable
-        x_p   | patch values
-        x_c   | patch internal cell values
-        \Delta| inverse distance from face centre to internal cell centre
-        w     | weighting values (0-1)
-    \endvartable
+    This boundary condition provides a class for the temperature type boundary
+    conditions, with the support for manipulation by foreign code.
 
 
 Usage
     \table
-        Property         | Description                           | Required | Default
-        mode             | operation mode (fixedTemperature | fixedHeatFlux | HTC ) | yes | -
-        refValue         | fixed value                           | no       | value
-        refGradient      | patch normal gradient                 | no       | 0.0
-        valueFraction    | value weighting (0-1)                 | no       | 1.0
-        value            | nothing, only for result plots        | no       | -
-        relaxation       | relaxation factor                     | no       | 1.0
-        qr               | Name of radiation field               | no       | -
-        qrRelaxation     | relaxation factor of radiation field  | no       | 1.0
-        heatFlux         | Initial heat flux in mode "flux"      | no       | 0.0
+        Property            | Description                           | Required  | Default
+        mode                | operation mode (fixedTemperature | fixedHeatFlux  | HTC ) | yes | -
+        refValue            | fixed value                           | no        | value
+        refGradient         | patch normal gradient                 | no        | 0.0
+        valueFraction       | value weighting (0-1)                 | no        | 1.0
+        value               | nothing, only for result plots        | no        | -
+        relaxation          | relaxation factor                     | no        | 1.0
+        qr                  | Name of radiation field               | no        | kappa
+        qrRelaxation        | relaxation factor of radiation field  | no        | 1.0
+        heatFlux            | Initial heat flux in mode "flux"      | no        | 0.0
+        h_Neighbour         | For mode "HTC": Enthalpy of N_Cell    | no        | 1e-6
+        T_Neighbour         | For mode "HTC": Temperature of N_Cell | no        | 1
     \endtable
 
     Example of the boundary condition specification:
@@ -95,7 +82,7 @@ See also
     Foam::mixedFvPatchScalarField
 
 SourceFiles
-    apiCoupledMixedFvPatchField.C
+    apiCoupledTemperatureFvPatchScalarField.C
 
 \*---------------------------------------------------------------------------*/
 
@@ -294,21 +281,21 @@ public:
         // get the heat transfer coefficent on the wall side
         Foam::tmp<Foam::scalarField> getHeatTransferCoeff() const;
 
-        //
+        // Temperature at wall boundary
         const scalarField & T_Wall() const;
 
-        //
+        // Temperature at cell center
         Foam::tmp<Foam::scalarField> T_Cell() const;
 
-        //
+        // Enthalpy of external cell
         scalarField& h_Neighbour();
         const scalarField& h_Neighbour() const;
 
-        //
+        // Temperature of external cell
         scalarField& T_Neighbour();
         const scalarField& T_Neighbour() const;
 
-        //
+        // Wall heat flux
         scalarField& heatFlux();
         const scalarField& heatFlux() const;
 
