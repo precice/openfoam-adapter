@@ -21,6 +21,7 @@ const Foam::Enum
 >
 Foam::apiCoupledTemperatureFvPatchScalarField::operationModeNames
 ({
+    { operationMode::mixedBC, "mixed" },
     { operationMode::fixedTemperature, "fixedTemperature" },
     { operationMode::fixedHeatFlux, "fixedHeatFlux" },
     { operationMode::fixedMixedTemperatureHTC, "HTC" },

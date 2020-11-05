@@ -38,7 +38,7 @@ Description
 Usage
     \table
         Property            | Description                           | Required  | Default
-        mode                | operation mode (fixedTemperature | fixedHeatFlux  | HTC ) | yes | -
+        mode                | operation mode (mixed | fixedTemperature | fixedHeatFlux  | HTC ) | yes | -
         refValue            | fixed value                           | no        | value
         refGradient         | patch normal gradient                 | no        | 0.0
         valueFraction       | value weighting (0-1)                 | no        | 1.0
@@ -125,6 +125,7 @@ public:
         //- Operation mode enumeration
         enum operationMode
         {
+            mixedBC,
             fixedTemperature,
             fixedHeatFlux,
             fixedMixedTemperatureHTC,
