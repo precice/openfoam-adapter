@@ -95,7 +95,6 @@ SourceFiles
 #include "scalarField.H"
 #include "mixedFvPatchFields.H"
 #include "temperatureCoupledBase.H"
-#include "PatchFunction1.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -103,12 +102,6 @@ namespace Foam
 {
 
 // forward declaration
-template<class Type>
-class Function1;
-
-template<class T>
-class autoPtr;
-
 template<class EnumType>
 class Enum;
 
