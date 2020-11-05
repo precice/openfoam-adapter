@@ -461,11 +461,11 @@ void Foam::apiCoupledTemperatureFvPatchScalarField::updateCoeffs
 
         const scalarField refValue0(value);
         const scalarField valueFraction0(fract);
-        const scalarField h_cell_(kappa(Twall) * patch().deltaCoeffs());
+        const scalarField h_cell(kappa(Twall) * patch().deltaCoeffs());
 
         forAll(Twall, i)
         {
-            const scalar h1 = h_cell_[i];
+            const scalar h1 = h_cell[i];
             const scalar h2 = h_neighbour_[i];
             const scalar T2 = T_neighbour_[i];
 
