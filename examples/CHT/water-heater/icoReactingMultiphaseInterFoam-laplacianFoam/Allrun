@@ -50,18 +50,15 @@ wait $PIDParticipantHeater4
 echo ""
 echo "The simulation completed!"
 
+# remove data due to bug
+./removeObsoleteFolders.sh
+
 # Reconstruct
 reconstructPar -case fluid > "log.fluid.reconstructPar" 2>&1
 #reconstructPar -case heater1 > "log.heater1.reconstructPar" 2>&1
 #reconstructPar -case heater2 > "log.heater2.reconstructPar" 2>&1
 #reconstructPar -case heater3 > "log.heater3.reconstructPar" 2>&1
 #reconstructPar -case heater4 > "log.heater4.reconstructPar" 2>&1
-
-find fluid -maxdepth 1 -type d -name "*.*9" -exec rm -rf {} \;
-find heater1 -maxdepth 1 -type d -name "*.*9" -exec rm -rf {} \;
-find heater2 -maxdepth 1 -type d -name "*.*9" -exec rm -rf {} \;
-find heater3 -maxdepth 1 -type d -name "*.*9" -exec rm -rf {} \;
-find heater4 -maxdepth 1 -type d -name "*.*9" -exec rm -rf {} \;
 
 echo ""
 echo "The reconstructPar completed!"
