@@ -428,7 +428,7 @@ void Foam::apiCoupledTemperatureFvPatchScalarField::updateCoeffs
     if (updated()) return;
 
     // update coeff's needed?
-    if(mode_ != fixedHeatFlux || mode_ != fixedMixedTemperatureHTC)
+    if(!(mode_ == fixedHeatFlux || mode_ == fixedMixedTemperatureHTC))
     {
         mixedFvPatchScalarField::updateCoeffs();
         return;
