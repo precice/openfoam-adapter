@@ -2,10 +2,6 @@
 
 echo "Cleaning..."
 
-# Source tutorial clean functions
-. $WM_PROJECT_DIR/bin/tools/CleanFunctions
-
-
 
 # Remove the preCICE-related log files
 echo "Deleting the preCICE log files..."
@@ -26,7 +22,7 @@ rm -rfv ../precice-run
 rm -fv .*.address
 
 #Removing SWE files
-rm -fv SWE_solver/build/precice-SWE_Solver* SWE_solver/build/reference.xml SWEoutput*/*
+rm -fv swe_solver/build/precice-SWE_Solver* swe_solver/build/reference.xml SWEoutput*/*
 
 
 echo "Cleaning complete!"
