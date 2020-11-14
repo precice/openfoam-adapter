@@ -26,21 +26,6 @@ struct CHTParameterNames
 {
     //- Name of the temperature field
     std::string T = "T";
-
-    // //- Name of the thermal conductivity for a basic solver
-    // std::string Kappa = "k";
-
-    // //- Name of the density for an incompressible solver
-    // std::string Rho = "rho";
-
-    // //- Name of the heat capacity for an incompressible solver
-    // std::string Cp = "Cp";
-
-    // //- Name of the Prandtl number for an incompressible solver
-    // std::string Pr = "Pr";
-
-    // //- Name of the turbulent thermal diffusivity field for an incompressible solver
-    // std::string Alphat = "alphat";
 };
 
 //
