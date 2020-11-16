@@ -3,6 +3,6 @@
 cd ~/thesis/SWE
 scons -c
 rm build/build_SWE_gnu_* build/SWE_gnu_*  -rf
-rm build/output/*
-rm build/precice-Solver* reference.xml
+rm build/output/* -f
+rm build/precice-Solver* reference.xml -f
 rm build/precice-run/ -rf

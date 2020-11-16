@@ -5,4 +5,4 @@ sizeX=120
 sizeY=120
 build=../swe-swe_subcritical/SWE_gnu.py
 solverNum=2
-. ./swe_solver/run.sh
+. ../swe_solver/run.sh

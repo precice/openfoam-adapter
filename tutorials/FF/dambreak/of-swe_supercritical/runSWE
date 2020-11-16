@@ -3,6 +3,6 @@ type=4
 output="SWEoutput_of-swe_supercritical/swe_solver_of-swe_supercritical"
 sizeX=30
 sizeY=30
-build=build/options/SWE_gnu.py
+build=../of-swe_supercritical/SWE_gnu.py
 solverNum=1
-. ./SWE_solver/run.sh
+. ./swe_solver/run.sh

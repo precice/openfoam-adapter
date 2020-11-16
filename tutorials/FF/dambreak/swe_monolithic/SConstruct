@@ -28,21 +28,21 @@
 #
 
 # print the welcome message
-print '****************************************'
-print '** Welcome to the build script of SWE **'
-print '****************************************'
-print 'SWE Copyright (C) 2012-2013'
-print ''
-print '  Technische Universitaet Muenchen'
-print '  Department of Informatics'
-print '  Chair of Scientific Computing'
-print '  http://www5.in.tum.de/SWE'
-print ''
-print 'SWE comes with ABSOLUTELY NO WARRANTY.'
-print 'SWE is free software, and you are welcome to redistribute it'
-print 'under certain conditions.'
-print 'Details can be found in the file \'gpl.txt\'.'
-print ''
+print('****************************************')
+print('** Welcome to the build script of SWE **')
+print('****************************************')
+print('SWE Copyright (C) 2012-2013')
+print('')
+print('  Technische Universitaet Muenchen')
+print('  Department of Informatics')
+print('  Chair of Scientific Computing')
+print('  http://www5.in.tum.de/SWE')
+print('')
+print('SWE comes with ABSOLUTELY NO WARRANTY.')
+print('SWE is free software, and you are welcome to redistribute it')
+print('under certain conditions.')
+print('Details can be found in the file \'gpl.txt\'.')
+print('')
 
 import os
 import sys
@@ -75,7 +75,7 @@ vars.AddVariables(
   EnumVariable( 'simdExtensions', 'SIMD extensions used for vectorization (for intrinsics code)', 'NONE',
                 allowed_values=('NONE', 'SSE4', 'AVX')
               ),
-              
+
   EnumVariable( 'parallelization', 'level of parallelization', 'none',
                 allowed_values=('none', 'cuda', 'mpi_with_cuda', 'mpi')
               ),
@@ -99,11 +99,11 @@ vars.AddVariables(
   EnumVariable( 'solver', 'Riemann solver', 'augrie',
                 allowed_values=('rusanov', 'fwave', 'augrie', 'hybrid', 'fwavevec', 'augriefun', 'augrie_simd')
               ),
-                  
+
   BoolVariable( 'vectorize', 'add pragmas to help vectorization (release only)', False ),
-                  
+
   BoolVariable( 'openmp', 'compile with OpenMP parallelization enabled', False ),
-                  
+
   BoolVariable( 'showVectorization', 'show loop vectorization (Intel compiler only)', False ),
 
   EnumVariable( 'platform', 'compile for a specific platform (Intel compiler only)', 'default',
@@ -113,7 +113,7 @@ vars.AddVariables(
   BoolVariable( 'xmlRuntime', 'use a xml-file for runtime parameters', False ),
 
   BoolVariable( 'copyenv', 'copy the whole environment', False ),
-  
+
   BoolVariable( 'countflops', 'enable flop counting; defines the macro COUNTFLOPS', False )
 )
 
@@ -165,7 +165,7 @@ if env['copyenv']:
 #
 
 # Select the compiler (MPI and/or Intel, GNU is default)
-if env['parallelization'] in ['mpi', 'mpi_with_cuda']: 
+if env['parallelization'] in ['mpi', 'mpi_with_cuda']:
   if env['compiler'] == 'cray':
     env['CXX'] = 'CC'
   else:
@@ -173,7 +173,7 @@ if env['parallelization'] in ['mpi', 'mpi_with_cuda']:
   if not env['CXX']:
       print >> sys.stderr, '** MPI compiler not found, please update PATH environment variable'
       Exit(1)
-  
+
   if env['compiler'] == 'intel':
     # We need to the the mpiCC wrapper which compiler it should use
     # Here are several environment variables that do the job for different MPI libraries
@@ -216,12 +216,12 @@ elif env['compileMode'] == 'release':
 
   else: # especially for env['compiler'] == 'cray'
     env.Append(CCFLAGS=['-O3'])
-    
+
 # Other compiler flags (for all compilers)
 if env['compiler'] != 'cray':
   env.Append(CCFLAGS=['-fstrict-aliasing', '-fargument-noalias'])
   # env.Append(CCFLAGS=['-fno-strict-aliasing', '-fargument-noalias', '-g', '-g3', '-ggdb', '-Wall', '-Wextra', '-Wstrict-aliasing=2'])
-  
+
 # Vectorization via Intrinsics
 if env['simdExtensions'] == 'SSE4':
   env.Append(CCFLAGS=['-msse4'])
@@ -247,17 +247,17 @@ if env['openmp']:
   if env['compiler'] == 'gnu':
     env.Append(CCFLAGS=['-fopenmp'])
   # cray: OpenMP turned on by default
-  
+
 # Platform
 if env['compiler'] == 'intel' and env['platform'] == 'mic':
   env.Append(CCFLAGS=['-mmic'])
   env.Append(LINKFLAGS=['-mmic'])
-  
+
 # Compiler
 if env['compiler'] == 'intel':
   # Add Intel specific libraries
   env.Append(LIBS=['svml', 'imf', 'intlc'])
-  
+
 # Add source directory to include path (important for subdirectories)
 env.Append(CPPPATH=['.'])
 env.Append(CPPPATH=['include'])
@@ -277,25 +277,25 @@ elif env['solver'] == 'augrie_simd':
 # set the precompiler flags for CUDA
 if env['parallelization'] in ['cuda', 'mpi_with_cuda']:
   env.Append(CPPDEFINES=['CUDA'])
-  
+
   # set the directories for the CudaTool
   if 'cudaToolkitDir' in env:
     env['CUDA_TOOLKIT_PATH'] = env['cudaToolkitDir']
 
   env.Tool('CudaTool', toolpath = ['.'])
-  
+
   # set precompiler flag for nvcc
   env.Append(NVCCFLAGS=['-DCUDA'])
-  
+
   if env['solver'] == 'augrie':
     env.Append(NVCCFLAGS=['-DCUDA_AUGRIE'])
 
   # set the compute capability of the cuda compiler (needs to be set after the CudaTool
   env.Append(NVCCFLAGS=['--gpu-architecture='+env['computeCapability']])
-  
+
   # Append the source directory to the include path
   env.Append(NVCCFLAGS=['-Isrc'])
-  
+
   # compile explicitly with 64-bit on Mac OS X
   if env['PLATFORM'] == 'darwin':
     env.Append(NVCCFLAGS=' -m64')
@@ -352,7 +352,7 @@ if env['asagi'] == True:
 
 # xml runtime parameters
 if env['xmlRuntime'] == True: #TODO
-  print 'xml runtime parameters are not implemented so far.'
+  print('xml runtime parameters are not implemented so far.')
   Exit(1)
   env.Append(CPPDEFINES=['READXML'])
   #set xmllib2 location
