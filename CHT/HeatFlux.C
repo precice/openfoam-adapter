@@ -33,7 +33,7 @@ void preciceAdapter::CHT::HeatFlux::write(double * buffer, bool meshConnectivity
     {
         int patchID = patchIDs_.at(j);
 
-        const scalarField & gradientPatch
+        const scalarField gradientPatch
         (
             refCast<const fixedValueFvPatchScalarField>
             (
