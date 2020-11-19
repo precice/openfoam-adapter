@@ -30,11 +30,11 @@ void preciceAdapter::CHT::SinkTemperature::write(double * buffer, bool meshConne
         int patchID = patchIDs_.at(j);
 
         // Get the boundary field of Temperature on the patch
-        fvPatchScalarField & TPatch
+        const fvPatchScalarField & TPatch
         (
-            refCast<fvPatchScalarField>
+            refCast<const fvPatchScalarField>
             (
-                T_->boundaryFieldRef()[patchID]
+                T_->boundaryField()[patchID]
             )
         );
 
