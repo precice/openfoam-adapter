@@ -1,5 +1,5 @@
 # Shallow Water Equations and OpenFOAM with preCICE
-In this tutorial, we will be doing simulations using a [SWE solver]() and OpenFOAM, using preCICE as the coupling library.
+In this tutorial, we will be doing simulations using a [SWE solver](https://github.com/TUM-I5/SWE/) and OpenFOAM, using preCICE as the coupling library. The scenarios use [OpenFOAM 7](https://openfoam.org/version/7/), and [Scons](https://scons.org/) as building tool. Make sure to have these two installed.
 
 The repository of this tutorial contains the following cases for partitioned problems:
 
@@ -16,7 +16,7 @@ plus the monolithic cases:
 
   7. of_monolithic_subcritical
   8. of_monolithic_supercritical
-  9. swe_monolithic (supercritical and subcritical)
+  9. swe_monolithic (supercritical and subcritical) (version with adapter)
 
 Additionally, there is one directory `swe_solver` that is a submodule that links to the *SWE solver* repository used in this tutorial. This solver is added to each of the cases from 1 to 8 as a symbolic link, in order to simplify the process and organize the output within each subdirectory accordingly.
 
