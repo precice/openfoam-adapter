@@ -53,30 +53,18 @@ void preciceAdapter::FSI::Displacement::read(double * buffer, const unsigned int
                 cellDisplacement[i][2] = buffer[bufferIndex++];
         }
 
-        //Interpolate from centers to nodes
-        primitivePatchInterpolation patchInterpolator(mesh_.boundaryMesh()[patchID]);
-        vectorField pointDisplacement
-        (
-            patchInterpolator.faceToPointInterpolate(cellDisplacement)
-        );
-
         // Get the displacement on the patch
-        fixedValuePointPatchVectorField& pointDisplacementFluidPatch
+        vectorField& pointDisplacementFluidPatch
         (
-            refCast<fixedValuePointPatchVectorField>
+            refCast<vectorField>
             (
                 pointDisplacement_->boundaryFieldRef()[patchID]
             )
         );
 
-        // For every cell of the patch
-        forAll(pointDisplacement_->boundaryFieldRef()[patchID], i)
-        {
-            // Set the displacement to the received one
-            pointDisplacementFluidPatch[i][0] = pointDisplacement[i][0];
-            pointDisplacementFluidPatch[i][1] = pointDisplacement[i][1];
-            if(dim ==3)
-                pointDisplacementFluidPatch[i][2] = pointDisplacement[i][2];
-        }
+        //Interpolate from centers to nodes
+        primitivePatchInterpolation patchInterpolator(mesh_.boundaryMesh()[patchID]);
+        pointDisplacementFluidPatch =
+             patchInterpolator.faceToPointInterpolate(cellDisplacement);
     }
 }
