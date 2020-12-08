@@ -5,6 +5,7 @@
 
 #include "fvCFD.H"
 #include "fixedValuePointPatchFields.H"
+#include "primitivePatchInterpolation.H"
 
 namespace preciceAdapter
 {
@@ -20,7 +21,9 @@ private:
     // Displacement pointVectorField
     Foam::pointVectorField * pointDisplacement_;
 
-public:
+    const Foam::fvMesh& mesh_;
+
+  public:
 
     //- Constructor
     Displacement
