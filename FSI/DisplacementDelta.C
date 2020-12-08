@@ -13,7 +13,8 @@ pointDisplacement_(
     (
         &mesh.lookupObject<pointVectorField>(namePointDisplacement)
     )
-)
+),
+mesh_(mesh)
 {
     dataType_ = vector;
 }
@@ -41,23 +42,29 @@ void preciceAdapter::FSI::DisplacementDelta::read(double * buffer, const unsigne
     {
         int patchID = patchIDs_.at(j);
 
+        const volVectorField &tmp_field = mesh_.lookupObject<volVectorField>("cellDisplacement");
+        vectorField           cellDisplacement(tmp_field.boundaryField()[patchID]);
+        forAll(cellDisplacement, i)
+        {
+            // Set the displacement to the received one
+            cellDisplacement[i][0] = buffer[bufferIndex++];
+            cellDisplacement[i][1] = buffer[bufferIndex++];
+            if(dim ==3)
+                cellDisplacement[i][2] = buffer[bufferIndex++];
+        }
+
         // Get the displacement on the patch
-        fixedValuePointPatchVectorField& pointDisplacementFluidPatch
+        vectorField& pointDisplacementFluidPatch
         (
-            refCast<fixedValuePointPatchVectorField>
+            refCast<vectorField>
             (
                 pointDisplacement_->boundaryFieldRef()[patchID]
             )
         );
 
-        // For every cell of the patch
-        forAll(pointDisplacement_->boundaryFieldRef()[patchID], i)
-        {
-            // Add the received delta to the actual displacement
-            pointDisplacementFluidPatch[i][0] += buffer[bufferIndex++];
-            pointDisplacementFluidPatch[i][1] += buffer[bufferIndex++];
-            if(dim==3)
-                pointDisplacementFluidPatch[i][2] += buffer[bufferIndex++];
-        }
+        //Interpolate from centers to nodes
+        primitivePatchInterpolation patchInterpolator(mesh_.boundaryMesh()[patchID]);
+        pointDisplacementFluidPatch =
+             patchInterpolator.faceToPointInterpolate(cellDisplacement);
     }
 }
