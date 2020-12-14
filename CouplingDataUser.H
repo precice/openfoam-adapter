@@ -2,6 +2,7 @@
 #define COUPLINGDATAUSER_H
 
 #include <vector>
+#include <string>
 
 namespace preciceAdapter
 {
@@ -22,6 +23,9 @@ protected:
     //- preCICE data ID
     int dataID_;
 
+    //- preCICE data ID
+    std::string locationsType_;
+
 public:
 
     //- Constructor
@@ -41,6 +45,9 @@ public:
 
     //- Set the patch IDs that form the interface
     void setPatchIDs(std::vector<int> patchIDs);
+
+    //- Set the locations type of the interface
+    void setLocationsType(std::string locationsType);
 
     //- Write the coupling data to the buffer
     virtual void write(double * dataBuffer, bool meshConnectivity, const unsigned int dim) = 0;

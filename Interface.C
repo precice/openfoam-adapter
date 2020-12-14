@@ -237,6 +237,9 @@ void preciceAdapter::Interface::addCouplingDataWriter
     // Set the patchIDs of the patches that form the interface
     couplingDataWriter->setPatchIDs(patchIDs_);
 
+    // Set the location type in the CouplingDataUser class
+    couplingDataWriter->setLocationsType(locationsType_);
+
     // Add the CouplingDataUser to the list of writers
     couplingDataWriters_.push_back(couplingDataWriter);
 }
@@ -253,6 +256,10 @@ void preciceAdapter::Interface::addCouplingDataReader
 
     // Add the CouplingDataUser to the list of readers
     couplingDataReader->setPatchIDs(patchIDs_);
+
+    // Set the location type in the CouplingDataUser class
+    couplingDataReader->setLocationsType(locationsType_);
+
     couplingDataReaders_.push_back(couplingDataReader);
 }
 

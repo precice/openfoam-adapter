@@ -30,3 +30,8 @@ void preciceAdapter::CouplingDataUser::setPatchIDs(std::vector<int> patchIDs)
 {
     patchIDs_ = patchIDs;
 }
+
+void preciceAdapter::CouplingDataUser::setLocationsType(std::string locationsType)
+{
+    locationsType_ = locationsType;
+}
