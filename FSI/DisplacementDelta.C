@@ -47,10 +47,10 @@ void preciceAdapter::FSI::DisplacementDelta::read(double * buffer, const unsigne
         forAll(cellDisplacement, i)
         {
             // Set the displacement to the received one
-            cellDisplacement[i][0] = buffer[bufferIndex++];
-            cellDisplacement[i][1] = buffer[bufferIndex++];
+            cellDisplacement[i][0] += buffer[bufferIndex++];
+            cellDisplacement[i][1] += buffer[bufferIndex++];
             if(dim ==3)
-                cellDisplacement[i][2] = buffer[bufferIndex++];
+                cellDisplacement[i][2] += buffer[bufferIndex++];
         }
 
         // Get the displacement on the patch
