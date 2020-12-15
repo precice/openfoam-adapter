@@ -266,6 +266,7 @@ void preciceAdapter::Interface::addCouplingDataReader
     // Initilaize class specific data
     couplingDataReader->initialize();
 
+    // Add the CouplingDataUser to the list of readers
     couplingDataReaders_.push_back(couplingDataReader);
 }
 
