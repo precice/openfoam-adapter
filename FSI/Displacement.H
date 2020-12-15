@@ -49,6 +49,7 @@ private:
     // in case we want to use the faceCenter location for the coupling
     void initialize() override;
 };
+
 }
 }
 
