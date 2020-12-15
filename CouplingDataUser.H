@@ -23,7 +23,7 @@ protected:
     //- preCICE data ID
     int dataID_;
 
-    //- preCICE data ID
+    //- location type of the interface
     std::string locationsType_;
 
 public:
