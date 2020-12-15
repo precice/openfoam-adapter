@@ -107,24 +107,24 @@ void preciceAdapter::FSI::Stress::write(double * buffer, bool meshConnectivity, 
 
         // Write the stress to the preCICE buffer
         // For every cell of the patch
-        forAll(Stress_->boundaryFieldRef()[patchID], i)
+        forAll(Stress_->boundaryField()[patchID], i)
         {
             // Copy the stress into the buffer
             // x-dimension
             buffer[bufferIndex++]
             = 
-            Stress_->boundaryFieldRef()[patchID][i].x();
+            Stress_->boundaryField()[patchID][i].x();
 
             // y-dimension
             buffer[bufferIndex++]
             =
-            Stress_->boundaryFieldRef()[patchID][i].y();
+            Stress_->boundaryField()[patchID][i].y();
 
             if(dim == 3)
                 // z-dimension
                 buffer[bufferIndex++]
                         =
-                        Stress_->boundaryFieldRef()[patchID][i].z();
+                        Stress_->boundaryField()[patchID][i].z();
         }
     }
 }

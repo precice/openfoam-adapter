@@ -39,7 +39,7 @@ bool preciceAdapter::FSI::FluidStructureInteraction::configure(const IOdictionar
     }
     else
     {
-        DEBUG(adapterInfo("Unknown solver type. Determining the solver type..."));
+        DEBUG(adapterInfo("Determining the solver type for the FSI module... (override by setting solverType to one of {compressible, incompressible})"));
         solverType_ = determineSolverType();
     }
 
