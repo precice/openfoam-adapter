@@ -21,12 +21,11 @@ private:
     // Displacement pointVectorField
     Foam::pointVectorField * pointDisplacement_;
 
-    const Foam::fvMesh& mesh_;
-
-    // vector field for cell displacement on each interface patch
-    // NOTE: both allocation could be avoided in case we directly write to the
     // cellDisplacement field
-    std::vector<Foam::vectorField> boundaryCellDisplacement_;
+    Foam::volVectorField *cellDisplacement_;
+
+    const Foam::fvMesh& mesh_;
+    // NOTE: this allocation could be avoided in case we directly write to the
     // Needs to be a pointer since the class disables assignment and copy constructors
     std::vector<Foam::primitivePatchInterpolation *> interpolationObjects_;
 

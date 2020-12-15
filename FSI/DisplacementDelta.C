@@ -2,19 +2,16 @@
 
 using namespace Foam;
 
-preciceAdapter::FSI::DisplacementDelta::DisplacementDelta
-(
-    const Foam::fvMesh& mesh,
-    const std::string namePointDisplacement
-)
-:
-pointDisplacement_(
-    const_cast<pointVectorField*>
-    (
-        &mesh.lookupObject<pointVectorField>(namePointDisplacement)
-    )
-),
-mesh_(mesh)
+preciceAdapter::FSI::DisplacementDelta::DisplacementDelta(
+    const Foam::fvMesh &mesh,
+    const std::string   namePointDisplacement)
+    : pointDisplacement_(
+          const_cast<pointVectorField *>(
+              &mesh.lookupObject<pointVectorField>(namePointDisplacement))),
+      cellDisplacement_(
+          const_cast<volVectorField *>(
+              &mesh.lookupObject<volVectorField>("cellDisplacement"))),
+      mesh_(mesh)
 {
     dataType_ = vector;
 }
@@ -23,16 +20,11 @@ mesh_(mesh)
 // defined later. Hence, we call this method after the CouplingDaaUser has been configured
 void preciceAdapter::FSI::DisplacementDelta::initialize()
 {
-  // We use the cellDisplacement in order to copy the interface boundary fields
-  const volVectorField &cellDisplacement_ =
-      mesh_.lookupObject<volVectorField>("cellDisplacement");
-
   // Initialize appropriate objects for each interface patch, namely the volField and the interpolation object
   // this is only necessary for face based FSI
   if (this->locationsType_ == "faceCenters" || this->locationsType_ == "faceCentres")
-    for (unsigned int j = 0; j < patchIDs_.size(); j++) {
+    for (unsigned int j = 0; j < patchIDs_.size(); ++j) {
       const unsigned int patchID = patchIDs_.at(j);
-      boundaryCellDisplacement_.emplace_back(cellDisplacement_.boundaryField()[patchID]);
       interpolationObjects_.emplace_back(new primitivePatchInterpolation(mesh_.boundaryMesh()[patchID]));
     }
 }
@@ -66,9 +58,9 @@ void preciceAdapter::FSI::DisplacementDelta::read(double * buffer, const unsigne
           // First, copy the buffer data into the center based vectorFields on each interface patch
           // For DisplacementDelta, set absolute values here and sum the interpolated values up to the point field
           // since the temporary field in this class is not reloaded in the implicit coupling
-          for (int i = 0; i < boundaryCellDisplacement_[j].size(); ++i) {
+          for (int i = 0; i < cellDisplacement_->boundaryField()[patchID].size(); ++i) {
             for (unsigned int d = 0; d < dim; ++d)
-              boundaryCellDisplacement_[j][i][d] = buffer[i * dim + d];
+              cellDisplacement_->boundaryFieldRef()[patchID][i][d] = buffer[i * dim + d];
           }
           // Get a reference to the displacement on the point patch in order to overwrite it
           vectorField &pointDisplacementFluidPatch(
@@ -77,7 +69,7 @@ void preciceAdapter::FSI::DisplacementDelta::read(double * buffer, const unsigne
 
           // Overwrite the node based patch using the interpolation objects and the cell based vector field
           // Afterwards, continue as usual
-          pointDisplacementFluidPatch += interpolationObjects_[j]->faceToPointInterpolate(boundaryCellDisplacement_[j]);
+          pointDisplacementFluidPatch += interpolationObjects_[j]->faceToPointInterpolate(cellDisplacement_->boundaryField()[patchID]);
 
         } else if (this->locationsType_ == "faceNodes") {
 

@@ -21,6 +21,9 @@ private:
     // Displacement pointVectorField
     Foam::pointVectorField * pointDisplacement_;
 
+    // cellDisplacement field
+    Foam::volVectorField *cellDisplacement_;
+
     const Foam::fvMesh& mesh_;
 
     // vector field for cell displacement on each interface patch
