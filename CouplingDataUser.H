@@ -49,6 +49,9 @@ public:
     //- Set the locations type of the interface
     void setLocationsType(std::string locationsType);
 
+    //- option to initialize data in derived data classes
+    virtual void initialize();
+
     //- Write the coupling data to the buffer
     virtual void write(double * dataBuffer, bool meshConnectivity, const unsigned int dim) = 0;
 

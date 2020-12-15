@@ -240,6 +240,9 @@ void preciceAdapter::Interface::addCouplingDataWriter
     // Set the location type in the CouplingDataUser class
     couplingDataWriter->setLocationsType(locationsType_);
 
+    // Initilaize class specific data
+    couplingDataWriter->initialize();
+
     // Add the CouplingDataUser to the list of writers
     couplingDataWriters_.push_back(couplingDataWriter);
 }
@@ -259,6 +262,9 @@ void preciceAdapter::Interface::addCouplingDataReader
 
     // Set the location type in the CouplingDataUser class
     couplingDataReader->setLocationsType(locationsType_);
+
+    // Initilaize class specific data
+    couplingDataReader->initialize();
 
     couplingDataReaders_.push_back(couplingDataReader);
 }
