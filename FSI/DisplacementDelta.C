@@ -4,13 +4,14 @@ using namespace Foam;
 
 preciceAdapter::FSI::DisplacementDelta::DisplacementDelta(
     const Foam::fvMesh &mesh,
-    const std::string   namePointDisplacement)
+    const std::string   namePointDisplacement,
+    const std::string   nameCellDisplacement)
     : pointDisplacement_(
           const_cast<pointVectorField *>(
               &mesh.lookupObject<pointVectorField>(namePointDisplacement))),
       cellDisplacement_(
           const_cast<volVectorField *>(
-              &mesh.lookupObject<volVectorField>("cellDisplacement"))),
+              &mesh.lookupObject<volVectorField>(nameCellDisplacement))),
       mesh_(mesh)
 {
     dataType_ = vector;

@@ -62,6 +62,10 @@ bool preciceAdapter::FSI::FluidStructureInteraction::readConfig(const IOdictiona
     namePointDisplacement_ = FSIdict.lookupOrDefault<word>("namePointDisplacement", "pointDisplacement");
     DEBUG(adapterInfo("    pointDisplacement field name : " + namePointDisplacement_));
 
+    // Read the name of the pointDisplacement field (if different)
+    nameCellDisplacement_ = FSIdict.lookupOrDefault<word>("nameCellDisplacement", "cellDisplacement");
+    DEBUG(adapterInfo("    cellDisplacement field name : " + nameCellDisplacement_));
+
     return true;
 }
 
@@ -116,7 +120,7 @@ void preciceAdapter::FSI::FluidStructureInteraction::addWriters(std::string data
         interface->addCouplingDataWriter
         (
             dataName,
-            new DisplacementDelta(mesh_, namePointDisplacement_)
+            new DisplacementDelta(mesh_, namePointDisplacement_, nameCellDisplacement_)
         );
         DEBUG(adapterInfo("Added writer: DisplacementDelta."));
     }
@@ -125,7 +129,7 @@ void preciceAdapter::FSI::FluidStructureInteraction::addWriters(std::string data
         interface->addCouplingDataWriter
         (
             dataName,
-            new Displacement(mesh_, namePointDisplacement_)
+            new Displacement(mesh_, namePointDisplacement_, nameCellDisplacement_)
         );
         DEBUG(adapterInfo("Added writer: Displacement."));
     }
@@ -162,7 +166,7 @@ void preciceAdapter::FSI::FluidStructureInteraction::addReaders(std::string data
         interface->addCouplingDataReader
         (
             dataName,
-            new DisplacementDelta(mesh_, namePointDisplacement_)
+            new DisplacementDelta(mesh_, namePointDisplacement_, nameCellDisplacement_)
         );
         DEBUG(adapterInfo("Added reader: DisplacementDelta."));
     }
@@ -171,7 +175,7 @@ void preciceAdapter::FSI::FluidStructureInteraction::addReaders(std::string data
         interface->addCouplingDataReader
         (
             dataName,
-            new Displacement(mesh_, namePointDisplacement_)
+            new Displacement(mesh_, namePointDisplacement_, nameCellDisplacement_)
         );
         DEBUG(adapterInfo("Added reader: Displacement."));
     }

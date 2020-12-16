@@ -35,7 +35,8 @@ private:
     DisplacementDelta
     (
         const Foam::fvMesh& mesh,
-        const std::string namePointDisplacement
+        const std::string namePointDisplacement,
+        const std::string nameCellDisplacement
     );
 
     //- Write the displacementDelta values into the buffer
