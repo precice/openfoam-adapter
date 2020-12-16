@@ -27,7 +27,7 @@ private:
     const Foam::fvMesh& mesh_;
     // NOTE: this allocation could be avoided in case we directly write to the
     // Needs to be a pointer since the class disables assignment and copy constructors
-    std::vector<Foam::primitivePatchInterpolation *> interpolationObjects_;
+    std::vector<const Foam::primitivePatchInterpolation *> interpolationObjects_;
 
   public:
 
