@@ -1,16 +1,7 @@
 #ifndef FSI_STRESS_H
 #define FSI_STRESS_H
 
-#include "CouplingDataUser.H"
-#include "Force.H"
-
-#include "fvCFD.H"
-
-#include "pointFields.H"
-#include "vectorField.H"
-#include "immiscibleIncompressibleTwoPhaseMixture.H"
-#include "turbulentFluidThermoModel.H"
-#include "turbulentTransportModel.H"
+#include "ForceBase.H"
 
 namespace preciceAdapter
 {
@@ -22,30 +13,19 @@ namespace FSI
 // cell face. Thus, a consistent quantity. Calculation concept has been copied
 // from the force module, but the scaled version here is commonly used in FEM
 // applications.
-class Stress : public Force {
+class Stress : public ForceBase {
 
 private:
-
-    //- OpenFOAM fvMesh object (we need to access the objects' registry multiple times)
-    const Foam::fvMesh& mesh_;
-    
-    const std::string solverType_;
-
     //- Stress field
     Foam::volVectorField * Stress_;
-
 
 public:
 
     //- Constructor
     Stress
     (
-        const Foam::fvMesh& mesh,
-        const fileName& timeName,
-        const std::string solverType
-        // We create an IOobject and we need the time directory
-        /* TODO: We should add any required field names here.
-        */
+     const Foam::fvMesh& mesh,
+     const std::string solverType
     );
 
     //- Write the stress values into the buffer
@@ -53,6 +33,8 @@ public:
 
     //- Read the stress values from the buffer
     void read(double * buffer, const unsigned int dim);
+
+    Foam::vectorField getFaceVectors(const unsigned int patchID) const override;
 
     //- Destructor
     ~Stress();
