@@ -16,7 +16,7 @@ preciceAdapter::FSI::Displacement::Displacement(
     dataType_ = vector;
 }
 
-// We cannot do this steps in the constructor by design of the adapter since the information of the CouplingDataUser is
+// We cannot do this step in the constructor by design of the adapter since the information of the CouplingDataUser is
 // defined later. Hence, we call this method after the CouplingDaaUser has been configured
 void preciceAdapter::FSI::Displacement::initialize()
 {
