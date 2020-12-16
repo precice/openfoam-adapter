@@ -57,7 +57,7 @@ void preciceAdapter::FSI::Displacement::read(double * buffer, const unsigned int
           // the boundaryCellDisplacement is a vector and ordered according to the iterator j
           // and not according to the patchID
           // First, copy the buffer data into the center based vectorFields on each interface patch
-          for (int i = 0; i < cellDisplacement_->boundaryField()[patchID].size(); ++i) {
+          forAll (cellDisplacement_->boundaryField()[patchID], i) {
             for (unsigned int d = 0; d < dim; ++d)
               cellDisplacement_->boundaryFieldRef()[patchID][i][d] = buffer[i * dim + d];
           }
@@ -78,7 +78,7 @@ void preciceAdapter::FSI::Displacement::read(double * buffer, const unsigned int
                   pointDisplacement_->boundaryFieldRef()[patchID]));
 
           // Overwrite the nodes on the interface directly
-          for (int i = 0; i < pointDisplacement_->boundaryFieldRef()[patchID].size(); ++i) {
+          forAll (pointDisplacement_->boundaryFieldRef()[patchID], i) {
             for (unsigned int d = 0; d < dim; ++d)
               pointDisplacementFluidPatch[i][d] = buffer[i * dim + d];
           }

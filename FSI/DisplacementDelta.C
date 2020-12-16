@@ -58,7 +58,7 @@ void preciceAdapter::FSI::DisplacementDelta::read(double * buffer, const unsigne
           // First, copy the buffer data into the center based vectorFields on each interface patch
           // For DisplacementDelta, set absolute values here and sum the interpolated values up to the point field
           // since the temporary field in this class is not reloaded in the implicit coupling
-          for (int i = 0; i < cellDisplacement_->boundaryField()[patchID].size(); ++i) {
+          forAll (cellDisplacement_->boundaryField()[patchID], i) {
             for (unsigned int d = 0; d < dim; ++d)
               cellDisplacement_->boundaryFieldRef()[patchID][i][d] = buffer[i * dim + d];
           }
@@ -79,7 +79,7 @@ void preciceAdapter::FSI::DisplacementDelta::read(double * buffer, const unsigne
                   pointDisplacement_->boundaryFieldRef()[patchID]));
 
           // Overwrite the nodes on the interface directly
-          for (int i = 0; i < pointDisplacement_->boundaryFieldRef()[patchID].size(); ++i) {
+          forAll (pointDisplacement_->boundaryFieldRef()[patchID], i) {
             for (unsigned int d = 0; d < dim; ++d)
               pointDisplacementFluidPatch[i][d] += buffer[i * dim + d];
           }
