@@ -32,6 +32,9 @@ protected:
     //- Name of the pointDisplacement field
     std::string namePointDisplacement_ = "pointDisplacement";
 
+    //- Name of the pointDisplacement field
+    std::string nameCellDisplacement_ = "cellDisplacement";
+
     /* TODO: Declare here any parameters that should be read from
     /  the configuration file. See CHT/CHT.H for reference.
     /  We want to support in-house solvers with different field names,
