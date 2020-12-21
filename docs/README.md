@@ -5,11 +5,9 @@ keywords: adapter, openfoam, cite, versions
 summary: An OpenFOAM function object for CHT, FSI, and fluid-fluid coupled simulations using preCICE.
 ---
 
-Is your case not covered yet? The adapter is [easily extensible](adapter-openfoam-extend.html).
+This adapter is a plug-in (function object) for OpenFOAM, which can work with any recent version of OpenFOAM (.com / .org, version-specific branches for the latter). It supports fluid-structure interaction, conjugate heat transfer, and fluid-fluid simulations, while it is also [easily extensible](adapter-openfoam-extend.html).
 
-## Supported OpenFOAM versions
-
-(todo)
+This adapter supports all features of preCICE, including implicit coupling and nearest-projection mapping. It can also act as a 2D solver, defining only one layer of interface nodes (automatically).
 
 ## How to cite
 
