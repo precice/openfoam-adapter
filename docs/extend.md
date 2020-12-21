@@ -7,7 +7,7 @@ summary: "An overview of the OpenFOAM adapter's architecture and which parts to 
 
 The OpenFOAM adapter separates the core functionality (e.g. calling preCICE methods) from the problem-specific methods (e.g. accessing fields and converting quantities). The latter is encapsulated into "modules", which add only a few lines of code in the core. The following, simplified UML diagram gives an overview:
 
-![simplified UML diagram](https://github.com/precice/openfoam-adapter/wiki/images/modules.png)
+![simplified UML diagram](images/docs-adapter-openfoam-modules.svg)
 
 While in the begining the adapter only included a module for conjugate heat transfer, [a module for fluid-structure interaction has been added since then](https://github.com/precice/openfoam-adapter/pull/56). A fluid-fluid coupling module is also planned.
 
