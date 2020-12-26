@@ -7,14 +7,14 @@ summary: Recent OpenFOAM.com versions work out-of-the-box. Recent OpenFOAM.org v
 
 ### How to get OpenFOAM
 
-The easiest way to start is to get binary packages for your Linux distribution. For example, to [get OpenFOAM v2006 on Ubuntu](https://develop.openfoam.com/Development/openfoam/-/wikis/precompiled/debian#precompiled-packages-debianubuntu):
+The easiest way to start is to get binary packages for your Linux distribution. For example, to [get OpenFOAM v2012 on Ubuntu](https://develop.openfoam.com/Development/openfoam/-/wikis/precompiled/debian#precompiled-packages-debianubuntu):
 
 ```bash
 # Add the signing key, add the repository, update:
 wget -q -O - https://dl.openfoam.com/add-debian-repo.sh | sudo bash
 
-# Install OpenFOAM v2006:
-sudo apt-get install openfoam2006-default
+# Install OpenFOAM v2012:
+sudo apt-get install openfoam2012-dev
 ```
 
 ### Supported OpenFOAM versions
@@ -22,7 +22,7 @@ sudo apt-get install openfoam2006-default
 OpenFOAM is a project with long history and many forks, of which we try to support as many as possible.
 
 Supported versions:
-- OpenFOAM (openfoam.com): [v1706](https://www.openfoam.com/releases/openfoam-v1706/) - [v2006](https://www.openfoam.com/releases/openfoam-v2006/) (or newer)
+- OpenFOAM (openfoam.com): [v1706](https://www.openfoam.com/releases/openfoam-v1706/) - [v2012](https://www.openfoam.com/releases/openfoam-v2012/) (or newer)
 - OpenFOAM (openfoam.org): version [5.x](https://openfoam.org/version/5-0/) without changes. You need different branches for the versions [4.0/4.1](https://github.com/precice/openfoam-adapter/tree/OpenFOAM4), [6](https://github.com/precice/openfoam-adapter/tree/OpenFOAM6), [7](https://github.com/precice/openfoam-adapter/tree/OpenFOAM7), [8 (experimental)](https://github.com/precice/openfoam-adapter/pull/130).
 
 Known not supported versions: OpenFOAM v1606+ or older, OpenFOAM 3 or older, foam-extend (any version).
