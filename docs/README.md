@@ -9,6 +9,18 @@ This adapter is a plug-in (function object) for OpenFOAM, which can work with an
 
 This adapter supports all features of preCICE, including implicit coupling and nearest-projection mapping. It can also act as a 2D solver, defining only one layer of interface nodes (automatically).
 
+## Try
+
+Here you will find how to [get the adapter](adapter-openfoam-get.html), how to [configure](adapter-openfoam.config.html) a case, how to [extend the adapter](adapter-openfoam-extend.html) to cover additional features, as well as a few notes on [supported OpenFOAM versions](adapter-openfoam-support.html).
+
+## Learn
+
+Apart from following the documentation here, you will also often find us in OpenFOAM-related conferences.
+Before diving into preCICE and the OpenFOAM adapter for the first time, you may want to watch the recording of
+our training session from the 15th OpenFOAM Workshop:
+
+<iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/INGsFlCW3B8" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+
 ## How to cite
 
 We are currently working on an up-to-date reference paper. Until then, please cite this adapter using [1]:
