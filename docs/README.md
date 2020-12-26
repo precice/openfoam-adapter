@@ -11,18 +11,19 @@ This adapter supports all features of preCICE, including implicit coupling and n
 
 ## How to cite
 
-We are currently working on an up-to-date reference paper. Until then, please cite this adapter using:
+We are currently working on an up-to-date reference paper. Until then, please cite this adapter using [1]:
 ```
 Gerasimos Chourdakis. A general OpenFOAM adapter for the coupling library preCICE. Master's thesis, Department of Informatics, Technical University of Munich, 2017.
 ```
+For CHT-specific topics, you may want to additionally look into [2] and for FSI into [3].
 
-## Related literature
+### Related literature
 
-[1] Gerasimos Chourdakis. A general OpenFOAM adapter for the coupling library preCICE. Master's thesis, Department of Informatics, Technical University of Munich, 2017.
+[1] Gerasimos Chourdakis. [A general OpenFOAM adapter for the coupling library preCICE](https://mediatum.ub.tum.de/1462269). Master's thesis, Department of Informatics, Technical University of Munich, 2017.
 
-[2] Lucia Cheung Yau. Conjugate heat transfer with the multiphysics coupling library preCICE. Master’s thesis, Department of Informatics, Technical University of Munich, 2016.
+[2] Lucia Cheung Yau. [Conjugate heat transfer with the multiphysics coupling library preCICE](http://www5.in.tum.de/pub/Cheung2016_Thesis.pdf). Master’s thesis, Department of Informatics, Technical University of Munich, 2016.
 
-[3] Derek Risseeuw. Fluid Structure Interaction Modelling of Flapping Wings. Master's thesis, Faculty of Aerospace Engineering, Delft University of Technology, 2019.
+[3] Derek Risseeuw. [Fluid Structure Interaction Modelling of Flapping Wings](https://repository.tudelft.nl/islandora/object/uuid:70beddde-e870-4c62-9a2f-8758b4e49123). Master's thesis, Faculty of Aerospace Engineering, Delft University of Technology, 2019.
 
 
 {% include disclaimer.html content="This offering is not approved or endorsed by OpenCFD Limited, producer and distributor of the OpenFOAM software via www.openfoam.com, and owner of the OPENFOAM®  and OpenCFD®  trade marks." %}
