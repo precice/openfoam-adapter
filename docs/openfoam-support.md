@@ -5,7 +5,7 @@ keywords: adapter, openfoam, support, versions
 summary: Recent OpenFOAM.com versions work out-of-the-box. Recent OpenFOAM.org versions are also supported, but you will need a version-specific branch.
 ---
 
-### How to get OpenFOAM
+## How to get OpenFOAM
 
 The easiest way to start is to get binary packages for your Linux distribution. For example, to [get OpenFOAM v2012 on Ubuntu](https://develop.openfoam.com/Development/openfoam/-/wikis/precompiled/debian#precompiled-packages-debianubuntu):
 
@@ -17,7 +17,7 @@ wget -q -O - https://dl.openfoam.com/add-debian-repo.sh | sudo bash
 sudo apt-get install openfoam2012-dev
 ```
 
-### Supported OpenFOAM versions
+## Supported OpenFOAM versions
 
 OpenFOAM is a project with long history and many forks, of which we try to support as many as possible.
 
@@ -27,13 +27,13 @@ Supported versions:
 
 Known not supported versions: OpenFOAM v1606+ or older, OpenFOAM 3 or older, foam-extend (any version).
 
-### Supported OpenFOAM solvers
+## Supported OpenFOAM solvers
 
 We support mainstream OpenFOAM solvers such as pimpleFoam (for FSI) or buoyantPimpleFoam, buoyantSimpleFoam, laplacianFoam (for CHT). Our community has tried the adapter with multiple different solvers that support function objects.
 
-### Notes on OpenFOAM features
+## Notes on OpenFOAM features
 
-#### End of the simulation
+### End of the simulation
 
 The adapter (by default) ignores the `endTime` set in the `controlDict` and stops the simulation when preCICE says so.
 
@@ -50,7 +50,7 @@ the simulation needs to end. This has the side effect of not calling
 any function object's `end()` method normally, so these are triggered
 explicitly at the end of the simulation.
 
-#### Function Objects
+### Function Objects
 
 In principle, using other function objects alongside the preCICE adapter
 is possible. They should be defined *before* the adapter in the
@@ -98,14 +98,14 @@ functions
 }
 ```
 
-#### Writing results
+### Writing results
 
 As soon as OpenFOAM writes the results, it will not try to write again
 if the time takes the same value again. Therefore, during an implicit
 coupling, we write again when the coupling timestep is complete.
 See also a [relevant issue](https://github.com/precice/openfoam-adapter/issues/34).
 
-#### Adjustable timestep and modifiable runTime
+### Adjustable timestep and modifiable runTime
 
 In the `system/controlDict`, you may optionally specify the
 following:
