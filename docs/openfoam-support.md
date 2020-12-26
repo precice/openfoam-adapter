@@ -41,7 +41,7 @@ Let's see this with more details. During the simulation, both the solver and pre
 While in an explicit coupling scenario this is clearly defined,
 in an implicit coupling scenario the solver may schedule its exit
 (and therefore the last call to the adapter) before the coupling is complete.
-See [how function objects are called](https://cpp.openfoam.org/v5/Time_8C_source.html#l00781)
+See [how function objects are called](https://www.openfoam.com/documentation/guides/latest/api/Time_8C_source.html#l00890)
 for more details on this.
 
 In order to prevent early exits from the solver, the solver's `endTime`
