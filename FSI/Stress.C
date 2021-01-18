@@ -42,7 +42,8 @@ void preciceAdapter::FSI::Stress::read(double * buffer, const unsigned int dim)
 
 vectorField preciceAdapter::FSI::Stress::getFaceVectors(const unsigned int patchID) const
 {
-  return mesh_.boundary()[patchID].nf();
+    // face normal vectors
+    return mesh_.boundary()[patchID].nf();
 }
 
 preciceAdapter::FSI::Stress::~Stress()
