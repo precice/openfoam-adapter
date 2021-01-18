@@ -111,7 +111,7 @@ void preciceAdapter::FSI::FluidStructureInteraction::addWriters(std::string data
             interface->addCouplingDataWriter
             (
                 dataName,
-                new Force(mesh_, runTime_.timeName(), solverType_) /* TODO: Add any other arguments here */
+                new Force(mesh_, solverType_) /* TODO: Add any other arguments here */
             );
             DEBUG(adapterInfo("Added writer: Force."));        
     }    
@@ -138,7 +138,7 @@ void preciceAdapter::FSI::FluidStructureInteraction::addWriters(std::string data
       interface->addCouplingDataWriter
           (
               dataName,
-              new Stress(mesh_, runTime_.timeName(), solverType_) /* TODO: Add any other arguments here */
+              new Stress(mesh_, solverType_) /* TODO: Add any other arguments here */
               );
       DEBUG(adapterInfo("Added writer: Stress."));
     }
@@ -157,7 +157,7 @@ void preciceAdapter::FSI::FluidStructureInteraction::addReaders(std::string data
         interface->addCouplingDataReader
         (
             dataName,
-            new Force(mesh_, runTime_.timeName(), solverType_) /* TODO: Add any other arguments here */
+            new Force(mesh_, solverType_) /* TODO: Add any other arguments here */
         );
         DEBUG(adapterInfo("Added reader: Force."));
     }
@@ -184,7 +184,7 @@ void preciceAdapter::FSI::FluidStructureInteraction::addReaders(std::string data
       interface->addCouplingDataReader
           (
               dataName,
-              new Stress(mesh_, runTime_.timeName(), solverType_) /* TODO: Add any other arguments here */
+              new Stress(mesh_, solverType_) /* TODO: Add any other arguments here */
               );
       DEBUG(adapterInfo("Added reader: Stress."));
     }
