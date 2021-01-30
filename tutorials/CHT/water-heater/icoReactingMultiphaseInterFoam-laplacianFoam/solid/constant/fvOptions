@@ -1,0 +1,96 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2006                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "constant";
+    object      fvOptions;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+heatSource
+{
+    type            scalarCodedSource;
+    selectionMode   all;
+
+    fields          (T);
+    name            sourceTime;
+
+    codeInclude
+    #{
+    #};
+
+    codeCorrect
+    #{
+    #};
+
+    codeAddSup
+    #{
+        const scalarField& V = mesh_.V();
+
+        // max. avg temperature allowed
+        const scalar Tmax                   (273.15 + 800.0);
+        const scalar Tramp1                 (273.15 + 100.0);
+        const scalar Tramp2                 (273.15 + 1200.0);
+
+        const scalar heatPowerSource        (3000.0);               // W
+        const scalar heatPowerRefVolume     (60558.45e-9);          // m³
+        const scalar heaterCount            (1.0);
+        const scalar heatSourceValue        (heatPowerSource / (heatPowerRefVolume * heaterCount));
+
+        const scalar roh                    (7900);
+        const scalar cp                     (480);
+
+        // calc. mean vol temperature
+        const volScalarField& Tm            (mesh_.lookupObject<volScalarField>("T"));
+        const scalar Tvol                   (gSum(V * Tm) / gSum(V));
+
+        // Only apply when ...
+        if (Tvol < Tmax)
+        {
+            // ramping the source term down
+            const scalar rampFactor (std::min(std::max((1.0 - (Tvol - Tramp1) / (Tramp2 - Tramp1)), 0.0), 1.0));
+            const scalar heatSourceRamped =
+                (Tvol <= Tramp1) ? heatSourceValue :
+                (Tvol >= Tramp2) ? 0.0 : rampFactor * heatSourceValue;
+
+            // specific heat source
+            scalarField& source = eqn.source();
+            forAll(source, i)
+            {
+                source[i] -= (heatSourceRamped / (roh * cp)) * V[i];
+            }
+        }
+    #};
+
+    codeConstrain
+    #{
+    #};
+}
+
+// Alternative heat source without limit and ramp
+//
+// heatSource
+// {
+//     type            scalarSemiImplicitSource;
+//     active          true;
+//
+//     scalarSemiImplicitSourceCoeffs
+//     {
+//         selectionMode   all;
+//         volumeMode      specific; // absolute;
+//         injectionRateSuSp
+//         {
+//             T     (13.064 0); // roh = 7900 kg / m^3 and cp = 480 J / kg / K
+//         }
+//     }
+// }
+
+// ************************************************************************* //

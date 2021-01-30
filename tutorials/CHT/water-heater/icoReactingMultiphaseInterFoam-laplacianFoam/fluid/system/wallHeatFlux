@@ -1,0 +1,30 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2006                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+
+wallHeatFlux1
+{
+    // Mandatory entries
+    type            wallHeatFlux;
+    libs            (fieldFunctionObjects);
+
+    // Optional entries
+    patches          (heater1 heater2 heater3 heater4);
+    qr               qr;
+
+    // Optional (inherited) entries
+    writeToFile     true;
+    useUserTime     true;
+
+    region          region0;
+    enabled         true;
+    log             true;
+
+    executeControl  timeStep;
+    executeInterval 1;
+    writeControl    writeTime;
+}

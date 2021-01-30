@@ -1,0 +1,66 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2006                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      controlDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+application     icoReactingMultiphaseInterFoam;
+
+startFrom       startTime;
+
+startTime       0;
+
+stopAt          endTime;
+
+endTime         600.0;
+
+deltaT          1e-4;
+
+writeControl    adjustable;
+writeInterval   0.04;
+
+purgeWrite      0;
+
+writeFormat     binary;
+
+writePrecision  9;
+
+writeCompression off;
+
+timeFormat      general;
+
+timePrecision   6;
+
+runTimeModifiable yes;
+
+adjustTimeStep  yes;
+
+maxDeltaT       1e-3;
+
+maxCo           0.7;
+
+maxAlphaCo      0.7;
+
+maxAlphaDdt     0.7;
+
+libs ("libpreciceAdapterBoundaryConditions");
+
+
+functions
+{
+    #include "preCICEAdapter"
+    //#include "wallHeatFlux"
+}
+
+// ************************************************************************* //

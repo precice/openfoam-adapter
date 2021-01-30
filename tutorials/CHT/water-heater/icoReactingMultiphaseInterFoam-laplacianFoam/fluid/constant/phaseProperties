@@ -1,0 +1,103 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2006                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      phaseProperties;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+type    massTransferMultiphaseSystem;
+
+phases  (liquid gas);
+
+liquid
+{
+    type            pureMovingPhaseModel;
+}
+
+gas
+{
+    type            multiComponentMovingPhaseModel;
+}
+
+surfaceTension
+(
+    (gas and liquid)
+    {
+        sigma
+        {
+            type            temperatureDependent;
+            sigma           table
+            (
+                (273.16 75.64e-3)
+                (293.16 72.74e-3)
+                (343.16 66.24e-3)
+                (373.16 58.92e-3)
+                (423.16 48.75e-3)
+                (473.16 37.68e-3)
+                (523.16 26.05e-3)
+                (573.16 14.30e-3)
+                (643.16  0.45e-3)
+            );
+        }
+
+        // sigma
+        // {
+        //     type        temperatureDependent;
+        //     sigma
+        //     {
+        //         type expression;
+        //
+        //         // variables
+        //         // (
+        //         //     "B = 235.8e-3"
+        //         //     "Tc = 647.096"
+        //         //     "b = 0.625"
+        //         //     "mu = 1.256"
+        //         //     "Tmin = 273.16"
+        //         //     "Tmax = 647.096"
+        //         // );
+        //
+        //         // expression
+        //         // #{
+        //         //     (arg() < Tmin) ?
+        //         //         B * pow(1 - Tmin  / Tc, mu) * (1 - b* (1 - Tmin  / Tc)) :
+        //         //     (arg() > Tmax) ?
+        //         //         B * pow(1 - Tmax  / Tc, mu) * (1 - b* (1 - Tmax  / Tc)) :
+        //         //         B * pow(1 - arg() / Tc, mu) * (1 - b* (1 - arg() / Tc))
+        //         // #};
+        //         // }
+        //         expression
+        //         #{
+        //             (arg() < 273.16) ?
+        //                 235.8e-3 * pow(1 - 273.16  / 647.096, 1.256) * (1 - 0.625* (1 - 273.16  / 647.096)) :
+        //             (arg() > 647.096) ?
+        //                 235.8e-3 * pow(1 - 647.096  / 647.096, 1.256) * (1 - 0.625* (1 - 647.096  / 647.096)) :
+        //                 235.8e-3 * pow(1 - arg() / 647.096, 1.256) * (1 - 0.625* (1 - arg() / 647.096))
+        //         #};
+        //     }
+        // }
+    }
+);
+
+massTransferModel
+(
+    (liquid to gas)
+    {
+        type            kineticGasEvaporation;
+        species         vapour.gas;
+        C               0.001;
+        Tactivate       372;
+    }
+);
+
+
+// ************************************************************************* //

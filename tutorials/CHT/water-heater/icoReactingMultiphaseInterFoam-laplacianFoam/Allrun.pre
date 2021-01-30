@@ -1,0 +1,59 @@
+#!/bin/bash -xe
+cd "${0%/*}" || exit                                # Run from this directory
+. ${WM_PROJECT_DIR:?}/bin/tools/RunFunctions        # Tutorial run functions
+#------------------------------------------------------------------------------
+
+# clean up
+./Allclean
+
+# init solid regions
+cp -r solid heater1
+cp -r solid heater2
+cp -r solid heater3
+cp -r solid heater4
+
+sed -i 's/Heater/Heater1/g' heater1/system/preciceDict
+sed -i 's/Heater/Heater2/g' heater2/system/preciceDict
+sed -i 's/Heater/Heater3/g' heater3/system/preciceDict
+sed -i 's/Heater/Heater4/g' heater4/system/preciceDict
+
+sed -i 's/Temperature/Temperature1/g' heater1/system/preciceDict
+sed -i 's/Temperature/Temperature2/g' heater2/system/preciceDict
+sed -i 's/Temperature/Temperature3/g' heater3/system/preciceDict
+sed -i 's/Temperature/Temperature4/g' heater4/system/preciceDict
+
+sed -i 's/Flux/Flux1/g' heater1/system/preciceDict
+sed -i 's/Flux/Flux2/g' heater2/system/preciceDict
+sed -i 's/Flux/Flux3/g' heater3/system/preciceDict
+sed -i 's/Flux/Flux4/g' heater4/system/preciceDict
+
+#
+touch fluid/fluid.foam
+touch heater1/heater1.foam
+touch heater2/heater2.foam
+touch heater3/heater3.foam
+touch heater4/heater4.foam
+
+# mesh
+ideasUnvToFoam -case fluid   ./CAD/Mesh_Fluid.unv
+ideasUnvToFoam -case heater1 ./CAD/Mesh_Heater1.unv
+ideasUnvToFoam -case heater2 ./CAD/Mesh_Heater2.unv
+ideasUnvToFoam -case heater3 ./CAD/Mesh_Heater3.unv
+ideasUnvToFoam -case heater4 ./CAD/Mesh_Heater4.unv
+
+# Restore initial fields
+cd fluid && restore0Dir && cd ..
+cd heater1 && restore0Dir && cd ..
+cd heater2 && restore0Dir && cd ..
+cd heater3 && restore0Dir && cd ..
+cd heater4 && restore0Dir && cd ..
+
+#
+changeDictionary -case fluid   -subDict dictionaryReplacement
+changeDictionary -case heater1 -subDict dictionaryReplacement
+changeDictionary -case heater2 -subDict dictionaryReplacement
+changeDictionary -case heater3 -subDict dictionaryReplacement
+changeDictionary -case heater4 -subDict dictionaryReplacement
+
+
+#------------------------------------------------------------------------------
