@@ -15,10 +15,12 @@ EXE_INC = \
     $(ADAPTER_GLOBAL_CPLUS_INC_PATHS) \
     -I$(ADAPTER_PRECICE_ROOT)/src \
     $(ADAPTER_PKG_CONFIG_CFLAGS) \
+    -I../BoundaryConditions/lnInclude \
     -I../ \
     $(ADAPTER_PREP_FLAGS)
 
 LIB_LIBS = \
+    -lcompressibleTransportModels \
     -lfiniteVolume \
     -lmeshTools \
     -lcompressibleTurbulenceModels \
@@ -29,4 +31,5 @@ LIB_LIBS = \
     -L$(ADAPTER_PRECICE_ROOT)/build/last \
     $(ADAPTER_PKG_CONFIG_LIBS) \
     -lprecice \
+    -lpreciceAdapterBoundaryConditions \
     $(ADAPTER_PRECICE_DEP)

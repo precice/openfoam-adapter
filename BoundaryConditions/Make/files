@@ -1,0 +1,4 @@
+
+apiCoupledTemperature/apiCoupledTemperatureFvPatchScalarField.C
+
+LIB = $(FOAM_EXT_LIBBIN)/libpreciceAdapterBoundaryConditions

@@ -1,19 +1,31 @@
 #ifndef CHT_H
 #define CHT_H
 
-#include "Interface.H"
+// forward declaration of foam space
+namespace Foam
+{
 
-#include "CHT/Temperature.H"
-#include "CHT/HeatFlux.H"
-#include "CHT/SinkTemperature.H"
-#include "CHT/HeatTransferCoefficient.H"
+class word;
+class fvMesh;
+class IOdictionary;
 
-#include "fvCFD.H"
+}
 
 namespace preciceAdapter
 {
+
+// forward declaration
+class Interface;
+
 namespace CHT
 {
+
+// Helper for parameter names.
+struct CHTParameterNames
+{
+    //- Name of the temperature field
+    Foam::word T = "T";
+};
 
 class ConjugateHeatTransfer
 {
@@ -23,33 +35,10 @@ protected:
     //- OpenFOAM fvMesh object
     const Foam::fvMesh& mesh_;
 
-    // TODO: Create a struct for all the parameter names
-
-    //- Solver type
-    std::string solverType_ = "none";
-
-    //- Name of the temperature field
-    std::string nameT_ = "T";
-
-    //- Name of the thermal conductivity for a basic solver
-    std::string nameKappa_ = "k";
-
-    //- Name of the density for an incompressible solver
-    std::string nameRho_ = "rho";
-
-    //- Name of the heat capacity for an incompressible solver
-    std::string nameCp_ = "Cp";
-
-    //- Name of the Prandtl number for an incompressible solver
-    std::string namePr_ = "Pr";
-
-    //- Name of the turbulent thermal diffusivity field for an incompressible solver
-    std::string nameAlphat_ = "alphat";
+    // All the parameter names
+    CHTParameterNames parameterName_;
 
 protected:
-
-    //- Determine the solver type
-    std::string determineSolverType();
 
     //- Read the CHT-related options from the adapter's configuraiton file
     bool readConfig(const IOdictionary& adapterConfig);
