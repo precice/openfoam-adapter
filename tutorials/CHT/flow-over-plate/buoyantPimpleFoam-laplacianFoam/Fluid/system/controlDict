@@ -29,11 +29,11 @@ deltaT          0.01;
 
 writeControl    runTime;
 
-writeInterval   0.2;
+writeInterval   0.1;
 
 purgeWrite      0;
 
-writeFormat     ascii;
+writeFormat     binary;
 
 writePrecision  6;
 
@@ -44,13 +44,16 @@ timeFormat      general;
 timePrecision   6;
 
 runTimeModifiable false;
+adjustTimeStep  no;
+
+libs ("libpreciceAdapterBoundaryConditions");
 
 functions
 {
     preCICE_Adapter
     {
         type preciceAdapterFunctionObject;
-        libs ("libpreciceAdapterFunctionObject.so");
+        libs ("libpreciceAdapterFunctionObject");
     }
 }
 

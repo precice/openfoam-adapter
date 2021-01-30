@@ -1,0 +1,33 @@
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      preciceDict;
+}
+
+preciceConfig "precice-config.xml";
+
+participant Solid;
+
+modules (CHT);
+
+interfaces
+{
+  Interface1
+  {
+    mesh              Solid-Mesh;
+    patches           (interface);
+    
+    readData
+    (
+      Temperature
+    );
+    
+    writeData
+    (
+      Heat-Flux
+    );
+  };
+};

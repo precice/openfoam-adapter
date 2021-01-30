@@ -9,56 +9,53 @@ FoamFile
 {
     version     2.0;
     format      ascii;
-    class       dictionary;
-    location    "system";
-    object      controlDict;
+    class       volScalarField;
+    object      T;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-application     laplacianFoam;
+dimensions      [0 0 0 1 0 0 0];
 
-startFrom       startTime;
+internalField   uniform 310;
 
-startTime       0;
-
-stopAt          endTime;
-
-endTime         1;
-
-deltaT          0.01;
-
-writeControl    runTime;
-
-writeInterval   0.1;
-
-purgeWrite      0;
-
-writeFormat     binary;
-
-writePrecision  6;
-
-writeCompression off;
-
-timeFormat      general;
-
-timePrecision   6;
-
-runTimeModifiable false;
-adjustTimeStep  no;
-
-libs ("libpreciceAdapterBoundaryConditions");
-
-functions
+boundaryField
 {
-    #include "readFields"
+    #includeEtc "caseDicts/setConstraintTypes"
     
-    preCICE_Adapter
+    interface
     {
-        type preciceAdapterFunctionObject;
-        libs ("libpreciceAdapterFunctionObject.so");
+        type            apiCoupledTemperature;
+        mode            fixedTemperature;
+        
+        kappaMethod     lookup;
+        kappa           kappa;
+        
+        value           $internalField;
+        refValue        $internalField;
+        refGrad         uniform 0;
+        valueFraction   uniform 1;
+    }
+    
+    left
+    {
+        type            zeroGradient;
+    }
+
+    right
+    {
+        type            zeroGradient;
+    }
+
+    bottom
+    {
+        type            fixedValue;
+        value           $internalField;
+    }
+
+    defaultFaces
+    {
+        type            empty;
     }
 }
-
-
 
 // ************************************************************************* //
