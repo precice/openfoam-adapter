@@ -8,14 +8,6 @@
 
 using namespace Foam;
 
-#if   (OpenFOAM_VENDOR == OpenFOAM_VENDOR_dotCOM) && (OpenFOAM_VERSION_MAJOR >= 1812)
-#define __LOOKUPFUNCION__ get
-#elif (OpenFOAM_VENDOR == OpenFOAM_VENDOR_dotORG) && (OpenFOAM_VERSION_MAJOR >= 8)
-#define __LOOKUPFUNCION__ lookup
-#else
-#define __LOOKUPFUNCION__ lookupType
-#endif
-
 preciceAdapter::Adapter::Adapter(const Time& runTime, const fvMesh& mesh)
 :
 runTime_(runTime),
@@ -54,16 +46,16 @@ bool preciceAdapter::Adapter::configFileRead()
     // NOTE: lookupType<T>("name") is deprecated in openfoam.com since v1812,
     // which recommends get<T>("name") instead. However, get<T>("name")
     // is not implemented in openfoam.org at the moment.
-    preciceConfigFilename_ = preciceDict.__LOOKUPFUNCION__<fileName>("preciceConfig");
+    preciceConfigFilename_ = __LOOKUPFUNCION__(preciceDict, fileName, "preciceConfig");
     DEBUG(adapterInfo("  precice-config-file : " + preciceConfigFilename_));
 
     // Read and display the participant name
-    participantName_ = preciceDict.__LOOKUPFUNCION__<word>("participant");
+    participantName_ = __LOOKUPFUNCION__(preciceDict, word, "participant");
     DEBUG(adapterInfo("  participant name    : " + participantName_));
 
     // Read and display the list of modules
     DEBUG(adapterInfo("  modules requested   : "));
-    wordList modules_ = preciceDict.__LOOKUPFUNCION__<wordList>("modules");
+    wordList modules_ = __LOOKUPFUNCION__(preciceDict, wordList, "modules");
     for (auto module : modules_)
     {
         DEBUG(adapterInfo("  - " + module + "\n"));
@@ -96,7 +88,7 @@ bool preciceAdapter::Adapter::configFileRead()
                 dictionary interfaceDict = interfaceDictEntry.dict();
                 struct InterfaceConfig interfaceConfig;
 
-                interfaceConfig.meshName = interfaceDict.__LOOKUPFUNCION__<word>("mesh");
+                interfaceConfig.meshName = __LOOKUPFUNCION__(interfaceDict, word, "mesh");
                 DEBUG(adapterInfo("  - mesh         : " + interfaceConfig.meshName));
 
                 // By default, assume "faceCenters" as locationsType
@@ -116,7 +108,7 @@ bool preciceAdapter::Adapter::configFileRead()
                 DEBUG(adapterInfo("    connectivity : " + std::to_string(interfaceConfig.meshConnectivity)));
               
                 DEBUG(adapterInfo("    patches      : "));
-                wordList patches = interfaceDict.__LOOKUPFUNCION__<wordList>("patches");
+                wordList patches = __LOOKUPFUNCION__(interfaceDict, wordList, "patches");
                 for (auto patch : patches)
                 {
                     interfaceConfig.patchNames.push_back(patch);
@@ -124,7 +116,7 @@ bool preciceAdapter::Adapter::configFileRead()
                 }
               
                 DEBUG(adapterInfo("    writeData    : "));
-                wordList writeData = interfaceDict.__LOOKUPFUNCION__<wordList>("writeData");
+                wordList writeData = __LOOKUPFUNCION__(interfaceDict, wordList, "writeData");
                 for (auto writeDatum : writeData)
                 {
                     interfaceConfig.writeData.push_back(writeDatum);
@@ -132,7 +124,7 @@ bool preciceAdapter::Adapter::configFileRead()
                 }
 
                 DEBUG(adapterInfo("    readData     : "));
-                wordList readData = interfaceDict.__LOOKUPFUNCION__<wordList>("readData");
+                wordList readData = __LOOKUPFUNCION__(interfaceDict, wordList, "readData");
                 for (auto readDatum : readData)
                 {
                     interfaceConfig.readData.push_back(readDatum);
@@ -1946,5 +1938,3 @@ preciceAdapter::Adapter::~Adapter()
 
     return;
 }
-
-#undef __LOOKUPFUNCION__

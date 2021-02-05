@@ -29,4 +29,15 @@
 //#error  OpenFOAM_VERSION_REVISION are not set.
 //#endif
 
+// dictonary lookup functions
+#if   (OpenFOAM_VENDOR == OpenFOAM_VENDOR_dotCOM) && (OpenFOAM_VERSION_MAJOR >= 1812)
+#define __LOOKUPFUNCION__(dict, type, pname) dict.get<type>(pname);
+#elif (OpenFOAM_VENDOR == OpenFOAM_VENDOR_dotORG) && (OpenFOAM_VERSION_MAJOR >= 8)
+#define __LOOKUPFUNCION__(dict, type, pname) dict.lookup<type>(pname);
+#elif (OpenFOAM_VENDOR == OpenFOAM_VENDOR_dotORG) && (OpenFOAM_VERSION_MAJOR <= 4)
+#define __LOOKUPFUNCION__(dict, type, pname) dict.lookup<type>(pname);
+#else
+#define __LOOKUPFUNCION__(dict, type, pname) static_cast<type>(dict.lookup(pname));
+#endif
+
 #endif
