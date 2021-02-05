@@ -96,7 +96,7 @@ SourceFiles
 #include "mixedFvPatchFields.H"
 #include "temperatureCoupledBase.H"
 
-#if OpenFOAM_VENDOR == OpenFOAM_VENDOR_dotCOM
+#if (OpenFOAM_VENDOR == OpenFOAM_VENDOR_dotCOM) && (OpenFOAM_VERSION_MAJOR >= 1706)
 #include "Enum.H"
 #else
 #include "NamedEnum.H"
@@ -128,7 +128,7 @@ public:
             fixedMixedTemperatureHTC,
         };
 
-#if OpenFOAM_VENDOR == OpenFOAM_VENDOR_dotCOM
+#if (OpenFOAM_VENDOR == OpenFOAM_VENDOR_dotCOM) && (OpenFOAM_VERSION_MAJOR >= 1706)
         static const Enum<operationMode> operationModeNames;
 #else
         static const NamedEnum<operationMode, 4> operationModeNames;

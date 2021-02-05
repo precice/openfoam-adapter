@@ -10,7 +10,7 @@
 // * * * * * * * * * * * * * * *  Static Members   * * * * * * * * * * * * * //
 
 
-#if OpenFOAM_VENDOR == OpenFOAM_VENDOR_dotCOM
+#if (OpenFOAM_VENDOR == OpenFOAM_VENDOR_dotCOM) && (OpenFOAM_VERSION_MAJOR >= 1706)
 const Foam::Enum
 <
     Foam::apiCoupledTemperatureFvPatchScalarField::operationMode
@@ -200,16 +200,16 @@ apiCoupledTemperatureFvPatchScalarField
 	mixedFvPatchScalarField(p, iF),
     temperatureCoupledBase(patch(), dict),
 
-#if OpenFOAM_VENDOR == OpenFOAM_VENDOR_dotORG
-    mode_(operationModeNames.read(dict.lookup("mode"))),
-    qrName_(dict.lookupOrDefault<word>("qr", "none")),
-    relaxation_(dict.lookupOrDefault<scalar>("relaxation", scalar(1))),
-    qrRelaxation_(dict.lookupOrDefault<scalar>("qrRelaxation", scalar(1)))
-#else
+#if (OpenFOAM_VENDOR == OpenFOAM_VENDOR_dotCOM) && (OpenFOAM_VERSION_MAJOR >= 1706)
     mode_(operationModeNames.get("mode", dict)),
     qrName_(dict.getOrDefault<word>("qr", "none")),
     relaxation_(dict.getOrDefault<scalar>("relaxation", scalar(1))),
     qrRelaxation_(dict.getOrDefault<scalar>("qrRelaxation", scalar(1)))
+#else
+    mode_(operationModeNames.read(dict.lookup("mode"))),
+    qrName_(dict.lookupOrDefault<word>("qr", "none")),
+    relaxation_(dict.lookupOrDefault<scalar>("relaxation", scalar(1))),
+    qrRelaxation_(dict.lookupOrDefault<scalar>("qrRelaxation", scalar(1)))
 #endif
 {
     // field value
