@@ -89,6 +89,8 @@ SourceFiles
 #ifndef apiCoupledTemperatureFvPatchScalarField_H
 #define apiCoupledTemperatureFvPatchScalarField_H
 
+#include "../Core/OpenFOAMSettings.H"
+
 #include <iterator>
 
 #include "fieldTypes.H"
@@ -101,8 +103,6 @@ SourceFiles
 #else
 #include "NamedEnum.H"
 #endif
-
-#include "../Core/OpenFOAMSettings.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
