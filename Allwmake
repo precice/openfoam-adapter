@@ -1,14 +1,87 @@
 #!/bin/sh
 cd ${0%/*} || exit 1    # Run from this directory
 
-# make sure boundary condition library is build
-cd BoundaryConditions
-./Allwmake
-cd ..
+## detect openfoam vendor
+
+# OpenFOAM_VENDOR == 0: unknown
+# OpenFOAM_VENDOR == 1: .com
+# OpenFOAM_VENDOR == 2: .org
+[ -n "$OpenFOAM_VERSION_MINOR" ]     || export OpenFOAM_VERSION_MINOR=0;
+[ -n "$OpenFOAM_VERSION_REVISION" ]  || export OpenFOAM_VERSION_REVISION=0;
+
+if [[ "${WM_PROJECT_VERSION:0:1}" == "v" ]] ; then
+    [ -n "$OpenFOAM_VENDOR"  ]       || export OpenFOAM_VENDOR=1;
+    [ -n "$OpenFOAM_VERSION" ]       || export OpenFOAM_VERSION="${WM_PROJECT_VERSION:1}"
+    [ -n "$OpenFOAM_VERSION_MAJOR" ] || export OpenFOAM_VERSION_MAJOR="${OpenFOAM_VERSION}"
+else
+    [ -n "$OpenFOAM_VENDOR"  ]       || export OpenFOAM_VENDOR=2;
+    [ -n "$OpenFOAM_VERSION" ]       || export OpenFOAM_VERSION="${WM_PROJECT_VERSION}"
+    [ -n "$OpenFOAM_VERSION_MAJOR" ] || export OpenFOAM_VERSION_MAJOR=`echo $OpenFOAM_VERSION | cut -d. -f1`
+fi
+
 
 ########## CONFIGURATION - You may want to change these ########################
 # preCICE root path (should be already globally set)
-ADAPTER_PRECICE_ROOT="${PRECICE_ROOT}"
+[ -n "$ADAPTER_PRECICE_ROOT" ] || export ADAPTER_PRECICE_ROOT="${PRECICE_ROOT}"
+
+#
+# openfoam vendor / version specific include and lib settings
+#
+if [ $OpenFOAM_VENDOR -eq 2 ] && [ $OpenFOAM_VERSION_MAJOR -ge 8 ] ; then
+#
+# OpenFOAM.org >= 8
+#
+export ADAPTER_EXE_INC_FLAGS=' \
+-I$(LIB_SRC)/ThermophysicalTransportModels/lnInclude \
+-I$(LIB_SRC)/MomentumTransportModels/momentumTransportModels/lnInclude \
+-I$(LIB_SRC)/MomentumTransportModels/compressible/lnInclude \
+-I$(LIB_SRC)/MomentumTransportModels/incompressible/lnInclude \
+-I$(LIB_SRC)/transportModels/lnInclude \
+'
+export ADAPTER_BC_EXE_INC_FLAGS=' \
+-I$(LIB_SRC)/ThermophysicalTransportModels/lnInclude \
+-I$(LIB_SRC)/radiationModels/lnInclude \
+'
+export ADAPTER_LIB_LIBS_FLAGS=' \
+-lthermophysicalTransportModels \
+-lfluidThermoMomentumTransportModels \
+-lincompressibleMomentumTransportModels \
+'
+export ADAPTER_BC_LIB_LIBS_FLAGS=' \
+-lthermophysicalTransportModels \
+'
+else
+#
+# OpenFOAM.org < 8
+# OpenFOAM.com
+#
+export ADAPTER_EXE_INC_FLAGS=' \
+-I$(LIB_SRC)/transportModels/ \
+-I$(LIB_SRC)/transportModels/incompressible/lnInclude \
+-I$(LIB_SRC)/transportModels/compressible/lnInclude \
+-I$(LIB_SRC)/transportModels/twoPhaseMixture/lnInclude \
+-I$(LIB_SRC)/transportModels/interfaceProperties/lnInclude \
+-I$(LIB_SRC)/transportModels/immiscibleIncompressibleTwoPhaseMixture/lnInclude \
+-I$(LIB_SRC)/TurbulenceModels/turbulenceModels/lnInclude \
+-I$(LIB_SRC)/TurbulenceModels/compressible/lnInclude \
+-I$(LIB_SRC)/TurbulenceModels/incompressible/lnInclude \
+'
+export ADAPTER_BC_EXE_INC_FLAGS=' \
+-I$(LIB_SRC)/TurbulenceModels/turbulenceModels/lnInclude \
+-I$(LIB_SRC)/TurbulenceModels/compressible/lnInclude \
+-I$(LIB_SRC)/thermophysicalModels/radiation/lnInclude \
+'
+export ADAPTER_LIB_LIBS_FLAGS=' \
+-lcompressibleTransportModels \
+-lcompressibleTurbulenceModels \
+-lincompressibleTurbulenceModels \
+-limmiscibleIncompressibleTwoPhaseMixture \
+'
+export ADAPTER_BC_LIB_LIBS_FLAGS=' \
+-lcompressibleTransportModels \
+-lcompressibleTurbulenceModels \
+'
+fi
 
 ## preCICE as a static library?
 # If you use preCICE as a static library, then you also need to
@@ -22,15 +95,16 @@ ADAPTER_PRECICE_ROOT="${PRECICE_ROOT}"
 # ADAPTER_PRECICE_DEP="${ADAPTER_PRECICE_DEP} -lpython2.7"
 
 # Optional: Preprocessor flags ("-DADAPTER_DEBUG_MODE" enables debug messages)
-ADAPTER_PREP_FLAGS="-DADAPTER_DEBUG_MODE"
+[ -n "$ADAPTER_PREP_FLAGS" ] || ADAPTER_PREP_FLAGS="-DADAPTER_DEBUG_MODE"
+export ADAPTER_PREP_FLAGS="${ADAPTER_PREP_FLAGS} -DOpenFOAM_VENDOR=${OpenFOAM_VENDOR:-0} -DOpenFOAM_VERSION=${OpenFOAM_VERSION:-0} -DOpenFOAM_VERSION_MAJOR=${OpenFOAM_VERSION_MAJOR:-0} -DOpenFOAM_VERSION_MINOR=${OpenFOAM_VERSION_MINOR:-0} -DOpenFOAM_VERSION_REVISION=${OpenFOAM_VERSION_REVISION:-0}"
 
 # Optional: Flags used by wmake.
 # In order to compile with multiple threads, add e.g. "-j 4".
 # Make sure that these options are supported by your OpenFOAM version.
-ADAPTER_WMAKE_OPTIONS=""
+[ -n "$ADAPTER_WMAKE_OPTIONS" ] || export ADAPTER_WMAKE_OPTIONS=""
 
 # Where should the adapter be built? Default: "${FOAM_USER_LIBBIN}"
-ADAPTER_TARGET_DIR="${FOAM_USER_LIBBIN}"
+[ -n "$ADAPTER_TARGET_DIR" ] || export ADAPTER_TARGET_DIR="${FOAM_USER_LIBBIN}"
 
 # More information for compatibility with OpenFOAM
 DOC_COMPATIBILITY="https://github.com/precice/openfoam-adapter/wiki/Notes-on-OpenFOAM"
@@ -68,10 +142,6 @@ if [ "${LIBRARY_PATH}" ]; then
 fi
 
 # Export the environment variables
-export ADAPTER_PRECICE_ROOT
-export ADAPTER_PRECICE_DEP
-export ADAPTER_PREP_FLAGS
-export ADAPTER_TARGET_DIR
 export ADAPTER_GLOBAL_CPLUS_INC_PATHS
 export ADAPTER_GLOBAL_LD_LIBRARY_PATHS
 export ADAPTER_GLOBAL_LIBRARY_PATHS
@@ -125,6 +195,20 @@ log "  ADAPTER_PKG_CONFIG_LIBS         = ${ADAPTER_PKG_CONFIG_LIBS}"
 log "  ADAPTER_GLOBAL_CPLUS_INC_PATHS  = ${ADAPTER_GLOBAL_CPLUS_INC_PATHS}"
 log "  ADAPTER_GLOBAL_LD_LIBRARY_PATHS = ${ADAPTER_GLOBAL_LD_LIBRARY_PATHS}"
 log "  ADAPTER_GLOBAL_LIBRARY_PATHS    = ${ADAPTER_GLOBAL_LIBRARY_PATHS}"
+log "  ADAPTER_EXE_INC_FLAGS           = ${ADAPTER_EXE_INC_FLAGS}"
+log "  ADAPTER_BC_EXE_INC_FLAGS        = ${ADAPTER_BC_EXE_INC_FLAGS}"
+log "  ADAPTER_LIB_LIBS_FLAGS          = ${ADAPTER_LIB_LIBS_FLAGS}"
+log "  ADAPTER_BC_LIB_LIBS_FLAGS       = ${ADAPTER_BC_LIB_LIBS_FLAGS}"
+
+# Run wmake for boundary conditions
+log "build boundary conditions ..."
+cd BoundaryConditions
+./Allwmake
+if [ $? -ne 0 ] ; then
+    log "=== ERROR:  Building failed. See BoundaryConditions/wmake.log for more. ==="
+    exit 1
+fi
+cd ..
 
 # Run wmake (build the adapter) and check the exit code
 log ""

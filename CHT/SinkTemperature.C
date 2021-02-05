@@ -5,6 +5,7 @@
 #include "primitivePatchInterpolation.H"
 #include "volFields.H"
 
+#include "OpenFOAMSettings.H"
 #include "apiCoupledTemperatureFvPatchScalarField.H"
 
 using namespace Foam;
@@ -39,9 +40,13 @@ void preciceAdapter::CHT::SinkTemperature::write(double *buffer, bool meshConnec
             //Interpolate from centers to nodes
             value = patchInterpolator.faceToPointInterpolate(value);
         }
-
+        
         //
+#if OpenFOAM_VENDOR == OpenFOAM_VENDOR_dotCOM
         const scalarField & data (value.cref());
+#else
+        scalarField & data (value.ref());
+#endif
         forAll(data, i)
         {
             buffer[bufferIndex++] = data[i];

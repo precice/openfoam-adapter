@@ -2,9 +2,19 @@
 #include "Interface.H"
 #include "Utilities.H"
 
+#include "OpenFOAMSettings.H"
+
 #include "IOstreams.H"
 
 using namespace Foam;
+
+#if   (OpenFOAM_VENDOR == OpenFOAM_VENDOR_dotCOM) && (OpenFOAM_VERSION_MAJOR >= 1812)
+#define __LOOKUPFUNCION__ get
+#elif (OpenFOAM_VENDOR == OpenFOAM_VENDOR_dotORG) && (OpenFOAM_VERSION_MAJOR >= 8)
+#define __LOOKUPFUNCION__ lookup
+#else
+#define __LOOKUPFUNCION__ lookupType
+#endif
 
 preciceAdapter::Adapter::Adapter(const Time& runTime, const fvMesh& mesh)
 :
@@ -44,16 +54,16 @@ bool preciceAdapter::Adapter::configFileRead()
     // NOTE: lookupType<T>("name") is deprecated in openfoam.com since v1812,
     // which recommends get<T>("name") instead. However, get<T>("name")
     // is not implemented in openfoam.org at the moment.
-    preciceConfigFilename_ = preciceDict.lookupType<fileName>("preciceConfig");
+    preciceConfigFilename_ = preciceDict.__LOOKUPFUNCION__<fileName>("preciceConfig");
     DEBUG(adapterInfo("  precice-config-file : " + preciceConfigFilename_));
 
     // Read and display the participant name
-    participantName_ = preciceDict.lookupType<word>("participant");
+    participantName_ = preciceDict.__LOOKUPFUNCION__<word>("participant");
     DEBUG(adapterInfo("  participant name    : " + participantName_));
 
     // Read and display the list of modules
     DEBUG(adapterInfo("  modules requested   : "));
-    wordList modules_ = preciceDict.lookupType<wordList>("modules");
+    wordList modules_ = preciceDict.__LOOKUPFUNCION__<wordList>("modules");
     for (auto module : modules_)
     {
         DEBUG(adapterInfo("  - " + module + "\n"));
@@ -86,7 +96,7 @@ bool preciceAdapter::Adapter::configFileRead()
                 dictionary interfaceDict = interfaceDictEntry.dict();
                 struct InterfaceConfig interfaceConfig;
 
-                interfaceConfig.meshName = interfaceDict.lookupType<word>("mesh");
+                interfaceConfig.meshName = interfaceDict.__LOOKUPFUNCION__<word>("mesh");
                 DEBUG(adapterInfo("  - mesh         : " + interfaceConfig.meshName));
 
                 // By default, assume "faceCenters" as locationsType
@@ -106,7 +116,7 @@ bool preciceAdapter::Adapter::configFileRead()
                 DEBUG(adapterInfo("    connectivity : " + std::to_string(interfaceConfig.meshConnectivity)));
               
                 DEBUG(adapterInfo("    patches      : "));
-                wordList patches = interfaceDict.lookupType<wordList>("patches");
+                wordList patches = interfaceDict.__LOOKUPFUNCION__<wordList>("patches");
                 for (auto patch : patches)
                 {
                     interfaceConfig.patchNames.push_back(patch);
@@ -114,7 +124,7 @@ bool preciceAdapter::Adapter::configFileRead()
                 }
               
                 DEBUG(adapterInfo("    writeData    : "));
-                wordList writeData = interfaceDict.lookupType<wordList>("writeData");
+                wordList writeData = interfaceDict.__LOOKUPFUNCION__<wordList>("writeData");
                 for (auto writeDatum : writeData)
                 {
                     interfaceConfig.writeData.push_back(writeDatum);
@@ -122,7 +132,7 @@ bool preciceAdapter::Adapter::configFileRead()
                 }
 
                 DEBUG(adapterInfo("    readData     : "));
-                wordList readData = interfaceDict.lookupType<wordList>("readData");
+                wordList readData = interfaceDict.__LOOKUPFUNCION__<wordList>("readData");
                 for (auto readDatum : readData)
                 {
                     interfaceConfig.readData.push_back(readDatum);
@@ -404,7 +414,11 @@ void preciceAdapter::Adapter::execute()
     {
         // Check if the time directory already exists
         // (i.e. the solver wrote results that need to be updated)
+#if (OpenFOAM_VENDOR == OpenFOAM_VENDOR_dotORG) && (OpenFOAM_VERSION_MAJOR > 6)
+        if (runTime_.timePath().type() == fileType::directory)
+#else
         if (runTime_.timePath().type() == fileName::DIRECTORY)
+#endif
         {
             adapterInfo
             (
@@ -628,7 +642,12 @@ void preciceAdapter::Adapter::adjustSolverTimeStep()
     // Update the solver's timestep (but don't trigger the adjustDeltaT(),
     // which also triggers the functionObject's adjustTimeStep())
     // TODO: Keep this in mind if any relevant problem appears.
+#if  (OpenFOAM_VENDOR == OpenFOAM_VENDOR_dotCOM) || \
+    ((OpenFOAM_VENDOR == OpenFOAM_VENDOR_dotORG) && (OpenFOAM_VERSION_MAJOR < 6))
     const_cast<Time&>(runTime_).setDeltaT(timestepSolver_, false);
+#else
+    const_cast<Time&>(runTime_).setDeltaTNoAdjust(timestepSolver_);
+#endif
 
     return;
 }
@@ -1927,3 +1946,5 @@ preciceAdapter::Adapter::~Adapter()
 
     return;
 }
+
+#undef __LOOKUPFUNCION__

@@ -1,6 +1,7 @@
 #ifndef FORCEBASE_H
 #define FORCEBASE_H
 
+#include "OpenFOAMSettings.H"
 
 #include "CouplingDataUser.H"
 
@@ -8,9 +9,15 @@
 
 #include "pointFields.H"
 #include "vectorField.H"
-#include "immiscibleIncompressibleTwoPhaseMixture.H"
-#include "turbulentFluidThermoModel.H"
-#include "turbulentTransportModel.H"
+
+#if (OpenFOAM_VENDOR == OpenFOAM_VENDOR_dotORG) && (OpenFOAM_VERSION_MAJOR >= 8)
+    #include "fluidThermoMomentumTransportModel.H"
+    #include "kinematicMomentumTransportModel.H"
+#else
+    #include "immiscibleIncompressibleTwoPhaseMixture.H"
+    #include "turbulentFluidThermoModel.H"
+    #include "turbulentTransportModel.H"
+#endif
 
 namespace preciceAdapter
 {

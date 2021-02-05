@@ -96,14 +96,18 @@ SourceFiles
 #include "mixedFvPatchFields.H"
 #include "temperatureCoupledBase.H"
 
+#if OpenFOAM_VENDOR == OpenFOAM_VENDOR_dotCOM
+#include "Enum.H"
+#else
+#include "NamedEnum.H"
+#endif
+
+#include "../Core/OpenFOAMSettings.H"
+
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 namespace Foam
 {
-
-// forward declaration
-template<class EnumType>
-class Enum;
 
 // class declaration
 class apiCoupledTemperatureFvPatchScalarField
@@ -124,15 +128,18 @@ public:
             fixedMixedTemperatureHTC,
         };
 
+#if OpenFOAM_VENDOR == OpenFOAM_VENDOR_dotCOM
         static const Enum<operationMode> operationModeNames;
-
+#else
+        static const NamedEnum<operationMode, 4> operationModeNames;
+#endif
 
 private:
 
     // Data
 
         //- Operation mode
-        const operationMode mode_;
+        operationMode mode_;
 
         // radiation field
         const word qrName_;
@@ -196,6 +203,7 @@ public:
         );
 
         //- Construct and return a clone
+#if OpenFOAM_VENDOR == OpenFOAM_VENDOR_dotCOM
         virtual tmp<fvPatchField<scalar>> clone() const
         {
             return tmp<fvPatchField<scalar>>
@@ -203,6 +211,15 @@ public:
                 new apiCoupledTemperatureFvPatchScalarField(*this)
             );
         }
+#else
+        virtual tmp<fvPatchScalarField> clone() const
+        {
+            return tmp<fvPatchScalarField>
+            (
+                new apiCoupledTemperatureFvPatchScalarField(*this)
+            );
+        }
+#endif
 
         //- Construct as copy setting internal field reference
         apiCoupledTemperatureFvPatchScalarField
@@ -212,6 +229,8 @@ public:
         );
 
         //- Construct and return a clone setting internal field reference
+#if (OpenFOAM_VENDOR == OpenFOAM_VENDOR_dotCOM) || \
+    ((OpenFOAM_VENDOR == OpenFOAM_VENDOR_dotORG) && (OpenFOAM_VERSION_MAJOR < 8))
         virtual tmp<fvPatchField<scalar>> clone
         (
             const DimensionedField<scalar, volMesh>& iF
@@ -219,13 +238,21 @@ public:
         {
             return tmp<fvPatchField<scalar>>
             (
-                new apiCoupledTemperatureFvPatchScalarField
-                (
-                    *this,
-                    iF
-                )
+                new apiCoupledTemperatureFvPatchScalarField(*this,iF)
             );
         }
+#else
+        virtual tmp<fvPatchScalarField> clone
+        (
+            const DimensionedField<scalar, volMesh>& iF
+        ) const
+        {
+            return tmp<fvPatchScalarField>
+            (
+                new apiCoupledTemperatureFvPatchScalarField(*this,iF)
+            );
+        }
+#endif
 
 
     //- Destructor
@@ -237,35 +264,34 @@ public:
         // Access
 
         //- Allow manipulation of the boundary values
-        bool fixesValue() const override
+        virtual bool fixesValue() const
         {
             return false;
         }
 
-
         // Mapping functions
 
         //- Map (and resize as needed) from self given a mapping object
-        void autoMap
+        virtual void autoMap
         (
             const fvPatchFieldMapper&
-        ) override;
+        );
 
         //- Reverse map the given fvPatchField onto this fvPatchField
-        void rmap
+        virtual void rmap
         (
             const fvPatchScalarField&,
             const labelList&
-        ) override;
+        );
 
 
         // Evaluation functions
 
         //- Update the coefficients associated with the patch field
-        void updateCoeffs() override;
+        virtual void updateCoeffs();
 
     	//- Write
-    	virtual void write(Ostream& os) const;
+    	void write(Ostream& os) const;
 
 public:
 
