@@ -43,9 +43,6 @@ bool preciceAdapter::Adapter::configFileRead()
         );
     
     // Read and display the preCICE configuration file name
-    // NOTE: lookupType<T>("name") is deprecated in openfoam.com since v1812,
-    // which recommends get<T>("name") instead. However, get<T>("name")
-    // is not implemented in openfoam.org at the moment.
     preciceConfigFilename_ = __LOOKUPFUNCION__(preciceDict, fileName, "preciceConfig");
     DEBUG(adapterInfo("  precice-config-file : " + preciceConfigFilename_));
 
