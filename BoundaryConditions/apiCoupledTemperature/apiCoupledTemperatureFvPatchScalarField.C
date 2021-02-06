@@ -215,8 +215,10 @@ apiCoupledTemperatureFvPatchScalarField
 	mixedFvPatchScalarField(p, iF),
     temperatureCoupledBase(patch(), dict),
 
-#if (OpenFOAM_VENDOR == OpenFOAM_VENDOR_dotCOM) && (OpenFOAM_VERSION_MAJOR >= 1706)
+#if (OpenFOAM_VENDOR == OpenFOAM_VENDOR_dotCOM) && (OpenFOAM_VERSION_MAJOR > 1806)
     mode_(operationModeNames.get("mode", dict)),
+#elif (OpenFOAM_VENDOR == OpenFOAM_VENDOR_dotCOM) && (OpenFOAM_VERSION_MAJOR >= 1706)
+    mode_(operationModeNames.lookup("mode", dict)),
 #else
     mode_(operationModeNames.read(dict.lookup("mode"))),
 #endif
