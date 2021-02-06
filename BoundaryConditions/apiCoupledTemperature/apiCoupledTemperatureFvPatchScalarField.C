@@ -60,7 +60,8 @@ apiCoupledTemperatureFvPatchScalarField
 :
 	mixedFvPatchScalarField(p, iF),
 
-#if (OpenFOAM_VENDOR == OpenFOAM_VENDOR_dotORG) && (OpenFOAM_VERSION_MAJOR <= 7)
+#if ((OpenFOAM_VENDOR == OpenFOAM_VENDOR_dotORG) && (OpenFOAM_VERSION_MAJOR <= 7)) || \
+    ((OpenFOAM_VENDOR == OpenFOAM_VENDOR_dotCOM) && (OpenFOAM_VERSION_MAJOR <= 1906))
     temperatureCoupledBase
     (
         patch(),
