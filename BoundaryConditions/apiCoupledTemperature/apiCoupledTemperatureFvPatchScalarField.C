@@ -115,7 +115,7 @@ apiCoupledTemperatureFvPatchScalarField
     h_neighbour_(rhs.h_neighbour_),
     heatflux_(rhs.heatflux_)
 {
-#if OpenFOAM_VENDOR == OpenFOAM_VENDOR_dotORG && (OpenFOAM_VERSION_MAJOR >= 8)
+#if OpenFOAM_VENDOR == OpenFOAM_VENDOR_dotORG && (OpenFOAM_VERSION_MAJOR >= 7)
     switch (mode_)
     {
     case fixedHeatFlux:
