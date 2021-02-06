@@ -9,7 +9,17 @@ cd ${0%/*} || exit 1    # Run from this directory
 [ -n "$OpenFOAM_VERSION_MINOR" ]     || export OpenFOAM_VERSION_MINOR=0;
 [ -n "$OpenFOAM_VERSION_REVISION" ]  || export OpenFOAM_VERSION_REVISION=0;
 
-if [[ "${WM_PROJECT_VERSION:0:1}" == "v" ]] ; then
+if [[ "${WM_PROJECT_VERSION}" == "com" || "${WM_PROJECT_VERSION}" == "develop" ]] ; then
+    [ -n "$OpenFOAM_VENDOR"  ]       || export OpenFOAM_VENDOR=1;
+    [ -n "$OpenFOAM_VERSION" ]       || export OpenFOAM_VERSION=2147483647
+    [ -n "$OpenFOAM_VERSION_MAJOR" ] || export OpenFOAM_VERSION_MAJOR=2147483647
+
+elif [[ "${WM_PROJECT_VERSION}" == "dev" ]] ; then
+    [ -n "$OpenFOAM_VENDOR"  ]       || export OpenFOAM_VENDOR=2;
+    [ -n "$OpenFOAM_VERSION" ]       || export OpenFOAM_VERSION=2147483647
+    [ -n "$OpenFOAM_VERSION_MAJOR" ] || export OpenFOAM_VERSION_MAJOR=2147483647
+
+elif [[ "${WM_PROJECT_VERSION:0:1}" == "v" ]] ; then
     [ -n "$OpenFOAM_VENDOR"  ]       || export OpenFOAM_VENDOR=1;
     [ -n "$OpenFOAM_VERSION" ]       || export OpenFOAM_VERSION="${WM_PROJECT_VERSION:1}"
     [ -n "$OpenFOAM_VERSION_MAJOR" ] || export OpenFOAM_VERSION_MAJOR="${OpenFOAM_VERSION}"
