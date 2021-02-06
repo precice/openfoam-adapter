@@ -34,7 +34,7 @@
 #define __LOOKUPFUNCION__(dict, type, pname) dict.get<type>(pname);
 #elif (OpenFOAM_VENDOR == OpenFOAM_VENDOR_dotORG) && (OpenFOAM_VERSION_MAJOR >= 8)
 #define __LOOKUPFUNCION__(dict, type, pname) dict.lookup<type>(pname);
-#elif ((OpenFOAM_VENDOR == OpenFOAM_VENDOR_dotORG) && (OpenFOAM_VERSION_MAJOR > 4)) \
+#elif ((OpenFOAM_VENDOR == OpenFOAM_VENDOR_dotORG) && (OpenFOAM_VERSION_MAJOR > 4)) || \
       ((OpenFOAM_VENDOR == OpenFOAM_VENDOR_dotCOM) && (OpenFOAM_VERSION_MAJOR >= 1706))
 #define __LOOKUPFUNCION__(dict, type, pname) dict.lookupType<type>(pname);
 #else
