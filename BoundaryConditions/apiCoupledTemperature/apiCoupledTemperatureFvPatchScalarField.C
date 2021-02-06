@@ -203,11 +203,15 @@ apiCoupledTemperatureFvPatchScalarField
 
 #if (OpenFOAM_VENDOR == OpenFOAM_VENDOR_dotCOM) && (OpenFOAM_VERSION_MAJOR >= 1706)
     mode_(operationModeNames.get("mode", dict)),
+#else
+    mode_(operationModeNames.read(dict.lookup("mode"))),
+#endif
+
+#if (OpenFOAM_VENDOR == OpenFOAM_VENDOR_dotCOM) && (OpenFOAM_VERSION_MAJOR >= 1906)
     qrName_(dict.getOrDefault<word>("qr", "none")),
     relaxation_(dict.getOrDefault<scalar>("relaxation", scalar(1))),
     qrRelaxation_(dict.getOrDefault<scalar>("qrRelaxation", scalar(1)))
 #else
-    mode_(operationModeNames.read(dict.lookup("mode"))),
     qrName_(dict.lookupOrDefault<word>("qr", "none")),
     relaxation_(dict.lookupOrDefault<scalar>("relaxation", scalar(1))),
     qrRelaxation_(dict.lookupOrDefault<scalar>("qrRelaxation", scalar(1)))
