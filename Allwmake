@@ -29,6 +29,19 @@ else
     [ -n "$OpenFOAM_VERSION_MAJOR" ] || export OpenFOAM_VERSION_MAJOR=`echo $OpenFOAM_VERSION | cut -d. -f1`
 fi
 
+# check vendor selection with readme file
+if [ $OpenFOAM_VENDOR -eq 1 ] ; then
+    if [ $(grep -c "openfoam.com" $WM_PROJECT_DIR/README*) -le 3 ] ; then
+        exit -1;
+    fi
+elif [ $OpenFOAM_VENDOR -eq 2 ] ; then
+    if [ $(grep -c "openfoam.org" $WM_PROJECT_DIR/README*) -le 3 ] ; then
+        exit -2;
+    fi
+else
+    exit -3;
+fi
+
 
 ########## CONFIGURATION - You may want to change these ########################
 # preCICE root path (should be already globally set)
