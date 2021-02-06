@@ -188,6 +188,16 @@ public:
 
         //- Construct by mapping given
         //  externalCoupledTemperatureMixedFvPatchScalarField onto a new patch
+#if (OpenFOAM_VENDOR == OpenFOAM_VENDOR_dotORG) && (OpenFOAM_VERSION_MAJOR > 8)
+    	apiCoupledTemperatureFvPatchScalarField
+        (
+            const apiCoupledTemperatureFvPatchScalarField&,
+            const fvPatch&,
+            const DimensionedField<scalar, volMesh>&,
+            const fvPatchFieldMapper&,
+            const bool mappingRequired=true
+        );
+#else
     	apiCoupledTemperatureFvPatchScalarField
         (
             const apiCoupledTemperatureFvPatchScalarField&,
@@ -195,12 +205,21 @@ public:
             const DimensionedField<scalar, volMesh>&,
             const fvPatchFieldMapper&
         );
+#endif
 
         //- Construct as copy
+#if (OpenFOAM_VENDOR == OpenFOAM_VENDOR_dotORG) && (OpenFOAM_VERSION_MAJOR > 8)
+        // copy constructor without setting internal field reference deleted
+        apiCoupledTemperatureFvPatchScalarField
+        (
+            const apiCoupledTemperatureFvPatchScalarField&
+        ) = delete;
+#else
     	apiCoupledTemperatureFvPatchScalarField
         (
             const apiCoupledTemperatureFvPatchScalarField&
         );
+#endif
 
         //- Construct and return a clone
 #if OpenFOAM_VENDOR == OpenFOAM_VENDOR_dotCOM

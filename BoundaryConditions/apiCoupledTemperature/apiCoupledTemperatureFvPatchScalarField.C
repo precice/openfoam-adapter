@@ -96,6 +96,19 @@ apiCoupledTemperatureFvPatchScalarField
 }
 
 
+#if (OpenFOAM_VENDOR == OpenFOAM_VENDOR_dotORG) && (OpenFOAM_VERSION_MAJOR > 8)
+Foam::apiCoupledTemperatureFvPatchScalarField::
+apiCoupledTemperatureFvPatchScalarField
+(
+    const apiCoupledTemperatureFvPatchScalarField& rhs,
+    const fvPatch& p,
+    const DimensionedField<scalar, volMesh>& iF,
+    const fvPatchFieldMapper& mapper,
+    const bool mappingRequired
+)
+:
+	mixedFvPatchScalarField(rhs, p, iF, mapper, mappingRequired),
+#else
 Foam::apiCoupledTemperatureFvPatchScalarField::
 apiCoupledTemperatureFvPatchScalarField
 (
@@ -106,6 +119,7 @@ apiCoupledTemperatureFvPatchScalarField
 )
 :
 	mixedFvPatchScalarField(rhs, p, iF, mapper),
+#endif
     temperatureCoupledBase(patch(), rhs),
     mode_(rhs.mode_),
     qrName_(rhs.qrName_),
@@ -328,7 +342,9 @@ apiCoupledTemperatureFvPatchScalarField
     }
 }
 
-
+#if (OpenFOAM_VENDOR == OpenFOAM_VENDOR_dotORG) && (OpenFOAM_VERSION_MAJOR > 8)
+// copy constructor without setting internal field reference deleted
+#else
 Foam::apiCoupledTemperatureFvPatchScalarField::
 apiCoupledTemperatureFvPatchScalarField
 (
@@ -346,6 +362,7 @@ apiCoupledTemperatureFvPatchScalarField
     h_neighbour_(rhs.h_neighbour_),
     heatflux_(rhs.heatflux_)
 {}
+#endif
 
 
 Foam::apiCoupledTemperatureFvPatchScalarField::
