@@ -230,7 +230,7 @@ public:
                 new apiCoupledTemperatureFvPatchScalarField(*this)
             );
         }
-#else
+#elif (OpenFOAM_VENDOR == OpenFOAM_VENDOR_dotORG) && (OpenFOAM_VERSION_MAJOR <= 8)
         virtual tmp<fvPatchScalarField> clone() const
         {
             return tmp<fvPatchScalarField>
