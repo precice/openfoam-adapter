@@ -1,46 +1,35 @@
+
 #include "SinkTemperature.H"
+
+#include "word.H"
 #include "primitivePatchInterpolation.H"
+#include "volFields.H"
+
+#include "OpenFOAMSettings.H"
+#include "apiCoupledTemperatureFvPatchScalarField.H"
 
 using namespace Foam;
 
 preciceAdapter::CHT::SinkTemperature::SinkTemperature
 (
     const Foam::fvMesh& mesh,
-    const std::string nameT
-    )
-:
-T_(
-    const_cast<volScalarField*>
-    (
-        &mesh.lookupObject<volScalarField>(nameT)
-    )
-),
-mesh_(mesh)
-{
-    dataType_ = scalar;
-}
+    const Foam::word nameT
+) :
+    CouplingDataUser(),
+    T_(mesh.lookupObjectRef<volScalarField>(nameT)),
+    mesh_(mesh)
+{}
 
-void preciceAdapter::CHT::SinkTemperature::write(double * buffer, bool meshConnectivity, const unsigned int dim)
+void preciceAdapter::CHT::SinkTemperature::write(double *buffer, bool meshConnectivity, const unsigned int dim)
 {
-    int bufferIndex = 0;
+    std::size_t bufferIndex = 0;
 
     // For every boundary patch of the interface
-    for (uint j = 0; j < patchIDs_.size(); j++ )
+    for (std::size_t j = 0; j < patchIDs_.size(); j++ )
     {
-        int patchID = patchIDs_.at(j);
-
-        // Get the boundary field of Temperature on the patch
-        const fvPatchScalarField & TPatch
-        (
-            refCast<const fvPatchScalarField>
-            (
-                T_->boundaryField()[patchID]
-            )
-        );
-
-        // Get the internal field next to the patch // TODO: Simplify?
-        tmp<scalarField> patchInternalFieldTmp = TPatch.patchInternalField();
-        const scalarField & patchInternalField = patchInternalFieldTmp();
+        const auto      patchID         (patchIDs_.at(j));
+        const auto &    boundaryPatch   (refCast<const apiCoupledTemperatureFvPatchScalarField> (T_.boundaryField()[patchID]));
+        auto            value           (boundaryPatch.T_Cell());
 
         //If we use the mesh connectivity, we interpolate from the centres to the nodes
         if(meshConnectivity)
@@ -48,65 +37,38 @@ void preciceAdapter::CHT::SinkTemperature::write(double * buffer, bool meshConne
             //Create an Interpolation object at the boundary Field
             primitivePatchInterpolation patchInterpolator(mesh_.boundaryMesh()[patchID]);
 
-            scalarField  patchInternalPointField;
-
             //Interpolate from centers to nodes
-            patchInternalPointField= patchInterpolator.faceToPointInterpolate(patchInternalField);
-
-            // For every point on the patch
-            forAll(patchInternalPointField, i)
-            {
-                // Copy the temperature into the buffer
-                buffer[bufferIndex++]
-                =
-                patchInternalPointField[i];
-            }
+            value = patchInterpolator.faceToPointInterpolate(value);
         }
-        else
+        
+        //
+#if (OpenFOAM_VENDOR == OpenFOAM_VENDOR_dotCOM) && (OpenFOAM_VERSION_MAJOR >= 1806)
+        const scalarField & data (value.cref());
+#else
+        scalarField & data (value.ref());
+#endif
+        forAll(data, i)
         {
-            // For every cell of the patch
-            forAll(TPatch, i)
-            {
-                // Copy the internal field (sink) temperature into the buffer
-                buffer[bufferIndex++]
-                =
-                patchInternalField[i];
-            }
+            buffer[bufferIndex++] = data[i];
         }
-
-        // Clear the temporary internal field object
-        patchInternalFieldTmp.clear();
     }
 }
 
-void preciceAdapter::CHT::SinkTemperature::read(double * buffer, const unsigned int dim)
+void preciceAdapter::CHT::SinkTemperature::read(double *buffer, const unsigned int dim)
 {
-    int bufferIndex = 0;
+    std::size_t bufferIndex = 0;
 
     // For every boundary patch of the interface
-    for (uint j = 0; j < patchIDs_.size(); j++)
+    for (std::size_t j = 0; j < patchIDs_.size(); j++)
     {
-        int patchID = patchIDs_.at(j);
-
-        // Get the boundary field of the temperature on the patch
-        mixedFvPatchScalarField & TPatch
-        (
-            refCast<mixedFvPatchScalarField>
-            (
-                T_->boundaryFieldRef()[patchID]
-            )
-        );
-
-        // Get a reference to the reference value on the patch
-        scalarField & Tref = TPatch.refValue();
+        const auto  patchID         (patchIDs_.at(j));
+        auto&       boundaryPatch   (refCast<apiCoupledTemperatureFvPatchScalarField> (T_.boundaryFieldRef()[patchID]));
+        auto&       patchValue      (boundaryPatch.T_Neighbour());
 
         // For every cell of the patch
-        forAll(TPatch, i)
+        forAll(patchValue, i)
         {
-            // Set the reference value as the buffer value
-            Tref[i]
-            =
-            buffer[bufferIndex++];
+            patchValue[i] = buffer[bufferIndex++];
         }
     }
 }

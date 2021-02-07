@@ -1,0 +1,24 @@
+#!/bin/sh
+# run from directory only
+cd "${0%/*}" || exit
+
+if [ -f "$WM_PROJECT_DIR"/wmake/scripts/AllwmakeParseArguments ] ; then
+    . "$WM_PROJECT_DIR"/wmake/scripts/AllwmakeParseArguments || \
+    echo "Argument parse error";
+else
+    echo "Error (${0##*/}) : WM_PROJECT_DIR appears to be incorrect"
+    echo "    Check your OpenFOAM environment and installation"
+    exit 1
+fi
+
+#------------------------------------------------------------------------------
+
+wmake libso > wmake.log 2>&1
+
+#------------------------------------------------------------------------------
+
+if [ $? -ne 0 ] ; then
+    echo "=== ERROR: Building failed. See BoundaryConditions/wmake.log for more. ==="
+    exit 2
+fi
+exit 0

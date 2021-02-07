@@ -1,0 +1,119 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2006                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      fvSolution;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+solvers
+{
+    ".*(rho|rhoFinal)"
+    {
+        solver          diagonal;
+    }
+
+    "alpha.*"
+    {
+        solver          PBiCG;
+        preconditioner  DILU;
+        tolerance       1e-08;
+        relTol          0.0;
+
+        cAlphas          ((liquid and gas) 1);
+
+        nAlphaCorr      2;
+        nAlphaSubCycles 2;
+
+        // Compressiion factor for species in each alpha phase
+        // NOTE: It should be similar to cAlpha
+        cYi             1;
+    }
+
+    "(U.*)"
+    {
+        solver          smoothSolver;
+        smoother        symGaussSeidel;
+        tolerance       1e-06;
+        relTol          0.1;
+    };
+
+    "(epsilon.*|k.*)"
+    {
+        solver          smoothSolver;
+        smoother        symGaussSeidel;
+        tolerance       1e-05;
+        relTol          0.1;
+    };
+
+    "T.*"
+    {
+        solver          PBiCGStab;
+        preconditioner  DILU;
+        tolerance       1e-08;
+        relTol          0.005;
+        residualAlpha   1e-5;
+    }
+
+    p_rgh
+    {
+        solver          PCG;
+        preconditioner  DIC;
+        tolerance       1e-5;
+        relTol          0.1;
+
+        nPreSweeps      0;
+        nPostSweeps     2;
+
+        cacheAgglomeration true;
+
+        nCellsInCoarsestLevel 5000;
+        agglomerator    faceAreaPair;
+        mergeLevels     1;
+    };
+
+    p_rghFinal
+    {
+        $p_rgh;
+        relTol          0;
+    };
+
+    "Xvapour.gas.*"
+    {
+        solver          PBiCGStab;
+        preconditioner  DILU;
+        tolerance       1e-08;
+        relTol          0.0;
+    }
+}
+
+PIMPLE
+{
+    momentumPredictor   false;
+    nOuterCorrectors    1;
+    nCorrectors         3;
+    nNonOrthogonalCorrectors 0;
+}
+
+relaxationFactors
+{
+    fields
+    {
+    }
+    equations
+    {
+        ".*"            1;
+    }
+}
+
+
+// ************************************************************************* //

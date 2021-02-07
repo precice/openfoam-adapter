@@ -1,0 +1,19 @@
+EXE_INC = \
+    -I$(LIB_SRC)/finiteVolume/lnInclude \
+    -I$(LIB_SRC)/meshTools/lnInclude \
+    -I$(LIB_SRC)/thermophysicalModels/basic/lnInclude \
+    -I$(LIB_SRC)/thermophysicalModels/specie/lnInclude \
+    -I$(LIB_SRC)/thermophysicalModels/solidThermo/lnInclude \
+    -I$(LIB_SRC)/thermophysicalModels/solidSpecie/lnInclude \
+    $(ADAPTER_BC_EXE_INC_FLAGS) \
+    $(ADAPTER_GLOBAL_CPLUS_INC_PATHS) \
+    $(ADAPTER_PREP_FLAGS)
+
+LIB_LIBS = \
+    -lfiniteVolume \
+    -lmeshTools \
+    -lradiationModels \
+    -lfluidThermophysicalModels \
+    $(ADAPTER_BC_LIB_LIBS_FLAGS) \
+    $(ADAPTER_GLOBAL_LIBRARY_PATHS) \
+    $(ADAPTER_GLOBAL_LD_LIBRARY_PATHS)

@@ -3,7 +3,14 @@
 
 #include "CouplingDataUser.H"
 
-#include "fvCFD.H"
+#include "fvMesh.H"
+#include "volFieldsFwd.H"
+
+// forward declaration of foam space
+namespace Foam
+{
+class word;
+}
 
 namespace preciceAdapter
 {
@@ -16,8 +23,8 @@ class Temperature : public CouplingDataUser
 
 private:
 
-    //- Temperature field
-    Foam::volScalarField * T_;
+    //
+    Foam::volScalarField & T_;
     const Foam::fvMesh& mesh_;
 
 public:
@@ -26,14 +33,17 @@ public:
     Temperature
     (
         const Foam::fvMesh& mesh,
-        const std::string nameT
+        const Foam::word nameT
     );
 
+    //- Destructor
+    virtual ~Temperature() = default;
+
     //- Write the temperature values into the buffer
-    void write(double * buffer, bool meshConnectivity, const unsigned int dim);
+    void write(double *buffer, bool meshConnectivity, const unsigned int dim) override;
 
     //- Read the temperature values from the buffer
-    void read(double * buffer, const unsigned int dim);
+    void read(double *buffer, const unsigned int dim) override;
 
 };
 

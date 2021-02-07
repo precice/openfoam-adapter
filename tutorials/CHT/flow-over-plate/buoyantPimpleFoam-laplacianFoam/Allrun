@@ -1,11 +1,15 @@
-#!/bin/bash
+#!/bin/bash -xe
+#
+#                       ./Allrun    run's the temperature example
+# doHeatSink=1          ./Allrun    run's the heat-sink example
+# doNearestProjection=1 ./Allrun    run's the nearest projection example
+#
 
-# This script prepares and runs all the participants in one terminal,
-# forwarding the solvers' output to log files.
-# Alternatively, you may execute the scripts "runSolid" and "runFluid"
-# in separate terminals.
+cd "${0%/*}" || exit                                # Run from this directory
+. ${WM_PROJECT_DIR:?}/bin/tools/RunFunctions        # run functions
 
-# The script "Allclean" cleans-up the result and log files.
+#
+./Allrun.pre
 
 # Participant 1: Fluid
 Participant1="Fluid"

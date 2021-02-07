@@ -1,0 +1,93 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2006                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      preciceDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+preciceConfig "precice-config.xml";
+
+participant Fluid;
+
+modules (CHT);
+
+
+interfaces
+{
+  InterfaceHeater1
+  {
+    mesh              Fluid-Mesh;
+    patches           (heater1);
+    locations         faceCenters;
+
+    readData
+    (
+      Temperature1
+    );
+
+    writeData
+    (
+      Heat-Flux1
+    );
+  };
+  InterfaceHeater2
+  {
+    mesh              Fluid-Mesh;
+    patches           (heater2);
+    locations         faceCenters;
+
+    readData
+    (
+      Temperature2
+    );
+
+    writeData
+    (
+      Heat-Flux2
+    );
+  };
+  InterfaceHeater3
+  {
+    mesh              Fluid-Mesh;
+    patches           (heater3);
+    locations         faceCenters;
+
+    readData
+    (
+      Temperature3
+    );
+
+    writeData
+    (
+      Heat-Flux3
+    );
+  };
+  InterfaceHeater4
+  {
+    mesh              Fluid-Mesh;
+    patches           (heater4);
+    locations         faceCenters;
+
+    readData
+    (
+      Temperature4
+    );
+
+    writeData
+    (
+      Heat-Flux4
+    );
+  };
+};
+
+// ************************************************************************* //

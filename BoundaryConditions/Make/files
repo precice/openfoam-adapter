@@ -1,0 +1,4 @@
+
+apiCoupledTemperature/apiCoupledTemperatureFvPatchScalarField.C
+
+LIB = $(ADAPTER_TARGET_DIR)/libpreciceAdapterBoundaryConditions

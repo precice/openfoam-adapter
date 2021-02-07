@@ -1,15 +1,13 @@
-Utilities.C
+Core/Utilities.C
 
-Interface.C
+Core/Interface.C
 
-CouplingDataUser.C
+Core/CouplingDataUser.C
 
 CHT/Temperature.C
-CHT/KappaEffective.C
 CHT/HeatFlux.C
 CHT/HeatTransferCoefficient.C
 CHT/SinkTemperature.C
-
 CHT/CHT.C
 
 FSI/FSI.C
@@ -25,8 +23,8 @@ FF/VelocityGradient.C
 FF/Pressure.C
 FF/PressureGradient.C
 
-Adapter.C
+Core/Adapter.C
 
-preciceAdapterFunctionObject.C
+Core/preciceAdapterFunctionObject.C
 
 LIB = $(ADAPTER_TARGET_DIR)/libpreciceAdapterFunctionObject

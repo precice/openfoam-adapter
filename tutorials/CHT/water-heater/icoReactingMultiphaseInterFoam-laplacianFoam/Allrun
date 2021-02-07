@@ -1,0 +1,67 @@
+#!/bin/bash -xe
+cd "${0%/*}" || exit                                # Run from this directory
+. ${WM_PROJECT_DIR:?}/bin/tools/RunFunctions        # Tutorial run functions
+#------------------------------------------------------------------------------
+
+cd fluid
+SolverFluid=$(getApplication)
+cd ../solid
+SolverHeater=$(getApplication)
+cd ..
+
+# pre-processing
+runApplication ./Allrun.pre
+
+# decompose
+runApplication decomposePar -case fluid -copyZero
+nProcs=$(getNumberOfProcessors fluid/system/decomposeParDict)
+
+# set fields
+mpirun -n $nProcs --use-hwthread-cpus setFields -parallel -case fluid > "log.setFields" 2>&1
+
+# Run
+mpirun -n $nProcs --use-hwthread-cpus ${SolverFluid} -parallel -case fluid > "log.fluid.${SolverFluid}" 2>&1 &
+PIDParticipantFluid=$!
+
+#${SolverFluid} -case fluid > "log.fluid.${SolverFluid}" 2>&1 &
+#PIDParticipantFluid=$!
+
+${SolverHeater} -case heater1 > "log.heater1.${SolverHeater}" 2>&1 &
+PIDParticipantHeater1=$!
+
+${SolverHeater} -case heater2 > "log.heater2.${SolverHeater}" 2>&1 &
+PIDParticipantHeater2=$!
+
+${SolverHeater} -case heater3 > "log.heater3.${SolverHeater}" 2>&1 &
+PIDParticipantHeater3=$!
+
+${SolverHeater} -case heater4 > "log.heater4.${SolverHeater}" 2>&1 &
+PIDParticipantHeater4=$!
+
+
+# Wait for all the participants to finish
+echo "Waiting for the participants to exit..."
+wait $PIDParticipantFluid
+wait $PIDParticipantHeater1
+wait $PIDParticipantHeater2
+wait $PIDParticipantHeater3
+wait $PIDParticipantHeater4
+
+echo ""
+echo "The simulation completed!"
+
+# remove data due to bug
+./removeObsoleteFolders.sh
+
+# Reconstruct
+reconstructPar -case fluid > "log.fluid.reconstructPar" 2>&1
+#reconstructPar -case heater1 > "log.heater1.reconstructPar" 2>&1
+#reconstructPar -case heater2 > "log.heater2.reconstructPar" 2>&1
+#reconstructPar -case heater3 > "log.heater3.reconstructPar" 2>&1
+#reconstructPar -case heater4 > "log.heater4.reconstructPar" 2>&1
+
+echo ""
+echo "The reconstructPar completed!"
+
+
+#------------------------------------------------------------------------------

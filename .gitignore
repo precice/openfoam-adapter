@@ -43,4 +43,7 @@ Make/linux64GccDPInt32Opt/
 .project
 .settings/
 
+# Visual Studio Code
+.vscode/
+
 *.swp

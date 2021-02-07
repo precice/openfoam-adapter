@@ -1,0 +1,19 @@
+#!/bin/bash -xe
+cd "${0%/*}" || exit                                # Run from this directory
+. ${WM_PROJECT_DIR:?}/bin/tools/CleanFunctions      # Tutorial clean functions
+#------------------------------------------------------------------------------
+
+
+# clean fluid
+cd fluid
+cleanCase0
+cd ..
+
+# clean solid
+rm -rf heater*
+
+rm -f log.*
+rm -f precice-*.log
+rm -f precice-*.json
+
+#------------------------------------------------------------------------------

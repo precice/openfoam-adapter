@@ -10,7 +10,7 @@ echo "Cleaning..."
 Participant1="Fluid"
 cd ${Participant1}
     # Clean the case
-    cleanCase
+    cleanCase0
     # Create an empty .foam file for ParaView
     # Note: ".foam" triggers the native OpenFOAM reader of ParaView.
     # Change to ".OpenFOAM" to use the OpenFOAM reader provided with OpenFOAM.
@@ -27,7 +27,7 @@ rm -fv ${Participant1}_reconstructPar.log
 Participant2="Solid"
 cd ${Participant2}
     # Clean the case
-    cleanCase
+    cleanCase0
     # Create an empty .foam file for ParaView
     # Note: ".foam" triggers the native OpenFOAM reader of ParaView.
     # Change to ".OpenFOAM" to use the OpenFOAM reader provided with OpenFOAM.
@@ -56,6 +56,12 @@ rm -fv \
 # Remove the preCICE address files
 rm -rfv precice-run
 rm -fv .*.address
+
+rm -f precice-config.xml
+rm -f Fluid/system/preciceDict
+rm -f Solid/system/preciceDict
+rm -f Fluid/0.orig/T
+rm -f Solid/0.orig/T
 
 echo "Cleaning complete!"
 #------------------------------------------------------------------------------

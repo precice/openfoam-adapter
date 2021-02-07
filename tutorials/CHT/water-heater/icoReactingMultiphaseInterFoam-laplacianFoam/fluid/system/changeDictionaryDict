@@ -1,0 +1,55 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2006                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      changeDictionaryDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+dictionaryReplacement
+{
+    boundary
+    {
+        bottom
+        {
+            type            wall;
+            inGroups        1(wall);
+        }
+
+        "heater.*"
+        {
+            type            wall;
+            inGroups        1(wall);
+        }
+
+        left
+        {
+            type            wall;
+            inGroups        1(wall);
+        }
+
+        right
+        {
+            type            wall;
+            inGroups        1(wall);
+        }
+
+        frontAndBack
+        {
+            type            empty;
+            inGroups        1(empty);
+        }
+    }
+}
+
+
+// ************************************************************************* //

@@ -25,6 +25,44 @@ solverType_(solverType)
 }
 
 //Calculate viscous force
+#if (OpenFOAM_VENDOR == OpenFOAM_VENDOR_dotORG) && (OpenFOAM_VERSION_MAJOR >= 8)
+Foam::tmp<Foam::volSymmTensorField> preciceAdapter::FSI::ForceBase::devRhoReff() const
+{
+    //For turbulent flows
+    typedef compressible::momentumTransportModel cmpTurbModel;
+    typedef incompressible::momentumTransportModel icoTurbModel;
+
+    if (mesh_.foundObject<cmpTurbModel>(cmpTurbModel::typeName))
+    {
+        const cmpTurbModel & turb
+        (
+            mesh_.lookupObject<cmpTurbModel>(cmpTurbModel::typeName)
+        );
+
+        return turb.devTau();
+
+    }
+    else if (mesh_.foundObject<icoTurbModel>(icoTurbModel::typeName))
+    {
+        const incompressible::momentumTransportModel& turb
+        (
+            mesh_.lookupObject<icoTurbModel>(icoTurbModel::typeName)
+        );
+
+        return rho()*turb.devSigma();
+    }
+    else
+    {
+        // For laminar flows get the velocity
+        const volVectorField & U
+        (
+            mesh_.lookupObject<volVectorField>("U")
+        );
+
+        return -mu()*dev(twoSymm(fvc::grad(U)));
+    }
+}
+#else
 Foam::tmp<Foam::volSymmTensorField> preciceAdapter::FSI::ForceBase::devRhoReff() const
 {
     //For turbulent flows
@@ -61,6 +99,7 @@ Foam::tmp<Foam::volSymmTensorField> preciceAdapter::FSI::ForceBase::devRhoReff()
         return -mu()*dev(twoSymm(fvc::grad(U)));
     }
 }
+#endif
 
 //lookup correct rho
 Foam::tmp<Foam::volScalarField> preciceAdapter::FSI::ForceBase::rho() const
@@ -111,6 +150,15 @@ Foam::tmp<Foam::volScalarField> preciceAdapter::FSI::ForceBase::mu() const
 
     if (solverType_.compare("incompressible") == 0)
     {
+#if (OpenFOAM_VENDOR == OpenFOAM_VENDOR_dotORG) && (OpenFOAM_VERSION_MAJOR >= 8)
+        if (mesh_.foundObject<fluidThermo>(basicThermo::dictName))
+        {
+            const fluidThermo& thermo =
+                mesh_.lookupObject<fluidThermo>(basicThermo::dictName);
+
+            return thermo.mu();
+        }
+#else
         typedef immiscibleIncompressibleTwoPhaseMixture iitpMixture;
         if (mesh_.foundObject<iitpMixture>("mixture"))
         {
@@ -121,6 +169,7 @@ Foam::tmp<Foam::volScalarField> preciceAdapter::FSI::ForceBase::mu() const
 
             return mixture.mu();
         }
+#endif
         else
         {
 
