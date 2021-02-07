@@ -42,7 +42,7 @@ void preciceAdapter::CHT::SinkTemperature::write(double *buffer, bool meshConnec
         }
         
         //
-#if OpenFOAM_VENDOR == OpenFOAM_VENDOR_dotCOM
+#if (OpenFOAM_VENDOR == OpenFOAM_VENDOR_dotCOM) && (OpenFOAM_VERSION_MAJOR >= 1806)
         const scalarField & data (value.cref());
 #else
         scalarField & data (value.ref());

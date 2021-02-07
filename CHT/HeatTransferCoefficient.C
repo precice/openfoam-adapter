@@ -45,7 +45,7 @@ void preciceAdapter::CHT::HeatTransferCoefficient::write(double *buffer, bool me
         }
         
         //
-#if OpenFOAM_VENDOR == OpenFOAM_VENDOR_dotCOM
+#if (OpenFOAM_VENDOR == OpenFOAM_VENDOR_dotCOM) && (OpenFOAM_VERSION_MAJOR >= 1806)
         const scalarField & data (value.cref());
 #else
         scalarField & data (value.ref());
