@@ -30,15 +30,19 @@
 //#endif
 
 // dictonary lookup functions
+#ifdef __OF_DICT_LOOKUPFUNCTION__
+#error c++ macro __OF_DICT_LOOKUPFUNCTION__ is already defined.
+#endif
+
 #if   (OpenFOAM_VENDOR == OpenFOAM_VENDOR_dotCOM) && (OpenFOAM_VERSION_MAJOR >= 1806)
-#define __LOOKUPFUNCION__(dict, type, pname) dict.get<type>(pname);
+#define __OF_DICT_LOOKUPFUNCTION__(dict, type, pname) dict.get<type>(pname);
 #elif (OpenFOAM_VENDOR == OpenFOAM_VENDOR_dotORG) && (OpenFOAM_VERSION_MAJOR >= 8)
-#define __LOOKUPFUNCION__(dict, type, pname) dict.lookup<type>(pname);
+#define __OF_DICT_LOOKUPFUNCTION__(dict, type, pname) dict.lookup<type>(pname);
 #elif ((OpenFOAM_VENDOR == OpenFOAM_VENDOR_dotORG) && (OpenFOAM_VERSION_MAJOR > 4)) || \
       ((OpenFOAM_VENDOR == OpenFOAM_VENDOR_dotCOM) && (OpenFOAM_VERSION_MAJOR >= 1706))
-#define __LOOKUPFUNCION__(dict, type, pname) dict.lookupType<type>(pname);
+#define __OF_DICT_LOOKUPFUNCTION__(dict, type, pname) dict.lookupType<type>(pname);
 #else
-#define __LOOKUPFUNCION__(dict, type, pname) static_cast<type>(dict.lookup(pname));
+#define __OF_DICT_LOOKUPFUNCTION__(dict, type, pname) static_cast<type>(dict.lookup(pname));
 #endif
 
 #endif

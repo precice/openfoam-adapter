@@ -43,16 +43,16 @@ bool preciceAdapter::Adapter::configFileRead()
         );
     
     // Read and display the preCICE configuration file name
-    preciceConfigFilename_ = __LOOKUPFUNCION__(preciceDict, fileName, "preciceConfig");
+    preciceConfigFilename_ = __OF_DICT_LOOKUPFUNCTION__(preciceDict, fileName, "preciceConfig");
     DEBUG(adapterInfo("  precice-config-file : " + preciceConfigFilename_));
 
     // Read and display the participant name
-    participantName_ = __LOOKUPFUNCION__(preciceDict, word, "participant");
+    participantName_ = __OF_DICT_LOOKUPFUNCTION__(preciceDict, word, "participant");
     DEBUG(adapterInfo("  participant name    : " + participantName_));
 
     // Read and display the list of modules
     DEBUG(adapterInfo("  modules requested   : "));
-    wordList modules_ = __LOOKUPFUNCION__(preciceDict, wordList, "modules");
+    wordList modules_ = __OF_DICT_LOOKUPFUNCTION__(preciceDict, wordList, "modules");
     for (auto module : modules_)
     {
         DEBUG(adapterInfo("  - " + module + "\n"));
@@ -85,7 +85,7 @@ bool preciceAdapter::Adapter::configFileRead()
                 dictionary interfaceDict = interfaceDictEntry.dict();
                 struct InterfaceConfig interfaceConfig;
 
-                interfaceConfig.meshName = __LOOKUPFUNCION__(interfaceDict, word, "mesh");
+                interfaceConfig.meshName = __OF_DICT_LOOKUPFUNCTION__(interfaceDict, word, "mesh");
                 DEBUG(adapterInfo("  - mesh         : " + interfaceConfig.meshName));
 
                 // By default, assume "faceCenters" as locationsType
@@ -105,7 +105,7 @@ bool preciceAdapter::Adapter::configFileRead()
                 DEBUG(adapterInfo("    connectivity : " + std::to_string(interfaceConfig.meshConnectivity)));
               
                 DEBUG(adapterInfo("    patches      : "));
-                wordList patches = __LOOKUPFUNCION__(interfaceDict, wordList, "patches");
+                wordList patches = __OF_DICT_LOOKUPFUNCTION__(interfaceDict, wordList, "patches");
                 for (auto patch : patches)
                 {
                     interfaceConfig.patchNames.push_back(patch);
@@ -113,7 +113,7 @@ bool preciceAdapter::Adapter::configFileRead()
                 }
               
                 DEBUG(adapterInfo("    writeData    : "));
-                wordList writeData = __LOOKUPFUNCION__(interfaceDict, wordList, "writeData");
+                wordList writeData = __OF_DICT_LOOKUPFUNCTION__(interfaceDict, wordList, "writeData");
                 for (auto writeDatum : writeData)
                 {
                     interfaceConfig.writeData.push_back(writeDatum);
@@ -121,7 +121,7 @@ bool preciceAdapter::Adapter::configFileRead()
                 }
 
                 DEBUG(adapterInfo("    readData     : "));
-                wordList readData = __LOOKUPFUNCION__(interfaceDict, wordList, "readData");
+                wordList readData = __OF_DICT_LOOKUPFUNCTION__(interfaceDict, wordList, "readData");
                 for (auto readDatum : readData)
                 {
                     interfaceConfig.readData.push_back(readDatum);
