@@ -17,6 +17,8 @@ wget -q -O - https://dl.openfoam.com/add-debian-repo.sh | sudo bash
 sudo apt-get install openfoam2012-dev
 ```
 
+As these steps change your `.profile`, you need to log out and in again to make OpenFOAM fully discoverable.
+
 ## Supported OpenFOAM versions
 
 OpenFOAM is a project with long history and many forks, of which we try to support as many as possible.
