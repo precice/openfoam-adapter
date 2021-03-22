@@ -219,7 +219,7 @@ The name `preCICE_Adapter` can be arbitrary.
 These additional parameters may only concern some users is special cases. Keep reading if you want to use nearest-projection mapping, an incompressible or basic (e.g. laplacianFoam) solver, if you are using a solver with different variable names (e.g. a multiphase solver) or if you are trying to debug a simulation.
 
 ### Nearest-projection mapping
-Support for nearest-projection mapping is described in detail in the [nearest-projection tutorial case](https://github.com/precice/openfoam-adapter/tree/master/tutorials/CHT/flow-over-plate/buoyantPimpleFoam-laplacianFoam_nearest-projection). In summary, we need to explicitly enable the `connectivity` option to create edges between the interface mesh points and give them to preCICE:
+An example for for nearest-projection mapping is provided in the [nearest-projection tutorial case](tutorials-flow-over-heated-plate-nearest-projection.html). The [preCICE documentation](couple-your-code-defining-mesh-connectivity.html) contains a detailed description of nearest-projection mappings in preCICE. In summary, we need to explicitly enable the `connectivity` option to create edges between the interface mesh points and give them to preCICE:
 
 ```c++
 interfaces
@@ -248,6 +248,21 @@ interfaces
 This `connectivity` boolean is optional and defaults to `false`. Note that `connectivity true` can only be used with `locations faceNodes`.
 
 Even if the coupling data is associated to `faceCenters` in the solver, we can select `faceNodes` as locations type: the respective data will be interpolated from faces to nodes. Also, connectivity is only needed and supported for `writeData`. Therefore, we need to split the interface in a "read" and a "write" part, as shown above.
+
+More details about the rationale are given in the following section.
+
+#### Adapter Implementation
+Since OpenFOAM is a finite-volume based solver, data is located in the middle of the cell, or on the cell face centers for a coupling interface. Mesh connectivity can be given to preCICE using the methods `setMeshTriangle` and `setMeshEdge`. Using the face centers as arguments for these methods is cumbersome. The main reason is that, although OpenFOAM decomposes the mesh for parallel simulations and distributes the subdomains to different processes, mesh connectivity needs to be defined over the partitioned mesh boundaries. This problem vanishes if we define mesh connectivity based on the face nodes, since boundary nodes can be shared among processors. Therefore, mesh connectivity can only be provided on the face nodes (not on the face centers).
+
+As described already, the data is not stored on the face nodes, but on the face centers. Therefore, we use OpenFOAM functions to interpolate from face centers to face nodes. The following image illustrates the workflow:
+
+![nearest-projection](https://user-images.githubusercontent.com/33414590/55965109-3402b600-5c76-11e9-87eb-0cdb10b55f7b.png)
+
+Data is obtained at the face centers, then interpolated to face nodes. Here, we have provided mesh connectivity and finally, preCICE performs the nearest-projection mapping.
+It is important to notice that the target data location is again the face center mesh of the coupling partner. In the standard CHT case, where both data sets are exchanged by a nearest-projection mapping, this leads to two interface meshes (centers and nodes) per participant. Having both the centers and nodes defined, we can skip one interpolation step and read data directly to the centers (cf. picture solver B).
+
+{% include note.html content="As already mentioned, the `Fluid` participant does not need to provide the mesh connectivity in case of a standard FSI. Therefore, the `Solid` participant needs to provide it and nothing special needs to be considered compared to other mapping methods. This implementation supports all CHT-related fields, which are mapped with a `consistent` constraint.
+" %}
 
 ### Additional properties for some solvers
 
