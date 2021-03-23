@@ -16,9 +16,9 @@ The adapter is [easily extensible](adapter-openfoam-extend.html).
 
 ## Start here
 
-Our [wiki](adapter-openfoam-overview.html) will help you start.
+Our [documentation](adapter-openfoam-overview.html) will help you start.
 
-You may find OpenFOAM-only tutorials here, in order to test your installation, or cases involving other adapters in the [precice/tutorials](https://github.com/precice/tutorials) repository. Instructions for them are provided in the [tutorial documentation](tutorials.html).
+You can find examples in the [precice/tutorials](https://github.com/precice/tutorials) repository. Instructions for them are provided in the [tutorials documentation](tutorials.html).
 
 
 
