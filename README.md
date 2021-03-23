@@ -3,7 +3,7 @@
     <img src="https://travis-ci.org/precice/openfoam-adapter.svg?branch=master" alt="Build status">
 </a>
 
-_**Note:** This adapter is currently in a testing phase. Please [report any issues](https://github.com/precice/openfoam-adapter/issues) here and give us feedback through the [preCICE mailing list](https://mailman.informatik.uni-stuttgart.de/mailman/listinfo/precice)._
+_Please [report any issues](https://github.com/precice/openfoam-adapter/issues) here and give us feedback through the [one of our community channels](community-channels.html)._
 
 This adapter was developed as part of [Gerasimos Chourdakis' master's thesis](https://www5.in.tum.de/pub/Chourdakis2017_Thesis.pdf) [1].
 It is based on [previous work](https://github.com/ludcila/CHT-preCICE) by Lucia Cheung ([master's thesis](https://www5.in.tum.de/pub/Cheung2016_Thesis.pdf) [2], in cooperation with [SimScale](https://www.simscale.com/)).
@@ -12,13 +12,13 @@ The fluid-structure interaction module was developed in close collaboration betw
 
 The fluid-fluid coupling module is being developed by Gerasimos Chourdakis, in the context of his dissertation.
 
-The adapter is [easily extensible](https://github.com/precice/openfoam-adapter/wiki/How-to-extend-the-adapter).
+The adapter is [easily extensible](adapter-openfoam-extend.html).
 
 ## Start here
 
-Our [wiki](https://github.com/precice/openfoam-adapter/wiki) will help you start. 
+Our [documentation](adapter-openfoam-overview.html) will help you start.
 
-You may find OpenFOAM-only tutorials here, in order to test your installation, or cases involving other adapters in the [precice/tutorials](https://github.com/precice/tutorials) repository. Step-by-step instructions for them are provided in the [preCICE wiki](https://github.com/precice/precice/wiki).
+You can find examples in the [precice/tutorials](https://github.com/precice/tutorials) repository. Instructions for them are provided in the [tutorials documentation](tutorials.html).
 
 
 
