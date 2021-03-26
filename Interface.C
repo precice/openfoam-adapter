@@ -98,6 +98,7 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh)
 
 #ifdef ADAPTER_DEBUG_MODE
             // Check if we are in the right layer in case of preCICE dimension 2
+            // If there is at least one node with a different z-coordinate, then the (2D) geometry is not on the xy-plane, as required.
             if (dim_ == 2) {
               const pointField faceNodes =
                   mesh.boundaryMesh()[patchIDs_.at(j)].localPoints();
