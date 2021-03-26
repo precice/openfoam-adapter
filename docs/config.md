@@ -117,7 +117,7 @@ writeData
 
 For fluid-structure interaction, `writeData` can be `Force` or `Stress`, where `Stress` is essentially a force vector scaled by the cell face in spatial coordinates (with any postfix), thus, a conservative quantity as well.`readData` can be `Displacement` and `DisplacementDelta` (with any postfix). `DisplacementDelta` refers to the last coupling time step, which needs to considered in the case of subcycling.
 
-{% include warning.html content="You will run into problems when you use `Displacement(Delta)` as write data set and execute RBF mappings in parallel. This would affect user who use OpenFOAM and the adapter as the 'Solid' participant in order to compute solid mechanics with OpenFOAM (currently not officially supported at all). Have a look [at this issue on GitHub](https://github.com/precice/openfoam-adapter/issues/153) for details." %}
+{% include warning.html content="You will run into problems when you use `Displacement(Delta)` as write data set and execute RBF mappings in parallel. This would affect users who use OpenFOAM and the adapter as the "Solid" participant in order to compute solid mechanics with OpenFOAM (currently not officially supported at all). Have a look [at this issue on GitHub](https://github.com/precice/openfoam-adapter/issues/153) for details." %}
 
 ## Configuration of the OpenFOAM case
 
