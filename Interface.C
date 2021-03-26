@@ -97,7 +97,7 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh)
                 vertices[verticesIndex++] = faceCenters[i][d];
 
 #ifdef ADAPTER_DEBUG_MODE
-            // Check, if we are in the right layer in case of preCICE dimension 2
+            // Check if we are in the right layer in case of preCICE dimension 2
             if (dim_ == 2) {
               const pointField faceNodes =
                   mesh.boundaryMesh()[patchIDs_.at(j)].localPoints();
@@ -106,7 +106,10 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh)
               constexpr unsigned int z_axis = 2;
 
               // Find out about the existing planes
+              // Store z-coordinate of the first layer
               z_location[0] = faceNodes[0][z_axis];
+              // Go through the remaining points until we find the second z-coordinate
+              // and store it (there are only two allowed in case we are in the xy-layer)
               for (int i = 0; i < faceNodes.size(); i++) {
                 if (z_location[0] == faceNodes[i][z_axis])
                   continue;
@@ -116,14 +119,14 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh)
                 }
               }
 
-              // Check all remaining nodes
+              // Check if the z-coordinates of all nodes match the z-coordinates we have collected above
               for (int i = 0; i < faceNodes.size(); i++)
                 if (z_location[0] == faceNodes[i][z_axis] || z_location[1] == faceNodes[i][z_axis])
                   continue;
                 else
                   FatalErrorInFunction
                       << "It seems like you are using preCICE in 2D and your geometry is not located int the xy-plane. "
-                         "The OpenFOAM-adapter implementation supports preCICE 2D cases only with the z-axis as out-of-plane direction."
+                         "The OpenFOAM adapter implementation supports preCICE 2D cases only with the z-axis as out-of-plane direction."
                          "Please rotate your geometry so that the geometry is located in the xy-plane."
                       << exit(FatalError);
             }
