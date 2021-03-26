@@ -93,12 +93,41 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh)
 
             // Assign the (x,y,z) locations to the vertices
             for (int i = 0; i < faceCenters.size(); i++)
-            {
-                vertices[verticesIndex++] = faceCenters[i].x();
-                vertices[verticesIndex++] = faceCenters[i].y();
-                if(dim_ == 3)//out-of-plane axis = z
-                    vertices[verticesIndex++] = faceCenters[i].z();
+              for (unsigned int d = 0; d < dim_; ++d)
+                vertices[verticesIndex++] = faceCenters[i][d];
+
+#ifdef ADAPTER_DEBUG_MODE
+            // Check, if we are in the right layer in case of preCICE dimension 2
+            if (dim_ == 2) {
+              const pointField faceNodes =
+                  mesh.boundaryMesh()[patchIDs_.at(j)].localPoints();
+              //Allocate memory for z-coordinates
+              std::array<double, 2>  z_location({0, 0});
+              constexpr unsigned int z_axis = 2;
+
+              // Find out about the existing planes
+              z_location[0] = faceNodes[0][z_axis];
+              for (int i = 0; i < faceNodes.size(); i++) {
+                if (z_location[0] == faceNodes[i][z_axis])
+                  continue;
+                else {
+                  z_location[1] = faceNodes[i][z_axis];
+                  break;
+                }
+              }
+
+              // Check all remaining nodes
+              for (int i = 0; i < faceNodes.size(); i++)
+                if (z_location[0] == faceNodes[i][z_axis] || z_location[1] == faceNodes[i][z_axis])
+                  continue;
+                else
+                  FatalErrorInFunction
+                      << "It seems like you are using preCICE in 2D and your geometry is not located int the xy-plane. "
+                         "The OpenFOAM-adapter implementation supports preCICE 2D cases only with the z-axis as out-of-plane direction."
+                         "Please rotate your geometry so that the geometry is located in the xy-plane."
+                      << exit(FatalError);
             }
+#endif
         }
 
         // Pass the mesh vertices information to preCICE
@@ -140,12 +169,8 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh)
             // Assign the (x,y,z) locations to the vertices
             // TODO: Ensure consistent order when writing/reading
             for (int i = 0; i < faceNodes.size(); i++)
-            {
-                vertices[verticesIndex++] = faceNodes[i].x();
-                vertices[verticesIndex++] = faceNodes[i].y();
-                if (dim_ == 3)//out-of-plane axis = z!
-                    vertices[verticesIndex++] = faceNodes[i].z();
-            }
+                for (unsigned int d = 0; d < dim_; ++d)
+                  vertices[verticesIndex++] = faceNodes[i][d];
         }
 
         // Pass the mesh vertices information to preCICE
