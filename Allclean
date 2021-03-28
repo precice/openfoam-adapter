@@ -1,5 +1,5 @@
 #!/bin/sh
-cd ${0%/*} || exit 1    # Run from this directory
+set -e -u
 
 # Check if an OpenFOAM environment is available
 if [ -z "${WM_PROJECT_VERSION}" ]; then
