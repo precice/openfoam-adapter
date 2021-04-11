@@ -96,7 +96,6 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh)
               for (unsigned int d = 0; d < dim_; ++d)
                 vertices[verticesIndex++] = faceCenters[i][d];
 
-#ifdef ADAPTER_DEBUG_MODE
             // Check if we are in the right layer in case of preCICE dimension 2
             // If there is at least one node with a different z-coordinate, then the (2D) geometry is not on the xy-plane, as required.
             if (dim_ == 2) {
@@ -131,7 +130,6 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh)
                          "Please rotate your geometry so that the geometry is located in the xy-plane."
                       << exit(FatalError);
             }
-#endif
         }
 
         // Pass the mesh vertices information to preCICE
