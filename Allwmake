@@ -17,7 +17,7 @@ ADAPTER_PRECICE_ROOT="${PRECICE_ROOT}"
 # ADAPTER_PRECICE_DEP="${ADAPTER_PRECICE_DEP} -lpython2.7"
 
 # Optional: Preprocessor flags ("-DADAPTER_DEBUG_MODE" enables debug messages)
-ADAPTER_PREP_FLAGS="-DADAPTER_DEBUG_MODE"
+ADAPTER_PREP_FLAGS=""
 
 # Optional: Flags used by wmake.
 # In order to compile with multiple threads, add e.g. "-j 4".
