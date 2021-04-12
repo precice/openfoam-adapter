@@ -100,7 +100,7 @@ bool preciceAdapter::Adapter::configFileRead()
                 {
                     DEBUG(adapterInfo("Mesh connectivity is not supported for faceCenters. \n"
                                       "Please configure the desired interface with the locationsType faceNodes. \n"
-                                      "Have a look in the adapter wiki on Github or the tutorial case for detailed information.", "warning"));
+                                      "Have a look in the adapter documentation for detailed information.", "warning"));
                     return false;
                 }
                 DEBUG(adapterInfo("    connectivity : " + std::to_string(interfaceConfig.meshConnectivity)));
@@ -156,7 +156,7 @@ bool preciceAdapter::Adapter::configFileRead()
                     "Mesh connectivity is not supported for FSI, as, usually, "
                     "the Solid participant needs to provide the connectivity information. "
                     "Therefore, set provideMeshConnectivity = false. "
-                    "Have a look in the tutorial README or the Github wiki for detailed information. "
+                    "Have a look in the adapter documentation for more information. "
                     ,"warning");
                 return false;
             }
