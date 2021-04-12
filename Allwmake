@@ -48,17 +48,17 @@ log "Building the OpenFOAM adapter for preCICE..."
 # 5. translate the new line characters to "\", i.e. make everything again one line.
 
 # Extract the paths from the CPLUS_INCLUDE_PATH list and convert them to a sequence of "-I/path/ \"
-if [ "${CPLUS_INCLUDE_PATH}" ]; then
+if [ "${CPLUS_INCLUDE_PATH:-}" ]; then
     ADAPTER_GLOBAL_CPLUS_INC_PATHS=$(echo "${CPLUS_INCLUDE_PATH}" | tr ':' '\n' | sed '/^$/d' | sed 's/^/-I/' | tr '\n' ' \\ ')
 fi
 
 # Extract the paths from the LD_LIBRARY_PATH list and convert them to a sequence of "-L/path/ \"
-if [ "${LD_LIBRARY_PATH}" ]; then
+if [ "${LD_LIBRARY_PATH:-}" ]; then
     ADAPTER_GLOBAL_LD_LIBRARY_PATHS=$(echo "${LD_LIBRARY_PATH}" | tr ':' '\n' | sed '/^$/d' | sed 's/^/-L/' | tr '\n' ' \\ ')
 fi
 
 # Extract the paths from the LIBRARY_PATH list and convert them to a sequence of "-L/path/ \"
-if [ "${LIBRARY_PATH}" ]; then
+if [ "${LIBRARY_PATH:-}" ]; then
     ADAPTER_GLOBAL_LIBRARY_PATHS=$(echo "${LIBRARY_PATH}" | tr ':' '\n' | sed '/^$/d' | sed 's/^/-L/' | tr '\n' ' \\ ')
 fi
 
@@ -92,7 +92,7 @@ if [ -z "${WM_PROJECT:-}" ]; then
 fi
 # Check if this is a compatible OpenFOAM environment
 # For now, only check if it is not foam-extend, the main incompatible variant.
-if [ "${WM_PROJECT}" = "foam" ]; then
+if [ "${WM_PROJECT:-}" = "foam" ]; then
     log ""
     log "=== ERROR: foam-extend is not compatible with the adapter."
     log "Make sure you are using a compatible OpenFOAM version:"
