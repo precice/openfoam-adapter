@@ -10,7 +10,6 @@ To build the adapter, you need to install a few dependencies and then execute th
 ## Dependencies
 1. Install [a compatible OpenFOAM distribution](adapter-openfoam-support.html).
 2. Install [preCICE](installation-overview.html)
-    * By default, the adapter supports preCICE as a shared library. If you want to use preCICE as a static library, check and adjust its dependencies in `Allwmake` (`ADAPTER_PRECICE_DEP`).
 
 ## Adapter
 3. [Download](https://github.com/precice/openfoam-adapter/archive/master.zip) the adapter _or_ (better) install [git](https://git-scm.com/) and clone this repository: `git clone https://github.com/precice/openfoam-adapter.git`.
@@ -18,6 +17,7 @@ To build the adapter, you need to install a few dependencies and then execute th
 4. Execute the build script: `./Allwmake`.
     * See and adjust the configuration in the beginning of the script first, if needed.
     * Check for any error messages and suggestions at the end.
+    * Ask OpenFOAM to use more threads for compiling the code by setting, for example, `export WM_NCOMPPROCS=4`
 
 The `-DADAPTER_DEBUG_MODE` flag inside `ADAPTER_PREP_FLAGS` activates additional debug messages. You may also change the target directory or specify the number of threads to use for the compilation. See the comments in `Allwmake` for more.
 
