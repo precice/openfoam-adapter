@@ -3,17 +3,6 @@ set -e -u
 
 ########## CONFIGURATION - You may want to change these ########################
 
-## preCICE as a static library?
-# If you use preCICE as a static library, then you also need to
-# specify its dependncies.
-# For an up-to-date list of dependencies,
-# look at https://www.precice.org/adapter-openfoam-get.html
-# Uncomment to use preCICE as a static library: preCICE dependencies
-# ADAPTER_PRECICE_DEP="-lboost_system -lboost_filesystem -lboost_log -lboost_log_setup -lboost_thread -lboost_program_options -lpthread -lxml2"
-# ADAPTER_PRECICE_DEP="${ADAPTER_PRECICE_DEP} -lmpi_cxx"
-# ADAPTER_PRECICE_DEP="${ADAPTER_PRECICE_DEP} -lpetsc"
-# ADAPTER_PRECICE_DEP="${ADAPTER_PRECICE_DEP} -lpython2.7"
-
 # Optional: Preprocessor flags ("-DADAPTER_DEBUG_MODE" enables debug messages)
 ADAPTER_PREP_FLAGS=""
 
@@ -23,7 +12,7 @@ ADAPTER_PREP_FLAGS=""
 ADAPTER_WMAKE_OPTIONS=""
 
 # Where should the adapter be built? Default: "${FOAM_USER_LIBBIN}"
-ADAPTER_TARGET_DIR="${FOAM_USER_LIBBIN}"
+ADAPTER_TARGET_DIR="${FOAM_USER_LIBBIN:-}"
 
 # More information for compatibility with OpenFOAM
 DOC_COMPATIBILITY="https://www.precice.org/adapter-openfoam-support.html"
@@ -61,8 +50,6 @@ if [ "${LIBRARY_PATH:-}" ]; then
 fi
 
 # Export the environment variables
-export ADAPTER_PRECICE_ROOT
-export ADAPTER_PRECICE_DEP=""
 export ADAPTER_PREP_FLAGS
 export ADAPTER_TARGET_DIR
 export ADAPTER_GLOBAL_CPLUS_INC_PATHS
@@ -77,7 +64,7 @@ export ADAPTER_PKG_CONFIG_LIBS
 log ""
 log "Current OpenFOAM environment:"
 log "  WM_PROJECT = ${WM_PROJECT:-}"
-log "  WM_PROJECT_VERSION = ${WM_PROJECT_VERSION}"
+log "  WM_PROJECT_VERSION = ${WM_PROJECT_VERSION:-}"
 
 if [ -z "${WM_PROJECT:-}" ]; then
     log ""
@@ -107,14 +94,7 @@ log "  ADAPTER_PREP_FLAGS    = ${ADAPTER_PREP_FLAGS}"
 log "  ADAPTER_WMAKE_OPTIONS = ${ADAPTER_WMAKE_OPTIONS}"
 
 log ""
-log "Dependencies (preCICE) will be located using the following environment variables:"
-log "  ADAPTER_PRECICE_ROOT  = ${ADAPTER_PRECICE_ROOT}"
-if [ -n "${ADAPTER_PRECICE_DEP:-}" ]; then
-    log "      preCICE dependencies:"
-    log "      ADAPTER_PRECICE_DEP   = ${ADAPTER_PRECICE_DEP}"
-else
-    log "      preCICE dependencies: not specified (ok if preCICE is built as a shared library)"
-fi
+log "Dependencies will be located using the following environment variables:"
 log "  ADAPTER_PKG_CONFIG_CFLAGS       = ${ADAPTER_PKG_CONFIG_CFLAGS}"
 log "  ADAPTER_PKG_CONFIG_LIBS         = ${ADAPTER_PKG_CONFIG_LIBS}"
 log "  ADAPTER_GLOBAL_CPLUS_INC_PATHS  = ${ADAPTER_GLOBAL_CPLUS_INC_PATHS}"
@@ -140,7 +120,6 @@ else
         log "=== ERROR: Building completed with linking problems: there were undefined symbols. ==="
         log "Possible causes:"
         log "- Is preCICE discoverable at runtime? Check the content of ADAPTER_PKG_CONFIG_LIBS and ADAPTER_GLOBAL_LD_LIBRARY_PATHS above."
-        log "- If preCICE is (in purpose) only build as a static library, please set the ADAPTER_PRECICE_DEP in this script appropriately (see comments)."
         log "See wmake.log and ldd.log for more details."
     else
         log "=== OK: Building completed successfully! ==="
