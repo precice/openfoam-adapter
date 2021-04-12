@@ -38,9 +38,10 @@
 lnInclude/
 Make/linux64GccDPInt32Opt/
 
-# Eclipse
+# Editors
 .cproject
 .project
 .settings/
+.vscode
 
 *.swp

@@ -9,7 +9,7 @@ ADAPTER_PRECICE_ROOT="${PRECICE_ROOT}"
 # If you use preCICE as a static library, then you also need to
 # specify its dependncies.
 # For an up-to-date list of dependencies,
-# look at https://github.com/precice/precice/wiki/Building
+# look at https://www.precice.org/adapter-openfoam-get.html
 # Uncomment to use preCICE as a static library: preCICE dependencies
 # ADAPTER_PRECICE_DEP="-lboost_system -lboost_filesystem -lboost_log -lboost_log_setup -lboost_thread -lboost_program_options -lpthread -lxml2"
 # ADAPTER_PRECICE_DEP="${ADAPTER_PRECICE_DEP} -lmpi_cxx"
@@ -28,7 +28,7 @@ ADAPTER_WMAKE_OPTIONS=""
 ADAPTER_TARGET_DIR="${FOAM_USER_LIBBIN}"
 
 # More information for compatibility with OpenFOAM
-DOC_COMPATIBILITY="https://github.com/precice/openfoam-adapter/wiki/Notes-on-OpenFOAM"
+DOC_COMPATIBILITY="https://www.precice.org/adapter-openfoam-support.html"
 
 ################################################################################
 # Funtion to print to screen and copy to a logfile
@@ -145,6 +145,5 @@ else
         log "See wmake.log and ldd.log for more details."
     else
         log "=== OK: Building completed successfully! ==="
-        log "Next step: Run an example from the tutorials/ directory."
     fi
 fi
