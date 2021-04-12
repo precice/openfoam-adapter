@@ -2,8 +2,6 @@
 set -e -u
 
 ########## CONFIGURATION - You may want to change these ########################
-# preCICE root path (should be already globally set)
-ADAPTER_PRECICE_ROOT="${PRECICE_ROOT}"
 
 ## preCICE as a static library?
 # If you use preCICE as a static library, then you also need to
