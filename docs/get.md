@@ -17,7 +17,7 @@ To build the adapter, you need to install a few dependencies and then execute th
 4. Execute the build script: `./Allwmake`.
     * See and adjust the configuration in the beginning of the script first, if needed.
     * Check for any error messages and suggestions at the end.
-    * Ask OpenFOAM to use more threads for compiling the code by setting, for example, `export WM_NCOMPPROCS=4`
+    * Modify the `adapter_build_command` to e.g. build using more threads, e.g. `wmake -j 4 libso`.
 
 The `-DADAPTER_DEBUG_MODE` flag inside `ADAPTER_PREP_FLAGS` activates additional debug messages. You may also change the target directory or specify the number of threads to use for the compilation. See the comments in `Allwmake` for more.
 
