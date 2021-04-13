@@ -25,42 +25,11 @@ log() {
 ################################################################################
 
 # Information header
-log "Building the OpenFOAM adapter for preCICE..."
-
-# What is going on here:
-# 1. get the colon-separated paths (e.g. the CPLUS_INCLUDE_PATH),
-# 2. translate all the colons to new line characters, i.e. move each entry to a new line,
-# 3. remove the empty lines. These would result from ":path" or "path:" or "path::path".
-# 4. add the respective "-I" or "-L" in the beginning of the line,
-# 5. translate the new line characters to "\", i.e. make everything again one line.
-
-# Extract the paths from the CPLUS_INCLUDE_PATH list and convert them to a sequence of "-I/path/ \"
-if [ "${CPLUS_INCLUDE_PATH:-}" ]; then
-    ADAPTER_GLOBAL_CPLUS_INC_PATHS=$(echo "${CPLUS_INCLUDE_PATH}" | tr ':' '\n' | sed '/^$/d' | sed 's/^/-I/' | tr '\n' ' \\ ')
-else
-    ADAPTER_GLOBAL_CPLUS_INC_PATHS=""
-fi
-
-# Extract the paths from the LD_LIBRARY_PATH list and convert them to a sequence of "-L/path/ \"
-if [ "${LD_LIBRARY_PATH:-}" ]; then
-    ADAPTER_GLOBAL_LD_LIBRARY_PATHS=$(echo "${LD_LIBRARY_PATH}" | tr ':' '\n' | sed '/^$/d' | sed 's/^/-L/' | tr '\n' ' \\ ')
-else
-    ADAPTER_GLOBAL_LD_LIBRARY_PATHS=""
-fi
-
-# Extract the paths from the LIBRARY_PATH list and convert them to a sequence of "-L/path/ \"
-if [ "${LIBRARY_PATH:-}" ]; then
-    ADAPTER_GLOBAL_LIBRARY_PATHS=$(echo "${LIBRARY_PATH}" | tr ':' '\n' | sed '/^$/d' | sed 's/^/-L/' | tr '\n' ' \\ ')
-else
-    ADAPTER_GLOBAL_LIBRARY_PATHS=""
-fi
+log "Building the OpenFOAM-preCICE adapter..."
 
 # Export the environment variables
 export ADAPTER_PREP_FLAGS
 export ADAPTER_TARGET_DIR
-export ADAPTER_GLOBAL_CPLUS_INC_PATHS
-export ADAPTER_GLOBAL_LD_LIBRARY_PATHS
-export ADAPTER_GLOBAL_LIBRARY_PATHS
 ADAPTER_PKG_CONFIG_CFLAGS="$(pkg-config --silence-errors --cflags libprecice)"
 export ADAPTER_PKG_CONFIG_CFLAGS
 ADAPTER_PKG_CONFIG_LIBS="$(pkg-config --silence-errors --libs libprecice)"
@@ -92,20 +61,14 @@ if [ "${WM_PROJECT:-}" = "foam" ]; then
 fi
 
 log ""
-log "The adapter will be built into:"
-log "  ADAPTER_TARGET_DIR    = ${ADAPTER_TARGET_DIR}"
-log ""
-log "The following building options will be used:"
-log "  ADAPTER_PREP_FLAGS    = ${ADAPTER_PREP_FLAGS}"
-log "  ADAPTER_WMAKE_OPTIONS = ${ADAPTER_WMAKE_OPTIONS}"
+log "The adapter will be built into ${ADAPTER_TARGET_DIR}"
+log "Additional preprocessor/compiler options: ${ADAPTER_PREP_FLAGS}"
+log "Additional WMake options: ${ADAPTER_WMAKE_OPTIONS}"
 
 log ""
-log "Dependencies will be located using the following environment variables:"
-log "  ADAPTER_PKG_CONFIG_CFLAGS       = ${ADAPTER_PKG_CONFIG_CFLAGS}"
-log "  ADAPTER_PKG_CONFIG_LIBS         = ${ADAPTER_PKG_CONFIG_LIBS}"
-log "  ADAPTER_GLOBAL_CPLUS_INC_PATHS  = ${ADAPTER_GLOBAL_CPLUS_INC_PATHS}"
-log "  ADAPTER_GLOBAL_LD_LIBRARY_PATHS = ${ADAPTER_GLOBAL_LD_LIBRARY_PATHS}"
-log "  ADAPTER_GLOBAL_LIBRARY_PATHS    = ${ADAPTER_GLOBAL_LIBRARY_PATHS}"
+log "If not already known by the system, preCICE may be located using:"
+log "  pkg-config --cflags libprecice  = ${ADAPTER_PKG_CONFIG_CFLAGS}"
+log "  pkg-config --libs libprecice    = ${ADAPTER_PKG_CONFIG_LIBS}"
 
 # Run wmake (build the adapter) and check the exit code
 log ""
