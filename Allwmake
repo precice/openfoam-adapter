@@ -73,7 +73,7 @@ log "  pkg-config --libs libprecice    = ${ADAPTER_PKG_CONFIG_LIBS}"
 # Run wmake (build the adapter) and check the exit code
 log ""
 log "Building with WMake (see the wmake.log log file)...\n"
-if ! wmake "${ADAPTER_WMAKE_OPTIONS}" libso 2>&1 | tee wmake.log ||
+if ! wmake ${ADAPTER_WMAKE_OPTIONS} libso 2>&1 | tee wmake.log ||
     [ "$(grep -c -E "error:" wmake.log)" -ne 0 ]; then
     log "=== ERROR: Building failed. See wmake.log for more. ==="
     log "Possible causes:"
