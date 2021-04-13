@@ -6,10 +6,12 @@ set -e -u
 # Optional: Preprocessor flags ("-DADAPTER_DEBUG_MODE" enables debug messages)
 ADAPTER_PREP_FLAGS=""
 
-# Optional: Flags used by wmake.
+# Build command and options
 # In order to compile with multiple threads, add e.g. "-j 4".
 # Make sure that these options are supported by your OpenFOAM version.
-ADAPTER_WMAKE_OPTIONS=""
+adapter_build_command(){
+    wmake -j 4 libso
+}
 
 # Where should the adapter be built? Default: "${FOAM_USER_LIBBIN}"
 ADAPTER_TARGET_DIR="${FOAM_USER_LIBBIN:-}"
@@ -63,7 +65,6 @@ fi
 log ""
 log "The adapter will be built into ${ADAPTER_TARGET_DIR}"
 log "Additional preprocessor/compiler options: ${ADAPTER_PREP_FLAGS}"
-log "Additional WMake options: ${ADAPTER_WMAKE_OPTIONS}"
 
 log ""
 log "If not already known by the system, preCICE may be located using:"
@@ -73,7 +74,7 @@ log "  pkg-config --libs libprecice    = ${ADAPTER_PKG_CONFIG_LIBS}"
 # Run wmake (build the adapter) and check the exit code
 log ""
 log "Building with WMake (see the wmake.log log file)...\n"
-if ! wmake ${ADAPTER_WMAKE_OPTIONS} libso 2>&1 | tee wmake.log ||
+if ! adapter_build_command 2>&1 | tee wmake.log ||
     [ "$(grep -c -E "error:" wmake.log)" -ne 0 ]; then
     log "=== ERROR: Building failed. See wmake.log for more. ==="
     log "Possible causes:"
