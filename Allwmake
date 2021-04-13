@@ -88,7 +88,7 @@ else
     if [ "${ADAPTER_WMAKE_UNDEFINED_SYMBOLS}" -gt 0 ] || [ "${ADAPTER_LD_UNDEFINED_SYMBOLS}" -gt 0 ]; then
         log "=== ERROR: Building completed with linking problems: there were undefined symbols. ==="
         log "Possible causes:"
-        log "- Is preCICE discoverable at runtime? Check the content of ADAPTER_PKG_CONFIG_LIBS and ADAPTER_GLOBAL_LD_LIBRARY_PATHS above."
+        log "- Is preCICE discoverable at runtime? Check the content of ADAPTER_PKG_CONFIG_LIBS above."
         log "See wmake.log and ldd.log for more details."
     else
         log "=== OK: Building completed successfully! ==="
