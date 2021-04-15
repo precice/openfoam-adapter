@@ -8,7 +8,6 @@ jobs:
         run: |
           wget -q -O - https://dl.openfoam.com/add-debian-repo.sh | sudo bash
           sudo apt-get install openfoam2012-dev
-          source /usr/lib/openfoam/openfoam2012/etc/bashrc
       - name: Install preCICE v2.2.0
         run: |
           wget https://github.com/precice/precice/releases/download/v2.2.0/libprecice2_2.2.0_focal.deb
@@ -16,4 +15,6 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v2
       - name: Build OpenFOAM-preCICE adapter
-        run: ./Allwmake
+        run: |
+        source /usr/lib/openfoam/openfoam2012/etc/bashrc
+        ./Allwmake
