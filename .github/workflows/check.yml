@@ -1,7 +1,7 @@
-name: Checks
+name: Check
 on: [push, pull_request]
 jobs:
-  checks:
+  check:
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
