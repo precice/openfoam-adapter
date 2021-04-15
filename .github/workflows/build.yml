@@ -16,5 +16,5 @@ jobs:
         uses: actions/checkout@v2
       - name: Build OpenFOAM-preCICE adapter
         run: |
-        source /usr/lib/openfoam/openfoam2012/etc/bashrc
-        ./Allwmake
+          source /usr/lib/openfoam/openfoam2012/etc/bashrc
+          ./Allwmake
