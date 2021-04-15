@@ -11,6 +11,7 @@ For more details, look at the [merged pull requests](https://github.com/precice/
 - Added support for reading displacements on face centers and further improved the 2D mode. [#147](https://github.com/precice/openfoam-adapter/pull/147)
 - Added an assertion to restrict the user in valid orientation of 2D cases. [#155](https://github.com/precice/openfoam-adapter/pull/155)
 - Improved the `Allwmake` and `Allclean` scripts, dropping support for preCICE 1.x. [#157](https://github.com/precice/openfoam-adapter/pull/157)
+- Added `-j 4` to `wmake` in `Allwmake` to build with four threads by default. Remove this you face any issues (in which case, let us know). [#162](https://github.com/precice/openfoam-adapter/pull/162)
 - Refactored the `Force` class. [#148](https://github.com/precice/openfoam-adapter/pull/148)
 - Cleaned up a few non-const references to boundary fields. [#132](https://github.com/precice/openfoam-adapter/pull/132)
 
