@@ -38,7 +38,7 @@ bool preciceAdapter::CHT::ConjugateHeatTransfer::configure(const IOdictionary& a
     }
     else
     {
-        DEBUG(adapterInfo("Unknown solver type. Determining the solver type..."));
+        DEBUG(adapterInfo("Determining the solver type for the CHT module... (override by setting solverType to one of {compressible, incompressible, basic})"));
         solverType_ = determineSolverType();
     }
 

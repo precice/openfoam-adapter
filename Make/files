@@ -13,11 +13,17 @@ CHT/SinkTemperature.C
 CHT/CHT.C
 
 FSI/FSI.C
+FSI/ForceBase.C
 FSI/Force.C
 FSI/Stress.C
 FSI/Displacement.C
 FSI/DisplacementDelta.C
 
+FF/FF.C
+FF/Velocity.C
+FF/VelocityGradient.C
+FF/Pressure.C
+FF/PressureGradient.C
 
 Adapter.C
 

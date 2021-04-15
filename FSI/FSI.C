@@ -39,7 +39,7 @@ bool preciceAdapter::FSI::FluidStructureInteraction::configure(const IOdictionar
     }
     else
     {
-        DEBUG(adapterInfo("Unknown solver type. Determining the solver type..."));
+        DEBUG(adapterInfo("Determining the solver type for the FSI module... (override by setting solverType to one of {compressible, incompressible})"));
         solverType_ = determineSolverType();
     }
 
@@ -61,6 +61,10 @@ bool preciceAdapter::FSI::FluidStructureInteraction::readConfig(const IOdictiona
     // Read the name of the pointDisplacement field (if different)
     namePointDisplacement_ = FSIdict.lookupOrDefault<word>("namePointDisplacement", "pointDisplacement");
     DEBUG(adapterInfo("    pointDisplacement field name : " + namePointDisplacement_));
+
+    // Read the name of the pointDisplacement field (if different)
+    nameCellDisplacement_ = FSIdict.lookupOrDefault<word>("nameCellDisplacement", "cellDisplacement");
+    DEBUG(adapterInfo("    cellDisplacement field name : " + nameCellDisplacement_));
 
     return true;
 }
@@ -107,7 +111,7 @@ void preciceAdapter::FSI::FluidStructureInteraction::addWriters(std::string data
             interface->addCouplingDataWriter
             (
                 dataName,
-                new Force(mesh_, runTime_.timeName(), solverType_) /* TODO: Add any other arguments here */
+                new Force(mesh_, solverType_) /* TODO: Add any other arguments here */
             );
             DEBUG(adapterInfo("Added writer: Force."));        
     }    
@@ -116,7 +120,7 @@ void preciceAdapter::FSI::FluidStructureInteraction::addWriters(std::string data
         interface->addCouplingDataWriter
         (
             dataName,
-            new DisplacementDelta(mesh_, namePointDisplacement_)
+            new DisplacementDelta(mesh_, namePointDisplacement_, nameCellDisplacement_)
         );
         DEBUG(adapterInfo("Added writer: DisplacementDelta."));
     }
@@ -125,7 +129,7 @@ void preciceAdapter::FSI::FluidStructureInteraction::addWriters(std::string data
         interface->addCouplingDataWriter
         (
             dataName,
-            new Displacement(mesh_, namePointDisplacement_)
+            new Displacement(mesh_, namePointDisplacement_, nameCellDisplacement_)
         );
         DEBUG(adapterInfo("Added writer: Displacement."));
     }
@@ -134,7 +138,7 @@ void preciceAdapter::FSI::FluidStructureInteraction::addWriters(std::string data
       interface->addCouplingDataWriter
           (
               dataName,
-              new Stress(mesh_, runTime_.timeName(), solverType_) /* TODO: Add any other arguments here */
+              new Stress(mesh_, solverType_) /* TODO: Add any other arguments here */
               );
       DEBUG(adapterInfo("Added writer: Stress."));
     }
@@ -153,7 +157,7 @@ void preciceAdapter::FSI::FluidStructureInteraction::addReaders(std::string data
         interface->addCouplingDataReader
         (
             dataName,
-            new Force(mesh_, runTime_.timeName(), solverType_) /* TODO: Add any other arguments here */
+            new Force(mesh_, solverType_) /* TODO: Add any other arguments here */
         );
         DEBUG(adapterInfo("Added reader: Force."));
     }
@@ -162,7 +166,7 @@ void preciceAdapter::FSI::FluidStructureInteraction::addReaders(std::string data
         interface->addCouplingDataReader
         (
             dataName,
-            new DisplacementDelta(mesh_, namePointDisplacement_)
+            new DisplacementDelta(mesh_, namePointDisplacement_, nameCellDisplacement_)
         );
         DEBUG(adapterInfo("Added reader: DisplacementDelta."));
     }
@@ -171,7 +175,7 @@ void preciceAdapter::FSI::FluidStructureInteraction::addReaders(std::string data
         interface->addCouplingDataReader
         (
             dataName,
-            new Displacement(mesh_, namePointDisplacement_)
+            new Displacement(mesh_, namePointDisplacement_, nameCellDisplacement_)
         );
         DEBUG(adapterInfo("Added reader: Displacement."));
     }
@@ -180,7 +184,7 @@ void preciceAdapter::FSI::FluidStructureInteraction::addReaders(std::string data
       interface->addCouplingDataReader
           (
               dataName,
-              new Stress(mesh_, runTime_.timeName(), solverType_) /* TODO: Add any other arguments here */
+              new Stress(mesh_, solverType_) /* TODO: Add any other arguments here */
               );
       DEBUG(adapterInfo("Added reader: Stress."));
     }
