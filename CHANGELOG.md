@@ -2,6 +2,10 @@
 
 For more details, look at the [merged pull requests](https://github.com/precice/openfoam-adapter/pulls?q=is%3Apr+is%3Amerged).
 
+## develop
+
+- Added GitHub actions to build the adapter with OpenFOAM v2012 and to check shell scripts.
+
 ## 2021-04-15
 
 - Moved the wiki pages into the `docs/` folder here. These pages are now rendered in the [new adapter documentation](https://precice.org/adapter-openfoam-overview.html).
