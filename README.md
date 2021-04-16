@@ -1,12 +1,12 @@
 # OpenFOAM-preCICE adapter
 
 [![Build with OpenFOAM v2012](https://github.com/precice/openfoam-adapter/actions/workflows/build.yml/badge.svg?branch=develop)](https://github.com/precice/openfoam-adapter/actions/workflows/build.yml)
-<!-- <a style="text-decoration: none" href="https://travis-ci.org/precice/openfoam-adapter" target="_blank">
-    <img src="https://travis-ci.org/precice/openfoam-adapter.svg?branch=master" alt="Build status">
-</a> -->
 <a style="text-decoration: none" href="https://github.com/precice/openfoam-adapter/blob/master/LICENSE" target="_blank">
     <img src="https://img.shields.io/github/license/precice/openfoam-adapter.svg" alt="GNU GPL license">
 </a>
+<!-- <a style="text-decoration: none" href="https://travis-ci.org/precice/openfoam-adapter" target="_blank">
+    <img src="https://travis-ci.org/precice/openfoam-adapter.svg?branch=master" alt="Build status">
+</a> -->
 
 ## Start here
 
