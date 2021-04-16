@@ -3,9 +3,6 @@ on: [push, pull_request]
 jobs:
   build:
     runs-on: ubuntu-20.04
-    defaults:
-      run:
-        shell: "bash -eo pipefail {0}"
     steps:
       - name: Install OpenFOAM v2012
         run: |
@@ -18,6 +15,4 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v2
       - name: Build OpenFOAM-preCICE adapter
-        run: |
-          bash -c ". /usr/lib/openfoam/openfoam2012/etc/bashrc"
-          ./Allwmake
+        run: /usr/bin/openfoam2012 ./Allwmake
