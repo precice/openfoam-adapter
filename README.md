@@ -8,6 +8,8 @@
     <img src="https://travis-ci.org/precice/openfoam-adapter.svg?branch=master" alt="Build status">
 </a> -->
 
+As of April 2021, `precice/openfoam-adapter` is actively developed. Current maintainers: [@MakisH](https://github.com/MakisH/) and [@DavidSCN](https://github.com/DavidSCN). Have a look at open [good first issues](https://github.com/precice/openfoam-adapter/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22) and [where we need help](https://github.com/precice/openfoam-adapter/issues?q=is%3Aopen+is%3Aissue+label%3A%22help+wanted%22).
+
 ## Start here
 
 See the [adapter documentation](https://precice.org/adapter-openfoam-overview.html) and related [tutorials](https://precice.org/tutorials.html).
