@@ -12,6 +12,7 @@ This preCICE adapter is a plug-in (function object) for OpenFOAM, which can work
 ## What can it do?
 
 This adapter can read/write the following fields:
+
 - Temperature (read + write)
 - Heat flux (read + write)
 - Sink temperature (read + write)
@@ -42,9 +43,11 @@ our [training session from the 15th OpenFOAM Workshop](https://mediatum.ub.tum.d
 ## Cite
 
 We are currently working on an up-to-date reference paper. Until then, please cite this adapter using [1]:
-```
+
+```text
 Gerasimos Chourdakis. A general OpenFOAM adapter for the coupling library preCICE. Master's thesis, Department of Informatics, Technical University of Munich, 2017.
 ```
+
 For CHT-specific topics, you may want to additionally look into [2] and for FSI into [3].
 
 ### Related literature
@@ -55,8 +58,4 @@ For CHT-specific topics, you may want to additionally look into [2] and for FSI 
 
 [3] Derek Risseeuw. [Fluid Structure Interaction Modelling of Flapping Wings](https://repository.tudelft.nl/islandora/object/uuid:70beddde-e870-4c62-9a2f-8758b4e49123). Master's thesis, Faculty of Aerospace Engineering, Delft University of Technology, 2019.
 
-
 {% include disclaimer.html content="This offering is not approved or endorsed by OpenCFD Limited, producer and distributor of the OpenFOAM software via www.openfoam.com, and owner of the OPENFOAM®  and OpenCFD®  trade marks." %}
-
-
-

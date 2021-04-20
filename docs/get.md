@@ -7,11 +7,8 @@ summary: "Get the code from GitHub and run ./Allwmake. If this fails, look into 
 
 To build the adapter, you need to install a few dependencies and then execute the `Allwmake` script.
 
-## Dependencies
 1. Install [a compatible OpenFOAM distribution](adapter-openfoam-support.html).
-2. Install [preCICE](installation-overview.html)
-
-## Adapter
+2. Install [preCICE](installation-overview.html).
 3. [Download](https://github.com/precice/openfoam-adapter/archive/master.zip) the adapter _or_ (better) install [git](https://git-scm.com/) and clone this repository: `git clone https://github.com/precice/openfoam-adapter.git`.
     * [Depending on your OpenFOAM version](adapter-openfoam-support.html), you may need to change to a different git branch.
 4. Execute the build script: `./Allwmake`.
@@ -40,7 +37,7 @@ The most important information in these files is the `-I` and `-L` flags used du
 
 If in the beginning of the simulation you get the following warning:
 
-```
+```text
 Starting time loop
 
  --> FOAM Warning :
