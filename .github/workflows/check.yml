@@ -10,3 +10,5 @@ jobs:
         uses: ludeeus/action-shellcheck@master
       - name: Lint markdown files (mdl)
         uses: actionshub/markdownlint@main
+      - name: Check links in markdown files (markdown-link-check)
+        uses: gaurav-nelson/github-action-markdown-link-check@v1
