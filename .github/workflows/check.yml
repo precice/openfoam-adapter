@@ -1,4 +1,4 @@
-name: Check
+name: Checks
 on: [push, pull_request]
 jobs:
   check:
@@ -8,5 +8,9 @@ jobs:
         uses: actions/checkout@v2
       - name: Lint shell scripts (shellcheck)
         uses: ludeeus/action-shellcheck@master
+      - name: Lint markdown files (markdownlint-cli)
+        uses: docker://avtodev/markdown-lint:v1
+        with:
+          args: '.'
       - name: Check links in markdown files (markdown-link-check)
         uses: gaurav-nelson/github-action-markdown-link-check@v1
