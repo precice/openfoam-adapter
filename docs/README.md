@@ -7,11 +7,12 @@ summary: An OpenFOAM function object for CHT, FSI, and fluid-fluid coupled simul
 
 ## What is this?
 
-This preCICE adapter is a plug-in (function object) for OpenFOAM, which can work with any recent version of OpenFOAM (.com / .org, see [supported OpenFOAM versions](adapter-openfoam-support.html)). It supports fluid-structure interaction (fluid part), conjugate heat transfer (fluid and solid parts), and fluid-fluid simulations, while it is also easily extensible.
+This preCICE adapter is a plug-in (function object) for OpenFOAM, which can work with any recent version of OpenFOAM (.com / .org, see [supported OpenFOAM versions](https://precice.org/adapter-openfoam-support.html)). It supports fluid-structure interaction (fluid part), conjugate heat transfer (fluid and solid parts), and fluid-fluid simulations, while it is also easily extensible.
 
 ## What can it do?
 
 This adapter can read/write the following fields:
+
 - Temperature (read + write)
 - Heat flux (read + write)
 - Sink temperature (read + write)
@@ -29,7 +30,7 @@ All features of preCICE are supported, including implicit coupling and nearest-p
 
 ## Try
 
-Here you will find how to [get the adapter](adapter-openfoam-get.html), how to [configure](adapter-openfoam.config.html) a case, how to [extend the adapter](adapter-openfoam-extend.html) to cover additional features, as well as a few notes on [supported OpenFOAM versions](adapter-openfoam-support.html).
+Here you will find how to [get the adapter](https://precice.org/adapter-openfoam-get.html), how to [configure](https://precice.org/adapter-openfoam-config.html) a case, how to [extend the adapter](https://precice.org/adapter-openfoam-extend.html) to cover additional features, as well as a few notes on [supported OpenFOAM versions](https://precice.org/adapter-openfoam-support.html).
 
 ## Learn
 
@@ -42,9 +43,11 @@ our [training session from the 15th OpenFOAM Workshop](https://mediatum.ub.tum.d
 ## Cite
 
 We are currently working on an up-to-date reference paper. Until then, please cite this adapter using [1]:
-```
+
+```text
 Gerasimos Chourdakis. A general OpenFOAM adapter for the coupling library preCICE. Master's thesis, Department of Informatics, Technical University of Munich, 2017.
 ```
+
 For CHT-specific topics, you may want to additionally look into [2] and for FSI into [3].
 
 ### Related literature
@@ -55,8 +58,4 @@ For CHT-specific topics, you may want to additionally look into [2] and for FSI 
 
 [3] Derek Risseeuw. [Fluid Structure Interaction Modelling of Flapping Wings](https://repository.tudelft.nl/islandora/object/uuid:70beddde-e870-4c62-9a2f-8758b4e49123). Master's thesis, Faculty of Aerospace Engineering, Delft University of Technology, 2019.
 
-
 {% include disclaimer.html content="This offering is not approved or endorsed by OpenCFD Limited, producer and distributor of the OpenFOAM software via www.openfoam.com, and owner of the OPENFOAM®  and OpenCFD®  trade marks." %}
-
-
-

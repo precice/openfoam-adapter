@@ -1,4 +1,4 @@
-name: Check
+name: Lint scripts and docs
 on: [push, pull_request]
 jobs:
   check:
@@ -6,5 +6,17 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v2
-      - name: Run ShellCheck
+      - name: Lint shell scripts (shellcheck)
         uses: ludeeus/action-shellcheck@master
+      - name: Lint markdown files (markdownlint)
+        uses: articulate/actions-markdownlint@v1
+        with:
+          config: .markdownlint.json
+          files: '.'
+          ignore: changelog-entries
+      - name: Check links in markdown files (markdown-link-check)
+        uses: gaurav-nelson/github-action-markdown-link-check@v1
+        with:
+          use-quiet-mode: 'yes'
+          use-verbose-mode: 'no'
+          config-file: '.markdown-link-check-config.json'

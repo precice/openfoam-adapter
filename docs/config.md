@@ -6,16 +6,16 @@ summary: "Write a system/preciceDict, set compatible boundary conditions, and ac
 ---
 
 In order to run a coupled simulation, you need to:
-1. prepare a preCICE configuration file (described in the [preCICE configuration](configuration-overview.html)),
+
+1. prepare a preCICE configuration file (described in the [preCICE configuration](https://www.precice.org/configuration-overview.html)),
 2. prepare an adapter's configuration file,
 3. set the coupling boundaries in the OpenFOAM case,
 4. load the adapter, and
 5. start all the solvers normally, from the same directory, e.g. in two different terminals.
 
-If you prefer, you may find an already prepared case in the [tutorials/](https://github.com/precice/openfoam-adapter/tree/master/tutorials) directory. See also the description of this case in our [Tutorial for CHT: Flow over a heated plate](tutorials-flow-over-heated-plate.html).
+If you prefer, you may find an already prepared case in our [Tutorial for CHT: Flow over a heated plate](https://precice.org/tutorials-flow-over-heated-plate.html).
 
 You may skip the section _"Advanced configuration"_ in the beginning, as it only concerns special cases. You may also find more details in the [Pull Request #105](https://github.com/precice/openfoam-adapter/pull/105), especially for changes regarding the previous, yaml-based configuration format.
-
 
 ## The adapter's configuration file
 
@@ -77,6 +77,7 @@ can be `Temperature`, `Heat-Flux`, `Sink-Temperature`,
 or `Heat-Transfer-Coefficient`. Values like `Sink-Temperature-Domain1` are also allowed.
 For a Dirichlet-Neumann coupling, the `writeData` and `readData` can be
 either:
+
 ```c++
 readData
 (
@@ -88,7 +89,9 @@ writeData
   Temperature
 );
 ```
+
 or:
+
 ```c++
 readData
 (
@@ -100,7 +103,9 @@ writeData
   Heat-Flux
 );
 ```
+
 For a Robin-Robin coupling, we need to write and read both of `Sink-Temperature` and `Heat-Transfer-Coefficient`:
+
 ```c++
 readData
 (
@@ -135,6 +140,7 @@ Read the [OpenFOAM User Guide](https://www.openfoam.com/documentation/user-guide
 * For `readData(Temperature)`, use `type fixedValue` for the `interface` in `0/T`.
 OpenFOAM requires that you also give a (redundant) `value`, but the adapter
 will overwrite it. ParaView uses this value for the initial time. As a placeholder, you can e.g. use the value from the `internalField`.
+
 ```c++
 interface
 {
@@ -145,6 +151,7 @@ interface
 
 * For `readData(Heat-Flux)`, use `type fixedGradient` for the `interface` in `0/T`.
 OpenFOAM requires that you also give a (redundant) `gradient`, but the adapter will overwrite it.
+
 ```c++
 interface
 {
@@ -152,9 +159,11 @@ interface
     gradient        0;
 }
 ```
+
 * For `readData(Sink-Temperature)` or `Heat-Transfer-Coefficient`, use
 `type mixed` for the `interface` in `0/T`. OpenFOAM requires that you also give (redundant) values for
 `refValue`, `refGradient`, and `valueFraction`, but the adapter will overwrite them.
+
 ```c++
 interface
 {
@@ -168,9 +177,9 @@ interface
 #### FSI
 
 * For `readData(Displacement)` or `DisplacementDelta`, you need the following:
-   * `type movingWallVelocity` for the interface (e.g. `flap`) in `0/U`,
-   * `type fixedValue` for the interface (e.g. `flap`) in the `0/pointDisplacement`, and
-   * `solver displacementLaplacian` in the `constant/dynamicMeshDict`.
+  * `type movingWallVelocity` for the interface (e.g. `flap`) in `0/U`,
+  * `type fixedValue` for the interface (e.g. `flap`) in the `0/pointDisplacement`, and
+  * `solver displacementLaplacian` in the `constant/dynamicMeshDict`.
 
 ```c++
 // File 0/U
@@ -193,8 +202,6 @@ motionSolverLibs    ("libfvMotionSolvers.so");
 solver              displacementLaplacian;
 ```
 
-
-
 ### Load the adapter
 
 To load this adapter, you must include the following in
@@ -210,6 +217,7 @@ functions
     }
 }
 ```
+
 This directs the solver to use the `preciceAdapterFunctionObject` function object,
 which is part of the `libpreciceAdapterFunctionObject.so` shared library.
 The name `preCICE_Adapter` can be arbitrary.
@@ -221,7 +229,8 @@ The name `preCICE_Adapter` can be arbitrary.
 These additional parameters may only concern some users is special cases. Keep reading if you want to use nearest-projection mapping, an incompressible or basic (e.g. laplacianFoam) solver, if you are using a solver with different variable names (e.g. a multiphase solver) or if you are trying to debug a simulation.
 
 ### Nearest-projection mapping
-An example for for nearest-projection mapping is provided in the [nearest-projection tutorial case](tutorials-flow-over-heated-plate-nearest-projection.html). The [preCICE documentation](couple-your-code-defining-mesh-connectivity.html) contains a detailed description of nearest-projection mappings in preCICE. In summary, we need to explicitly enable the `connectivity` option to create edges between the interface mesh points and give them to preCICE:
+
+An example for for nearest-projection mapping is provided in the [nearest-projection tutorial case](https://precice.org/tutorials-flow-over-heated-plate-nearest-projection.html). The [preCICE documentation](https://precice.org/couple-your-code-defining-mesh-connectivity.html) contains a detailed description of nearest-projection mappings in preCICE. In summary, we need to explicitly enable the `connectivity` option to create edges between the interface mesh points and give them to preCICE:
 
 ```c++
 interfaces
@@ -247,6 +256,7 @@ interfaces
   };
 };
 ```
+
 This `connectivity` boolean is optional and defaults to `false`. Note that `connectivity true` can only be used with `locations faceNodes`.
 
 Even if the coupling data is associated to `faceCenters` in the solver, we can select `faceNodes` as locations type: the respective data will be interpolated from faces to nodes. Also, connectivity is only needed and supported for `writeData`. Therefore, we need to split the interface in a "read" and a "write" part, as shown above.
@@ -254,6 +264,7 @@ Even if the coupling data is associated to `faceCenters` in the solver, we can s
 More details about the rationale are given in the following section.
 
 #### Adapter Implementation
+
 Since OpenFOAM is a finite-volume based solver, data is located in the middle of the cell, or on the cell face centers for a coupling interface. Mesh connectivity can be given to preCICE using the methods `setMeshTriangle` and `setMeshEdge`. Using the face centers as arguments for these methods is cumbersome. The main reason is that, although OpenFOAM decomposes the mesh for parallel simulations and distributes the subdomains to different processes, mesh connectivity needs to be defined over the partitioned mesh boundaries. This problem vanishes if we define mesh connectivity based on the face nodes, since boundary nodes can be shared among processors. Therefore, mesh connectivity can only be provided on the face nodes (not on the face centers).
 
 As described already, the data is not stored on the face nodes, but on the face centers. Therefore, we use OpenFOAM functions to interpolate from face centers to face nodes. The following image illustrates the workflow:
@@ -275,6 +286,7 @@ Some solvers may not read all the material properties that are required for a co
 For conjugate heat transfer, the adapter assumes that a solver belongs to one of the following categories: _compressible_, _incompressible_, or _basic_. Most of the solvers belong in the _compressible_ category and do not need any additional information. The other two need one or two extra parameters, in order to compute the heat flux.
 
 For **incompressible solvers** (like the buoyantBoussinesqPimpleFoam), you need to add the density and the specific heat in a `CHT` subdictionary of `preciceDict`. For example:
+
 ```c++
 CHT
 {
@@ -284,12 +296,14 @@ CHT
 ```
 
 For **basic solvers** (like the laplacianFoam), you need to add a constant conductivity:
+
 ```c++
 CHT
 {
     k   [ 1  1 -3 -1 0 0 0 ] 100;
 };
 ```
+
 The value of `k` is connected to the one of `DT` (set in `constant/transportProperties`)
 and depends on the density (`rho [ 1 -3  0  0 0 0 0 ]`) and heat capacity (`Cp  [ 0  2 -2 -1 0 0 0 ]`). The relation between them is `DT = k / rho / Cp`.
 
@@ -298,10 +312,12 @@ and depends on the density (`rho [ 1 -3  0  0 0 0 0 ]`) and heat capacity (`Cp  
 The adapter's FSI functionality supports both compressible and incompressible solvers.
 
 For incompressible solvers, it tries to read uniform values for the density and kinematic viscosity (if it is not already available) from the `FSI` subdictionary of `preciceDict`:
+
 ```c++
 nu              nu [ 0 2 -1 0 0 0 0 ] 1e-03;
 rho             rho [1 -3 0 0 0 0 0] 1;
 ```
+
 Notice that here, in contrast to the `CHT` subdict, we need to provide both the keyword (first `nu`) and the word name (second `nu`). We are working on bringing consistency on this.
 
 ### Additional parameters in the adapter's configuration file
@@ -355,7 +371,7 @@ CHT
 The adapter also recognizes a few more parameters, which are mainly used in debugging or development.
 These are optional and expect a `true` or a `false` value. Some or all of these options may be removed in the future.
 
-The user can toggle debug messages at [build time](adapter-openfoam-get.html).
+The user can toggle debug messages at [build time](https://precice.org/adapter-openfoam-get.html).
 
 ## Coupling OpenFOAM with 2D solvers
 
