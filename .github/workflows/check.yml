@@ -11,7 +11,7 @@ jobs:
       - name: Lint markdown files (markdownlint)
         uses: articulate/actions-markdownlint@v1
         with:
-          config: markdownlint.json
+          config: .markdownlint.json
           files: '.'
           ignore: changelog-entries
       - name: Check links in markdown files (markdown-link-check)
