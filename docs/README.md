@@ -7,7 +7,7 @@ summary: An OpenFOAM function object for CHT, FSI, and fluid-fluid coupled simul
 
 ## What is this?
 
-This preCICE adapter is a plug-in (function object) for OpenFOAM, which can work with any recent version of OpenFOAM (.com / .org, see [supported OpenFOAM versions](adapter-openfoam-support.html)). It supports fluid-structure interaction (fluid part), conjugate heat transfer (fluid and solid parts), and fluid-fluid simulations, while it is also easily extensible.
+This preCICE adapter is a plug-in (function object) for OpenFOAM, which can work with any recent version of OpenFOAM (.com / .org, see [supported OpenFOAM versions](https://precice.org/adapter-openfoam-support.html)). It supports fluid-structure interaction (fluid part), conjugate heat transfer (fluid and solid parts), and fluid-fluid simulations, while it is also easily extensible.
 
 ## What can it do?
 
@@ -30,7 +30,7 @@ All features of preCICE are supported, including implicit coupling and nearest-p
 
 ## Try
 
-Here you will find how to [get the adapter](adapter-openfoam-get.html), how to [configure](adapter-openfoam.config.html) a case, how to [extend the adapter](adapter-openfoam-extend.html) to cover additional features, as well as a few notes on [supported OpenFOAM versions](adapter-openfoam-support.html).
+Here you will find how to [get the adapter](https://precice.org/adapter-openfoam-get.html), how to [configure](adapter-openfoam.config.html) a case, how to [extend the adapter](https://precice.org/adapter-openfoam-extend.html) to cover additional features, as well as a few notes on [supported OpenFOAM versions](https://precice.org/adapter-openfoam-support.html).
 
 ## Learn
 

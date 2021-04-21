@@ -7,13 +7,13 @@ summary: "Write a system/preciceDict, set compatible boundary conditions, and ac
 
 In order to run a coupled simulation, you need to:
 
-1. prepare a preCICE configuration file (described in the [preCICE configuration](configuration-overview.html)),
+1. prepare a preCICE configuration file (described in the [preCICE configuration](https://www.precice.org/configuration-overview.html)),
 2. prepare an adapter's configuration file,
 3. set the coupling boundaries in the OpenFOAM case,
 4. load the adapter, and
 5. start all the solvers normally, from the same directory, e.g. in two different terminals.
 
-If you prefer, you may find an already prepared case in the [tutorials/](https://github.com/precice/openfoam-adapter/tree/master/tutorials) directory. See also the description of this case in our [Tutorial for CHT: Flow over a heated plate](tutorials-flow-over-heated-plate.html).
+If you prefer, you may find an already prepared case in our [Tutorial for CHT: Flow over a heated plate](https://precice.org/tutorials-flow-over-heated-plate.html).
 
 You may skip the section _"Advanced configuration"_ in the beginning, as it only concerns special cases. You may also find more details in the [Pull Request #105](https://github.com/precice/openfoam-adapter/pull/105), especially for changes regarding the previous, yaml-based configuration format.
 
@@ -230,7 +230,7 @@ These additional parameters may only concern some users is special cases. Keep r
 
 ### Nearest-projection mapping
 
-An example for for nearest-projection mapping is provided in the [nearest-projection tutorial case](tutorials-flow-over-heated-plate-nearest-projection.html). The [preCICE documentation](couple-your-code-defining-mesh-connectivity.html) contains a detailed description of nearest-projection mappings in preCICE. In summary, we need to explicitly enable the `connectivity` option to create edges between the interface mesh points and give them to preCICE:
+An example for for nearest-projection mapping is provided in the [nearest-projection tutorial case](https://precice.org/tutorials-flow-over-heated-plate-nearest-projection.html). The [preCICE documentation](https://precice.org/couple-your-code-defining-mesh-connectivity.html) contains a detailed description of nearest-projection mappings in preCICE. In summary, we need to explicitly enable the `connectivity` option to create edges between the interface mesh points and give them to preCICE:
 
 ```c++
 interfaces
@@ -371,7 +371,7 @@ CHT
 The adapter also recognizes a few more parameters, which are mainly used in debugging or development.
 These are optional and expect a `true` or a `false` value. Some or all of these options may be removed in the future.
 
-The user can toggle debug messages at [build time](adapter-openfoam-get.html).
+The user can toggle debug messages at [build time](https://precice.org/adapter-openfoam-get.html).
 
 ## Coupling OpenFOAM with 2D solvers
 

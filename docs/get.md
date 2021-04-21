@@ -7,10 +7,10 @@ summary: "Get the code from GitHub and run ./Allwmake. If this fails, look into 
 
 To build the adapter, you need to install a few dependencies and then execute the `Allwmake` script.
 
-1. Install [a compatible OpenFOAM distribution](adapter-openfoam-support.html).
-2. Install [preCICE](installation-overview.html).
+1. Install [a compatible OpenFOAM distribution](https://precice.org/adapter-openfoam-support.html).
+2. Install [preCICE](https://precice.org/installation-overview.html).
 3. [Download](https://github.com/precice/openfoam-adapter/archive/master.zip) the adapter _or_ (better) install [git](https://git-scm.com/) and clone this repository: `git clone https://github.com/precice/openfoam-adapter.git`.
-    * [Depending on your OpenFOAM version](adapter-openfoam-support.html), you may need to change to a different git branch.
+    * [Depending on your OpenFOAM version](https://precice.org/adapter-openfoam-support.html), you may need to change to a different git branch.
 4. Execute the build script: `./Allwmake`.
     * See and adjust the configuration in the beginning of the script first, if needed.
     * Check for any error messages and suggestions at the end.
@@ -20,7 +20,7 @@ The `-DADAPTER_DEBUG_MODE` flag inside `ADAPTER_PREP_FLAGS` activates additional
 
 In order to upgrade the adapter, or before you build for another OpenFOAM version, run `./Allclean` first. Get the latest version using `git pull`.
 
-Next: [configure and load the adapter](adapter-openfoam-config.html) or [run a tutorial](tutorials.html).
+Next: [configure and load the adapter](https://precice.org/adapter-openfoam-config.html) or [run a tutorial](https://precice.org/tutorials.html).
 
 ## Troubleshooting
 
@@ -70,7 +70,7 @@ This is an info/warning message that is printed when WMake tries to distinguish 
 
 ### A header file cannot be found (during compilation)
 
-This is a common problem e.g. when installing dependencies in non-system directories. Have a look in the page [linking to preCICE](installation-linking.html).
+This is a common problem e.g. when installing dependencies in non-system directories. Have a look in the page [linking to preCICE](https://precice.org/installation-linking.html).
 
 ### Rellocation-related errors
 
