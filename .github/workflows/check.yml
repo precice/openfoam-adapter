@@ -8,9 +8,10 @@ jobs:
         uses: actions/checkout@v2
       - name: Lint shell scripts (shellcheck)
         uses: ludeeus/action-shellcheck@master
-      - name: Lint markdown files (markdownlint-cli)
-        uses: docker://avtodev/markdown-lint:v1
+      - name: Lint markdown files (markdownlint)
+        uses: articulate/actions-markdownlint@v1
         with:
-          args: '.'
+          config: markdownlint.json
+          files: '.'
       - name: Check links in markdown files (markdown-link-check)
         uses: gaurav-nelson/github-action-markdown-link-check@v1
