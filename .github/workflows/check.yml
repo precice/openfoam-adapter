@@ -19,4 +19,4 @@ jobs:
         with:
           use-quiet-mode: 'yes'
           use-verbose-mode: 'no'
-          aliveStatusCodes: '429'
+          aliveStatusCodes: '[429]'
