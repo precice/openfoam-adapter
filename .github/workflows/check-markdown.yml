@@ -1,13 +1,11 @@
-name: Lint scripts and docs
+name: Lint docs and check links
 on: [push, pull_request]
 jobs:
-  check:
+  check_md:
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
         uses: actions/checkout@v2
-      - name: Lint shell scripts (shellcheck)
-        uses: ludeeus/action-shellcheck@master
       - name: Lint markdown files (markdownlint)
         uses: articulate/actions-markdownlint@v1
         with:
