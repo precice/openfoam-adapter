@@ -4,15 +4,13 @@
 
 using namespace Foam;
 
-preciceAdapter::FSI::FluidStructureInteraction::FluidStructureInteraction
-(
+preciceAdapter::FSI::FluidStructureInteraction::FluidStructureInteraction(
     const Foam::fvMesh& mesh,
-    const Foam::Time& runTime
-)
-:
-mesh_(mesh),
-runTime_(runTime)
-{}
+    const Foam::Time& runTime)
+: mesh_(mesh),
+  runTime_(runTime)
+{
+}
 
 bool preciceAdapter::FSI::FluidStructureInteraction::configure(const IOdictionary& adapterConfig)
 {
@@ -26,9 +24,7 @@ bool preciceAdapter::FSI::FluidStructureInteraction::configure(const IOdictionar
     // addWriters() and addReaders().
     // Check the solver type and determine it if needed
     if (
-        solverType_.compare("compressible") == 0 ||
-        solverType_.compare("incompressible") == 0
-    )
+        solverType_.compare("compressible") == 0 || solverType_.compare("incompressible") == 0)
     {
         DEBUG(adapterInfo("Known solver type: " + solverType_));
     }
@@ -49,7 +45,7 @@ bool preciceAdapter::FSI::FluidStructureInteraction::configure(const IOdictionar
 bool preciceAdapter::FSI::FluidStructureInteraction::readConfig(const IOdictionary& adapterConfig)
 {
     const dictionary FSIdict = adapterConfig.subOrEmptyDict("FSI");
-  
+
     // Read the solver type (if not specified, it is determined automatically)
     solverType_ = FSIdict.lookupOrDefault<word>("solverType", "");
     DEBUG(adapterInfo("    user-defined solver type : " + solverType_));
@@ -82,21 +78,21 @@ std::string preciceAdapter::FSI::FluidStructureInteraction::determineSolverType(
 
     if (mesh_.foundObject<volScalarField>("p"))
     {
-      volScalarField p_ = mesh_.lookupObject<volScalarField>("p");
+        volScalarField p_ = mesh_.lookupObject<volScalarField>("p");
 
-      if (p_.dimensions() == pressureDimensionsCompressible)
-        solverType = "compressible";
-      else if (p_.dimensions() == pressureDimensionsIncompressible)
-        solverType = "incompressible";
+        if (p_.dimensions() == pressureDimensionsCompressible)
+            solverType = "compressible";
+        else if (p_.dimensions() == pressureDimensionsIncompressible)
+            solverType = "incompressible";
     }
 
     if (solverType == "unknown")
-      adapterInfo("Failed to determine the solver type. "
-                  "Please specify your solver type in the FSI section of the "
-                  "preciceDict. Known solver types for FSI are: "
-                  "incompressible and "
-                  "compressible",
-                  "error");
+        adapterInfo("Failed to determine the solver type. "
+                    "Please specify your solver type in the FSI section of the "
+                    "preciceDict. Known solver types for FSI are: "
+                    "incompressible and "
+                    "compressible",
+                    "error");
 
     DEBUG(adapterInfo("Automatically determined solver type : " + solverType));
 
@@ -104,43 +100,37 @@ std::string preciceAdapter::FSI::FluidStructureInteraction::determineSolverType(
 }
 
 
-void preciceAdapter::FSI::FluidStructureInteraction::addWriters(std::string dataName, Interface * interface)
+void preciceAdapter::FSI::FluidStructureInteraction::addWriters(std::string dataName, Interface* interface)
 {
     if (dataName.find("Force") == 0)
-    {        
-            interface->addCouplingDataWriter
-            (
-                dataName,
-                new Force(mesh_, solverType_) /* TODO: Add any other arguments here */
-            );
-            DEBUG(adapterInfo("Added writer: Force."));        
-    }    
+    {
+        interface->addCouplingDataWriter(
+            dataName,
+            new Force(mesh_, solverType_) /* TODO: Add any other arguments here */
+        );
+        DEBUG(adapterInfo("Added writer: Force."));
+    }
     else if (dataName.find("DisplacementDelta") == 0)
     {
-        interface->addCouplingDataWriter
-        (
+        interface->addCouplingDataWriter(
             dataName,
-            new DisplacementDelta(mesh_, namePointDisplacement_, nameCellDisplacement_)
-        );
+            new DisplacementDelta(mesh_, namePointDisplacement_, nameCellDisplacement_));
         DEBUG(adapterInfo("Added writer: DisplacementDelta."));
     }
     else if (dataName.find("Displacement") == 0)
     {
-        interface->addCouplingDataWriter
-        (
+        interface->addCouplingDataWriter(
             dataName,
-            new Displacement(mesh_, namePointDisplacement_, nameCellDisplacement_)
-        );
+            new Displacement(mesh_, namePointDisplacement_, nameCellDisplacement_));
         DEBUG(adapterInfo("Added writer: Displacement."));
     }
-    else if(dataName.find("Stress") == 0)
+    else if (dataName.find("Stress") == 0)
     {
-      interface->addCouplingDataWriter
-          (
-              dataName,
-              new Stress(mesh_, solverType_) /* TODO: Add any other arguments here */
-              );
-      DEBUG(adapterInfo("Added writer: Stress."));
+        interface->addCouplingDataWriter(
+            dataName,
+            new Stress(mesh_, solverType_) /* TODO: Add any other arguments here */
+        );
+        DEBUG(adapterInfo("Added writer: Stress."));
     }
 
     // NOTE: If you want to couple another variable, you need
@@ -150,12 +140,11 @@ void preciceAdapter::FSI::FluidStructureInteraction::addWriters(std::string data
     // the one provided in the adapter's configuration file.
 }
 
-void preciceAdapter::FSI::FluidStructureInteraction::addReaders(std::string dataName, Interface * interface)
+void preciceAdapter::FSI::FluidStructureInteraction::addReaders(std::string dataName, Interface* interface)
 {
     if (dataName.find("Force") == 0)
     {
-        interface->addCouplingDataReader
-        (
+        interface->addCouplingDataReader(
             dataName,
             new Force(mesh_, solverType_) /* TODO: Add any other arguments here */
         );
@@ -163,30 +152,25 @@ void preciceAdapter::FSI::FluidStructureInteraction::addReaders(std::string data
     }
     else if (dataName.find("DisplacementDelta") == 0)
     {
-        interface->addCouplingDataReader
-        (
+        interface->addCouplingDataReader(
             dataName,
-            new DisplacementDelta(mesh_, namePointDisplacement_, nameCellDisplacement_)
-        );
+            new DisplacementDelta(mesh_, namePointDisplacement_, nameCellDisplacement_));
         DEBUG(adapterInfo("Added reader: DisplacementDelta."));
     }
     else if (dataName.find("Displacement") == 0)
     {
-        interface->addCouplingDataReader
-        (
+        interface->addCouplingDataReader(
             dataName,
-            new Displacement(mesh_, namePointDisplacement_, nameCellDisplacement_)
-        );
+            new Displacement(mesh_, namePointDisplacement_, nameCellDisplacement_));
         DEBUG(adapterInfo("Added reader: Displacement."));
     }
-    else if(dataName.find("Stress") == 0)
+    else if (dataName.find("Stress") == 0)
     {
-      interface->addCouplingDataReader
-          (
-              dataName,
-              new Stress(mesh_, solverType_) /* TODO: Add any other arguments here */
-              );
-      DEBUG(adapterInfo("Added reader: Stress."));
+        interface->addCouplingDataReader(
+            dataName,
+            new Stress(mesh_, solverType_) /* TODO: Add any other arguments here */
+        );
+        DEBUG(adapterInfo("Added reader: Stress."));
     }
 
     // NOTE: If you want to couple another variable, you need

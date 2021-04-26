@@ -15,26 +15,21 @@ class Temperature : public CouplingDataUser
 {
 
 private:
-
     //- Temperature field
-    Foam::volScalarField * T_;
+    Foam::volScalarField* T_;
     const Foam::fvMesh& mesh_;
 
 public:
-
     //- Constructor
-    Temperature
-    (
+    Temperature(
         const Foam::fvMesh& mesh,
-        const std::string nameT
-    );
+        const std::string nameT);
 
     //- Write the temperature values into the buffer
-    void write(double * buffer, bool meshConnectivity, const unsigned int dim);
+    void write(double* buffer, bool meshConnectivity, const unsigned int dim);
 
     //- Read the temperature values from the buffer
-    void read(double * buffer, const unsigned int dim);
-
+    void read(double* buffer, const unsigned int dim);
 };
 
 }

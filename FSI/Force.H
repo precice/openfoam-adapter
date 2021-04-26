@@ -12,24 +12,20 @@ namespace FSI
 class Force : public ForceBase
 {
 private:
-
     //- Force field
-    Foam::volVectorField * Force_;
+    Foam::volVectorField* Force_;
 
 public:
-
     //- Constructor
-    Force
-    (
+    Force(
         const Foam::fvMesh& mesh,
-        const std::string solverType
-    );
+        const std::string solverType);
 
     //- Write the forces values into the buffer
-    void write(double * buffer, bool meshConnectivity, const unsigned int dim);
+    void write(double* buffer, bool meshConnectivity, const unsigned int dim);
 
     //- Read the forces values from the buffer
-    void read(double * buffer, const unsigned int dim);
+    void read(double* buffer, const unsigned int dim);
 
     //- Returns the normal vectors multiplied by the face area
     Foam::vectorField getFaceVectors(const unsigned int patchID) const override;

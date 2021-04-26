@@ -16,9 +16,8 @@ class HeatFlux : public CouplingDataUser
 {
 
 protected:
-
     //- Temperature field
-    Foam::volScalarField * T_;
+    Foam::volScalarField* T_;
 
     const Foam::fvMesh& mesh_;
 
@@ -29,21 +28,19 @@ protected:
     virtual Foam::scalar getKappaEffAt(int i) = 0;
 
 public:
-
     //- Constructor
     HeatFlux(const Foam::fvMesh& mesh, const std::string nameT);
 
     //- Compute heat flux values from the temperature field
     //  and write them into the buffer
-    virtual void write(double * buffer, bool meshConnectivity, const unsigned int dim);
+    virtual void write(double* buffer, bool meshConnectivity, const unsigned int dim);
 
     //- Read heat flux values from the buffer and assign them to
     //  the gradient of the temperature field
-    virtual void read(double * buffer, const unsigned int dim);
+    virtual void read(double* buffer, const unsigned int dim);
 
     //- Destructor
-    virtual ~HeatFlux(){};
-
+    virtual ~HeatFlux() {};
 };
 
 //- Implementation of the HeatFlux for compresible, turbulent flow solvers
@@ -52,10 +49,9 @@ class HeatFlux_Compressible : public HeatFlux
 {
 
 protected:
-
     // Object that extracts the effective conductivity
     // (for compressible turbulent flow solvers)
-    KappaEff_Compressible * Kappa_;
+    KappaEff_Compressible* Kappa_;
 
     //- Wrapper for the extract() method of the corresponding KappaEff class
     virtual void extractKappaEff(uint patchID, bool meshConnectivity);
@@ -64,17 +60,13 @@ protected:
     virtual Foam::scalar getKappaEffAt(int i);
 
 public:
-
     //- Constructor
-    HeatFlux_Compressible
-    (
+    HeatFlux_Compressible(
         const Foam::fvMesh& mesh,
-        const std::string nameT
-    );
+        const std::string nameT);
 
     //- Destructor
     virtual ~HeatFlux_Compressible();
-
 };
 
 //- Implementation of the HeatFlux for incompresible, turbulent flow solvers
@@ -83,10 +75,9 @@ class HeatFlux_Incompressible : public HeatFlux
 {
 
 protected:
-
     // Object that computes the effective conductivity
     // (for incompressible turbulent flow solvers)
-    KappaEff_Incompressible * Kappa_;
+    KappaEff_Incompressible* Kappa_;
 
     //- Wrapper for the extract() method of the corresponding KappaEff class
     virtual void extractKappaEff(uint patchID, bool meshConnectivity);
@@ -95,21 +86,17 @@ protected:
     virtual Foam::scalar getKappaEffAt(int i);
 
 public:
-
     //- Constructor
-    HeatFlux_Incompressible
-    (
+    HeatFlux_Incompressible(
         const Foam::fvMesh& mesh,
         const std::string nameT,
         const std::string nameRho,
         const std::string nameCp,
         const std::string namePr,
-        const std::string nameAlphat
-    );
+        const std::string nameAlphat);
 
     //- Destructor
     virtual ~HeatFlux_Incompressible();
-
 };
 
 //- Implementation of the HeatFlux for basic solvers
@@ -118,10 +105,9 @@ class HeatFlux_Basic : public HeatFlux
 {
 
 protected:
-
     //- Object that extracts the effective conductivity
     // (for basic solvers)
-    KappaEff_Basic * Kappa_;
+    KappaEff_Basic* Kappa_;
 
     //- Wrapper for the extract() method of the corresponding KappaEff class
     virtual void extractKappaEff(uint patchID, bool meshConnectivity);
@@ -130,18 +116,14 @@ protected:
     virtual Foam::scalar getKappaEffAt(int i);
 
 public:
-
     //- Constructor
-    HeatFlux_Basic
-    (
+    HeatFlux_Basic(
         const Foam::fvMesh& mesh,
         const std::string nameT,
-        const std::string nameKappa
-    );
+        const std::string nameKappa);
 
     //- Destructor
     virtual ~HeatFlux_Basic();
-
 };
 
 }
