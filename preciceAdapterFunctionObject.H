@@ -75,38 +75,34 @@ namespace functionObjects
 \*---------------------------------------------------------------------------*/
 
 class preciceAdapterFunctionObject
-:
-    public fvMeshFunctionObject
+: public fvMeshFunctionObject
 {
     // Private data
 
-        //- Adapter's main class instance
-        preciceAdapter::Adapter adapter_;
+    //- Adapter's main class instance
+    preciceAdapter::Adapter adapter_;
 
     // Private Member Functions
 
-        //- Disallow default bitwise copy construct
-        preciceAdapterFunctionObject(const preciceAdapterFunctionObject&);
+    //- Disallow default bitwise copy construct
+    preciceAdapterFunctionObject(const preciceAdapterFunctionObject&);
 
-        //- Disallow default bitwise assignment
-        void operator=(const preciceAdapterFunctionObject&);
+    //- Disallow default bitwise assignment
+    void operator=(const preciceAdapterFunctionObject&);
 
 
 public:
-
     //- Runtime type information
     TypeName("preciceAdapterFunctionObject");
 
 
     // Constructors
 
-        //- Construct from Time and dictionary
-        preciceAdapterFunctionObject
-        (
-            const word& name,
-            const Time& runTime,
-            const dictionary& dict
-        );
+    //- Construct from Time and dictionary
+    preciceAdapterFunctionObject(
+        const word& name,
+        const Time& runTime,
+        const dictionary& dict);
 
 
     //- Destructor
@@ -115,20 +111,20 @@ public:
 
     // Member Functions
 
-        //- Read the preciceAdapterFunctionObject data
-        virtual bool read(const dictionary&);
+    //- Read the preciceAdapterFunctionObject data
+    virtual bool read(const dictionary&);
 
-        //- Execute in the beginning of each time-loop, after the first one
-        virtual bool execute();
+    //- Execute in the beginning of each time-loop, after the first one
+    virtual bool execute();
 
-        //- Execute at the final time-loop, after execute()
-        virtual bool end();
+    //- Execute at the final time-loop, after execute()
+    virtual bool end();
 
-        //- Write the preciceAdapterFunctionObject
-        virtual bool write();
+    //- Write the preciceAdapterFunctionObject
+    virtual bool write();
 
-        //- Called at the end of Time::adjustDeltaT() if adjustTime is true
-        virtual bool adjustTimeStep();
+    //- Called at the end of Time::adjustDeltaT() if adjustTime is true
+    virtual bool adjustTimeStep();
 
     /*
         // NOTE: If you add a new module that needs to execute methods
