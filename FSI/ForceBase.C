@@ -76,8 +76,7 @@ Foam::tmp<Foam::volScalarField> preciceAdapter::FSI::ForceBase::rho() const
                     IOobject::NO_READ,
                     IOobject::NO_WRITE),
                 mesh_,
-                dimensionedScalar(FSIDict.get<dimensionedScalar>("rho"))
-                ));
+                dimensionedScalar(FSIDict.get<dimensionedScalar>("rho"))));
     }
     else
     {
