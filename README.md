@@ -9,15 +9,21 @@
     <img src="https://travis-ci.org/precice/openfoam-adapter.svg?branch=master" alt="Build status">
 </a> -->
 
-As of April 2021, `precice/openfoam-adapter` is actively developed. Current maintainers: [@MakisH](https://github.com/MakisH/) and [@DavidSCN](https://github.com/DavidSCN). Have a look at open [good first issues](https://github.com/precice/openfoam-adapter/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22) and [where we need help](https://github.com/precice/openfoam-adapter/issues?q=is%3Aopen+is%3Aissue+label%3A%22help+wanted%22).
-
 ## Start here
 
 See the [adapter documentation](https://precice.org/adapter-openfoam-overview.html) and related [tutorials](https://precice.org/tutorials.html).
 
-Please [report any issues](https://github.com/precice/openfoam-adapter/issues) here and give us feedback through the [one of our community channels](https://precice.org/community-channels.html).
+Please [report any issues](https://github.com/precice/openfoam-adapter/issues) here and give us feedback through [one of our community channels](https://precice.org/community-channels.html).
+
+## Contributing
+
+We welcome contributions! Have a look at open [good first issues](https://github.com/precice/openfoam-adapter/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22) and [where we need help](https://github.com/precice/openfoam-adapter/issues?q=is%3Aopen+is%3Aissue+label%3A%22help+wanted%22).
+
+Check the file `CONTRIBUTING.md` for a few tips and guidelines.
 
 ## History
+
+This project is actively maintained on [precice/openfoam-adapter](https://github.com/precice/openfoam-adapter). Current maintainers: [@MakisH](https://github.com/MakisH/) and [@DavidSCN](https://github.com/DavidSCN).
 
 This adapter was developed as part of [Gerasimos Chourdakis' master's thesis](https://mediatum.ub.tum.de/1462269) [1].
 It is based on [previous work](https://github.com/ludcila/CHT-preCICE) by Lucia Cheung ([master's thesis](https://www5.in.tum.de/pub/Cheung2016_Thesis.pdf) [2], in cooperation with [SimScale](https://www.simscale.com/)).
