@@ -24,11 +24,13 @@ void preciceAdapter::FSI::DisplacementDelta::initialize()
     // Initialize appropriate objects for each interface patch, namely the volField and the interpolation object
     // this is only necessary for face based FSI
     if (this->locationsType_ == "faceCenters" || this->locationsType_ == "faceCentres")
+    {
         for (unsigned int j = 0; j < patchIDs_.size(); ++j)
         {
             const unsigned int patchID = patchIDs_.at(j);
             interpolationObjects_.emplace_back(new primitivePatchInterpolation(mesh_.boundaryMesh()[patchID]));
         }
+    }
 }
 
 

@@ -15,7 +15,10 @@ bool preciceAdapter::FF::FluidFluid::configure(const IOdictionary& adapterConfig
     DEBUG(adapterInfo("Configuring the FF module..."));
 
     // Read the FF-specific options from the adapter's configuration file
-    if (!readConfig(adapterConfig)) return false;
+    if (!readConfig(adapterConfig))
+    {
+        return false;
+    }
 
     // NOTE: If you want to add a new solver type, which you can manually
     // specify in the configuration, add it here. See also the methods

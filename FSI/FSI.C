@@ -17,7 +17,10 @@ bool preciceAdapter::FSI::FluidStructureInteraction::configure(const IOdictionar
     DEBUG(adapterInfo("Configuring the FSI module..."));
 
     // Read the FSI-specific options from the adapter's configuration file
-    if (!readConfig(adapterConfig)) return false;
+    if (!readConfig(adapterConfig))
+    {
+        return false;
+    }
 
     // NOTE: If you want to add a new solver type, which you can manually
     // specify in the configuration, add it here. See also the methods
@@ -81,18 +84,24 @@ std::string preciceAdapter::FSI::FluidStructureInteraction::determineSolverType(
         volScalarField p_ = mesh_.lookupObject<volScalarField>("p");
 
         if (p_.dimensions() == pressureDimensionsCompressible)
+        {
             solverType = "compressible";
+        }
         else if (p_.dimensions() == pressureDimensionsIncompressible)
+        {
             solverType = "incompressible";
+        }
     }
 
     if (solverType == "unknown")
+    {
         adapterInfo("Failed to determine the solver type. "
                     "Please specify your solver type in the FSI section of the "
                     "preciceDict. Known solver types for FSI are: "
                     "incompressible and "
                     "compressible",
                     "error");
+    }
 
     DEBUG(adapterInfo("Automatically determined solver type : " + solverType));
 

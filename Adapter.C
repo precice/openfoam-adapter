@@ -56,11 +56,19 @@ bool preciceAdapter::Adapter::configFileRead()
 
             // Set the modules switches
             if (module == "CHT")
+            {
                 CHTenabled_ = true;
+            }
+
             if (module == "FSI")
+            {
                 FSIenabled_ = true;
+            }
+
             if (module == "FF")
+            {
                 FFenabled_ = true;
+            }
         }
 
         // Every interface is a subdictionary of "interfaces",
@@ -141,7 +149,9 @@ bool preciceAdapter::Adapter::configFileRead()
         {
             CHT_ = new CHT::ConjugateHeatTransfer(mesh_);
             if (!CHT_->configure(preciceDict))
+            {
                 return false;
+            }
         }
 
         // If the FSI module is enabled, create it, read the
@@ -165,14 +175,18 @@ bool preciceAdapter::Adapter::configFileRead()
 
             FSI_ = new FSI::FluidStructureInteraction(mesh_, runTime_);
             if (!FSI_->configure(preciceDict))
+            {
                 return false;
+            }
         }
 
         if (FFenabled_)
         {
             FF_ = new FF::FluidFluid(mesh_);
             if (!FF_->configure(preciceDict))
+            {
                 return false;
+            }
         }
 
         // NOTE: Create your module and read any options specific to it here

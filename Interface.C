@@ -114,7 +114,9 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh)
                 for (int i = 0; i < faceNodes.size(); i++)
                 {
                     if (z_location[0] == faceNodes[i][z_axis])
+                    {
                         continue;
+                    }
                     else
                     {
                         z_location[1] = faceNodes[i][z_axis];
@@ -124,14 +126,20 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh)
 
                 // Check if the z-coordinates of all nodes match the z-coordinates we have collected above
                 for (int i = 0; i < faceNodes.size(); i++)
+                {
                     if (z_location[0] == faceNodes[i][z_axis] || z_location[1] == faceNodes[i][z_axis])
+                    {
                         continue;
+                    }
                     else
+                    {
                         FatalErrorInFunction
                             << "It seems like you are using preCICE in 2D and your geometry is not located int the xy-plane. "
                                "The OpenFOAM adapter implementation supports preCICE 2D cases only with the z-axis as out-of-plane direction."
                                "Please rotate your geometry so that the geometry is located in the xy-plane."
                             << exit(FatalError);
+                    }
+                }
             }
         }
 

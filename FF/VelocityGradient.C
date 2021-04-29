@@ -40,9 +40,11 @@ void preciceAdapter::FF::VelocityGradient::write(double* buffer, bool meshConnec
                 -gradientPatch[i].y();
 
             if (dim == 3)
+            {
                 // z-dimension
                 buffer[bufferIndex++] =
                     -gradientPatch[i].z();
+            }
         }
     }
 }
