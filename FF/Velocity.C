@@ -34,9 +34,11 @@ void preciceAdapter::FF::Velocity::write(double* buffer, bool meshConnectivity, 
                 U_->boundaryFieldRef()[patchID][i].y();
 
             if (dim == 3)
+            {
                 // z-dimension
                 buffer[bufferIndex++] =
                     U_->boundaryFieldRef()[patchID][i].z();
+            }
         }
     }
 }
@@ -63,9 +65,11 @@ void preciceAdapter::FF::Velocity::read(double* buffer, const unsigned int dim)
                 buffer[bufferIndex++];
 
             if (dim == 3)
+            {
                 // z-dimension
                 U_->boundaryFieldRef()[patchID][i].z() =
                     buffer[bufferIndex++];
+            }
         }
     }
 }
