@@ -3,7 +3,8 @@
 All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
-A fitting versioning scheme for this project is [under discussion](https://github.com/precice/openfoam-adapter/issues/52).
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+Read more details in the issue [#52: Releases and versioning](https://github.com/precice/openfoam-adapter/issues/52).
 
 <!-- markdownlint-configure-file {"MD024": { "siblings_only": true } } -->
 
