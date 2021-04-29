@@ -23,10 +23,17 @@ As these steps change your `.profile`, you need to log out and in again to make 
 
 OpenFOAM is a project with long history and many forks, of which we try to support as many as possible.
 
-Supported versions:
+We provide version-specific branches and archives for:
 
-- OpenFOAM (openfoam.com): [v1706](https://www.openfoam.com/releases/openfoam-v1706/) - [v2012](https://www.openfoam.com/releases/openfoam-v2012/) (or newer)
-- OpenFOAM (openfoam.org): version [5.x](https://openfoam.org/version/5-0/) without changes. You need different branches for the versions [4.0/4.1](https://github.com/precice/openfoam-adapter/tree/OpenFOAM4), [6](https://github.com/precice/openfoam-adapter/tree/OpenFOAM6), [7](https://github.com/precice/openfoam-adapter/tree/OpenFOAM7), [8 (experimental)](https://github.com/precice/openfoam-adapter/pull/130).
+- OpenCFD / ESI (openfoam.com):
+  - [OpenFOAM v1812-v2012](https://github.com/precice/openfoam-adapter) or newer (main target)
+  - [OpenFOAM v1806 or older](https://github.com/precice/openfoam-adapter/tree/OpenFOAMv1806)
+- OpenFOAM Foundation (openfoam.org):
+  - [OpenFOAM 8](https://github.com/precice/openfoam-adapter/pull/130) (experimental).
+  - [OpenFOAM 7](https://github.com/precice/openfoam-adapter/tree/OpenFOAM7) (experimental).
+  - [OpenFOAM 6](https://github.com/precice/openfoam-adapter/tree/OpenFOAM6) (experimental).
+  - [OpenFOAM 4.0/4.1](https://github.com/precice/openfoam-adapter/tree/OpenFOAM4).
+  - [OpenFOAM 5.x](https://github.com/precice/openfoam-adapter/tree/OpenFOAM5).
 
 Known not supported versions: OpenFOAM v1606+ or older, OpenFOAM 3 or older, foam-extend (any version).
 
