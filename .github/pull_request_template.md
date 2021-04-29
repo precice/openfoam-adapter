@@ -1,3 +1,6 @@
-Please submit your Pull Request to the `develop` branch of the adapter.
+<!-- Thank you for your contribution! Have a look at the file `CONTRIBUTING.md` for a few hints and guidelines. -->
 
-It may help to have a look at the file `CONTRIBUTING.md` for a few hints and guidelines.
+TODO list:
+
+- [ ] I updated the documentation in `docs/`
+- [ ] I added a changelog entry in `changelog-entries/` (create directory if missing)

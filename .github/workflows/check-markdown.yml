@@ -1,0 +1,20 @@
+name: Lint docs and check links
+on: [push, pull_request]
+jobs:
+  check_md:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v2
+      - name: Lint markdown files (markdownlint)
+        uses: articulate/actions-markdownlint@v1
+        with:
+          config: .markdownlint.json
+          files: '.'
+          ignore: changelog-entries
+      - name: Check links in markdown files (markdown-link-check)
+        uses: gaurav-nelson/github-action-markdown-link-check@v1
+        with:
+          use-quiet-mode: 'yes'
+          use-verbose-mode: 'no'
+          config-file: '.markdown-link-check-config.json'

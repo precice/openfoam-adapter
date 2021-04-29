@@ -15,24 +15,20 @@ class Pressure : public CouplingDataUser
 {
 
 private:
-
     //- Pressure field
-    Foam::volScalarField * p_;
+    Foam::volScalarField* p_;
 
 public:
-
     //- Constructor
-    Pressure
-    (
+    Pressure(
         const Foam::fvMesh& mesh,
-        const std::string nameP
-    );
+        const std::string nameP);
 
     //- Write the pressure values into the buffer
-    void write(double * buffer, bool meshConnectivity, const unsigned int dim);
+    void write(double* buffer, bool meshConnectivity, const unsigned int dim);
 
     //- Read the pressure values from the buffer
-    void read(double * buffer, const unsigned int dim);
+    void read(double* buffer, const unsigned int dim);
 };
 
 }

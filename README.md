@@ -1,18 +1,29 @@
 # OpenFOAM-preCICE adapter
-<!-- <a style="text-decoration: none" href="https://travis-ci.org/precice/openfoam-adapter" target="_blank">
-    <img src="https://travis-ci.org/precice/openfoam-adapter.svg?branch=master" alt="Build status">
-</a> -->
+
+[![Build with OpenFOAM v2012](https://github.com/precice/openfoam-adapter/actions/workflows/build.yml/badge.svg?branch=develop)](https://github.com/precice/openfoam-adapter/actions/workflows/build.yml)
+[![Changelog](https://img.shields.io/badge/Keep%20a%20Changelog--555.svg?logo=data%3Aimage%2Fsvg%2Bxml%3Bbase64%2CPHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGZpbGw9IiNmMTVkMzAiIHZpZXdCb3g9IjAgMCAxODcgMTg1Ij48cGF0aCBkPSJNNjIgN2MtMTUgMy0yOCAxMC0zNyAyMmExMjIgMTIyIDAgMDAtMTggOTEgNzQgNzQgMCAwMDE2IDM4YzYgOSAxNCAxNSAyNCAxOGE4OSA4OSAwIDAwMjQgNCA0NSA0NSAwIDAwNiAwbDMtMSAxMy0xYTE1OCAxNTggMCAwMDU1LTE3IDYzIDYzIDAgMDAzNS01MiAzNCAzNCAwIDAwLTEtNWMtMy0xOC05LTMzLTE5LTQ3LTEyLTE3LTI0LTI4LTM4LTM3QTg1IDg1IDAgMDA2MiA3em0zMCA4YzIwIDQgMzggMTQgNTMgMzEgMTcgMTggMjYgMzcgMjkgNTh2MTJjLTMgMTctMTMgMzAtMjggMzhhMTU1IDE1NSAwIDAxLTUzIDE2bC0xMyAyaC0xYTUxIDUxIDAgMDEtMTItMWwtMTctMmMtMTMtNC0yMy0xMi0yOS0yNy01LTEyLTgtMjQtOC0zOWExMzMgMTMzIDAgMDE4LTUwYzUtMTMgMTEtMjYgMjYtMzMgMTQtNyAyOS05IDQ1LTV6TTQwIDQ1YTk0IDk0IDAgMDAtMTcgNTQgNzUgNzUgMCAwMDYgMzJjOCAxOSAyMiAzMSA0MiAzMiAyMSAyIDQxLTIgNjAtMTRhNjAgNjAgMCAwMDIxLTE5IDUzIDUzIDAgMDA5LTI5YzAtMTYtOC0zMy0yMy01MWE0NyA0NyAwIDAwLTUtNWMtMjMtMjAtNDUtMjYtNjctMTgtMTIgNC0yMCA5LTI2IDE4em0xMDggNzZhNTAgNTAgMCAwMS0yMSAyMmMtMTcgOS0zMiAxMy00OCAxMy0xMSAwLTIxLTMtMzAtOS01LTMtOS05LTEzLTE2YTgxIDgxIDAgMDEtNi0zMiA5NCA5NCAwIDAxOC0zNSA5MCA5MCAwIDAxNi0xMmwxLTJjNS05IDEzLTEzIDIzLTE2IDE2LTUgMzItMyA1MCA5IDEzIDggMjMgMjAgMzAgMzYgNyAxNSA3IDI5IDAgNDJ6bS00My03M2MtMTctOC0zMy02LTQ2IDUtMTAgOC0xNiAyMC0xOSAzN2E1NCA1NCAwIDAwNSAzNGM3IDE1IDIwIDIzIDM3IDIyIDIyLTEgMzgtOSA0OC0yNGE0MSA0MSAwIDAwOC0yNCA0MyA0MyAwIDAwLTEtMTJjLTYtMTgtMTYtMzEtMzItMzh6bS0yMyA5MWgtMWMtNyAwLTE0LTItMjEtN2EyNyAyNyAwIDAxLTEwLTEzIDU3IDU3IDAgMDEtNC0yMCA2MyA2MyAwIDAxNi0yNWM1LTEyIDEyLTE5IDI0LTIxIDktMyAxOC0yIDI3IDIgMTQgNiAyMyAxOCAyNyAzM3MtMiAzMS0xNiA0MGMtMTEgOC0yMSAxMS0zMiAxMXptMS0zNHYxNGgtOFY2OGg4djI4bDEwLTEwaDExbC0xNCAxNSAxNyAxOEg5NnoiLz48L3N2Zz4K)](https://github.com/precice/openfoam-adapter/blob/develop/CHANGELOG.md)
 <a style="text-decoration: none" href="https://github.com/precice/openfoam-adapter/blob/master/LICENSE" target="_blank">
     <img src="https://img.shields.io/github/license/precice/openfoam-adapter.svg" alt="GNU GPL license">
 </a>
+<!-- <a style="text-decoration: none" href="https://travis-ci.org/precice/openfoam-adapter" target="_blank">
+    <img src="https://travis-ci.org/precice/openfoam-adapter.svg?branch=master" alt="Build status">
+</a> -->
 
 ## Start here
 
 See the [adapter documentation](https://precice.org/adapter-openfoam-overview.html) and related [tutorials](https://precice.org/tutorials.html).
 
-Please [report any issues](https://github.com/precice/openfoam-adapter/issues) here and give us feedback through the [one of our community channels](https://precice.org/community-channels.html).
+Please [report any issues](https://github.com/precice/openfoam-adapter/issues) here and give us feedback through [one of our community channels](https://precice.org/community-channels.html).
+
+## Contributing
+
+We welcome contributions! Have a look at open [good first issues](https://github.com/precice/openfoam-adapter/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22) and [where we need help](https://github.com/precice/openfoam-adapter/issues?q=is%3Aopen+is%3Aissue+label%3A%22help+wanted%22).
+
+Check the file `CONTRIBUTING.md` for a few tips and guidelines.
 
 ## History
+
+This project is actively maintained on [precice/openfoam-adapter](https://github.com/precice/openfoam-adapter). Current maintainers: [@MakisH](https://github.com/MakisH/) and [@DavidSCN](https://github.com/DavidSCN).
 
 This adapter was developed as part of [Gerasimos Chourdakis' master's thesis](https://mediatum.ub.tum.de/1462269) [1].
 It is based on [previous work](https://github.com/ludcila/CHT-preCICE) by Lucia Cheung ([master's thesis](https://www5.in.tum.de/pub/Cheung2016_Thesis.pdf) [2], in cooperation with [SimScale](https://www.simscale.com/)).

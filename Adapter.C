@@ -7,11 +7,10 @@
 using namespace Foam;
 
 preciceAdapter::Adapter::Adapter(const Time& runTime, const fvMesh& mesh)
-:
-runTime_(runTime),
-mesh_(mesh)
+: runTime_(runTime),
+  mesh_(mesh)
 {
-    adapterInfo("The preciceAdapter was loaded.", "info");
+    adapterInfo("Loaded the OpenFOAM-preCICE adapter v1.0.0.", "info");
 
     return;
 }
@@ -22,168 +21,184 @@ bool preciceAdapter::Adapter::configFileRead()
     // We need a try-catch here, as if reading preciceDict fails,
     // the respective exception will be reduced to a warning.
     // See also comment in preciceAdapter::Adapter::configure().
-    try {
+    try
+    {
         adapterInfo("Reading preciceDict...", "info");
 
         // TODO: static is just a quick workaround to be able
         // to find the dictionary also out of scope (e.g. in KappaEffective).
         // We need a better solution.
-        static IOdictionary preciceDict
-        (
-            IOobject
-            (
+        static IOdictionary preciceDict(
+            IOobject(
                 "preciceDict",
                 runTime_.system(),
                 mesh_,
                 IOobject::MUST_READ_IF_MODIFIED,
-                IOobject::NO_WRITE
-            )
-        );
-    
-    // Read and display the preCICE configuration file name
-    // NOTE: lookupType<T>("name") is deprecated in openfoam.com since v1812,
-    // which recommends get<T>("name") instead. However, get<T>("name")
-    // is not implemented in openfoam.org at the moment.
-    preciceConfigFilename_ = preciceDict.lookupType<fileName>("preciceConfig"); // We use this deprecated lookupType<>() for backwards compatibility
-    DEBUG(adapterInfo("  precice-config-file : " + preciceConfigFilename_));
+                IOobject::NO_WRITE));
 
-    // Read and display the participant name
-    participantName_ = preciceDict.lookupType<word>("participant"); // We use this deprecated lookupType<>() for backwards compatibility
-    DEBUG(adapterInfo("  participant name    : " + participantName_));
+        // Read and display the preCICE configuration file name
+        preciceConfigFilename_ = preciceDict.get<fileName>("preciceConfig");
+        DEBUG(adapterInfo("  precice-config-file : " + preciceConfigFilename_));
 
-    // Read and display the list of modules
-    DEBUG(adapterInfo("  modules requested   : "));
-    wordList modules_ = preciceDict.lookupType<wordList>("modules"); // We use this deprecated lookupType<>() for backwards compatibility
-    for (auto module : modules_)
-    {
-        DEBUG(adapterInfo("  - " + module + "\n"));
-        
-        // Set the modules switches
-        if (module == "CHT") CHTenabled_ = true;
-        if (module == "FSI") FSIenabled_ = true;
-        if (module == "FF")  FFenabled_  = true;
-    }
+        // Read and display the participant name
+        participantName_ = preciceDict.get<word>("participant");
+        DEBUG(adapterInfo("  participant name    : " + participantName_));
 
-    // Every interface is a subdictionary of "interfaces",
-    // each with an arbitrary name. Read all of them and create
-    // a list (here: pointer) of dictionaries.
-    const dictionary * interfaceDictPtr = preciceDict.subDictPtr("interfaces"); // We use this deprecated subDictPtr for backwards compatibility
-    DEBUG(adapterInfo("  interfaces : "));
-
-    // Check if we found any interfaces
-    // and get the details of each interface
-    if (!interfaceDictPtr)
-    {
-        adapterInfo("  Empty list of interfaces", "warning");
-        return false;
-    }
-    else
-    {
-        for (const entry& interfaceDictEntry : *interfaceDictPtr)
+        // Read and display the list of modules
+        DEBUG(adapterInfo("  modules requested   : "));
+        auto modules_ = preciceDict.get<wordList>("modules");
+        for (auto module : modules_)
         {
-            if(interfaceDictEntry.isDict())
+            DEBUG(adapterInfo("  - " + module + "\n"));
+
+            // Set the modules switches
+            if (module == "CHT")
             {
-                dictionary interfaceDict = interfaceDictEntry.dict();
-                struct InterfaceConfig interfaceConfig;
+                CHTenabled_ = true;
+            }
 
-                interfaceConfig.meshName = interfaceDict.lookupType<word>("mesh"); // We use this deprecated lookupType<>() for backwards compatibility
-                DEBUG(adapterInfo("  - mesh         : " + interfaceConfig.meshName));
+            if (module == "FSI")
+            {
+                FSIenabled_ = true;
+            }
 
-                // By default, assume "faceCenters" as locationsType
-                interfaceConfig.locationsType = interfaceDict.lookupOrDefault<word>("locations", "faceCenters");
-                DEBUG(adapterInfo("    locations    : " + interfaceConfig.locationsType));
-
-                // By default, assume that no mesh connectivity is required (i.e. no nearest-projection mapping)
-                interfaceConfig.meshConnectivity = interfaceDict.lookupOrDefault<bool>("connectivity", false);
-                // Mesh connectivity only makes sense in case of faceNodes, check and raise a warning otherwise
-                if(interfaceConfig.meshConnectivity && interfaceConfig.locationsType == "faceCenters")
-                {
-                    DEBUG(adapterInfo("Mesh connectivity is not supported for faceCenters. \n"
-                                      "Please configure the desired interface with the locationsType faceNodes. \n"
-                                      "Have a look in the adapter documentation for detailed information.", "warning"));
-                    return false;
-                }
-                DEBUG(adapterInfo("    connectivity : " + std::to_string(interfaceConfig.meshConnectivity)));
-              
-                DEBUG(adapterInfo("    patches      : "));
-                wordList patches = interfaceDict.lookupType<wordList>("patches"); // We use this deprecated lookupType<>() for backwards compatibility
-                for (auto patch : patches)
-                {
-                    interfaceConfig.patchNames.push_back(patch);
-                    DEBUG(adapterInfo("      - " + patch));
-                }
-              
-                DEBUG(adapterInfo("    writeData    : "));
-                wordList writeData = interfaceDict.lookupType<wordList>("writeData"); // We use this deprecated lookupType<>() for backwards compatibility
-                for (auto writeDatum : writeData)
-                {
-                    interfaceConfig.writeData.push_back(writeDatum);
-                    DEBUG(adapterInfo("      - " + writeDatum));
-                }
-
-                DEBUG(adapterInfo("    readData     : "));
-                wordList readData = interfaceDict.lookupType<wordList>("readData");  // We use this deprecated lookupType<>() for backwards compatibility
-                for (auto readDatum : readData)
-                {
-                    interfaceConfig.readData.push_back(readDatum);
-                    DEBUG(adapterInfo("      - " + readDatum));
-                }
-                interfacesConfig_.push_back(interfaceConfig);
+            if (module == "FF")
+            {
+                FFenabled_ = true;
             }
         }
-    }
 
-    // NOTE: set the switch for your new module here
+        // Every interface is a subdictionary of "interfaces",
+        // each with an arbitrary name. Read all of them and create
+        // a list (here: pointer) of dictionaries.
+        const auto interfaceDictPtr = preciceDict.findDict("interfaces");
+        DEBUG(adapterInfo("  interfaces : "));
 
-    // If the CHT module is enabled, create it, read the
-    // CHT-specific options and configure it.
-    if (CHTenabled_)
-    {
-        CHT_ = new CHT::ConjugateHeatTransfer(mesh_);
-        if (!CHT_->configure(preciceDict)) return false;
-    }
-
-    // If the FSI module is enabled, create it, read the
-    // FSI-specific options and configure it.
-    if (FSIenabled_)
-    {
-        // Check for unsupported FSI with meshConnectivity
-        for (uint i = 0; i < interfacesConfig_.size(); i++)
+        // Check if we found any interfaces
+        // and get the details of each interface
+        if (!interfaceDictPtr)
         {
-            if(interfacesConfig_.at(i).meshConnectivity == true )
+            adapterInfo("  Empty list of interfaces", "warning");
+            return false;
+        }
+        else
+        {
+            for (const entry& interfaceDictEntry : *interfaceDictPtr)
             {
-                adapterInfo(
-                    "Mesh connectivity is not supported for FSI, as, usually, "
-                    "the Solid participant needs to provide the connectivity information. "
-                    "Therefore, set provideMeshConnectivity = false. "
-                    "Have a look in the adapter documentation for more information. "
-                    ,"warning");
+                if (interfaceDictEntry.isDict())
+                {
+                    dictionary interfaceDict = interfaceDictEntry.dict();
+                    struct InterfaceConfig interfaceConfig;
+
+                    interfaceConfig.meshName = interfaceDict.get<word>("mesh");
+                    DEBUG(adapterInfo("  - mesh         : " + interfaceConfig.meshName));
+
+                    // By default, assume "faceCenters" as locationsType
+                    interfaceConfig.locationsType = interfaceDict.lookupOrDefault<word>("locations", "faceCenters");
+                    DEBUG(adapterInfo("    locations    : " + interfaceConfig.locationsType));
+
+                    // By default, assume that no mesh connectivity is required (i.e. no nearest-projection mapping)
+                    interfaceConfig.meshConnectivity = interfaceDict.lookupOrDefault<bool>("connectivity", false);
+                    // Mesh connectivity only makes sense in case of faceNodes, check and raise a warning otherwise
+                    if (interfaceConfig.meshConnectivity && interfaceConfig.locationsType == "faceCenters")
+                    {
+                        DEBUG(adapterInfo("Mesh connectivity is not supported for faceCenters. \n"
+                                          "Please configure the desired interface with the locationsType faceNodes. \n"
+                                          "Have a look in the adapter documentation for detailed information.",
+                                          "warning"));
+                        return false;
+                    }
+                    DEBUG(adapterInfo("    connectivity : " + std::to_string(interfaceConfig.meshConnectivity)));
+
+                    DEBUG(adapterInfo("    patches      : "));
+                    auto patches = interfaceDict.get<wordList>("patches");
+                    for (auto patch : patches)
+                    {
+                        interfaceConfig.patchNames.push_back(patch);
+                        DEBUG(adapterInfo("      - " + patch));
+                    }
+
+                    DEBUG(adapterInfo("    writeData    : "));
+                    auto writeData = interfaceDict.get<wordList>("writeData");
+                    for (auto writeDatum : writeData)
+                    {
+                        interfaceConfig.writeData.push_back(writeDatum);
+                        DEBUG(adapterInfo("      - " + writeDatum));
+                    }
+
+                    DEBUG(adapterInfo("    readData     : "));
+                    auto readData = interfaceDict.get<wordList>("readData");
+                    for (auto readDatum : readData)
+                    {
+                        interfaceConfig.readData.push_back(readDatum);
+                        DEBUG(adapterInfo("      - " + readDatum));
+                    }
+                    interfacesConfig_.push_back(interfaceConfig);
+                }
+            }
+        }
+
+        // NOTE: set the switch for your new module here
+
+        // If the CHT module is enabled, create it, read the
+        // CHT-specific options and configure it.
+        if (CHTenabled_)
+        {
+            CHT_ = new CHT::ConjugateHeatTransfer(mesh_);
+            if (!CHT_->configure(preciceDict))
+            {
                 return false;
             }
         }
 
-        FSI_ = new FSI::FluidStructureInteraction(mesh_, runTime_);
-        if (!FSI_->configure(preciceDict)) return false;
-    }
+        // If the FSI module is enabled, create it, read the
+        // FSI-specific options and configure it.
+        if (FSIenabled_)
+        {
+            // Check for unsupported FSI with meshConnectivity
+            for (uint i = 0; i < interfacesConfig_.size(); i++)
+            {
+                if (interfacesConfig_.at(i).meshConnectivity == true)
+                {
+                    adapterInfo(
+                        "Mesh connectivity is not supported for FSI, as, usually, "
+                        "the Solid participant needs to provide the connectivity information. "
+                        "Therefore, set provideMeshConnectivity = false. "
+                        "Have a look in the adapter documentation for more information. ",
+                        "warning");
+                    return false;
+                }
+            }
 
-    if (FFenabled_)
+            FSI_ = new FSI::FluidStructureInteraction(mesh_, runTime_);
+            if (!FSI_->configure(preciceDict))
+            {
+                return false;
+            }
+        }
+
+        if (FFenabled_)
+        {
+            FF_ = new FF::FluidFluid(mesh_);
+            if (!FF_->configure(preciceDict))
+            {
+                return false;
+            }
+        }
+
+        // NOTE: Create your module and read any options specific to it here
+
+        if (!CHTenabled_ && !FSIenabled_ && !FFenabled_) // NOTE: Add your new switch here
+        {
+            adapterInfo("No module is enabled.", "error-deferred");
+            return false;
+        }
+
+        // TODO: Loading modules should be implemented in more general way,
+        // in order to avoid code duplication. See issue #16 on GitHub.
+    }
+    catch (const Foam::error& e)
     {
-        FF_ = new FF::FluidFluid(mesh_);
-        if (!FF_->configure(preciceDict)) return false;
-    }
-
-    // NOTE: Create your module and read any options specific to it here
-
-    if (!CHTenabled_ && !FSIenabled_ && !FFenabled_) // NOTE: Add your new switch here
-    {
-        adapterInfo("No module is enabled.", "error-deferred");
-        return false;
-    }
-
-    // TODO: Loading modules should be implemented in more general way,
-    // in order to avoid code duplication. See issue #16 on GitHub.
-
-    } catch (const Foam::error &e) {
         adapterInfo(e.message(), "error-deferred");
         return false;
     }
@@ -209,14 +224,18 @@ void preciceAdapter::Adapter::configure()
         return;
     }
 
-    try{
+    try
+    {
         // Check the timestep type (fixed vs adjustable)
         DEBUG(adapterInfo("Checking the timestep type (fixed vs adjustable)..."));
         adjustableTimestep_ = runTime_.controlDict().lookupOrDefault("adjustTimeStep", false);
 
-        if (adjustableTimestep_) {
+        if (adjustableTimestep_)
+        {
             DEBUG(adapterInfo("  Timestep type: adjustable."));
-        } else {
+        }
+        else
+        {
             DEBUG(adapterInfo("  Timestep type: fixed."));
         }
 
@@ -231,7 +250,7 @@ void preciceAdapter::Adapter::configure()
         DEBUG(adapterInfo("Creating interfaces..."));
         for (uint i = 0; i < interfacesConfig_.size(); i++)
         {
-            Interface * interface = new Interface(*precice_, mesh_, interfacesConfig_.at(i).meshName, interfacesConfig_.at(i).locationsType, interfacesConfig_.at(i).patchNames, interfacesConfig_.at(i).meshConnectivity);
+            Interface* interface = new Interface(*precice_, mesh_, interfacesConfig_.at(i).meshName, interfacesConfig_.at(i).locationsType, interfacesConfig_.at(i).patchNames, interfacesConfig_.at(i).meshConnectivity);
             interfaces_.push_back(interface);
             DEBUG(adapterInfo("Interface created on mesh " + interfacesConfig_.at(i).meshName));
 
@@ -251,7 +270,7 @@ void preciceAdapter::Adapter::configure()
                 {
                     FSI_->addWriters(dataName, interface);
                 }
-                
+
                 // Add FF-related coupling data writers
                 if (FFenabled_)
                 {
@@ -277,7 +296,7 @@ void preciceAdapter::Adapter::configure()
                 {
                     FSI_->addReaders(dataName, interface);
                 }
-                
+
                 // Add FF-related coupling data readers
                 if (FFenabled_)
                 {
@@ -328,17 +347,16 @@ void preciceAdapter::Adapter::configure()
         // This has the side-effect of not triggering the end() method
         // in any function object normally. Therefore, we trigger it
         // when preCICE dictates to stop the coupling.
-        adapterInfo
-        (
+        adapterInfo(
             "Setting the solver's endTime to infinity to prevent early exits. "
             "Only preCICE will control the simulation's endTime. "
             "Any functionObject's end() method will be triggered by the adapter. "
             "You may disable this behavior in the adapter's configuration.",
-            "info"
-        );
+            "info");
         const_cast<Time&>(runTime_).setEndTime(GREAT);
-
-    } catch (const Foam::error &e) {
+    }
+    catch (const Foam::error& e)
+    {
         adapterInfo(e.message(), "error-deferred");
         errorsInConfigure = true;
     }
@@ -352,12 +370,10 @@ void preciceAdapter::Adapter::execute()
     {
         // Handle any errors during configure().
         // See the comments in configure() for details.
-        adapterInfo
-        (
+        adapterInfo(
             "There was a problem while configuring the adapter. "
             "See the log for details.",
-            "error"
-        );
+            "error");
     }
 
     // The solver has already solved the equations for this timestep.
@@ -406,12 +422,10 @@ void preciceAdapter::Adapter::execute()
         // (i.e. the solver wrote results that need to be updated)
         if (runTime_.timePath().type() == fileName::DIRECTORY)
         {
-            adapterInfo
-            (
+            adapterInfo(
                 "The coupling timestep completed. "
                 "Writing the updated results.",
-                "info"
-            );
+                "info");
             const_cast<Time&>(runTime_).writeNow();
         }
     }
@@ -429,12 +443,10 @@ void preciceAdapter::Adapter::execute()
         // Set the solver's endTime to now. The next evaluation of
         // runTime.run() will be false and the solver will exit.
         const_cast<Time&>(runTime_).setEndTime(runTime_.value());
-        adapterInfo
-        (
+        adapterInfo(
             "The simulation was ended by preCICE. "
             "Calling the end() methods of any functionObject explicitly.",
-            "info"
-        );
+            "info");
         const_cast<Time&>(runTime_).functionObjects().end();
     }
 
@@ -549,16 +561,14 @@ void preciceAdapter::Adapter::adjustSolverTimeStep()
             // Show a warning if runTimeModifiable is set
             if (runTime_.runTimeModifiable())
             {
-                adapterInfo
-                (
+                adapterInfo(
                     "You have enabled 'runTimeModifiable' in the "
                     "controlDict. The preciceAdapter does not yet "
                     "fully support this functionality when "
                     "'adjustableTimestep' is not enabled. "
                     "If you modify the 'deltaT' in the controlDict "
                     "during the simulation, it will not be updated.",
-                    "warning"
-                );
+                    "warning");
             }
 
             // Store the value
@@ -588,34 +598,26 @@ void preciceAdapter::Adapter::adjustSolverTimeStep()
     if (timestepSolverDetermined < timestepPrecice_)
     {
         // Add a bool 'subCycling = true' which is checked in the storeMeshPoints() function.
-        adapterInfo
-        (
+        adapterInfo(
             "The solver's timestep is smaller than the "
             "coupling timestep. Subcycling...",
-            "info"
-        );
+            "info");
         timestepSolver_ = timestepSolverDetermined;
         // TODO subcycling is enabled. For FSI the oldVolumes must be written, which is normally not done.
         if (FSIenabled_)
         {
-            adapterInfo
-            (
+            adapterInfo(
                 "The adapter does not fully support subcycling for FSI and instabilities may occur.",
-                "warning"
-            );
+                "warning");
         }
     }
     else if (timestepSolverDetermined > timestepPrecice_)
     {
-        adapterInfo
-        (
+        adapterInfo(
             "The solver's timestep cannot be larger than the coupling timestep."
-            " Adjusting from " +
-            std::to_string(timestepSolverDetermined) +
-            " to " +
-            std::to_string(timestepPrecice_),
-            "warning"
-        );
+            " Adjusting from "
+                + std::to_string(timestepSolverDetermined) + " to " + std::to_string(timestepPrecice_),
+            "warning");
         timestepSolver_ = timestepPrecice_;
     }
     else
@@ -741,9 +743,9 @@ void preciceAdapter::Adapter::reloadMeshPoints()
     const_cast<fvMesh&>(mesh_).movePoints(meshPoints_);
 
     DEBUG(adapterInfo("Moved mesh points to their previous locations."));
-    
+
     // TODO The if statement can be removed in this case, but it is still included for clarity
-    if ( meshCheckPointed )
+    if (meshCheckPointed)
     {
         readMeshCheckpoint();
     }
@@ -769,21 +771,13 @@ void preciceAdapter::Adapter::setupMeshCheckpointing()
     DEBUG(adapterInfo("Creating a list of the mesh checkpointed fields..."));
 
     // Add meshPhi to the checkpointed fields
-    addMeshCheckpointField
-    (
-        const_cast<surfaceScalarField&>
-        (
-            mesh_.phi()
-        )
-    );
+    addMeshCheckpointField(
+        const_cast<surfaceScalarField&>(
+            mesh_.phi()));
 #ifdef ADAPTER_DEBUG_MODE
-    adapterInfo
-    (
-        "Added " + mesh_.phi().name() +
-        " in the list of checkpointed fields."
-    );
+    adapterInfo(
+        "Added " + mesh_.phi().name() + " in the list of checkpointed fields.");
 #endif
-    
 }
 
 void preciceAdapter::Adapter::setupMeshVolCheckpointing()
@@ -791,34 +785,20 @@ void preciceAdapter::Adapter::setupMeshVolCheckpointing()
     DEBUG(adapterInfo("Creating a list of the mesh volume checkpointed fields..."));
     // Add the V0 and the V00 to the list of checkpointed fields.
     // For V0
-    addVolCheckpointField
-    (
-        const_cast<volScalarField::Internal&>
-        (
-            mesh_.V0()
-        )
-    );
+    addVolCheckpointField(
+        const_cast<volScalarField::Internal&>(
+            mesh_.V0()));
 #ifdef ADAPTER_DEBUG_MODE
-    adapterInfo
-    (
-        "Added " + mesh_.V0().name() +
-        " in the list of checkpointed fields."
-    );
+    adapterInfo(
+        "Added " + mesh_.V0().name() + " in the list of checkpointed fields.");
 #endif
     // For V00
-    addVolCheckpointField
-    (
-        const_cast<volScalarField::Internal&>
-        (
-            mesh_.V00()
-        )
-    );
+    addVolCheckpointField(
+        const_cast<volScalarField::Internal&>(
+            mesh_.V00()));
 #ifdef ADAPTER_DEBUG_MODE
-    adapterInfo
-    (
-        "Added " + mesh_.V00().name() +
-        " in the list of checkpointed fields."
-    );
+    adapterInfo(
+        "Added " + mesh_.V00().name() + " in the list of checkpointed fields.");
 #endif
 
     // Also add the buffer fields.
@@ -831,11 +811,8 @@ void preciceAdapter::Adapter::setupMeshVolCheckpointing()
         )
     ); */
 #ifdef ADAPTER_DEBUG_MODE
-    adapterInfo
-    (
-        "Added " + mesh_.V0().name() +
-        " in the list of buffer checkpointed fields."
-    );
+    adapterInfo(
+        "Added " + mesh_.V0().name() + " in the list of buffer checkpointed fields.");
 #endif
     // TODO For V00
     /* addVolCheckpointFieldBuffer
@@ -846,11 +823,8 @@ void preciceAdapter::Adapter::setupMeshVolCheckpointing()
         )
     );*/
 #ifdef ADAPTER_DEBUG_MODE
-    adapterInfo
-    (
-        "Added " + mesh_.V00().name() +
-        " in the list of buffer checkpointed fields."
-    );
+    adapterInfo(
+        "Added " + mesh_.V00().name() + " in the list of buffer checkpointed fields.");
 #endif
 }
 
@@ -873,19 +847,13 @@ void preciceAdapter::Adapter::setupCheckpointing()
     {
         if (mesh_.foundObject<volScalarField>(objectNames_[i]))
         {
-            addCheckpointField
-            (
-                const_cast<volScalarField&>
-                (
-                    mesh_.lookupObject<volScalarField>(objectNames_[i])
-                )
-            );
+            addCheckpointField(
+                const_cast<volScalarField&>(
+                    mesh_.lookupObject<volScalarField>(objectNames_[i])));
 
 #ifdef ADAPTER_DEBUG_MODE
-            adapterInfo
-            (
-                "Will be checkpointing " + objectNames_[i]
-            );
+            adapterInfo(
+                "Will be checkpointing " + objectNames_[i]);
 #endif
         }
         else
@@ -907,19 +875,13 @@ void preciceAdapter::Adapter::setupCheckpointing()
     {
         if (mesh_.foundObject<volVectorField>(objectNames_[i]))
         {
-            addCheckpointField
-            (
-                const_cast<volVectorField&>
-                (
-                    mesh_.lookupObject<volVectorField>(objectNames_[i])
-                )
-            );
+            addCheckpointField(
+                const_cast<volVectorField&>(
+                    mesh_.lookupObject<volVectorField>(objectNames_[i])));
 
 #ifdef ADAPTER_DEBUG_MODE
-            adapterInfo
-            (
-                "Will be checkpointing " + objectNames_[i]
-            );
+            adapterInfo(
+                "Will be checkpointing " + objectNames_[i]);
 #endif
         }
         else
@@ -940,19 +902,13 @@ void preciceAdapter::Adapter::setupCheckpointing()
     {
         if (mesh_.foundObject<surfaceScalarField>(objectNames_[i]))
         {
-            addCheckpointField
-            (
-                const_cast<surfaceScalarField&>
-                (
-                    mesh_.lookupObject<surfaceScalarField>(objectNames_[i])
-                )
-            );
+            addCheckpointField(
+                const_cast<surfaceScalarField&>(
+                    mesh_.lookupObject<surfaceScalarField>(objectNames_[i])));
 
 #ifdef ADAPTER_DEBUG_MODE
-            adapterInfo
-            (
-                "Will be checkpointing " + objectNames_[i]
-            );
+            adapterInfo(
+                "Will be checkpointing " + objectNames_[i]);
 #endif
         }
         else
@@ -974,19 +930,13 @@ void preciceAdapter::Adapter::setupCheckpointing()
     {
         if (mesh_.foundObject<surfaceVectorField>(objectNames_[i]))
         {
-            addCheckpointField
-            (
-                const_cast<surfaceVectorField&>
-                (
-                    mesh_.lookupObject<surfaceVectorField>(objectNames_[i])
-                )
-            );
+            addCheckpointField(
+                const_cast<surfaceVectorField&>(
+                    mesh_.lookupObject<surfaceVectorField>(objectNames_[i])));
 
 #ifdef ADAPTER_DEBUG_MODE
-            adapterInfo
-                    (
-                        "Will be checkpointing " + objectNames_[i]
-                    );
+            adapterInfo(
+                "Will be checkpointing " + objectNames_[i]);
 #endif
         }
         else
@@ -1008,19 +958,13 @@ void preciceAdapter::Adapter::setupCheckpointing()
     {
         if (mesh_.foundObject<pointScalarField>(objectNames_[i]))
         {
-            addCheckpointField
-            (
-                const_cast<pointScalarField&>
-                (
-                    mesh_.lookupObject<pointScalarField>(objectNames_[i])
-                )
-            );
+            addCheckpointField(
+                const_cast<pointScalarField&>(
+                    mesh_.lookupObject<pointScalarField>(objectNames_[i])));
 
 #ifdef ADAPTER_DEBUG_MODE
-            adapterInfo
-            (
-                "Will be checkpointing " + objectNames_[i]
-            );
+            adapterInfo(
+                "Will be checkpointing " + objectNames_[i]);
 #endif
         }
         else
@@ -1042,19 +986,13 @@ void preciceAdapter::Adapter::setupCheckpointing()
     {
         if (mesh_.foundObject<pointVectorField>(objectNames_[i]))
         {
-            addCheckpointField
-            (
-                const_cast<pointVectorField&>
-                (
-                    mesh_.lookupObject<pointVectorField>(objectNames_[i])
-                )
-            );
+            addCheckpointField(
+                const_cast<pointVectorField&>(
+                    mesh_.lookupObject<pointVectorField>(objectNames_[i])));
 
 #ifdef ADAPTER_DEBUG_MODE
-            adapterInfo
-            (
-                "Will be checkpointing " + objectNames_[i]
-            );
+            adapterInfo(
+                "Will be checkpointing " + objectNames_[i]);
 #endif
         }
         else
@@ -1062,7 +1000,6 @@ void preciceAdapter::Adapter::setupCheckpointing()
             adapterInfo("Could not checkpoint " + objectNames_[i], "warning");
         }
     }
-
 
 
     /* Find and add all the registered objects in the mesh_
@@ -1078,19 +1015,13 @@ void preciceAdapter::Adapter::setupCheckpointing()
     {
         if (mesh_.foundObject<volTensorField>(objectNames_[i]))
         {
-            addCheckpointField
-            (
-                const_cast<volTensorField&>
-                (
-                    mesh_.lookupObject<volTensorField>(objectNames_[i])
-                )
-            );
+            addCheckpointField(
+                const_cast<volTensorField&>(
+                    mesh_.lookupObject<volTensorField>(objectNames_[i])));
 
 #ifdef ADAPTER_DEBUG_MODE
-            adapterInfo
-                    (
-                        "Will be checkpointing " + objectNames_[i]
-                    );
+            adapterInfo(
+                "Will be checkpointing " + objectNames_[i]);
 #endif
         }
         else
@@ -1098,7 +1029,6 @@ void preciceAdapter::Adapter::setupCheckpointing()
             adapterInfo("Could not checkpoint " + objectNames_[i], "warning");
         }
     }
-
 
 
     /* Find and add all the registered objects in the mesh_
@@ -1113,19 +1043,13 @@ void preciceAdapter::Adapter::setupCheckpointing()
     {
         if (mesh_.foundObject<surfaceTensorField>(objectNames_[i]))
         {
-            addCheckpointField
-            (
-                const_cast<surfaceTensorField&>
-                (
-                    mesh_.lookupObject<surfaceTensorField>(objectNames_[i])
-                )
-            );
+            addCheckpointField(
+                const_cast<surfaceTensorField&>(
+                    mesh_.lookupObject<surfaceTensorField>(objectNames_[i])));
 
 #ifdef ADAPTER_DEBUG_MODE
-            adapterInfo
-            (
-                "Will be checkpointing " + objectNames_[i]
-            );
+            adapterInfo(
+                "Will be checkpointing " + objectNames_[i]);
 #endif
         }
         else
@@ -1146,19 +1070,13 @@ void preciceAdapter::Adapter::setupCheckpointing()
     {
         if (mesh_.foundObject<pointTensorField>(objectNames_[i]))
         {
-            addCheckpointField
-            (
-                const_cast<pointTensorField&>
-                (
-                    mesh_.lookupObject<pointTensorField>(objectNames_[i])
-                )
-            );
+            addCheckpointField(
+                const_cast<pointTensorField&>(
+                    mesh_.lookupObject<pointTensorField>(objectNames_[i])));
 
 #ifdef ADAPTER_DEBUG_MODE
-            adapterInfo
-            (
-                "Will be checkpointing " + objectNames_[i]
-            );
+            adapterInfo(
+                "Will be checkpointing " + objectNames_[i]);
 #endif
         }
         else
@@ -1181,19 +1099,13 @@ void preciceAdapter::Adapter::setupCheckpointing()
     {
         if (mesh_.foundObject<volSymmTensorField>(objectNames_[i]))
         {
-            addCheckpointField
-            (
-                const_cast<volSymmTensorField&>
-                (
-                    mesh_.lookupObject<volSymmTensorField>(objectNames_[i])
-                )
-            );
+            addCheckpointField(
+                const_cast<volSymmTensorField&>(
+                    mesh_.lookupObject<volSymmTensorField>(objectNames_[i])));
 
 #ifdef ADAPTER_DEBUG_MODE
-            adapterInfo
-            (
-                "Will be checkpointing " + objectNames_[i]
-            );
+            adapterInfo(
+                "Will be checkpointing " + objectNames_[i]);
 #endif
         }
         else
@@ -1206,83 +1118,83 @@ void preciceAdapter::Adapter::setupCheckpointing()
 
 
 // All mesh checkpointed fields
-void preciceAdapter::Adapter::addMeshCheckpointField(surfaceScalarField & field)
+void preciceAdapter::Adapter::addMeshCheckpointField(surfaceScalarField& field)
 {
-    surfaceScalarField * copy = new surfaceScalarField(field);
+    surfaceScalarField* copy = new surfaceScalarField(field);
     meshSurfaceScalarFields_.push_back(&field);
     meshSurfaceScalarFieldCopies_.push_back(copy);
     return;
 }
 
-void preciceAdapter::Adapter::addMeshCheckpointField(surfaceVectorField & field)
+void preciceAdapter::Adapter::addMeshCheckpointField(surfaceVectorField& field)
 {
-    surfaceVectorField * copy = new surfaceVectorField(field);
+    surfaceVectorField* copy = new surfaceVectorField(field);
     meshSurfaceVectorFields_.push_back(&field);
     meshSurfaceVectorFieldCopies_.push_back(copy);
     return;
 }
 
-void preciceAdapter::Adapter::addMeshCheckpointField(volVectorField & field)
+void preciceAdapter::Adapter::addMeshCheckpointField(volVectorField& field)
 {
-    volVectorField * copy = new volVectorField(field);
+    volVectorField* copy = new volVectorField(field);
     meshVolVectorFields_.push_back(&field);
     meshVolVectorFieldCopies_.push_back(copy);
     return;
 }
 
 // TODO Internal field for the V0 (volume old) and V00 (volume old-old) fields
-void preciceAdapter::Adapter::addVolCheckpointField(volScalarField::Internal & field)
+void preciceAdapter::Adapter::addVolCheckpointField(volScalarField::Internal& field)
 {
-    volScalarField::Internal * copy = new volScalarField::Internal(field);
+    volScalarField::Internal* copy = new volScalarField::Internal(field);
     volScalarInternalFields_.push_back(&field);
     volScalarInternalFieldCopies_.push_back(copy);
     return;
 }
 
 // All checkpointed fields
-void preciceAdapter::Adapter::addCheckpointField(volScalarField & field)
+void preciceAdapter::Adapter::addCheckpointField(volScalarField& field)
 {
-    volScalarField * copy = new volScalarField(field);
+    volScalarField* copy = new volScalarField(field);
     volScalarFields_.push_back(&field);
     volScalarFieldCopies_.push_back(copy);
     return;
 }
 
-void preciceAdapter::Adapter::addCheckpointField(volVectorField & field)
+void preciceAdapter::Adapter::addCheckpointField(volVectorField& field)
 {
-    volVectorField * copy = new volVectorField(field);
+    volVectorField* copy = new volVectorField(field);
     volVectorFields_.push_back(&field);
     volVectorFieldCopies_.push_back(copy);
     return;
 }
 
-void preciceAdapter::Adapter::addCheckpointField(surfaceScalarField & field)
+void preciceAdapter::Adapter::addCheckpointField(surfaceScalarField& field)
 {
-    surfaceScalarField * copy = new surfaceScalarField(field);
+    surfaceScalarField* copy = new surfaceScalarField(field);
     surfaceScalarFields_.push_back(&field);
     surfaceScalarFieldCopies_.push_back(copy);
     return;
 }
 
-void preciceAdapter::Adapter::addCheckpointField(surfaceVectorField & field)
+void preciceAdapter::Adapter::addCheckpointField(surfaceVectorField& field)
 {
-    surfaceVectorField * copy = new surfaceVectorField(field);
+    surfaceVectorField* copy = new surfaceVectorField(field);
     surfaceVectorFields_.push_back(&field);
     surfaceVectorFieldCopies_.push_back(copy);
     return;
 }
 
-void preciceAdapter::Adapter::addCheckpointField(pointScalarField & field)
+void preciceAdapter::Adapter::addCheckpointField(pointScalarField& field)
 {
-    pointScalarField * copy = new pointScalarField(field);
+    pointScalarField* copy = new pointScalarField(field);
     pointScalarFields_.push_back(&field);
     pointScalarFieldCopies_.push_back(copy);
     return;
 }
 
-void preciceAdapter::Adapter::addCheckpointField(pointVectorField & field)
+void preciceAdapter::Adapter::addCheckpointField(pointVectorField& field)
 {
-    pointVectorField * copy = new pointVectorField(field);
+    pointVectorField* copy = new pointVectorField(field);
     pointVectorFields_.push_back(&field);
     pointVectorFieldCopies_.push_back(copy);
     // TODO: Old time
@@ -1292,33 +1204,33 @@ void preciceAdapter::Adapter::addCheckpointField(pointVectorField & field)
     return;
 }
 
-void preciceAdapter::Adapter::addCheckpointField(volTensorField & field)
+void preciceAdapter::Adapter::addCheckpointField(volTensorField& field)
 {
-    volTensorField * copy = new volTensorField(field);
+    volTensorField* copy = new volTensorField(field);
     volTensorFields_.push_back(&field);
     volTensorFieldCopies_.push_back(copy);
     return;
 }
 
-void preciceAdapter::Adapter::addCheckpointField(surfaceTensorField & field)
+void preciceAdapter::Adapter::addCheckpointField(surfaceTensorField& field)
 {
-    surfaceTensorField * copy = new surfaceTensorField(field);
+    surfaceTensorField* copy = new surfaceTensorField(field);
     surfaceTensorFields_.push_back(&field);
     surfaceTensorFieldCopies_.push_back(copy);
     return;
 }
 
-void preciceAdapter::Adapter::addCheckpointField(pointTensorField & field)
+void preciceAdapter::Adapter::addCheckpointField(pointTensorField& field)
 {
-    pointTensorField * copy = new pointTensorField(field);
+    pointTensorField* copy = new pointTensorField(field);
     pointTensorFields_.push_back(&field);
     pointTensorFieldCopies_.push_back(copy);
     return;
 }
 
-void preciceAdapter::Adapter::addCheckpointField(volSymmTensorField & field)
+void preciceAdapter::Adapter::addCheckpointField(volSymmTensorField& field)
 {
-    volSymmTensorField * copy = new volSymmTensorField(field);
+    volSymmTensorField* copy = new volSymmTensorField(field);
     volSymmTensorFields_.push_back(&field);
     volSymmTensorFieldCopies_.push_back(copy);
     return;
@@ -1514,10 +1426,8 @@ void preciceAdapter::Adapter::readCheckpoint()
     // NOTE: Add here other field types to read, if needed.
 
 #ifdef ADAPTER_DEBUG_MODE
-    adapterInfo
-    (
-        "Checkpoint was read. Time = " + std::to_string(runTime_.value())
-    );
+    adapterInfo(
+        "Checkpoint was read. Time = " + std::to_string(runTime_.value()));
 #endif
 
     return;
@@ -1599,11 +1509,8 @@ void preciceAdapter::Adapter::writeCheckpoint()
     // NOTE: Add here other types to write, if needed.
 
 #ifdef ADAPTER_DEBUG_MODE
-    adapterInfo
-    (
-        "Checkpoint for time t = " + std::to_string(runTime_.value()) +
-        " was stored."
-    );
+    adapterInfo(
+        "Checkpoint for time t = " + std::to_string(runTime_.value()) + " was stored.");
 #endif
 
     return;
@@ -1664,12 +1571,10 @@ void preciceAdapter::Adapter::readMeshCheckpoint()
             meshVolVectorFields_.at(i)->oldTime().oldTime() == meshVolVectorFieldCopies_.at(i)->oldTime().oldTime();
         }
     }
-    
+
 #ifdef ADAPTER_DEBUG_MODE
-    adapterInfo
-    (
-        "Mesh checkpoint was read. Time = " + std::to_string(runTime_.value())
-    );
+    adapterInfo(
+        "Mesh checkpoint was read. Time = " + std::to_string(runTime_.value()));
 #endif
 
     return;
@@ -1698,17 +1603,14 @@ void preciceAdapter::Adapter::writeMeshCheckpoint()
     }
 
 #ifdef ADAPTER_DEBUG_MODE
-    adapterInfo
-    (
-        "Mesh checkpoint for time t = " + std::to_string(runTime_.value()) +
-        " was stored."
-    );
+    adapterInfo(
+        "Mesh checkpoint for time t = " + std::to_string(runTime_.value()) + " was stored.");
 #endif
 
     return;
 }
 
-// TODO for the volumes of the mesh, check this part for subcycling. 
+// TODO for the volumes of the mesh, check this part for subcycling.
 void preciceAdapter::Adapter::readVolCheckpoint()
 {
     DEBUG(adapterInfo("Reading the mesh volumes checkpoint..."));
@@ -1722,10 +1624,8 @@ void preciceAdapter::Adapter::readVolCheckpoint()
     }
 
 #ifdef ADAPTER_DEBUG_MODE
-    adapterInfo
-    (
-        "Mesh volumes were read. Time = " + std::to_string(runTime_.value())
-    );
+    adapterInfo(
+        "Mesh volumes were read. Time = " + std::to_string(runTime_.value()));
 #endif
 
     return;
@@ -1742,11 +1642,8 @@ void preciceAdapter::Adapter::writeVolCheckpoint()
     }
 
 #ifdef ADAPTER_DEBUG_MODE
-    adapterInfo
-    (
-        "Mesh volumes checkpoint for time t = " + std::to_string(runTime_.value()) +
-        " was stored."
-    );
+    adapterInfo(
+        "Mesh volumes checkpoint for time t = " + std::to_string(runTime_.value()) + " was stored.");
 #endif
 
     return;
@@ -1893,7 +1790,7 @@ void preciceAdapter::Adapter::teardown()
     }
 
     // Delete the CHT module
-    if(NULL != CHT_)
+    if (NULL != CHT_)
     {
         DEBUG(adapterInfo("Destroying the CHT module..."));
         delete CHT_;
@@ -1901,7 +1798,7 @@ void preciceAdapter::Adapter::teardown()
     }
 
     // Delete the FSI module
-    if(NULL != FSI_)
+    if (NULL != FSI_)
     {
         DEBUG(adapterInfo("Destroying the FSI module..."));
         delete FSI_;
@@ -1909,7 +1806,7 @@ void preciceAdapter::Adapter::teardown()
     }
 
     // Delete the FF module
-    if(NULL != FF_)
+    if (NULL != FF_)
     {
         DEBUG(adapterInfo("Destroying the FF module..."));
         delete FF_;

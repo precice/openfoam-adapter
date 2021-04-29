@@ -14,9 +14,8 @@ namespace preciceAdapter
 class Interface
 {
 protected:
-
     //- preCICE solver interface
-    precice::SolverInterface & precice_;
+    precice::SolverInterface& precice_;
 
     //- Mesh name used in the preCICE configuration
     std::string meshName_;
@@ -37,10 +36,10 @@ protected:
     int numDataLocations_ = 0;
 
     //- Vertex IDs assigned by preCICE
-    int * vertexIDs_;
+    int* vertexIDs_;
 
     //- Buffer for the coupling data
-    double * dataBuffer_;
+    double* dataBuffer_;
 
     //- Vector of CouplingDataReaders
     std::vector<CouplingDataUser*> couplingDataReaders_;
@@ -59,32 +58,25 @@ protected:
     void configureMesh(const Foam::fvMesh& mesh);
 
 public:
-
     //- Constructor
-    Interface
-    (
-        precice::SolverInterface & precice,
+    Interface(
+        precice::SolverInterface& precice,
         const Foam::fvMesh& mesh,
         std::string meshName,
         std::string locationsType,
         std::vector<std::string> patchNames,
-        bool meshConnectivity
-    );
+        bool meshConnectivity);
 
     //- Add a CouplingDataUser to read data from the interface
-    void addCouplingDataReader
-    (
+    void addCouplingDataReader(
         std::string dataName,
-        CouplingDataUser * couplingDataReader
-    );
+        CouplingDataUser* couplingDataReader);
 
 
     //- Add a CouplingDataUser to write data on the interface
-    void addCouplingDataWriter
-    (
+    void addCouplingDataWriter(
         std::string dataName,
-        CouplingDataUser * couplingDataWriter
-    );
+        CouplingDataUser* couplingDataWriter);
 
     //- Allocate an appropriate buffer for scalar or vector data.
     //  If at least one couplingDataUser has vector data, then
@@ -101,7 +93,6 @@ public:
 
     //- Destructor
     ~Interface();
-
 };
 
 }

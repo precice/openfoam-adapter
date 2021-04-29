@@ -2,23 +2,17 @@
 
 using namespace Foam;
 
-preciceAdapter::FF::Pressure::Pressure
-(
+preciceAdapter::FF::Pressure::Pressure(
     const Foam::fvMesh& mesh,
-    const std::string nameP
-)
-:
-p_(
-    const_cast<volScalarField*>
-    (
-        &mesh.lookupObject<volScalarField>(nameP)
-    )
-)
+    const std::string nameP)
+: p_(
+    const_cast<volScalarField*>(
+        &mesh.lookupObject<volScalarField>(nameP)))
 {
     dataType_ = scalar;
 }
 
-void preciceAdapter::FF::Pressure::write(double * buffer, bool meshConnectivity, const unsigned int dim)
+void preciceAdapter::FF::Pressure::write(double* buffer, bool meshConnectivity, const unsigned int dim)
 {
     int bufferIndex = 0;
 
@@ -31,14 +25,13 @@ void preciceAdapter::FF::Pressure::write(double * buffer, bool meshConnectivity,
         forAll(p_->boundaryFieldRef()[patchID], i)
         {
             // Copy the pressure into the buffer
-            buffer[bufferIndex++]
-            =
-            p_->boundaryFieldRef()[patchID][i];
+            buffer[bufferIndex++] =
+                p_->boundaryFieldRef()[patchID][i];
         }
     }
 }
 
-void preciceAdapter::FF::Pressure::read(double * buffer, const unsigned int dim)
+void preciceAdapter::FF::Pressure::read(double* buffer, const unsigned int dim)
 {
     int bufferIndex = 0;
 
@@ -51,9 +44,8 @@ void preciceAdapter::FF::Pressure::read(double * buffer, const unsigned int dim)
         forAll(p_->boundaryFieldRef()[patchID], i)
         {
             // Set the pressure as the buffer value
-            p_->boundaryFieldRef()[patchID][i]
-            =
-            buffer[bufferIndex++];
+            p_->boundaryFieldRef()[patchID][i] =
+                buffer[bufferIndex++];
         }
     }
 }

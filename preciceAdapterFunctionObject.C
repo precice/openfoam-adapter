@@ -35,30 +35,27 @@ namespace Foam
 {
 namespace functionObjects
 {
-    defineTypeNameAndDebug(preciceAdapterFunctionObject, 0);
-    addToRunTimeSelectionTable(functionObject, preciceAdapterFunctionObject, dictionary);
+defineTypeNameAndDebug(preciceAdapterFunctionObject, 0);
+addToRunTimeSelectionTable(functionObject, preciceAdapterFunctionObject, dictionary);
 }
 }
 
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-Foam::functionObjects::preciceAdapterFunctionObject::preciceAdapterFunctionObject
-(
+Foam::functionObjects::preciceAdapterFunctionObject::preciceAdapterFunctionObject(
     const word& name,
     const Time& runTime,
-    const dictionary& dict
-)
-:
-    fvMeshFunctionObject(name, runTime, dict),
-    adapter_(runTime, mesh_)
+    const dictionary& dict)
+: fvMeshFunctionObject(name, runTime, dict),
+  adapter_(runTime, mesh_)
 {
-    #if (defined OPENFOAM_PLUS && (OPENFOAM_PLUS >= 1712) ) || (defined OPENFOAM && (OPENFOAM >= 1806))
-        // Patch for issue #27: warning "MPI was already finalized" while
-        // running in serial. This only affects openfoam.com, while initNull()
-        // does not exist in openfoam.org.
-        UPstream::initNull();
-    #endif
+#if (defined OPENFOAM_PLUS && (OPENFOAM_PLUS >= 1712)) || (defined OPENFOAM && (OPENFOAM >= 1806))
+    // Patch for issue #27: warning "MPI was already finalized" while
+    // running in serial. This only affects openfoam.com, while initNull()
+    // does not exist in openfoam.org.
+    UPstream::initNull();
+#endif
 
     read(dict);
 }
