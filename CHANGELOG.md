@@ -9,14 +9,23 @@ A fitting versioning scheme for this project is [under discussion](https://githu
 
 ## [Unreleased]
 
+## [v1.0.0] 2021-04-29
+
 ### Added
 
-- GitHub actions to build the adapter with OpenFOAM v2012 and to check shell scripts.
-- Status of the project in `README.md`: CI badges, license, maintainers, links to issues.
+- Automatic code formatting with clang-format. [#173](https://github.com/precice/openfoam-adapter/pull/173)
+- GitHub actions to build the adapter with OpenFOAM v2012 and to check shell scripts, documentation formatting, and links. [#165](https://github.com/precice/openfoam-adapter/pull/165) [#164](https://github.com/precice/openfoam-adapter/pull/164) [#169](https://github.com/precice/openfoam-adapter/pull/169) [#171](https://github.com/precice/openfoam-adapter/pull/171)
+- Status of the project in `README.md`: CI badges, license, maintainers, links to issues. [#167](https://github.com/precice/openfoam-adapter/pull/167)
+- Code of conduct, to ensure a safe environment for the community. [#166](https://github.com/precice/openfoam-adapter/pull/166)
 
 ### Changed
 
+- Replaced the deprecated `lookupType` and `subDictPtr` calls with `get` and `findDict` (supported in OpenFOAM v1812 and later). [#176](https://github.com/precice/openfoam-adapter/pull/176)
 - This Changelog now follows the [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) format.
+
+### Removed
+
+- Automatic triggering of system tests with Travis-CI. We will reimplement this later. [#165](https://github.com/precice/openfoam-adapter/pull/165)
 
 ## [pre-versioning-0] 2021-04-15
 
