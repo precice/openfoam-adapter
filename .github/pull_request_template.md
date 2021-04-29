@@ -2,5 +2,5 @@
 
 TODO list:
 
-- [ ] Set target branch to `develop`
-- [ ] Add changelog entry
+- [ ] I updated the documentation in `docs/`
+- [ ] I added a changelog entry in `changelog-entries/` (create directory if missing)
