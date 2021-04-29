@@ -19,7 +19,6 @@ class FluidFluid
 {
 
 protected:
-
     //- OpenFOAM fvMesh object
     const Foam::fvMesh& mesh_;
 
@@ -30,7 +29,7 @@ protected:
 
     //- Name of the velocity field
     std::string nameU_ = "U";
-    
+
     //- Name of the pressure field
     std::string nameP_ = "p";
 
@@ -41,18 +40,17 @@ protected:
     bool readConfig(const IOdictionary& adapterConfig);
 
 public:
-
     //- Constructor
     FluidFluid(const Foam::fvMesh& mesh);
 
     //- Configure
     bool configure(const IOdictionary& adapterConfig);
-    
+
     //- Add coupling data writers
-    void addWriters(std::string dataName, Interface * interface);
-    
+    void addWriters(std::string dataName, Interface* interface);
+
     //- Add coupling data readers
-    void addReaders(std::string dataName, Interface * interface);
+    void addReaders(std::string dataName, Interface* interface);
 };
 
 }

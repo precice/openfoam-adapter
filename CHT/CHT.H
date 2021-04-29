@@ -19,7 +19,6 @@ class ConjugateHeatTransfer
 {
 
 protected:
-
     //- OpenFOAM fvMesh object
     const Foam::fvMesh& mesh_;
 
@@ -47,7 +46,6 @@ protected:
     std::string nameAlphat_ = "alphat";
 
 protected:
-
     //- Determine the solver type
     std::string determineSolverType();
 
@@ -55,7 +53,6 @@ protected:
     bool readConfig(const IOdictionary& adapterConfig);
 
 public:
-
     //- Constructor
     ConjugateHeatTransfer(const Foam::fvMesh& mesh);
 
@@ -63,10 +60,10 @@ public:
     bool configure(const IOdictionary& adapterConfig);
 
     //- Add coupling data writers
-    void addWriters(std::string dataName, Interface * interface);
+    void addWriters(std::string dataName, Interface* interface);
 
     //- Add coupling data readers
-    void addReaders(std::string dataName, Interface * interface);
+    void addReaders(std::string dataName, Interface* interface);
 };
 
 }

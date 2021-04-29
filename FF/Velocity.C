@@ -2,23 +2,17 @@
 
 using namespace Foam;
 
-preciceAdapter::FF::Velocity::Velocity
-(
+preciceAdapter::FF::Velocity::Velocity(
     const Foam::fvMesh& mesh,
-    const std::string nameU
-)
-:
-U_(
-    const_cast<volVectorField*>
-    (
-        &mesh.lookupObject<volVectorField>(nameU)
-    )
-)
+    const std::string nameU)
+: U_(
+    const_cast<volVectorField*>(
+        &mesh.lookupObject<volVectorField>(nameU)))
 {
     dataType_ = vector;
 }
 
-void preciceAdapter::FF::Velocity::write(double * buffer, bool meshConnectivity, const unsigned int dim)
+void preciceAdapter::FF::Velocity::write(double* buffer, bool meshConnectivity, const unsigned int dim)
 {
     int bufferIndex = 0;
 
@@ -32,25 +26,22 @@ void preciceAdapter::FF::Velocity::write(double * buffer, bool meshConnectivity,
         {
             // Copy the velocity into the buffer
             // x-dimension
-            buffer[bufferIndex++]
-            =
-            U_->boundaryFieldRef()[patchID][i].x();
+            buffer[bufferIndex++] =
+                U_->boundaryFieldRef()[patchID][i].x();
 
             // y-dimension
-            buffer[bufferIndex++]
-            =
-            U_->boundaryFieldRef()[patchID][i].y();
+            buffer[bufferIndex++] =
+                U_->boundaryFieldRef()[patchID][i].y();
 
-            if(dim == 3)
+            if (dim == 3)
                 // z-dimension
-                buffer[bufferIndex++]
-                =
-                U_->boundaryFieldRef()[patchID][i].z();
+                buffer[bufferIndex++] =
+                    U_->boundaryFieldRef()[patchID][i].z();
         }
     }
 }
 
-void preciceAdapter::FF::Velocity::read(double * buffer, const unsigned int dim)
+void preciceAdapter::FF::Velocity::read(double* buffer, const unsigned int dim)
 {
     int bufferIndex = 0;
 
@@ -64,20 +55,17 @@ void preciceAdapter::FF::Velocity::read(double * buffer, const unsigned int dim)
         {
             // Set the velocity as the buffer value
             // x-dimension
-            U_->boundaryFieldRef()[patchID][i].x()
-            =
-            buffer[bufferIndex++];
+            U_->boundaryFieldRef()[patchID][i].x() =
+                buffer[bufferIndex++];
 
             // y-dimension
-            U_->boundaryFieldRef()[patchID][i].y()
-            =
-            buffer[bufferIndex++];
-
-            if(dim == 3)
-                // z-dimension
-                U_->boundaryFieldRef()[patchID][i].z()
-                =
+            U_->boundaryFieldRef()[patchID][i].y() =
                 buffer[bufferIndex++];
+
+            if (dim == 3)
+                // z-dimension
+                U_->boundaryFieldRef()[patchID][i].z() =
+                    buffer[bufferIndex++];
         }
     }
 }

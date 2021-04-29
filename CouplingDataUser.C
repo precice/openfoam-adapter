@@ -39,5 +39,5 @@ void preciceAdapter::CouplingDataUser::setLocationsType(std::string locationsTyp
 // Dummy implementation which can be overwritten in derived classes if required
 void preciceAdapter::CouplingDataUser::initialize()
 {
-  return;
+    return;
 }

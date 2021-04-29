@@ -3,14 +3,11 @@
 using namespace Foam;
 
 
-preciceAdapter::FSI::ForceBase::ForceBase
-(
+preciceAdapter::FSI::ForceBase::ForceBase(
     const Foam::fvMesh& mesh,
-    const std::string solverType
-)
-:
-mesh_(mesh),
-solverType_(solverType)
+    const std::string solverType)
+: mesh_(mesh),
+  solverType_(solverType)
 {
     //What about type "basic"?
     if (solverType_.compare("incompressible") != 0 && solverType_.compare("compressible") != 0)
@@ -33,32 +30,25 @@ Foam::tmp<Foam::volSymmTensorField> preciceAdapter::FSI::ForceBase::devRhoReff()
 
     if (mesh_.foundObject<cmpTurbModel>(cmpTurbModel::propertiesName))
     {
-        const cmpTurbModel & turb
-        (
-            mesh_.lookupObject<cmpTurbModel>(cmpTurbModel::propertiesName)
-        );
+        const cmpTurbModel& turb(
+            mesh_.lookupObject<cmpTurbModel>(cmpTurbModel::propertiesName));
 
         return turb.devRhoReff();
-
     }
     else if (mesh_.foundObject<icoTurbModel>(icoTurbModel::propertiesName))
     {
-        const incompressible::turbulenceModel& turb
-        (
-            mesh_.lookupObject<icoTurbModel>(icoTurbModel::propertiesName)
-        );
+        const incompressible::turbulenceModel& turb(
+            mesh_.lookupObject<icoTurbModel>(icoTurbModel::propertiesName));
 
-        return rho()*turb.devReff();
+        return rho() * turb.devReff();
     }
     else
     {
         // For laminar flows get the velocity
-        const volVectorField & U
-        (
-            mesh_.lookupObject<volVectorField>("U")
-        );
+        const volVectorField& U(
+            mesh_.lookupObject<volVectorField>("U"));
 
-        return -mu()*dev(twoSymm(fvc::grad(U)));
+        return -mu() * dev(twoSymm(fvc::grad(U)));
     }
 }
 
@@ -77,23 +67,17 @@ Foam::tmp<Foam::volScalarField> preciceAdapter::FSI::ForceBase::rho() const
         const dictionary& FSIDict =
             mesh_.lookupObject<IOdictionary>("preciceDict").subOrEmptyDict("FSI");
 
-        return tmp<volScalarField>
-        (
-            new volScalarField
-            (
-                IOobject
-                (
+        return tmp<volScalarField>(
+            new volScalarField(
+                IOobject(
                     "rho",
                     mesh_.time().timeName(),
                     mesh_,
                     IOobject::NO_READ,
-                    IOobject::NO_WRITE
-                ),
+                    IOobject::NO_WRITE),
                 mesh_,
                 dimensionedScalar(FSIDict.lookup("rho")) // We use this deprecated lookup() for backwards compatibility
-            )
-        );
-
+                ));
     }
     else
     {
@@ -114,10 +98,8 @@ Foam::tmp<Foam::volScalarField> preciceAdapter::FSI::ForceBase::mu() const
         typedef immiscibleIncompressibleTwoPhaseMixture iitpMixture;
         if (mesh_.foundObject<iitpMixture>("mixture"))
         {
-            const iitpMixture& mixture
-            (
-                mesh_.lookupObject<iitpMixture>("mixture")
-            );
+            const iitpMixture& mixture(
+                mesh_.lookupObject<iitpMixture>("mixture"));
 
             return mixture.mu();
         }
@@ -129,15 +111,10 @@ Foam::tmp<Foam::volScalarField> preciceAdapter::FSI::ForceBase::mu() const
 
             dimensionedScalar nu(FSIDict.lookup("nu")); // We use this deprecated lookup() for backwards compatibility
 
-            return tmp<volScalarField>
-            (
-                new volScalarField
-                (
-                    nu * rho()
-                )
-            );
+            return tmp<volScalarField>(
+                new volScalarField(
+                    nu * rho()));
         }
-
     }
     else if (solverType_.compare("compressible") == 0)
     {
@@ -153,69 +130,75 @@ Foam::tmp<Foam::volScalarField> preciceAdapter::FSI::ForceBase::mu() const
     }
 }
 
-void preciceAdapter::FSI::ForceBase::writeToBuffer(double *                            buffer,
-                                                   volVectorField &                    forceField,
+void preciceAdapter::FSI::ForceBase::writeToBuffer(double* buffer,
+                                                   volVectorField& forceField,
                                                    const unsigned int dim) const
 {
-  // Compute forces. See the Forces function object.
-  // Stress tensor boundary field
-  tmp<volSymmTensorField> tdevRhoReff(devRhoReff());
-  const volSymmTensorField::Boundary &devRhoReffb(
-      tdevRhoReff().boundaryField());
+    // Compute forces. See the Forces function object.
+    // Stress tensor boundary field
+    tmp<volSymmTensorField> tdevRhoReff(devRhoReff());
+    const volSymmTensorField::Boundary& devRhoReffb(
+        tdevRhoReff().boundaryField());
 
-  // Density boundary field
-  tmp<volScalarField>             trho(rho());
-  const volScalarField::Boundary &rhob =
-      trho().boundaryField();
+    // Density boundary field
+    tmp<volScalarField> trho(rho());
+    const volScalarField::Boundary& rhob =
+        trho().boundaryField();
 
-  // Pressure boundary field
-  tmp<volScalarField>             tp = mesh_.lookupObject<volScalarField>("p");
-  const volScalarField::Boundary &pb(
-      tp().boundaryField());
+    // Pressure boundary field
+    tmp<volScalarField> tp = mesh_.lookupObject<volScalarField>("p");
+    const volScalarField::Boundary& pb(
+        tp().boundaryField());
 
-  // For every boundary patch of the interface
-  for (const label patchID : patchIDs_) {
-
-    const auto &surface = getFaceVectors(patchID);
-
-    // Pressure forces
-    // FIXME: We need to substract the reference pressure for incompressible calculations
-    if (solverType_.compare("incompressible") == 0) {
-      forceField.boundaryFieldRef()[patchID] =
-          surface * pb[patchID] * rhob[patchID];
-    } else if (solverType_.compare("compressible") == 0) {
-      forceField.boundaryFieldRef()[patchID] =
-          surface * pb[patchID];
-    } else {
-      FatalErrorInFunction
-          << "Forces calculation does only support "
-          << "compressible or incompressible solver type."
-          << exit(FatalError);
-    }
-
-    // Viscous forces
-    forceField.boundaryFieldRef()[patchID] +=
-        surface & devRhoReffb[patchID];
-
-    // Write the forces to the preCICE buffer
-    // For every cell of the patch
-    forAll(forceField.boundaryField()[patchID], i)
+    // For every boundary patch of the interface
+    for (const label patchID : patchIDs_)
     {
-      for (unsigned int d = 0; d < dim; ++d)
-        buffer[i * dim + d] =
-            forceField.boundaryField()[patchID][i][d];
+
+        const auto& surface = getFaceVectors(patchID);
+
+        // Pressure forces
+        // FIXME: We need to substract the reference pressure for incompressible calculations
+        if (solverType_.compare("incompressible") == 0)
+        {
+            forceField.boundaryFieldRef()[patchID] =
+                surface * pb[patchID] * rhob[patchID];
+        }
+        else if (solverType_.compare("compressible") == 0)
+        {
+            forceField.boundaryFieldRef()[patchID] =
+                surface * pb[patchID];
+        }
+        else
+        {
+            FatalErrorInFunction
+                << "Forces calculation does only support "
+                << "compressible or incompressible solver type."
+                << exit(FatalError);
+        }
+
+        // Viscous forces
+        forceField.boundaryFieldRef()[patchID] +=
+            surface & devRhoReffb[patchID];
+
+        // Write the forces to the preCICE buffer
+        // For every cell of the patch
+        forAll(forceField.boundaryField()[patchID], i)
+        {
+            for (unsigned int d = 0; d < dim; ++d)
+                buffer[i * dim + d] =
+                    forceField.boundaryField()[patchID][i][d];
+        }
     }
-  }
 }
 
-void preciceAdapter::FSI::ForceBase::readFromBuffer(double *buffer) const
+void preciceAdapter::FSI::ForceBase::readFromBuffer(double* buffer) const
 {
-  /* TODO: Implement
+    /* TODO: Implement
     * We need two nested for-loops for each patch,
     * the outer for the locations and the inner for the dimensions.
     * See the preCICE readBlockVectorData() implementation.
     */
-  FatalErrorInFunction
-      << "Reading forces is not supported."
-      << exit(FatalError);
+    FatalErrorInFunction
+        << "Reading forces is not supported."
+        << exit(FatalError);
 }

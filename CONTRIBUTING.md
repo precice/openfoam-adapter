@@ -9,3 +9,7 @@ and watch out for more specific details in this file.
 Instead of directly editing `CHANGELOG.md`, please add a file `123.md`
 in `changelog-entries`, where `123` your pull request number. This helps reduce
 merge conflicts and we will merge these files at the time we release a new version.
+
+## Code formatting
+
+You can format all files with clang-format 11 by running `./tools/format-code.sh`.

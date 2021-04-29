@@ -4,13 +4,11 @@
 
 using namespace Foam;
 
-preciceAdapter::FF::FluidFluid::FluidFluid
-(
-    const Foam::fvMesh& mesh
-)
-:
-mesh_(mesh)
-{}
+preciceAdapter::FF::FluidFluid::FluidFluid(
+    const Foam::fvMesh& mesh)
+: mesh_(mesh)
+{
+}
 
 bool preciceAdapter::FF::FluidFluid::configure(const IOdictionary& adapterConfig)
 {
@@ -24,9 +22,7 @@ bool preciceAdapter::FF::FluidFluid::configure(const IOdictionary& adapterConfig
     // addWriters() and addReaders().
     // Check the solver type and determine it if needed
     if (
-        solverType_.compare("compressible") == 0 ||
-        solverType_.compare("incompressible") == 0
-    )
+        solverType_.compare("compressible") == 0 || solverType_.compare("incompressible") == 0)
     {
         DEBUG(adapterInfo("Known solver type: " + solverType_));
     }
@@ -47,11 +43,11 @@ bool preciceAdapter::FF::FluidFluid::configure(const IOdictionary& adapterConfig
 bool preciceAdapter::FF::FluidFluid::readConfig(const IOdictionary& adapterConfig)
 {
     const dictionary FFdict = adapterConfig.subOrEmptyDict("FF");
-    
+
     // Read the solver type (if not specified, it is determined automatically)
     solverType_ = FFdict.lookupOrDefault<word>("solverType", "");
     DEBUG(adapterInfo("    user-defined solver type : " + solverType_));
-    
+
     // Read the name of the velocity field (if different)
     nameU_ = FFdict.lookupOrDefault<word>("nameU", "U");
     DEBUG(adapterInfo("    velocity field name : " + nameU_));
@@ -75,70 +71,62 @@ std::string preciceAdapter::FF::FluidFluid::determineSolverType()
 
     if (mesh_.foundObject<volScalarField>("p"))
     {
-      volScalarField p_ = mesh_.lookupObject<volScalarField>("p");
+        volScalarField p_ = mesh_.lookupObject<volScalarField>("p");
 
-      if (p_.dimensions() == pressureDimensionsCompressible)
-        solverType = "compressible";
-      else if (p_.dimensions() == pressureDimensionsIncompressible)
-        solverType = "incompressible";
-      // TODO: Add special case for multiphase solvers.
-      // Currently, interFoam is misclassified as "compressible".
+        if (p_.dimensions() == pressureDimensionsCompressible)
+            solverType = "compressible";
+        else if (p_.dimensions() == pressureDimensionsIncompressible)
+            solverType = "incompressible";
+        // TODO: Add special case for multiphase solvers.
+        // Currently, interFoam is misclassified as "compressible".
     }
 
     if (solverType == "unknown")
-      adapterInfo("Failed to determine the solver type. "
-                  "Please specify your solver type in the FF section of the "
-                  "preciceDict. Known solver types for FF are: "
-                  "incompressible and "
-                  "compressible",
-                  "error");
+        adapterInfo("Failed to determine the solver type. "
+                    "Please specify your solver type in the FF section of the "
+                    "preciceDict. Known solver types for FF are: "
+                    "incompressible and "
+                    "compressible",
+                    "error");
 
     DEBUG(adapterInfo("Automatically determined solver type : " + solverType));
 
     return solverType;
 }
 
-void preciceAdapter::FF::FluidFluid::addWriters(std::string dataName, Interface * interface)
+void preciceAdapter::FF::FluidFluid::addWriters(std::string dataName, Interface* interface)
 {
     if (dataName.find("VelocityGradient") == 0)
     {
-        interface->addCouplingDataWriter
-        (
+        interface->addCouplingDataWriter(
             dataName,
-            new VelocityGradient(mesh_, nameU_)
-        );
+            new VelocityGradient(mesh_, nameU_));
         DEBUG(adapterInfo("Added writer: Velocity Gradient."));
     }
     else if (dataName.find("Velocity") == 0)
     {
-        interface->addCouplingDataWriter
-        (
+        interface->addCouplingDataWriter(
             dataName,
-            new Velocity(mesh_, nameU_)
-        );
+            new Velocity(mesh_, nameU_));
         DEBUG(adapterInfo("Added writer: Velocity."));
     }
     else if (dataName.find("PressureGradient") == 0)
     {
-        interface->addCouplingDataWriter
-        (
+        interface->addCouplingDataWriter(
             dataName,
-            new PressureGradient(mesh_, nameP_)
-        );
+            new PressureGradient(mesh_, nameP_));
         DEBUG(adapterInfo("Added writer: Pressure Gradient."));
     }
     else if (dataName.find("Pressure") == 0)
     {
-        interface->addCouplingDataWriter
-        (
+        interface->addCouplingDataWriter(
             dataName,
-            new Pressure(mesh_, nameP_)
-        );
+            new Pressure(mesh_, nameP_));
         DEBUG(adapterInfo("Added writer: Pressure."));
     }
     else
     {
-        adapterInfo("Unknown data type - cannot add " + dataName +".", "error");
+        adapterInfo("Unknown data type - cannot add " + dataName + ".", "error");
     }
 
     // NOTE: If you want to couple another variable, you need
@@ -148,47 +136,39 @@ void preciceAdapter::FF::FluidFluid::addWriters(std::string dataName, Interface 
     // the one provided in the adapter's configuration file.
 }
 
-void preciceAdapter::FF::FluidFluid::addReaders(std::string dataName, Interface * interface)
+void preciceAdapter::FF::FluidFluid::addReaders(std::string dataName, Interface* interface)
 {
     if (dataName.find("VelocityGradient") == 0)
     {
-        interface->addCouplingDataReader
-        (
+        interface->addCouplingDataReader(
             dataName,
-            new VelocityGradient(mesh_, nameU_)
-        );
+            new VelocityGradient(mesh_, nameU_));
         DEBUG(adapterInfo("Added reader: VelocityGradient."));
     }
     else if (dataName.find("Velocity") == 0)
     {
-        interface->addCouplingDataReader
-        (
+        interface->addCouplingDataReader(
             dataName,
-            new Velocity(mesh_, nameU_)
-        );
+            new Velocity(mesh_, nameU_));
         DEBUG(adapterInfo("Added reader: Velocity."));
     }
     else if (dataName.find("PressureGradient") == 0)
     {
-        interface->addCouplingDataReader
-        (
+        interface->addCouplingDataReader(
             dataName,
-            new PressureGradient(mesh_, nameP_)
-        );
+            new PressureGradient(mesh_, nameP_));
         DEBUG(adapterInfo("Added reader: Pressure Gradient."));
     }
     else if (dataName.find("Pressure") == 0)
     {
-        interface->addCouplingDataReader
-        (
+        interface->addCouplingDataReader(
             dataName,
-            new Pressure(mesh_, nameP_)
-        );
+            new Pressure(mesh_, nameP_));
         DEBUG(adapterInfo("Added reader: Pressure."));
     }
     else
     {
-        adapterInfo("Unknown data type - cannot add " + dataName +".", "error");
+        adapterInfo("Unknown data type - cannot add " + dataName + ".", "error");
     }
 
     // NOTE: If you want to couple another variable, you need
@@ -197,4 +177,3 @@ void preciceAdapter::FF::FluidFluid::addReaders(std::string dataName, Interface 
     // The argument of the dataName.compare() needs to match
     // the one provided in the adapter's configuration file.
 }
-

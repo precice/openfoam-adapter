@@ -34,19 +34,16 @@ protected:
     const std::string solverType_;
 
 public:
-
     //- Constructor
-    ForceBase
-    (
+    ForceBase(
         const Foam::fvMesh& mesh,
-        const std::string solverType
-    );
+        const std::string solverType);
 
-    void writeToBuffer(double *                                  buffer,
-                       Foam::volVectorField &                    forceField,
-                       const unsigned int                        dim) const;
+    void writeToBuffer(double* buffer,
+                       Foam::volVectorField& forceField,
+                       const unsigned int dim) const;
 
-    void readFromBuffer(double *buffer) const;
+    void readFromBuffer(double* buffer) const;
 
     virtual Foam::vectorField getFaceVectors(const unsigned int patchID) const = 0;
 };

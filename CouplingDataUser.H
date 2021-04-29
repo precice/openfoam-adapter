@@ -11,8 +11,11 @@ class CouplingDataUser
 {
 
 protected:
-
-    enum DataType {scalar, vector};
+    enum DataType
+    {
+        scalar,
+        vector
+    };
 
     //- Type of the coupling data (scalar or vector)
     DataType dataType_ = scalar;
@@ -27,7 +30,6 @@ protected:
     std::string locationsType_;
 
 public:
-
     //- Constructor
     CouplingDataUser();
 
@@ -53,14 +55,13 @@ public:
     virtual void initialize();
 
     //- Write the coupling data to the buffer
-    virtual void write(double * dataBuffer, bool meshConnectivity, const unsigned int dim) = 0;
+    virtual void write(double* dataBuffer, bool meshConnectivity, const unsigned int dim) = 0;
 
     //- Read the coupling data from the buffer
-    virtual void read(double * dataBuffer, const unsigned int dim) = 0;
+    virtual void read(double* dataBuffer, const unsigned int dim) = 0;
 
     //- Destructor
     virtual ~CouplingDataUser() {}
-
 };
 
 }
