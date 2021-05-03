@@ -19,7 +19,7 @@ preciceAdapter::FSI::Force::Force(
     }
     else
     {
-        ForceOwning_.reset(new volVectorField(
+        ForceOwning_ = new volVectorField(
             IOobject(
                 nameForce,
                 mesh_.time().timeName(),
@@ -30,9 +30,9 @@ preciceAdapter::FSI::Force::Force(
             dimensionedVector(
                 "fdim",
                 dimensionSet(1, 1, -2, 0, 0, 0, 0),
-                Foam::vector::zero)));
+                Foam::vector::zero));
 
-        Force_ = ForceOwning_.get();
+        Force_ = ForceOwning_.ptr();
     }
 }
 

@@ -16,7 +16,7 @@ private:
     Foam::volVectorField* Force_;
 
     //- Force field (owning pointer, we bind to Force_)
-    std::unique_ptr<Foam::volVectorField> ForceOwning_;
+    Foam::autoPtr<Foam::volVectorField> ForceOwning_;
 
 public:
     //- Constructor
