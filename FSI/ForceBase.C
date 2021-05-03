@@ -78,7 +78,7 @@ Foam::tmp<Foam::volScalarField> preciceAdapter::FSI::ForceBase::rho() const
                     IOobject::NO_READ,
                     IOobject::NO_WRITE),
                 mesh_,
-                dimensionedScalar(FSIDict.get<dimensionedScalar>("rho"))));
+                dimensionedScalar(static_cast<dimensionedScalar>(FSIDict.lookup("rho")))));
     }
     else
     {
@@ -109,7 +109,7 @@ Foam::tmp<Foam::volScalarField> preciceAdapter::FSI::ForceBase::mu() const
             const dictionary& FSIDict =
                 mesh_.lookupObject<IOdictionary>("preciceDict").subOrEmptyDict("FSI");
 
-            dimensionedScalar nu(FSIDict.get<dimensionedScalar>("nu"));
+            dimensionedScalar nu(static_cast<dimensionedScalar>(FSIDict.lookup("nu")));
 
             return tmp<volScalarField>(
                 new volScalarField(

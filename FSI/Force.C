@@ -30,9 +30,9 @@ preciceAdapter::FSI::Force::Force(
             dimensionedVector(
                 "fdim",
                 dimensionSet(1, 1, -2, 0, 0, 0, 0),
-                Foam::vector::zero)));
+                Foam::vector::zero));
 
-        Force_ = ForceOwning_.get();
+        Force_ = ForceOwning_.ptr();
     }
 }
 
