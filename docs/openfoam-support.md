@@ -32,8 +32,8 @@ We provide version-specific branches and archives for:
   - [OpenFOAM 8](https://github.com/precice/openfoam-adapter/pull/130) (experimental).
   - [OpenFOAM 7](https://github.com/precice/openfoam-adapter/tree/OpenFOAM7) (experimental).
   - [OpenFOAM 6](https://github.com/precice/openfoam-adapter/tree/OpenFOAM6) (experimental).
-  - [OpenFOAM 4.0/4.1](https://github.com/precice/openfoam-adapter/tree/OpenFOAM4).
   - [OpenFOAM 5.x](https://github.com/precice/openfoam-adapter/tree/OpenFOAM5).
+  - [OpenFOAM 4.0/4.1](https://github.com/precice/openfoam-adapter/tree/OpenFOAM4).
 
 Known not supported versions: OpenFOAM v1606+ or older, OpenFOAM 3 or older, foam-extend (any version).
 

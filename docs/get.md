@@ -9,16 +9,13 @@ To build the adapter, you need to install a few dependencies and then execute th
 
 1. Install [a compatible OpenFOAM distribution](https://precice.org/adapter-openfoam-support.html).
 2. Install [preCICE](https://precice.org/installation-overview.html).
-3. [Download](https://github.com/precice/openfoam-adapter/archive/master.zip) the adapter _or_ (better) install [git](https://git-scm.com/) and clone this repository: `git clone https://github.com/precice/openfoam-adapter.git`.
-    * [Depending on your OpenFOAM version](https://precice.org/adapter-openfoam-support.html), you may need to change to a different git branch.
+3. [Download the latest release](https://github.com/precice/openfoam-adapter/releases/latest) for your OpenFOAM version.
 4. Execute the build script: `./Allwmake`.
     * See and adjust the configuration in the beginning of the script first, if needed.
     * Check for any error messages and suggestions at the end.
     * Modify the `adapter_build_command` to e.g. build using more threads, e.g. `wmake -j 4 libso`.
 
-The `-DADAPTER_DEBUG_MODE` flag inside `ADAPTER_PREP_FLAGS` activates additional debug messages. You may also change the target directory or specify the number of threads to use for the compilation. See the comments in `Allwmake` for more.
-
-In order to upgrade the adapter, or before you build for another OpenFOAM version, run `./Allclean` first. Get the latest version using `git pull`.
+Adding `-DADAPTER_DEBUG_MODE` flag to the `ADAPTER_PREP_FLAGS` activates additional debug messages. You may also change the target directory or specify the number of threads to use for the compilation. See the comments in `Allwmake` for more.
 
 Next: [configure and load the adapter](https://precice.org/adapter-openfoam-config.html) or [run a tutorial](https://precice.org/tutorials.html).
 
@@ -26,9 +23,7 @@ Next: [configure and load the adapter](https://precice.org/adapter-openfoam-conf
 
 The following are common problems that may appear during building the OpenFOAM adapter if something went wrong in the described steps. Make sure to always check for error messages at every step before continuing to the next.
 
-The `Allwmake` script prints the environment variables it uses in the beginning (as well as in `allwmake.log`) and it writes the building commands in the file `wmake.log`. Afterwards, it checks (using `ldd`) if the library was linked correctly and writes the output to `ldd.log`. **Please check these files and include them in your report if you have need help.**
-
-The most important information in these files is the `-I` and `-L` flags used during compilation and linking.
+The `Allwmake` script prints the environment variables it uses in the beginning (as well as in `Allwmake.log`) and it writes the building commands in the file `wmake.log`. Afterwards, it checks (using `ldd`) if the library was linked correctly and writes the output to `ldd.log`. **Please check these files and include them in your report if you have need help.**
 
 ### Unknown function type `preciceAdapterFunctionObject`
 
