@@ -1,8 +1,9 @@
 #ifndef CHT_COMMON_KAPPAEFF_H
 #define CHT_COMMON_KAPPAEFF_H
 
-#include "turbulentFluidThermoModel.H"
-#include "turbulentTransportModel.H"
+#include "fluidThermoMomentumTransportModel.H"
+#include "kinematicMomentumTransportModel.H"
+#include "thermophysicalTransportModel.H"
 
 namespace preciceAdapter
 {
@@ -21,9 +22,8 @@ protected:
     //- Effective conductivity (it can be different for each cell)
     Foam::scalarField kappaEff_;
 
-    //- Turbulence (and thermo/transport) model, from which
-    //  kappaEff is drawn directly.
-    const Foam::compressible::turbulenceModel& turbulence_;
+    //- Thermophysical transport model, from which kappaEff is drawn directly.
+    const Foam::thermophysicalTransportModel& thermophysicalTransportModel_;
 
 public:
     //- Constructor
@@ -48,40 +48,13 @@ protected:
     //- Effective conductivity (it can be different for each cell)
     Foam::scalarField kappaEff_;
 
-    //- Turbulence (and thermo/transport) model.
-    //  The effective thermal diffusivity is drawn from it and
-    //  used to compute the effective thermal conductivity.
-    const Foam::incompressible::turbulenceModel& turbulence_;
-
-    //- Name of the user-provided density (in the preciceDict)
-    const std::string nameRho_;
-
-    //- Name of the user-provided heat capacity (in the preciceDict)
-    const std::string nameCp_;
-
-    //- Name of the user-provided Prandtl number (in the preciceDict)
-    const std::string namePr_;
-
-    //- Name of the turbulent thermal diffusivity field
-    const std::string nameAlphat_;
-
-    //- Density
-    Foam::dimensionedScalar rho_;
-
-    //- Heat capacity
-    Foam::dimensionedScalar Cp_;
-
-    //- Prandtl number
-    Foam::dimensionedScalar Pr_;
+    //- Thermophysical transport model, from which kappaEff is drawn directly.
+    const Foam::thermophysicalTransportModel& thermophysicalTransportModel_;
 
 public:
     //- Constructor
     KappaEff_Incompressible(
-        const Foam::fvMesh& mesh,
-        const std::string nameRho,
-        const std::string nameCp,
-        const std::string namePr,
-        const std::string nameAlphat);
+        const Foam::fvMesh& mesh);
 
     //- Extract the kappaEff on the specific patch and store it.
     void extract(uint patchID, bool meshConnectivity);
