@@ -59,7 +59,9 @@ SourceFiles
 
 // OpenFOAM header files
 #include "fvMeshFunctionObject.H"
-#include "clockValue.H"
+#ifdef ADAPTER_ENABLE_TIMINGS
+#include "clockValue.H" // Not available in OpenFOAM.org, do not enable
+#endif
 
 // Main adapter header file
 #include "Adapter.H"
