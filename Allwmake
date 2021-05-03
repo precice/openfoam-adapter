@@ -10,7 +10,7 @@ ADAPTER_PREP_FLAGS=""
 # In order to compile with multiple threads, add e.g. "-j 4".
 # Make sure that these options are supported by your OpenFOAM version.
 adapter_build_command(){
-    wmake -j 4 libso
+    wmake libso
 }
 
 # Where should the adapter be built? Default: "${FOAM_USER_LIBBIN}"
