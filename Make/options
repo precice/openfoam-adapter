@@ -2,15 +2,12 @@ EXE_INC = \
     -I$(LIB_SRC)/finiteVolume/lnInclude \
     -I$(LIB_SRC)/meshTools/lnInclude \
     -I$(LIB_SRC)/transportModels/ \
-    -I$(LIB_SRC)/transportModels/incompressible/lnInclude \
-    -I$(LIB_SRC)/transportModels/compressible/lnInclude \
-    -I$(LIB_SRC)/transportModels/twoPhaseMixture/lnInclude \
-    -I$(LIB_SRC)/transportModels/interfaceProperties/lnInclude \
-    -I$(LIB_SRC)/transportModels/immiscibleIncompressibleTwoPhaseMixture/lnInclude \
     -I$(LIB_SRC)/thermophysicalModels/basic/lnInclude \
-    -I$(LIB_SRC)/TurbulenceModels/turbulenceModels/lnInclude \
-    -I$(LIB_SRC)/TurbulenceModels/compressible/lnInclude \
-    -I$(LIB_SRC)/TurbulenceModels/incompressible/lnInclude \
+    -I$(LIB_SRC)/ThermophysicalTransportModels/lnInclude \
+    -I$(LIB_SRC)/MomentumTransportModels/momentumTransportModels/lnInclude \
+    -I$(LIB_SRC)/MomentumTransportModels/compressible/lnInclude \
+    -I$(LIB_SRC)/MomentumTransportModels/incompressible/lnInclude \
+    -I$(LIB_SRC)/transportModels/lnInclude \
     -I$(LIB_SRC)/triSurface/lnInclude \
     $(ADAPTER_PKG_CONFIG_CFLAGS) \
     -I../ \
@@ -19,8 +16,9 @@ EXE_INC = \
 LIB_LIBS = \
     -lfiniteVolume \
     -lmeshTools \
-    -lcompressibleTurbulenceModels \
-    -lincompressibleTurbulenceModels \
+    -lthermophysicalTransportModels \
+    -lfluidThermoMomentumTransportModels \
+    -lincompressibleMomentumTransportModels \
     -limmiscibleIncompressibleTwoPhaseMixture \
     $(ADAPTER_PKG_CONFIG_LIBS) \
     -lprecice
