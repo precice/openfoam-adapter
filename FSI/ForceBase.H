@@ -8,9 +8,8 @@
 
 #include "pointFields.H"
 #include "vectorField.H"
-#include "immiscibleIncompressibleTwoPhaseMixture.H"
-#include "turbulentFluidThermoModel.H"
-#include "turbulentTransportModel.H"
+#include "fluidThermoMomentumTransportModel.H"
+#include "kinematicMomentumTransportModel.H"
 
 namespace preciceAdapter
 {
