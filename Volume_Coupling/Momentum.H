@@ -3,8 +3,8 @@
 
 #include "Interface.H"
 
-#include "Momentum/Generic_volScalarField.H"
-#include "Momentum/Generic_volVectorField.H"
+#include "Volume_Coupling/Generic_volScalarField.H"
+#include "Volume_Coupling/Generic_volVectorField.H"
 
 #include "fvCFD.H"
 
