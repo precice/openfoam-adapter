@@ -25,6 +25,11 @@ FF/VelocityGradient.C
 FF/Pressure.C
 FF/PressureGradient.C
 
+Momentum/Momentum.C
+Momentum/Your_Volume_Field.C
+Momentum/Generic_volVectorField.C
+Momentum/Generic_volScalarField.C
+
 Adapter.C
 
 preciceAdapterFunctionObject.C
