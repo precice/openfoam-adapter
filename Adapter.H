@@ -12,8 +12,8 @@
 // Fluid-Fluid module
 #include "FF/FF.H"
 
-// Momentum Module
-#include "Momentum/Momentum.H"
+// Volume_Coupling Module
+#include "Volume_Coupling/Momentum.H"
 
 // NOTE: If you want to couple a new variable, include your module's header here.
 // You also need to include it in the Make/files file.
