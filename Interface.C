@@ -255,7 +255,69 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh)
             }
         }
     }
-    if (!(locationsType_ == "faceNodes" || locationsType_ == "faceCenters" || locationsType_ == "faceCentres"))
+    else if (locationsType_ == "volume")
+    {
+        // module for volume coupling is based on the module for coupling faceCenters
+        // as the module was tested and developed on a previous development where faceNodes
+        // did not work properly
+        //
+        // the module for volume coupling considers the mesh points in the volume and
+        // on the patches in order to take the boundary conditions into account
+
+        // get the number (volume centered) mesh points in the volume
+        numDataLocations_ = mesh.C().size();
+
+        // Count the data locations for all the patches
+        // and add the those to the previously determined number of mesh points in the volume
+        for (uint j = 0; j < patchIDs_.size(); j++)
+        {
+            numDataLocations_ +=
+                    mesh.boundaryMesh()[patchIDs_.at(j)].faceCentres().size();
+        }
+        DEBUG(adapterInfo("Number of face centres: " + std::to_string(numDataLocations_)));
+
+        // Array of the mesh vertices.
+        // One mesh is used for all the patches and each vertex has 3D coordinates.
+        double vertices[3 * numDataLocations_];
+
+        // Array of the indices of the mesh vertices.
+        // Each vertex has one index, but three coordinates.
+        vertexIDs_ = new int[numDataLocations_];
+
+        // Initialize the index of the vertices array
+        int verticesIndex = 0;
+
+        // Get the locations of the volume centered mesh vertices
+        const vectorField & CellCenters = mesh.C();
+
+        for (int i = 0; i < CellCenters.size(); i++)
+        {
+            vertices[verticesIndex++] = CellCenters[i].x();
+            vertices[verticesIndex++] = CellCenters[i].y();
+            vertices[verticesIndex++] = CellCenters[i].z();
+        }
+
+        // Get the locations of the mesh vertices (here: face centers)
+        // for all the patches
+        for (uint j = 0; j < patchIDs_.size(); j++)
+        {
+            // Get the face centers of the current patch
+            const vectorField & faceCenters =
+                    mesh.boundaryMesh()[patchIDs_.at(j)].faceCentres();
+
+            // Assign the (x,y,z) locations to the vertices
+            for (int i = 0; i < faceCenters.size(); i++)
+            {
+                vertices[verticesIndex++] = faceCenters[i].x();
+                vertices[verticesIndex++] = faceCenters[i].y();
+                vertices[verticesIndex++] = faceCenters[i].z();
+            }
+        }
+
+        // Pass the mesh vertices information to preCICE
+        precice_.setMeshVertices(meshID_, numDataLocations_, vertices, vertexIDs_);
+    }
+    if (!(locationsType_ == "faceNodes" || locationsType_ == "faceCenters" || locationsType_ == "faceCentres" || locationsType_ == "volume"))
     {
         FatalErrorInFunction
             << "ERROR: interface points location type "
