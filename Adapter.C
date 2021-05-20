@@ -64,6 +64,10 @@ bool preciceAdapter::Adapter::configFileRead()
             {
                 FFenabled_ = true;
             }
+            if (module == "MOMENTUM")
+            {
+                Momentumenabled_  = true;
+            }
         }
 
         // Every interface is a subdictionary of "interfaces",
@@ -184,6 +188,14 @@ bool preciceAdapter::Adapter::configFileRead()
             }
         }
 
+        // If the MOMENTUM module is enabled, create it, read the
+        // MOMENTUM-specific options and configure it.
+        if (Momentumenabled_)
+        {
+            Momentum_ = new Momentum::Momentum(mesh_, runTime_);
+            if (!Momentum_->configure(preciceDict)) return false;
+        }
+
         // NOTE: Create your module and read any options specific to it here
 
         if (!CHTenabled_ && !FSIenabled_ && !FFenabled_) // NOTE: Add your new switch here
@@ -275,6 +287,12 @@ void preciceAdapter::Adapter::configure()
                     FF_->addWriters(dataName, interface);
                 }
 
+                // Add Momentum-related coupling data writers
+                if (Momentumenabled_)
+                {
+                    Momentum_->addWriters(dataName, interface);
+                }
+
                 // NOTE: Add any coupling data writers for your module here.
             } // end add coupling data writers
 
@@ -299,6 +317,12 @@ void preciceAdapter::Adapter::configure()
                 if (FFenabled_)
                 {
                     FF_->addReaders(dataName, interface);
+                }
+
+                // Add FSI-related coupling data readers
+                if (Momentumenabled_)
+                {
+                    Momentum_->addReaders(dataName, interface);
                 }
 
                 // NOTE: Add any coupling data readers for your module here.
@@ -1809,6 +1833,14 @@ void preciceAdapter::Adapter::teardown()
         DEBUG(adapterInfo("Destroying the FF module..."));
         delete FF_;
         FF_ = NULL;
+    }
+
+    // Delete the Momentum module
+    if(NULL != Momentum_)
+    {
+        DEBUG(adapterInfo("Destroying the Momentum module..."));
+        delete Momentum_;
+        Momentum_ = NULL;
     }
 
     // NOTE: Delete your new module here

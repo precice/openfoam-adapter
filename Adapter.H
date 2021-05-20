@@ -12,6 +12,9 @@
 // Fluid-Fluid module
 #include "FF/FF.H"
 
+// Momentum Module
+#include "Momentum/Momentum.H"
+
 // NOTE: If you want to couple a new variable, include your module's header here.
 // You also need to include it in the Make/files file.
 // In case you use additional OpenFOAM symbols, you may also need to specify
@@ -83,6 +86,9 @@ private:
     //- Switch to enable the FluidFluid module
     bool FFenabled_ = false;
 
+    //- Switch to enable the Momentum module
+    bool Momentumenabled_ = false;
+
     // NOTE: Add a switch for your new module here
 
     //- Interfaces
@@ -102,6 +108,9 @@ private:
 
     //- Fluid-Fluid module object
     FF::FluidFluid* FF_ = NULL;
+
+    //- Volume Coupling module object
+    Momentum::Momentum * Momentum_ = NULL;
 
     // NOTE: Add here a pointer for your new module object
 
