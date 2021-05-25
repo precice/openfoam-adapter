@@ -317,7 +317,7 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh)
         // Pass the mesh vertices information to preCICE
         precice_.setMeshVertices(meshID_, numDataLocations_, vertices, vertexIDs_);
     }
-    if (!(locationsType_ == "faceNodes" || locationsType_ == "faceCenters" || locationsType_ == "faceCentres" || locationsType_ == "volume"))
+else
     {
         FatalErrorInFunction
             << "ERROR: interface points location type "
