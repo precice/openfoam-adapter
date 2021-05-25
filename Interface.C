@@ -278,7 +278,7 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh)
 
         // Array of the mesh vertices.
         // One mesh is used for all the patches and each vertex has 3D coordinates.
-        double vertices[3 * numDataLocations_];
+        double vertices[dim_ * numDataLocations_];
 
         // Array of the indices of the mesh vertices.
         // Each vertex has one index, but three coordinates.
@@ -294,7 +294,10 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh)
         {
             vertices[verticesIndex++] = CellCenters[i].x();
             vertices[verticesIndex++] = CellCenters[i].y();
-            vertices[verticesIndex++] = CellCenters[i].z();
+            if (dim_ == 2)
+            {
+                vertices[verticesIndex++] = CellCenters[i].z();
+            }
         }
 
         // Get the locations of the mesh vertices (here: face centers)
