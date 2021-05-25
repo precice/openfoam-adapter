@@ -294,10 +294,11 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh)
         {
             vertices[verticesIndex++] = CellCenters[i].x();
             vertices[verticesIndex++] = CellCenters[i].y();
-            if (dim_ == 2)
+            if (dim_ == 3)
             {
                 vertices[verticesIndex++] = CellCenters[i].z();
             }
+
         }
 
         // Get the locations of the mesh vertices (here: face centers)
