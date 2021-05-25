@@ -274,7 +274,7 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh)
             numDataLocations_ +=
                     mesh.boundaryMesh()[patchIDs_.at(j)].faceCentres().size();
         }
-        DEBUG(adapterInfo("Number of face centres: " + std::to_string(numDataLocations_)));
+        DEBUG(adapterInfo("Number of coupling volumes: " + std::to_string(numDataLocations_)));
 
         // Array of the mesh vertices.
         // One mesh is used for all the patches and each vertex has 3D coordinates.
