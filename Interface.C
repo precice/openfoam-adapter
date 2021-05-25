@@ -262,7 +262,7 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh)
         // did not work properly
         //
         // the module for volume coupling considers the mesh points in the volume and
-        // on the patches in order to take the boundary conditions into account
+        // on the boundary patches in order to take the boundary conditions into account
 
         // get the number (volume centered) mesh points in the volume
         numDataLocations_ = mesh.C().size();
