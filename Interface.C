@@ -314,7 +314,10 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh)
             {
                 vertices[verticesIndex++] = faceCenters[i].x();
                 vertices[verticesIndex++] = faceCenters[i].y();
-                vertices[verticesIndex++] = faceCenters[i].z();
+                if (dim_ == 3)
+                {
+                    vertices[verticesIndex++] = faceCenters[i].z();
+                }
             }
         }
 
