@@ -272,7 +272,7 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh)
         for (uint j = 0; j < patchIDs_.size(); j++)
         {
             numDataLocations_ +=
-                    mesh.boundaryMesh()[patchIDs_.at(j)].faceCentres().size();
+                mesh.boundaryMesh()[patchIDs_.at(j)].faceCentres().size();
         }
         DEBUG(adapterInfo("Number of coupling volumes: " + std::to_string(numDataLocations_)));
 
