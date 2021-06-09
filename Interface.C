@@ -298,7 +298,6 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh)
             {
                 vertices[verticesIndex++] = CellCenters[i].z();
             }
-
         }
 
         // Get the locations of the mesh vertices (here: face centers)
@@ -324,7 +323,7 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh)
         // Pass the mesh vertices information to preCICE
         precice_.setMeshVertices(meshID_, numDataLocations_, vertices, vertexIDs_);
     }
-else
+    else
     {
         FatalErrorInFunction
             << "ERROR: interface points location type "
