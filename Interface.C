@@ -288,7 +288,7 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh)
         int verticesIndex = 0;
 
         // Get the locations of the volume centered mesh vertices
-        const vectorField & CellCenters = mesh.C();
+        const vectorField& CellCenters = mesh.C();
 
         for (int i = 0; i < CellCenters.size(); i++)
         {
@@ -306,8 +306,8 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh)
         for (uint j = 0; j < patchIDs_.size(); j++)
         {
             // Get the face centers of the current patch
-            const vectorField & faceCenters =
-                    mesh.boundaryMesh()[patchIDs_.at(j)].faceCentres();
+            const vectorField faceCenters =
+                mesh.boundaryMesh()[patchIDs_.at(j)].faceCentres();
 
             // Assign the (x,y,z) locations to the vertices
             for (int i = 0; i < faceCenters.size(); i++)
