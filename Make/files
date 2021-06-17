@@ -25,6 +25,8 @@ FF/VelocityGradient.C
 FF/Pressure.C
 FF/PressureGradient.C
 
+Volume_Coupling/Momentum.C
+
 Adapter.C
 
 preciceAdapterFunctionObject.C
