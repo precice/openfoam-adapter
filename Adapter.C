@@ -66,6 +66,10 @@ bool preciceAdapter::Adapter::configFileRead()
             {
                 FFenabled_ = true;
             }
+            if (module == "Volume_Coupling")
+            {
+                Volume_Couplingenabled_  = true;
+            }
         }
 
         // Every interface is a subdictionary of "interfaces",
@@ -186,6 +190,14 @@ bool preciceAdapter::Adapter::configFileRead()
             }
         }
 
+        // If the Volume_Coupling module is enabled, create it, read the
+        // Volume_Coupling-specific options and configure it.
+        if (Volume_Couplingenabled_)
+        {
+            Volume_Coupling_ = new Volume_Coupling::Volume_Coupling(mesh_, runTime_);
+            if (!Volume_Coupling_->configure(preciceDict)) return false;
+        }
+
         // NOTE: Create your module and read any options specific to it here
 
         if (!CHTenabled_ && !FSIenabled_ && !FFenabled_) // NOTE: Add your new switch here
@@ -277,6 +289,12 @@ void preciceAdapter::Adapter::configure()
                     FF_->addWriters(dataName, interface);
                 }
 
+                // Add Momentum-related coupling data writers
+                if (Volume_Couplingenabled_)
+                {
+                    Volume_Coupling_->addWriters(dataName, interface);
+                }
+
                 // NOTE: Add any coupling data writers for your module here.
             } // end add coupling data writers
 
@@ -301,6 +319,11 @@ void preciceAdapter::Adapter::configure()
                 if (FFenabled_)
                 {
                     FF_->addReaders(dataName, interface);
+                }
+
+                if (Volume_Couplingenabled_)
+                {
+                    Volume_Coupling_->addReaders(dataName, interface);
                 }
 
                 // NOTE: Add any coupling data readers for your module here.
@@ -1811,6 +1834,14 @@ void preciceAdapter::Adapter::teardown()
         DEBUG(adapterInfo("Destroying the FF module..."));
         delete FF_;
         FF_ = NULL;
+    }
+
+    // Delete the Volume_Coupling module
+    if(NULL != Volume_Coupling_)
+    {
+        DEBUG(adapterInfo("Destroying the Volume_Coupling module..."));
+        delete Volume_Coupling_;
+        Volume_Coupling_ = NULL;
     }
 
     // NOTE: Delete your new module here
