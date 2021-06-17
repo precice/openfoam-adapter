@@ -25,7 +25,7 @@ FF/VelocityGradient.C
 FF/Pressure.C
 FF/PressureGradient.C
 
-Volume_Coupling/Momentum.C
+Volume_Coupling/Volume_Coupling.C
 
 Adapter.C
 
