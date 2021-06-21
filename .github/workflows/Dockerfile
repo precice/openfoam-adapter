@@ -1,7 +1,7 @@
 FROM ubuntu:20.04
 
 ARG DEBIAN_FRONTEND=noninteractive
-RUN apt-get -qq update && apt-get -qq install wget software-properties-common git build-essentials pkg-config
+RUN apt-get -qq update && apt-get -qq install wget software-properties-common git build-essential pkg-config
 
 # Install OpenFOAM
 RUN wget -q -O - https://dl.openfoam.com/add-debian-repo.sh | bash && \
