@@ -1,5 +1,9 @@
 FROM ubuntu:20.04
 
+# Set timezone (to avoid questions in apt-get)
+ENV TZ=Europe/Berlin
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+
 RUN apt-get -qq update && apt-get -qq install wget
 
 # Install OpenFOAM
