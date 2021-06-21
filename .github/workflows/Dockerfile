@@ -15,6 +15,9 @@ RUN groupadd -g ${gid} precice \
 USER precice
 WORKDIR /home/precice
 
+# Use bash instead of default sh
+SHELL ["/bin/bash", "-c"]
+
 # Bust the cache: we want that the next steps are always executed
 ARG CACHEBUST
 
