@@ -11,5 +11,8 @@ RUN wget -q -O - https://dl.openfoam.com/add-debian-repo.sh | bash && \
 ARG CACHEBUST
 
 # Build the OpenFOAM adapter
-RUN git clone --depth 1 --branch develop https://github.com/precice/openfoam-adapter.git && cd openfoam-adapter
+USER precice
+WORKDIR /home/precice
+RUN git clone --depth 1 --branch develop https://github.com/precice/openfoam-adapter.git
+WORKDIR /home/precice/openfoam-adapter
 RUN /usr/bin/openfoam2012 ./Allwmake
