@@ -1,6 +1,6 @@
 FROM ubuntu:20.04
 
-RUN apt-get -qq update && apt-get -qq install cmake
+RUN apt-get -qq update && apt-get -qq install wget
 
 # Install OpenFOAM
 RUN wget -q -O - https://dl.openfoam.com/add-debian-repo.sh | bash && \
