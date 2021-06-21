@@ -9,7 +9,7 @@ RUN wget -q -O - https://dl.openfoam.com/add-debian-repo.sh | bash && \
 
 # Install preCICE v2.2.1 from the Debian package
 RUN wget https://github.com/precice/precice/releases/download/v2.2.0/libprecice2_2.2.0_focal.deb && \
-    apt-get -qq install ./libprecice2_2.2.1_focal.deb
+    dpkg -i ./libprecice2_2.2.1_focal.deb
 
 # Create user precice
 ARG uid=1000
