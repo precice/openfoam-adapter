@@ -41,23 +41,23 @@ bool preciceAdapter::Volume_Coupling::Volume_Coupling::readConfig(const IOdictio
     */
     const dictionary Volume_Couplingdict = adapterConfig.subOrEmptyDict("Volume_Coupling");
 
-    // Read the name of the field Your_Volume_Field (if different)
-    nameYour_Volume_Field_ = Volume_Couplingdict.lookupOrDefault<word>("nameYour_Volume_Field", "Your_Volume_Field");
-    DEBUG(adapterInfo("    Your_Volume_Field field name : " + nameYour_Volume_Field_));
+    // Read the name of the field Fluid_Velocity (if different)
+    nameFluid_Velocity_ = Volume_Couplingdict.lookupOrDefault<word>("nameFluid_Velocity", "Fluid_Velocity");
+    DEBUG(adapterInfo("    Fluid_Velocity field name : " + nameFluid_Velocity_));
 
     return true;
 }
 
 void preciceAdapter::Volume_Coupling::Volume_Coupling::addWriters(std::string dataName, Interface * interface)
 {
-    if (dataName.find("Your_Volume_Field") == 0)
+    if (dataName.find("Fluid_Velocity") == 0)
     {
         interface->addCouplingDataWriter
         (
             dataName,
-            new Generic_volScalarField(mesh_, nameYour_Volume_Field_)
+            new Generic_volScalarField(mesh_, nameFluid_Velocity_)
         );
-        DEBUG(adapterInfo("Added writer: Your_Volume_Field."));
+        DEBUG(adapterInfo("Added writer: Fluid_Velocity."));
     }
 
     // NOTE: If you want to couple another variable, you need
@@ -70,14 +70,14 @@ void preciceAdapter::Volume_Coupling::Volume_Coupling::addWriters(std::string da
 
 void preciceAdapter::Volume_Coupling::Volume_Coupling::addReaders(std::string dataName, Interface * interface)
 {
-    if (dataName.find("Your_Volume_Field") == 0)
+    if (dataName.find("Fluid_Velocity") == 0)
     {
         interface->addCouplingDataReader
         (
             dataName,
-            new Generic_volScalarField(mesh_, nameYour_Volume_Field_)
+            new Generic_volScalarField(mesh_, nameFluid_Velocity_)
         );
-        DEBUG(adapterInfo("Added reader: Your_Volume_Field."));
+        DEBUG(adapterInfo("Added reader: Fluid_Velocity."));
     }
 
     // NOTE: If you want to couple another variable, you need
