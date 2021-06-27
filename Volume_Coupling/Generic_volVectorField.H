@@ -7,7 +7,7 @@
 
 namespace preciceAdapter
 {
-namespace Momentum
+namespace Volume_Coupling
 {
 
 //- Class that writes and reads Generic volVector field

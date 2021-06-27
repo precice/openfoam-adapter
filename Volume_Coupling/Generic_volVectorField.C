@@ -2,7 +2,7 @@
 
 using namespace Foam;
 
-preciceAdapter::Momentum::Generic_volVectorField::Generic_volVectorField
+preciceAdapter::Volume_Coupling::Generic_volVectorField::Generic_volVectorField
 (
     const Foam::fvMesh& mesh,
     const std::string nameGeneric_volVectorField
@@ -18,7 +18,7 @@ generic_volVectorField_(
     dataType_ = vector;
 }
 
-void preciceAdapter::Momentum::Generic_volVectorField::write(double * buffer, bool meshConnectivity, const unsigned int dim)
+void preciceAdapter::Volume_Coupling::Generic_volVectorField::write(double * buffer, bool meshConnectivity, const unsigned int dim)
 {
   int bufferIndex = 0;
 
@@ -76,10 +76,10 @@ void preciceAdapter::Momentum::Generic_volVectorField::write(double * buffer, bo
   }
 }
 
-void preciceAdapter::Momentum::Generic_volVectorField::read(double * buffer, const unsigned int dim)
+void preciceAdapter::Volume_Coupling::Generic_volVectorField::read(double * buffer, const unsigned int dim)
 {
  // For every element in the buffer
-  /*int bufferIndex = 0;
+  int bufferIndex = 0;
 
   // For every boundary patch of the interface
   for (uint j = 0; j < patchIDs_.size(); j++)
@@ -102,5 +102,5 @@ void preciceAdapter::Momentum::Generic_volVectorField::read(double * buffer, con
           if(dim ==3)
               pointGeneric_volVectorPatch[i][2] = buffer[bufferIndex++];
       }
-  }*/
+  }
 }

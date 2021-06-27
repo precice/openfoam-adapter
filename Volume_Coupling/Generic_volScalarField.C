@@ -2,7 +2,7 @@
 
 using namespace Foam;
 
-preciceAdapter::Momentum::Generic_volScalarField::Generic_volScalarField
+preciceAdapter::Volume_Coupling::Generic_volScalarField::Generic_volScalarField
 (
     const Foam::fvMesh& mesh,
     const std::string nameGeneric_volScalarField
@@ -18,7 +18,7 @@ generic_volScalarField_(
     dataType_ = scalar;
 }
 
-void preciceAdapter::Momentum::Generic_volScalarField::write(double * buffer, bool meshConnectivity, const unsigned int dim)
+void preciceAdapter::Volume_Coupling::Generic_volScalarField::write(double * buffer, bool meshConnectivity, const unsigned int dim)
 {
   int bufferIndex = 0;
 
@@ -51,7 +51,7 @@ void preciceAdapter::Momentum::Generic_volScalarField::write(double * buffer, bo
   }
 }
 
-void preciceAdapter::Momentum::Generic_volScalarField::read(double * buffer, const unsigned int dim)
+void preciceAdapter::Volume_Coupling::Generic_volScalarField::read(double * buffer, const unsigned int dim)
 {
     int bufferIndex = 0;
 
