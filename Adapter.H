@@ -110,7 +110,7 @@ private:
     FF::FluidFluid* FF_ = NULL;
 
     //- Volume Coupling module object
-    Volume_Coupling::Volume_Coupling * Volume_Coupling_ = NULL;
+    Volume_Coupling::Volume_Coupling* Volume_Coupling_ = NULL;
 
     // NOTE: Add here a pointer for your new module object
 

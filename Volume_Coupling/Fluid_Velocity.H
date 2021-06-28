@@ -15,30 +15,24 @@ class Fluid_Velocity : public CouplingDataUser
 {
 
 private:
-
     //- Velocity field
-    Foam::volVectorField * Fluid_Velocity_;
+    Foam::volVectorField* Fluid_Velocity_;
 
 
 public:
-
     //- Constructor
- Fluid_Velocity
-    (
+    Fluid_Velocity(
         const Foam::fvMesh& mesh,
-        const std::string nameU
-    );
+        const std::string nameU);
 
     //- Write the displacement values into the buffer
-    void write(double * buffer, bool meshConnectivity, const unsigned int dim);
+    void write(double* buffer, bool meshConnectivity, const unsigned int dim);
 
     //- Read the displacement values from the buffer
-    void read(double * buffer, const unsigned int dim);
+    void read(double* buffer, const unsigned int dim);
 
     //- Destructor
     ~Fluid_Velocity();
-
-
 };
 
 }

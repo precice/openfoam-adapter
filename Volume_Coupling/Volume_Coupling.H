@@ -17,14 +17,13 @@ class Volume_Coupling
 {
 
 protected:
-
     //- OpenFOAM fvMesh object
     const Foam::fvMesh& mesh_;
 
     //- OpenFOAM Time object (we need to access the timestep to compute the pointMotionU)
     const Foam::Time& runTime_;
 
-    
+
     //- Name of the Porosity
     std::string nameYour_Volume_Field_ = "Your_Volume_Field";
 
@@ -35,12 +34,10 @@ protected:
     */
 
 protected:
-
     //- Read the Newcase-related options from the adapter's configuration file
     bool readConfig(const IOdictionary& adapterConfig);
 
 public:
-
     //- Constructor
     //  We need also the runTime to access the timeName and the deltaT
     Volume_Coupling(const Foam::fvMesh& mesh, const Foam::Time& runTime);
@@ -49,10 +46,10 @@ public:
     bool configure(const IOdictionary& adapterConfig);
 
     //- Add coupling data writers
-    void addWriters(std::string dataName, Interface * interface);
+    void addWriters(std::string dataName, Interface* interface);
 
     //- Add coupling data readers
-    void addReaders(std::string dataName, Interface * interface);
+    void addReaders(std::string dataName, Interface* interface);
 };
 
 }

@@ -15,27 +15,23 @@ class Generic_volScalarField : public CouplingDataUser
 {
 
 private:
-
     //- Generic field
-    Foam::volScalarField * generic_volScalarField_ ;
+    Foam::volScalarField* generic_volScalarField_;
 
 public:
+    //- Constructor
+    Generic_volScalarField(
+        const Foam::fvMesh& mesh,
+        const std::string nameGeneric_volScalarField);
 
-  //- Constructor
-  Generic_volScalarField
-  (
-      const Foam::fvMesh& mesh,
-      const std::string nameGeneric_volScalarField
-  );
+    //- Write the volScalarField values into the buffer
+    void write(double* buffer, bool meshConnectivity, const unsigned int dim);
 
-  //- Write the volScalarField values into the buffer
-  void write(double * buffer, bool meshConnectivity, const unsigned int dim);
+    //- Read the volScalarField values from the buffer
+    void read(double* buffer, const unsigned int dim);
 
-  //- Read the volScalarField values from the buffer
-  void read(double * buffer, const unsigned int dim);
-
-  //- Destructor
-  virtual ~Generic_volScalarField() {}
+    //- Destructor
+    virtual ~Generic_volScalarField() {}
 };
 
 }

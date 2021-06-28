@@ -68,8 +68,12 @@ bool preciceAdapter::Adapter::configFileRead()
             }
             if (module == "Volume_Coupling")
             {
-                Volume_Couplingenabled_  = true;
+                Volume_Couplingenabled_ = true;
             }
+            //            if ( module.empty )
+            //            {
+            //                return false;
+            //            }
         }
 
         // Every interface is a subdictionary of "interfaces",
@@ -1837,7 +1841,7 @@ void preciceAdapter::Adapter::teardown()
     }
 
     // Delete the Volume_Coupling module
-    if(NULL != Volume_Coupling_)
+    if (NULL != Volume_Coupling_)
     {
         DEBUG(adapterInfo("Destroying the Volume_Coupling module..."));
         delete Volume_Coupling_;

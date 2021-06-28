@@ -4,15 +4,13 @@
 
 using namespace Foam;
 
-preciceAdapter::Volume_Coupling::Volume_Coupling::Volume_Coupling
-(
+preciceAdapter::Volume_Coupling::Volume_Coupling::Volume_Coupling(
     const Foam::fvMesh& mesh,
-    const Foam::Time& runTime
-)
-:
-mesh_(mesh),
-runTime_(runTime)
-{}
+    const Foam::Time& runTime)
+: mesh_(mesh),
+  runTime_(runTime)
+{
+}
 
 bool preciceAdapter::Volume_Coupling::Volume_Coupling::configure(const IOdictionary& adapterConfig)
 {
@@ -52,25 +50,21 @@ bool preciceAdapter::Volume_Coupling::Volume_Coupling::readConfig(const IOdictio
     return true;
 }
 
-void preciceAdapter::Volume_Coupling::Volume_Coupling::addWriters(std::string dataName, Interface * interface)
+void preciceAdapter::Volume_Coupling::Volume_Coupling::addWriters(std::string dataName, Interface* interface)
 {
     if (dataName.find("Fluid_Velocity") == 0)
     {
-        interface->addCouplingDataWriter
-        (
+        interface->addCouplingDataWriter(
             dataName,
-            new Generic_volVectorField(mesh_, nameFluid_Velocity_)
-        );
+            new Generic_volVectorField(mesh_, nameFluid_Velocity_));
         DEBUG(adapterInfo("Added writer: Fluid_Velocity."));
     }
 
     else if (dataName.find("T") == 0)
     {
-        interface->addCouplingDataWriter
-        (
+        interface->addCouplingDataWriter(
             dataName,
-            new Fluid_properties::Generic_volScalarField(mesh_, nameT_)
-        );
+            new Fluid_properties::Generic_volScalarField(mesh_, nameT_));
         DEBUG(adapterInfo("Added writer: T."));
     }
 
@@ -82,25 +76,21 @@ void preciceAdapter::Volume_Coupling::Volume_Coupling::addWriters(std::string da
     //return true;
 }
 
-void preciceAdapter::Volume_Coupling::Volume_Coupling::addReaders(std::string dataName, Interface * interface)
+void preciceAdapter::Volume_Coupling::Volume_Coupling::addReaders(std::string dataName, Interface* interface)
 {
     if (dataName.find("Fluid_Velocity") == 0)
     {
-        interface->addCouplingDataReader
-        (
+        interface->addCouplingDataReader(
             dataName,
-            new Generic_volVectorField(mesh_, nameFluid_Velocity_)
-        );
+            new Generic_volVectorField(mesh_, nameFluid_Velocity_));
         DEBUG(adapterInfo("Added reader: Fluid_Velocity."));
     }
 
     else if (dataName.find("T") == 0)
     {
-        interface->addCouplingDataReader
-        (
+        interface->addCouplingDataReader(
             dataName,
-            new Fluid_properties::Generic_volScalarField(mesh_, nameT_)
-        );
+            new Fluid_properties::Generic_volScalarField(mesh_, nameT_));
         DEBUG(adapterInfo("Added reader: T."));
     }
 
