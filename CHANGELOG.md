@@ -10,9 +10,6 @@ Read more details in the issue [#52: Releases and versioning](https://github.com
 
 ## [Unreleased]
 
-### Changed
-
-- OpenFOAM version bumped to v2106 in GitHub Actions (including preCICE v2.2.0 --> v2.2.1) and documentation.
 
 ## [v1.0.0] 2021-04-29
 
