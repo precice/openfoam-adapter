@@ -1,4 +1,4 @@
-name: Build with OpenFOAM v2012
+name: Build with OpenFOAM v2106
 on: [push, pull_request]
 jobs:
   build:
@@ -21,4 +21,4 @@ jobs:
         snapshot: '/'
         exclude: '/boot /data /dev /mnt /proc /run /sys'
     - name: Build OpenFOAM-preCICE adapter
-      run: /usr/bin/openfoam2012 ./Allwmake
+      run: /usr/bin/openfoam2106 ./Allwmake
