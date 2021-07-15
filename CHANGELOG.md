@@ -8,6 +8,8 @@ Read more details in the issue [#52: Releases and versioning](https://github.com
 
 <!-- markdownlint-configure-file {"MD024": { "siblings_only": true } } -->
 
+## [Unreleased]
+
 ## [v1.0.0] 2021-04-29
 
 ### Added

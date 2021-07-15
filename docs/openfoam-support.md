@@ -7,14 +7,14 @@ summary: Recent OpenFOAM.com versions work out-of-the-box. Recent OpenFOAM.org v
 
 ## How to get OpenFOAM
 
-The easiest way to start is to get binary packages for your Linux distribution. For example, to [get OpenFOAM v2012 on Ubuntu](https://develop.openfoam.com/Development/openfoam/-/wikis/precompiled/debian#precompiled-packages-debianubuntu):
+The easiest way to start is to get binary packages for your Linux distribution. For example, to [get OpenFOAM v2106 on Ubuntu](https://develop.openfoam.com/Development/openfoam/-/wikis/precompiled/debian#precompiled-packages-debianubuntu):
 
 ```bash
 # Add the signing key, add the repository, update:
 wget -q -O - https://dl.openfoam.com/add-debian-repo.sh | sudo bash
 
-# Install OpenFOAM v2012:
-sudo apt-get install openfoam2012-dev
+# Install OpenFOAM v2106:
+sudo apt-get install openfoam2106-dev
 ```
 
 As these steps change your `.profile`, you need to log out and in again to make OpenFOAM fully discoverable.
@@ -26,7 +26,7 @@ OpenFOAM is a project with long history and many forks, of which we try to suppo
 We provide version-specific branches and archives for:
 
 - OpenCFD / ESI (openfoam.com):
-  - [OpenFOAM v1812-v2012](https://github.com/precice/openfoam-adapter) or newer (main target)
+  - [OpenFOAM v1812-v2106](https://github.com/precice/openfoam-adapter) or newer (main target)
   - [OpenFOAM v1806 or older](https://github.com/precice/openfoam-adapter/tree/OpenFOAMv1806)
 - OpenFOAM Foundation (openfoam.org):
   - [OpenFOAM 8](https://github.com/precice/openfoam-adapter/pull/130) (experimental).

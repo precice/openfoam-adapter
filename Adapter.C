@@ -10,7 +10,7 @@ preciceAdapter::Adapter::Adapter(const Time& runTime, const fvMesh& mesh)
 : runTime_(runTime),
   mesh_(mesh)
 {
-    adapterInfo("Loaded the OpenFOAM-preCICE adapter v1.0.0.", "info");
+    adapterInfo("Loaded the OpenFOAM-preCICE adapter - unreleased version.", "info");
 
     return;
 }
@@ -395,9 +395,6 @@ void preciceAdapter::Adapter::execute()
         fulfilledReadCheckpoint();
     }
 
-    // Read the received coupling data from the buffer
-    readCouplingData();
-
     // Adjust the timestep, if it is fixed
     if (!adjustableTimestep_)
     {
@@ -429,6 +426,9 @@ void preciceAdapter::Adapter::execute()
             const_cast<Time&>(runTime_).writeNow();
         }
     }
+
+    // Read the received coupling data from the buffer
+    readCouplingData();
 
     // If the coupling is not going to continue, tear down everything
     // and stop the simulation.
