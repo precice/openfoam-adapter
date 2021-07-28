@@ -45,6 +45,11 @@ fi
 export ADAPTER_PKG_CONFIG_CFLAGS
 export ADAPTER_PKG_CONFIG_LIBS
 
+log ""
+log "If not already known by the system, preCICE may be located using:"
+log "  pkg-config --cflags libprecice  = ${ADAPTER_PKG_CONFIG_CFLAGS}"
+log "  pkg-config --libs libprecice    = ${ADAPTER_PKG_CONFIG_LIBS}"
+
 # Check if an OpenFOAM environment is available
 log ""
 log "Current OpenFOAM environment:"
@@ -73,11 +78,6 @@ fi
 log ""
 log "The adapter will be built into ${ADAPTER_TARGET_DIR}"
 log "Additional preprocessor/compiler options: ${ADAPTER_PREP_FLAGS}"
-
-log ""
-log "If not already known by the system, preCICE may be located using:"
-log "  pkg-config --cflags libprecice  = ${ADAPTER_PKG_CONFIG_CFLAGS}"
-log "  pkg-config --libs libprecice    = ${ADAPTER_PKG_CONFIG_LIBS}"
 
 # Run wmake (build the adapter) and check the exit code
 log ""
