@@ -32,9 +32,16 @@ log "Building the OpenFOAM-preCICE adapter..."
 # Export the environment variables
 export ADAPTER_PREP_FLAGS
 export ADAPTER_TARGET_DIR
-ADAPTER_PKG_CONFIG_CFLAGS="$(pkg-config --silence-errors --cflags libprecice)"
+
+if pkg-config libprecice; then
+  ADAPTER_PKG_CONFIG_CFLAGS="$(pkg-config --silence-errors --cflags libprecice)"
+  ADAPTER_PKG_CONFIG_LIBS="$(pkg-config --silence-errors --libs libprecice)"
+else
+  log "No configuration file 'libprecice.pc' in the PKG_CONFIG_PATH was found."
+  ADAPTER_PKG_CONFIG_CFLAGS=""
+  ADAPTER_PKG_CONFIG_LIBS=""
+fi
 export ADAPTER_PKG_CONFIG_CFLAGS
-ADAPTER_PKG_CONFIG_LIBS="$(pkg-config --silence-errors --libs libprecice)"
 export ADAPTER_PKG_CONFIG_LIBS
 
 # Check if an OpenFOAM environment is available
