@@ -37,7 +37,8 @@ if pkg-config libprecice; then
   ADAPTER_PKG_CONFIG_CFLAGS="$(pkg-config --silence-errors --cflags libprecice)"
   ADAPTER_PKG_CONFIG_LIBS="$(pkg-config --silence-errors --libs libprecice)"
 else
-  log "No configuration file 'libprecice.pc' was found in the PKG_CONFIG_PATH."
+  log "WARNING: No configuration file 'libprecice.pc' was found in the PKG_CONFIG_PATH."
+  log "Check the preCICE documentation page 'Linking to preCICE' for more details, or proceed if you know what you are doing."
   ADAPTER_PKG_CONFIG_CFLAGS=""
   ADAPTER_PKG_CONFIG_LIBS=""
 fi
