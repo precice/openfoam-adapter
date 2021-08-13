@@ -11,6 +11,15 @@ RUN wget -q -O - https://dl.openfoam.com/add-debian-repo.sh | bash && \
 RUN wget https://github.com/precice/precice/releases/download/v2.2.1/libprecice2_2.2.1_focal.deb && \
     apt install -y ./libprecice2_2.2.1_focal.deb
 
+# Create user precice
+ARG uid=1000
+ARG gid=1000
+RUN groupadd -g ${gid} precice \
+    && useradd -u ${uid} -g ${gid} -m -s /bin/bash precice
+USER precice
+WORKDIR /home/precice
+ENV USER=precice
+
 # Use bash instead of default sh
 SHELL ["/bin/bash", "-c"]
 
@@ -19,5 +28,5 @@ ARG CACHEBUST
 
 # Build the OpenFOAM adapter
 RUN git clone --depth 1 --branch develop https://github.com/precice/openfoam-adapter.git
-WORKDIR openfoam-adapter
-RUN openfoam2012 ./Allwmake
+WORKDIR /home/precice/openfoam-adapter
+RUN /usr/bin/openfoam2012 ./Allwmake
