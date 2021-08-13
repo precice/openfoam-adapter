@@ -17,6 +17,11 @@ ARG gid=1000
 RUN groupadd -g ${gid} precice \
     && useradd -u ${uid} -g ${gid} -m -s /bin/bash precice \
     && sudo usermod -a -G sudo precice
+
+# Setup passwordless sudo
+RUN echo "ALL            ALL = (ALL) NOPASSWD: ALL" >> /etc/sudoers
+
+# Switch to the user precice
 USER precice
 WORKDIR /home/precice
 ENV USER=precice
