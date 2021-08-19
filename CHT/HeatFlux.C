@@ -28,8 +28,7 @@ void preciceAdapter::CHT::HeatFlux::write(double* buffer, bool meshConnectivity,
         int patchID = patchIDs_.at(j);
 
         const scalarField gradientPatch(
-            refCast<const fixedValueFvPatchScalarField>(
-                T_->boundaryField()[patchID])
+            (T_->boundaryField()[patchID])
                 .snGrad());
 
         // Extract the effective conductivity on the patch
