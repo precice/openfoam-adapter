@@ -35,4 +35,4 @@ ARG CACHEBUST
 # Build the OpenFOAM adapter
 RUN git clone --depth 1 --branch develop https://github.com/precice/openfoam-adapter.git
 WORKDIR /home/precice/openfoam-adapter
-RUN /usr/bin/openfoam2012 ./Allwmake
+RUN /usr/bin/openfoam ./Allwmake
