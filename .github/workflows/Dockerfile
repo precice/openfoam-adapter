@@ -5,7 +5,9 @@ RUN apt-get -qq update && apt-get -qq install wget software-properties-common gi
 
 # Install OpenFOAM
 RUN wget -q -O - https://dl.openfoam.com/add-debian-repo.sh | bash && \
-    apt-get -qq install openfoam2106-dev
+    apt-get -qq install openfoam2106-dev openfoam2106-common
+
+RUN ls /usr/bin
 
 # Install preCICE v2.2.1 from the Debian package
 RUN wget https://github.com/precice/precice/releases/download/v2.2.1/libprecice2_2.2.1_focal.deb && \
