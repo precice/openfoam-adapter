@@ -4,8 +4,9 @@ ARG DEBIAN_FRONTEND=noninteractive
 RUN apt-get -qq update && apt-get -qq install wget software-properties-common git build-essential pkg-config sudo
 
 # Install OpenFOAM
+ENV OPENFOAM_VERSION=2106
 RUN wget -q -O - https://dl.openfoam.com/add-debian-repo.sh | bash && \
-    apt-get -qq install openfoam2106-dev openfoam2106-common openfoam2106-tools openfoam2106 openfoam
+    apt-get -qq install openfoam${OPENFOAM_VERSION}-dev openfoam${OPENFOAM_VERSION}-common openfoam${OPENFOAM_VERSION}-tools openfoam${OPENFOAM_VERSION} openfoam
 
 RUN ls /usr/bin
 
@@ -37,4 +38,4 @@ ARG CACHEBUST
 # Build the OpenFOAM adapter
 RUN git clone --depth 1 --branch develop https://github.com/precice/openfoam-adapter.git
 WORKDIR /home/precice/openfoam-adapter
-RUN /usr/bin/openfoam ./Allwmake
+RUN /usr/bin/openfoam${OPENFOAM_VERSION} ./Allwmake
