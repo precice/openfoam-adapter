@@ -127,10 +127,6 @@ void preciceAdapter::FF::FluidFluid::addWriters(std::string dataName, Interface*
             new Pressure(mesh_, nameP_));
         DEBUG(adapterInfo("Added writer: Pressure."));
     }
-    else
-    {
-        adapterInfo("Unknown data type - cannot add " + dataName + ".", "error");
-    }
 
     // NOTE: If you want to couple another variable, you need
     // to add your new coupling data user as a coupling data
@@ -168,10 +164,6 @@ void preciceAdapter::FF::FluidFluid::addReaders(std::string dataName, Interface*
             dataName,
             new Pressure(mesh_, nameP_));
         DEBUG(adapterInfo("Added reader: Pressure."));
-    }
-    else
-    {
-        adapterInfo("Unknown data type - cannot add " + dataName + ".", "error");
     }
 
     // NOTE: If you want to couple another variable, you need

@@ -192,10 +192,6 @@ void preciceAdapter::CHT::ConjugateHeatTransfer::addWriters(std::string dataName
                         "error");
         }
     }
-    else
-    {
-        adapterInfo("Unknown data type - cannot add " + dataName + ".", "error");
-    }
 
     // NOTE: If you want to couple another variable, you need
     // to add your new coupling data user as a coupling data
@@ -277,10 +273,6 @@ void preciceAdapter::CHT::ConjugateHeatTransfer::addReaders(std::string dataName
             adapterInfo("Unknown solver type - cannot add heat transfer coefficient.",
                         "error");
         }
-    }
-    else
-    {
-        adapterInfo("Unknown data type - cannot add " + dataName + ".", "error");
     }
 
     // NOTE: If you want to couple another variable, you need
