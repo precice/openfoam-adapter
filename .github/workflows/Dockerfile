@@ -2,7 +2,7 @@ FROM ghcr.io/precice/precice:latest
 
 # Install OpenFOAM
 ENV OPENFOAM_VERSION=2106
-RUN wget -q -O - https://dl.openfoam.com/add-debian-repo.sh | bash && \
+RUN wget -q -O - https://dl.openfoam.com/add-debian-repo.sh | sudo bash && \
     sudo apt-get -qq install openfoam${OPENFOAM_VERSION}-dev
 
 
