@@ -6,7 +6,7 @@ RUN apt-get -qq update && apt-get -qq install wget software-properties-common gi
 # Install OpenFOAM
 ENV OPENFOAM_VERSION=2106
 RUN wget -q -O - https://dl.openfoam.com/add-debian-repo.sh | bash && \
-    apt-get -qq install openfoam${OPENFOAM_VERSION}-dev openfoam${OPENFOAM_VERSION}-common openfoam${OPENFOAM_VERSION}-tools openfoam${OPENFOAM_VERSION} openfoam
+    apt-get -qq install openfoam${OPENFOAM_VERSION}-dev
 
 RUN ls /usr/bin
 
