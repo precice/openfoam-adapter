@@ -3,7 +3,8 @@ FROM ghcr.io/precice/precice:latest
 # Install OpenFOAM
 ENV OPENFOAM_VERSION=2106
 RUN wget -q -O - https://dl.openfoam.com/add-debian-repo.sh | bash && \
-    apt-get -qq install openfoam${OPENFOAM_VERSION}-dev
+    sudo apt-get -qq install openfoam${OPENFOAM_VERSION}-dev
+
 
 # Bust the cache: we want that the next steps are always executed
 ARG CACHEBUST
