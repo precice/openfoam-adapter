@@ -56,10 +56,10 @@ public:
     bool configure(const IOdictionary& adapterConfig);
 
     //- Add coupling data writers
-    void addWriters(std::string dataName, Interface* interface);
+    bool addWriters(std::string dataName, Interface* interface);
 
     //- Add coupling data readers
-    void addReaders(std::string dataName, Interface* interface);
+    bool addReaders(std::string dataName, Interface* interface);
 };
 
 }

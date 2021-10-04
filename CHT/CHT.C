@@ -118,10 +118,13 @@ std::string preciceAdapter::CHT::ConjugateHeatTransfer::determineSolverType()
     return solverType;
 }
 
-void preciceAdapter::CHT::ConjugateHeatTransfer::addWriters(std::string dataName, Interface* interface)
+bool preciceAdapter::CHT::ConjugateHeatTransfer::addWriters(std::string dataName, Interface* interface)
 {
+    bool found = false;
+
     if (dataName.find("Sink-Temperature") == 0)
     {
+        found = true;
         interface->addCouplingDataWriter(
             dataName,
             new SinkTemperature(mesh_, nameT_));
@@ -129,6 +132,7 @@ void preciceAdapter::CHT::ConjugateHeatTransfer::addWriters(std::string dataName
     }
     else if (dataName.find("Temperature") == 0)
     {
+        found = true;
         interface->addCouplingDataWriter(
             dataName,
             new Temperature(mesh_, nameT_));
@@ -136,6 +140,7 @@ void preciceAdapter::CHT::ConjugateHeatTransfer::addWriters(std::string dataName
     }
     else if (dataName.find("Heat-Flux") == 0)
     {
+        found = true;
         if (solverType_.compare("compressible") == 0)
         {
             interface->addCouplingDataWriter(
@@ -165,6 +170,7 @@ void preciceAdapter::CHT::ConjugateHeatTransfer::addWriters(std::string dataName
     }
     else if (dataName.find("Heat-Transfer-Coefficient") == 0)
     {
+        found = true;
         if (solverType_.compare("compressible") == 0)
         {
             interface->addCouplingDataWriter(
@@ -198,12 +204,17 @@ void preciceAdapter::CHT::ConjugateHeatTransfer::addWriters(std::string dataName
     // writer here (and as a reader below).
     // The argument of the dataName.compare() needs to match
     // the one provided in the adapter's configuration file.
+
+    return found;
 }
 
-void preciceAdapter::CHT::ConjugateHeatTransfer::addReaders(std::string dataName, Interface* interface)
+bool preciceAdapter::CHT::ConjugateHeatTransfer::addReaders(std::string dataName, Interface* interface)
 {
+    bool found = false;
+
     if (dataName.find("Sink-Temperature") == 0)
     {
+        found = true;
         interface->addCouplingDataReader(
             dataName,
             new SinkTemperature(mesh_, nameT_));
@@ -211,6 +222,7 @@ void preciceAdapter::CHT::ConjugateHeatTransfer::addReaders(std::string dataName
     }
     else if (dataName.find("Temperature") == 0)
     {
+        found = true;
         interface->addCouplingDataReader(
             dataName,
             new Temperature(mesh_, nameT_));
@@ -218,6 +230,7 @@ void preciceAdapter::CHT::ConjugateHeatTransfer::addReaders(std::string dataName
     }
     else if (dataName.find("Heat-Flux") == 0)
     {
+        found = true;
         if (solverType_.compare("compressible") == 0)
         {
             interface->addCouplingDataReader(
@@ -247,6 +260,7 @@ void preciceAdapter::CHT::ConjugateHeatTransfer::addReaders(std::string dataName
     }
     else if (dataName.find("Heat-Transfer-Coefficient") == 0)
     {
+        found = true;
         if (solverType_.compare("compressible") == 0)
         {
             interface->addCouplingDataReader(
@@ -280,4 +294,6 @@ void preciceAdapter::CHT::ConjugateHeatTransfer::addReaders(std::string dataName
     // reader here (and as a writer above).
     // The argument of the dataName.compare() needs to match
     // the one provided in the adapter's configuration file.
+
+    return found;
 }
