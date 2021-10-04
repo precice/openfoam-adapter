@@ -153,7 +153,7 @@ bool preciceAdapter::FSI::FluidStructureInteraction::addWriters(std::string data
     // writer here (and as a reader below).
     // The argument of the dataName.compare() needs to match
     // the one provided in the adapter's configuration file.
-    
+
     return found;
 }
 
@@ -201,6 +201,6 @@ bool preciceAdapter::FSI::FluidStructureInteraction::addReaders(std::string data
     // writer here (and as a writer above).
     // The argument of the dataName.compare() needs to match
     // the one provided in the adapter's configuration file.
-    
+
     return found;
 }

@@ -273,12 +273,13 @@ void preciceAdapter::Adapter::configure()
                 if (inModules == 0)
                 {
                     adapterInfo("I don't know how to write " + dataName
-                                + ". Maybe this is a typo or maybe you need to enable some adapter module?", "error-deferred");
+                                    + ". Maybe this is a typo or maybe you need to enable some adapter module?",
+                                "error-deferred");
                 }
                 else if (inModules > 1)
                 {
                     adapterInfo("It looks like more than one modules can write " + dataName
-                                + "and I don't know how to choose. Try disabling one of the modules.",
+                                    + "and I don't know how to choose. Try disabling one of the modules.",
                                 "error-deferred");
                 }
 
@@ -310,7 +311,7 @@ void preciceAdapter::Adapter::configure()
                 else if (inModules > 1)
                 {
                     adapterInfo("It looks like more than one modules can read " + dataName
-                                + "and I don't know how to choose. Try disabling one of the modules.",
+                                    + "and I don't know how to choose. Try disabling one of the modules.",
                                 "error-deferred");
                 }
 
