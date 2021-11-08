@@ -102,16 +102,20 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh)
             {
                 const pointField faceNodes =
                     mesh.boundaryMesh()[patchIDs_.at(j)].localPoints();
+                const auto faceNodesSize = faceNodes.size();
                 //Allocate memory for z-coordinates
                 std::array<double, 2> z_location({0, 0});
                 constexpr unsigned int z_axis = 2;
 
                 // Find out about the existing planes
                 // Store z-coordinate of the first layer
-                z_location[0] = faceNodes[0][z_axis];
+                if (faceNodesSize > 0)
+                {
+                    z_location[0] = faceNodes[0][z_axis];
+                }
                 // Go through the remaining points until we find the second z-coordinate
                 // and store it (there are only two allowed in case we are in the xy-layer)
-                for (int i = 0; i < faceNodes.size(); i++)
+                for (int i = 0; i < faceNodesSize; i++)
                 {
                     if (z_location[0] == faceNodes[i][z_axis])
                     {
@@ -125,7 +129,7 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh)
                 }
 
                 // Check if the z-coordinates of all nodes match the z-coordinates we have collected above
-                for (int i = 0; i < faceNodes.size(); i++)
+                for (int i = 0; i < faceNodesSize; i++)
                 {
                     if (z_location[0] == faceNodes[i][z_axis] || z_location[1] == faceNodes[i][z_axis])
                     {
