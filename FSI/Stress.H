@@ -32,6 +32,8 @@ public:
     //- Read the stress values from the buffer
     void read(double* buffer, const unsigned int dim);
 
+    bool isLocationTypeSupported(const bool meshConnectivity) const override;
+
     //- Returns the face normal vectors (no multiplication by area)
     Foam::vectorField getFaceVectors(const unsigned int patchID) const override;
 

@@ -93,3 +93,13 @@ void preciceAdapter::CHT::SinkTemperature::read(double* buffer, const unsigned i
         }
     }
 }
+
+bool preciceAdapter::CHT::SinkTemperature::isLocationTypeSupported(const bool meshConnectivity) const
+{
+    // We don't distinguish between reading and writing. Thus, we just return true
+    // in case there was connectivity defined
+    if (meshConnectivity)
+        return true;
+    else
+        return (this->locationsType_ == LocationType::faceCenters);
+}

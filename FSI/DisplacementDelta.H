@@ -41,6 +41,8 @@ public:
     //- Read the displacementDelta values from the buffer
     void read(double* buffer, const unsigned int dim);
 
+    bool isLocationTypeSupported(const bool meshConnectivity) const override;
+
     //- We need to initialize the cell-based vector and the interpolation object
     // in case we want to use the faceCenter location for the coupling
     void initialize() override;

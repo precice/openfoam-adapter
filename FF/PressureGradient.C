@@ -61,3 +61,8 @@ void preciceAdapter::FF::PressureGradient::read(double* buffer, const unsigned i
         }
     }
 }
+
+bool preciceAdapter::FF::PressureGradient::isLocationTypeSupported(const bool meshConnectivity) const
+{
+    return (this->locationsType_ == LocationType::faceCenters);
+}

@@ -1,11 +1,20 @@
 #ifndef COUPLINGDATAUSER_H
 #define COUPLINGDATAUSER_H
 
+#include "Utilities.H"
 #include <vector>
 #include <string>
 
 namespace preciceAdapter
 {
+// A small enum to deal with the different locations of the
+// coupling interface
+enum class LocationType
+{
+    none,
+    faceCenters,
+    faceNodes
+};
 
 class CouplingDataUser
 {
@@ -27,7 +36,7 @@ protected:
     int dataID_;
 
     //- location type of the interface
-    std::string locationsType_;
+    LocationType locationsType_ = LocationType::none;
 
 public:
     //- Constructor
@@ -49,7 +58,10 @@ public:
     void setPatchIDs(std::vector<int> patchIDs);
 
     //- Set the locations type of the interface
-    void setLocationsType(std::string locationsType);
+    void setLocationsType(LocationType locationsType);
+
+    // Check, if the data set supports the interface node location
+    void checkDataLocation(const bool meshConnectivity);
 
     //- option to initialize data in derived data classes
     virtual void initialize();
@@ -59,6 +71,10 @@ public:
 
     //- Read the coupling data from the buffer
     virtual void read(double* dataBuffer, const unsigned int dim) = 0;
+
+    //- Given the meshConnectivity, return if the underlying loactionType of the
+    //- interface nodes is supported by the data set
+    virtual bool isLocationTypeSupported(const bool meshConnectivity) const = 0;
 
     //- Destructor
     virtual ~CouplingDataUser() {}

@@ -31,6 +31,11 @@ void preciceAdapter::FSI::Stress::read(double* buffer, const unsigned int dim)
     this->readFromBuffer(buffer);
 }
 
+bool preciceAdapter::FSI::Stress::isLocationTypeSupported(const bool meshConnectivity) const
+{
+    return (this->locationsType_ == LocationType::faceCenters);
+}
+
 vectorField preciceAdapter::FSI::Stress::getFaceVectors(const unsigned int patchID) const
 {
     // face normal vectors

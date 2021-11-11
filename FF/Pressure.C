@@ -49,3 +49,8 @@ void preciceAdapter::FF::Pressure::read(double* buffer, const unsigned int dim)
         }
     }
 }
+
+bool preciceAdapter::FF::Pressure::isLocationTypeSupported(const bool meshConnectivity) const
+{
+    return (this->locationsType_ == LocationType::faceCenters);
+}

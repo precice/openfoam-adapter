@@ -40,6 +40,8 @@ public:
     //- Read the heat transfer coefficient values from the buffer
     virtual void read(double* buffer, const unsigned int dim);
 
+    bool isLocationTypeSupported(const bool meshConnectivity) const override;
+
     //- Destructor
     virtual ~HeatTransferCoefficient() {};
 };

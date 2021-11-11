@@ -103,6 +103,16 @@ void preciceAdapter::CHT::HeatFlux::read(double* buffer, const unsigned int dim)
     }
 }
 
+bool preciceAdapter::CHT::HeatFlux::isLocationTypeSupported(const bool meshConnectivity) const
+{
+    // We don't distinguish between reading and writing. Thus, we just return true
+    // in case there was connectivity defined
+    if (meshConnectivity)
+        return true;
+    else
+        return (this->locationsType_ == LocationType::faceCenters);
+}
+
 //----- preciceAdapter::CHT::HeatFlux_Compressible ----------------------------
 
 preciceAdapter::CHT::HeatFlux_Compressible::HeatFlux_Compressible(
