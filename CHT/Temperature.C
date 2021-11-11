@@ -84,3 +84,8 @@ bool preciceAdapter::CHT::Temperature::isLocationTypeSupported(const bool meshCo
     else
         return (this->locationsType_ == LocationType::faceCenters);
 }
+
+std::string preciceAdapter::CHT::Temperature::getDataName() const
+{
+    return "Temperature";
+}

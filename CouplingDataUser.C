@@ -50,6 +50,9 @@ void preciceAdapter::CouplingDataUser::checkDataLocation(const bool meshConnecti
             << "ERROR: the configured location type "
             << location
             << " is not supported for the data "
+            << this->getDataName()
+            << ". Please select a different location type or "
+            << "a different data set."
             << exit(Foam::FatalError);
     }
 }

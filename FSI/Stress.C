@@ -36,6 +36,11 @@ bool preciceAdapter::FSI::Stress::isLocationTypeSupported(const bool meshConnect
     return (this->locationsType_ == LocationType::faceCenters);
 }
 
+std::string preciceAdapter::FSI::Stress::getDataName() const
+{
+    return "Stress";
+}
+
 vectorField preciceAdapter::FSI::Stress::getFaceVectors(const unsigned int patchID) const
 {
     // face normal vectors

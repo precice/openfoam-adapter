@@ -125,6 +125,11 @@ bool preciceAdapter::CHT::HeatTransferCoefficient::isLocationTypeSupported(const
         return (this->locationsType_ == LocationType::faceCenters);
 }
 
+std::string preciceAdapter::CHT::HeatTransferCoefficient::getDataName() const
+{
+    return "HeatTransferCoefficient";
+}
+
 
 //----- preciceAdapter::CHT::HeatTransferCoefficient_Compressible -------------
 

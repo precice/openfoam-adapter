@@ -88,3 +88,8 @@ bool preciceAdapter::FF::VelocityGradient::isLocationTypeSupported(const bool me
 {
     return (this->locationsType_ == LocationType::faceCenters);
 }
+
+std::string preciceAdapter::FF::VelocityGradient::getDataName() const
+{
+    return "VelocityGradient";
+}

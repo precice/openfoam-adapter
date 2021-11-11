@@ -76,6 +76,9 @@ public:
     //- interface nodes is supported by the data set
     virtual bool isLocationTypeSupported(const bool meshConnectivity) const = 0;
 
+    //- Get the name of the current data field
+    virtual std::string getDataName() const = 0;
+
     //- Destructor
     virtual ~CouplingDataUser() {}
 };

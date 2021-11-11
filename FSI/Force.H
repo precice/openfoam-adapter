@@ -29,6 +29,9 @@ public:
 
     bool isLocationTypeSupported(const bool meshConnectivity) const override;
 
+    //- Get the name of the current data field
+    std::string getDataName() const override;
+
     //- Returns the normal vectors multiplied by the face area
     Foam::vectorField getFaceVectors(const unsigned int patchID) const override;
 

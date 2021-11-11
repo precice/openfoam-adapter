@@ -97,3 +97,8 @@ bool preciceAdapter::FSI::Displacement::isLocationTypeSupported(const bool meshC
 {
     return (this->locationsType_ == LocationType::faceCenters || this->locationsType_ == LocationType::faceNodes);
 }
+
+std::string preciceAdapter::FSI::Displacement::getDataName() const
+{
+    return "Displacement";
+}

@@ -36,6 +36,11 @@ bool preciceAdapter::FSI::Force::isLocationTypeSupported(const bool meshConnecti
     return (this->locationsType_ == LocationType::faceCenters);
 }
 
+std::string preciceAdapter::FSI::Force::getDataName() const
+{
+    return "Force";
+}
+
 vectorField preciceAdapter::FSI::Force::getFaceVectors(const unsigned int patchID) const
 {
     // Normal vectors multiplied by face area

@@ -103,3 +103,8 @@ bool preciceAdapter::CHT::SinkTemperature::isLocationTypeSupported(const bool me
     else
         return (this->locationsType_ == LocationType::faceCenters);
 }
+
+std::string preciceAdapter::CHT::SinkTemperature::getDataName() const
+{
+    return "SinkTemperature";
+}

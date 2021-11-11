@@ -54,3 +54,8 @@ bool preciceAdapter::FF::Pressure::isLocationTypeSupported(const bool meshConnec
 {
     return (this->locationsType_ == LocationType::faceCenters);
 }
+
+std::string preciceAdapter::FF::Pressure::getDataName() const
+{
+    return "Pressure";
+}

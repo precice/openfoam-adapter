@@ -42,6 +42,9 @@ public:
 
     bool isLocationTypeSupported(const bool meshConnectivity) const override;
 
+    //- Get the name of the current data field
+    std::string getDataName() const override;
+
     //- Destructor
     virtual ~HeatTransferCoefficient() {};
 };

@@ -66,3 +66,8 @@ bool preciceAdapter::FF::PressureGradient::isLocationTypeSupported(const bool me
 {
     return (this->locationsType_ == LocationType::faceCenters);
 }
+
+std::string preciceAdapter::FF::PressureGradient::getDataName() const
+{
+    return "PressureGradient";
+}

@@ -98,3 +98,8 @@ bool preciceAdapter::FSI::DisplacementDelta::isLocationTypeSupported(const bool 
 {
     return (this->locationsType_ == LocationType::faceCenters || this->locationsType_ == LocationType::faceNodes);
 }
+
+std::string preciceAdapter::FSI::DisplacementDelta::getDataName() const
+{
+    return "DisplacementDelta";
+}
