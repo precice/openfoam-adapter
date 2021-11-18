@@ -310,8 +310,8 @@ void preciceAdapter::Adapter::configure()
                 }
                 else if (inModules > 1)
                 {
-                    adapterInfo("It looks like more than one modules can read " + dataName
-                                    + "and I don't know how to choose. Try disabling one of the modules.",
+                    adapterInfo("It looks like more than one modules can read \"" + dataName
+                                    + "\" and I don't know how to choose. Try disabling one of the modules.",
                                 "error-deferred");
                 }
 
