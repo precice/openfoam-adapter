@@ -304,8 +304,8 @@ void preciceAdapter::Adapter::configure()
 
                 if (inModules == 0)
                 {
-                    adapterInfo("I don't know how to read " + dataName
-                                    + ". Maybe this is a typo or maybe you need to enable some adapter module?",
+                    adapterInfo("I don't know how to read \"" + dataName
+                                    + "\". Maybe this is a typo or maybe you need to enable some adapter module?",
                                 "error-deferred");
                 }
                 else if (inModules > 1)
