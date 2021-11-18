@@ -262,13 +262,22 @@ void preciceAdapter::Adapter::configure()
                 unsigned int inModules = 0;
 
                 // Add CHT-related coupling data writers
-                if (CHTenabled_ && CHT_->addWriters(dataName, interface)) inModules++;
+                if (CHTenabled_ && CHT_->addWriters(dataName, interface)) 
+                {
+                    inModules++;
+                }
 
                 // Add FSI-related coupling data writers
-                if (FSIenabled_ && FSI_->addWriters(dataName, interface)) inModules++;
+                if (FSIenabled_ && FSI_->addWriters(dataName, interface))
+                {
+                    inModules++;
+                }
 
                 // Add FF-related coupling data writers
-                if (FFenabled_ && FF_->addWriters(dataName, interface)) inModules++;
+                if (FFenabled_ && FF_->addWriters(dataName, interface))
+                {
+                    inModules++;
+                }
 
                 if (inModules == 0)
                 {
