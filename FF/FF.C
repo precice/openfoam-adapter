@@ -99,11 +99,10 @@ std::string preciceAdapter::FF::FluidFluid::determineSolverType()
 
 bool preciceAdapter::FF::FluidFluid::addWriters(std::string dataName, Interface* interface)
 {
-    bool found = false;
+    bool found = true; // Set to false later, if needed.
 
     if (dataName.find("VelocityGradient") == 0)
     {
-        found = true;
         interface->addCouplingDataWriter(
             dataName,
             new VelocityGradient(mesh_, nameU_));
@@ -111,7 +110,6 @@ bool preciceAdapter::FF::FluidFluid::addWriters(std::string dataName, Interface*
     }
     else if (dataName.find("Velocity") == 0)
     {
-        found = true;
         interface->addCouplingDataWriter(
             dataName,
             new Velocity(mesh_, nameU_));
@@ -119,7 +117,6 @@ bool preciceAdapter::FF::FluidFluid::addWriters(std::string dataName, Interface*
     }
     else if (dataName.find("PressureGradient") == 0)
     {
-        found = true;
         interface->addCouplingDataWriter(
             dataName,
             new PressureGradient(mesh_, nameP_));
@@ -127,11 +124,14 @@ bool preciceAdapter::FF::FluidFluid::addWriters(std::string dataName, Interface*
     }
     else if (dataName.find("Pressure") == 0)
     {
-        found = true;
         interface->addCouplingDataWriter(
             dataName,
             new Pressure(mesh_, nameP_));
         DEBUG(adapterInfo("Added writer: Pressure."));
+    }
+    else
+    {
+        found = false;
     }
 
     // NOTE: If you want to couple another variable, you need
@@ -145,11 +145,10 @@ bool preciceAdapter::FF::FluidFluid::addWriters(std::string dataName, Interface*
 
 bool preciceAdapter::FF::FluidFluid::addReaders(std::string dataName, Interface* interface)
 {
-    bool found = false;
+    bool found = true; // Set to false later, if needed.
 
     if (dataName.find("VelocityGradient") == 0)
     {
-        found = true;
         interface->addCouplingDataReader(
             dataName,
             new VelocityGradient(mesh_, nameU_));
@@ -157,7 +156,6 @@ bool preciceAdapter::FF::FluidFluid::addReaders(std::string dataName, Interface*
     }
     else if (dataName.find("Velocity") == 0)
     {
-        found = true;
         interface->addCouplingDataReader(
             dataName,
             new Velocity(mesh_, nameU_));
@@ -165,7 +163,6 @@ bool preciceAdapter::FF::FluidFluid::addReaders(std::string dataName, Interface*
     }
     else if (dataName.find("PressureGradient") == 0)
     {
-        found = true;
         interface->addCouplingDataReader(
             dataName,
             new PressureGradient(mesh_, nameP_));
@@ -173,11 +170,14 @@ bool preciceAdapter::FF::FluidFluid::addReaders(std::string dataName, Interface*
     }
     else if (dataName.find("Pressure") == 0)
     {
-        found = true;
         interface->addCouplingDataReader(
             dataName,
             new Pressure(mesh_, nameP_));
         DEBUG(adapterInfo("Added reader: Pressure."));
+    }
+    else
+    {
+        found = false;
     }
 
     // NOTE: If you want to couple another variable, you need

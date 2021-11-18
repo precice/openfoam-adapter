@@ -111,11 +111,10 @@ std::string preciceAdapter::FSI::FluidStructureInteraction::determineSolverType(
 
 bool preciceAdapter::FSI::FluidStructureInteraction::addWriters(std::string dataName, Interface* interface)
 {
-    bool found = false;
+    bool found = true; // Set to false later, if needed.
 
     if (dataName.find("Force") == 0)
     {
-        found = true;
         interface->addCouplingDataWriter(
             dataName,
             new Force(mesh_, solverType_) /* TODO: Add any other arguments here */
@@ -124,7 +123,6 @@ bool preciceAdapter::FSI::FluidStructureInteraction::addWriters(std::string data
     }
     else if (dataName.find("DisplacementDelta") == 0)
     {
-        found = true;
         interface->addCouplingDataWriter(
             dataName,
             new DisplacementDelta(mesh_, namePointDisplacement_, nameCellDisplacement_));
@@ -132,7 +130,6 @@ bool preciceAdapter::FSI::FluidStructureInteraction::addWriters(std::string data
     }
     else if (dataName.find("Displacement") == 0)
     {
-        found = true;
         interface->addCouplingDataWriter(
             dataName,
             new Displacement(mesh_, namePointDisplacement_, nameCellDisplacement_));
@@ -140,12 +137,15 @@ bool preciceAdapter::FSI::FluidStructureInteraction::addWriters(std::string data
     }
     else if (dataName.find("Stress") == 0)
     {
-        found = true;
         interface->addCouplingDataWriter(
             dataName,
             new Stress(mesh_, solverType_) /* TODO: Add any other arguments here */
         );
         DEBUG(adapterInfo("Added writer: Stress."));
+    }
+    else
+    {
+        found = false;
     }
 
     // NOTE: If you want to couple another variable, you need
@@ -159,11 +159,10 @@ bool preciceAdapter::FSI::FluidStructureInteraction::addWriters(std::string data
 
 bool preciceAdapter::FSI::FluidStructureInteraction::addReaders(std::string dataName, Interface* interface)
 {
-    bool found = false;
+    bool found = true; // Set to false later, if needed.
 
     if (dataName.find("Force") == 0)
     {
-        found = true;
         interface->addCouplingDataReader(
             dataName,
             new Force(mesh_, solverType_) /* TODO: Add any other arguments here */
@@ -172,7 +171,6 @@ bool preciceAdapter::FSI::FluidStructureInteraction::addReaders(std::string data
     }
     else if (dataName.find("DisplacementDelta") == 0)
     {
-        found = true;
         interface->addCouplingDataReader(
             dataName,
             new DisplacementDelta(mesh_, namePointDisplacement_, nameCellDisplacement_));
@@ -180,7 +178,6 @@ bool preciceAdapter::FSI::FluidStructureInteraction::addReaders(std::string data
     }
     else if (dataName.find("Displacement") == 0)
     {
-        found = true;
         interface->addCouplingDataReader(
             dataName,
             new Displacement(mesh_, namePointDisplacement_, nameCellDisplacement_));
@@ -188,12 +185,15 @@ bool preciceAdapter::FSI::FluidStructureInteraction::addReaders(std::string data
     }
     else if (dataName.find("Stress") == 0)
     {
-        found = true;
         interface->addCouplingDataReader(
             dataName,
             new Stress(mesh_, solverType_) /* TODO: Add any other arguments here */
         );
         DEBUG(adapterInfo("Added reader: Stress."));
+    }
+    else
+    {
+        found = false;
     }
 
     // NOTE: If you want to couple another variable, you need
