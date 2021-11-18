@@ -272,9 +272,9 @@ void preciceAdapter::Adapter::configure()
 
                 if (inModules == 0)
                 {
-                    adapterInfo("I don't know how to write " + dataName
-                                    + ". Maybe this is a typo or maybe you need to enable some adapter module?",
-                                "error-deferred");
+                    adapterInfo("I don't know how to write \"" + dataName
+                                    + "\". Maybe this is a typo or maybe you need to enable some adapter module?",
+                                "error-deferred");                                
                 }
                 else if (inModules > 1)
                 {
