@@ -262,7 +262,7 @@ void preciceAdapter::Adapter::configure()
                 unsigned int inModules = 0;
 
                 // Add CHT-related coupling data writers
-                if (CHTenabled_ && CHT_->addWriters(dataName, interface)) 
+                if (CHTenabled_ && CHT_->addWriters(dataName, interface))
                 {
                     inModules++;
                 }
@@ -283,7 +283,7 @@ void preciceAdapter::Adapter::configure()
                 {
                     adapterInfo("I don't know how to write \"" + dataName
                                     + "\". Maybe this is a typo or maybe you need to enable some adapter module?",
-                                "error-deferred");                                
+                                "error-deferred");
                 }
                 else if (inModules > 1)
                 {
