@@ -76,7 +76,7 @@ void preciceAdapter::FF::Velocity::read(double* buffer, const unsigned int dim)
 
 bool preciceAdapter::FF::Velocity::isLocationTypeSupported(const bool meshConnectivity) const
 {
-    return (this->locationsType_ == LocationType::faceCenters);
+    return (this->locationType_ == LocationType::faceCenters);
 }
 
 std::string preciceAdapter::FF::Velocity::getDataName() const

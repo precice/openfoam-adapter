@@ -101,7 +101,7 @@ bool preciceAdapter::CHT::SinkTemperature::isLocationTypeSupported(const bool me
     if (meshConnectivity)
         return true;
     else
-        return (this->locationsType_ == LocationType::faceCenters);
+        return (this->locationType_ == LocationType::faceCenters);
 }
 
 std::string preciceAdapter::CHT::SinkTemperature::getDataName() const

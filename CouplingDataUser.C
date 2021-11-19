@@ -33,24 +33,24 @@ void preciceAdapter::CouplingDataUser::setPatchIDs(std::vector<int> patchIDs)
 
 void preciceAdapter::CouplingDataUser::setLocationsType(LocationType locationsType)
 {
-    locationsType_ = locationsType;
+    locationType_ = locationsType;
 }
 
-void preciceAdapter::CouplingDataUser::checkDataLocation(const bool meshConnectivity)
+void preciceAdapter::CouplingDataUser::checkDataLocation(const bool meshConnectivity) const
 {
-    if (this->isLocationTypeSupported(meshConnectivity) == false)
+    if (isLocationTypeSupported(meshConnectivity) == false)
     {
         std::string location("none");
-        if (locationsType_ == LocationType::faceCenters)
+        if (locationType_ == LocationType::faceCenters)
             location = "faceCenters";
-        else if (locationsType_ == LocationType::faceNodes)
+        else if (locationType_ == LocationType::faceNodes)
             location = "faceNodes";
 
         FatalErrorInFunction
             << "ERROR: the configured location type "
             << location
             << " is not supported for the data "
-            << this->getDataName()
+            << getDataName()
             << ". Please select a different location type or "
             << "a different data set."
             << exit(Foam::FatalError);

@@ -110,7 +110,7 @@ bool preciceAdapter::CHT::HeatFlux::isLocationTypeSupported(const bool meshConne
     if (meshConnectivity)
         return true;
     else
-        return (this->locationsType_ == LocationType::faceCenters);
+        return (this->locationType_ == LocationType::faceCenters);
 }
 
 std::string preciceAdapter::CHT::HeatFlux::getDataName() const

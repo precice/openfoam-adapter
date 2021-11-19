@@ -36,7 +36,7 @@ protected:
     int dataID_;
 
     //- location type of the interface
-    LocationType locationsType_ = LocationType::none;
+    LocationType locationType_ = LocationType::none;
 
 public:
     //- Constructor
@@ -61,7 +61,7 @@ public:
     void setLocationsType(LocationType locationsType);
 
     // Check, if the data set supports the interface node location
-    void checkDataLocation(const bool meshConnectivity);
+    void checkDataLocation(const bool meshConnectivity) const;
 
     //- option to initialize data in derived data classes
     virtual void initialize();

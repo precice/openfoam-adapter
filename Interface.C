@@ -32,11 +32,11 @@ preciceAdapter::Interface::Interface(
 
     if (locationsType == "faceCenters" || locationsType == "faceCentres")
     {
-        locationsType_ = LocationType::faceCenters;
+        locationType_ = LocationType::faceCenters;
     }
     else if (locationsType == "faceNodes")
     {
-        locationsType_ = LocationType::faceNodes;
+        locationType_ = LocationType::faceNodes;
     }
     else
     {
@@ -79,7 +79,7 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh)
     // TODO: Reduce code duplication. In the meantime, take care to update
     // all the branches.
 
-    if (locationsType_ == LocationType::faceCenters)
+    if (locationType_ == LocationType::faceCenters)
     {
         // Count the data locations for all the patches
         for (uint j = 0; j < patchIDs_.size(); j++)
@@ -167,7 +167,7 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh)
         // Pass the mesh vertices information to preCICE
         precice_.setMeshVertices(meshID_, numDataLocations_, vertices, vertexIDs_);
     }
-    else if (locationsType_ == LocationType::faceNodes)
+    else if (locationType_ == LocationType::faceNodes)
     {
         // Count the data locations for all the patches
         for (uint j = 0; j < patchIDs_.size(); j++)
@@ -290,7 +290,7 @@ void preciceAdapter::Interface::addCouplingDataWriter(
     couplingDataWriter->setPatchIDs(patchIDs_);
 
     // Set the location type in the CouplingDataUser class
-    couplingDataWriter->setLocationsType(locationsType_);
+    couplingDataWriter->setLocationsType(locationType_);
 
     // Set the location type in the CouplingDataUser class
     couplingDataWriter->checkDataLocation(meshConnectivity_);
@@ -314,7 +314,7 @@ void preciceAdapter::Interface::addCouplingDataReader(
     couplingDataReader->setPatchIDs(patchIDs_);
 
     // Set the location type in the CouplingDataUser class
-    couplingDataReader->setLocationsType(locationsType_);
+    couplingDataReader->setLocationsType(locationType_);
 
     // Check, if the current location type is supported by the data type
     couplingDataReader->checkDataLocation(meshConnectivity_);

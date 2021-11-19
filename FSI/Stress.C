@@ -33,7 +33,7 @@ void preciceAdapter::FSI::Stress::read(double* buffer, const unsigned int dim)
 
 bool preciceAdapter::FSI::Stress::isLocationTypeSupported(const bool meshConnectivity) const
 {
-    return (this->locationsType_ == LocationType::faceCenters);
+    return (this->locationType_ == LocationType::faceCenters);
 }
 
 std::string preciceAdapter::FSI::Stress::getDataName() const

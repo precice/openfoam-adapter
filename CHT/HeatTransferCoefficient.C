@@ -122,7 +122,7 @@ bool preciceAdapter::CHT::HeatTransferCoefficient::isLocationTypeSupported(const
     if (meshConnectivity)
         return true;
     else
-        return (this->locationsType_ == LocationType::faceCenters);
+        return (this->locationType_ == LocationType::faceCenters);
 }
 
 std::string preciceAdapter::CHT::HeatTransferCoefficient::getDataName() const
