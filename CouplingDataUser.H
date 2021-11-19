@@ -60,7 +60,7 @@ public:
     //- Set the locations type of the interface
     void setLocationsType(LocationType locationsType);
 
-    // Check, if the data set supports the interface node location
+    // Check if the dataset supports this interface nodes location
     void checkDataLocation(const bool meshConnectivity) const;
 
     //- option to initialize data in derived data classes
