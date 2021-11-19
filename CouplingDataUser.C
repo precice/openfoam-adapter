@@ -38,7 +38,7 @@ void preciceAdapter::CouplingDataUser::setLocationsType(LocationType locationsTy
 
 void preciceAdapter::CouplingDataUser::checkDataLocation(const bool meshConnectivity) const
 {
-    if (isLocationTypeSupported(meshConnectivity) == false)
+    if (this->isLocationTypeSupported(meshConnectivity) == false)
     {
         std::string location("none");
         if (locationType_ == LocationType::faceCenters)
@@ -46,14 +46,11 @@ void preciceAdapter::CouplingDataUser::checkDataLocation(const bool meshConnecti
         else if (locationType_ == LocationType::faceNodes)
             location = "faceNodes";
 
-        FatalErrorInFunction
-            << "ERROR: the configured location type "
-            << location
-            << " is not supported for the data "
-            << getDataName()
-            << ". Please select a different location type or "
-            << "a different data set."
-            << exit(Foam::FatalError);
+        adapterInfo("\"locations = " + location + "\" is not supported for the data \""
+                        + getDataName() + "\". Please select a different "
+                                          "location type, a different data set or provide "
+                                          "additional connectivity information.",
+                    "error");
     }
 }
 

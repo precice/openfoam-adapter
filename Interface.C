@@ -40,11 +40,10 @@ preciceAdapter::Interface::Interface(
     }
     else
     {
-        FatalErrorInFunction
-            << "ERROR: interface points location type "
-            << locationsType
-            << " is invalid."
-            << exit(FatalError);
+        adapterInfo("Interface points location type \""
+                    "locations = "
+                        + locationsType + "\" is invalid.",
+                    "error");
     }
 
 
