@@ -117,12 +117,19 @@ void preciceAdapter::CHT::HeatTransferCoefficient::read(double* buffer, const un
 
 bool preciceAdapter::CHT::HeatTransferCoefficient::isLocationTypeSupported(const bool meshConnectivity) const
 {
-    // We don't distinguish between reading and writing. Thus, we just return true
-    // in case there was connectivity defined
+    // For cases with mesh connectivity, we support:
+    // - face nodes, only for writing
+    // - face centers, only for reading
+    // However, since we do not distinguish between reading and writing in the code, we
+    // always return true and offload the handling to the user.
     if (meshConnectivity)
+    {
         return true;
+    }
     else
+    {
         return (this->locationType_ == LocationType::faceCenters);
+    }
 }
 
 std::string preciceAdapter::CHT::HeatTransferCoefficient::getDataName() const

@@ -21,7 +21,7 @@ protected:
     std::string meshName_;
 
     //- Point locations type (faceCenters vs faceNodes)
-    LocationType locationType_ = LocationType::none;
+    LocationType locationType_ {LocationType::none};
 
     //- Mesh ID assigned by preCICE to the interface
     int meshID_;
