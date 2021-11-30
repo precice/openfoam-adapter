@@ -43,7 +43,7 @@ preciceAdapter::Interface::Interface(
         adapterInfo("Interface points location type \""
                     "locations = "
                         + locationsType + "\" is invalid.",
-                    "error");
+                    "error-deferred");
     }
 
 
