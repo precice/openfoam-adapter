@@ -61,3 +61,13 @@ void preciceAdapter::FF::PressureGradient::read(double* buffer, const unsigned i
         }
     }
 }
+
+bool preciceAdapter::FF::PressureGradient::isLocationTypeSupported(const bool meshConnectivity) const
+{
+    return (this->locationType_ == LocationType::faceCenters);
+}
+
+std::string preciceAdapter::FF::PressureGradient::getDataName() const
+{
+    return "PressureGradient";
+}

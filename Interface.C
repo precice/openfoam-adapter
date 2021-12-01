@@ -14,7 +14,6 @@ preciceAdapter::Interface::Interface(
     bool meshConnectivity)
 : precice_(precice),
   meshName_(meshName),
-  locationsType_(locationsType),
   patchNames_(patchNames),
   meshConnectivity_(meshConnectivity)
 {
@@ -30,6 +29,23 @@ preciceAdapter::Interface::Interface(
                           "Have a look in the adapter documentation for detailed information.",
                           "warning"));
     }
+
+    if (locationsType == "faceCenters" || locationsType == "faceCentres")
+    {
+        locationType_ = LocationType::faceCenters;
+    }
+    else if (locationsType == "faceNodes")
+    {
+        locationType_ = LocationType::faceNodes;
+    }
+    else
+    {
+        adapterInfo("Interface points location type \""
+                    "locations = "
+                        + locationsType + "\" is invalid.",
+                    "error-deferred");
+    }
+
 
     // For every patch that participates in the coupling
     for (uint j = 0; j < patchNames.size(); j++)
@@ -62,7 +78,7 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh)
     // TODO: Reduce code duplication. In the meantime, take care to update
     // all the branches.
 
-    if (locationsType_ == "faceCenters" || locationsType_ == "faceCentres")
+    if (locationType_ == LocationType::faceCenters)
     {
         // Count the data locations for all the patches
         for (uint j = 0; j < patchIDs_.size(); j++)
@@ -150,7 +166,7 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh)
         // Pass the mesh vertices information to preCICE
         precice_.setMeshVertices(meshID_, numDataLocations_, vertices, vertexIDs_);
     }
-    else if (locationsType_ == "faceNodes")
+    else if (locationType_ == LocationType::faceNodes)
     {
         // Count the data locations for all the patches
         for (uint j = 0; j < patchIDs_.size(); j++)
@@ -259,14 +275,6 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh)
             }
         }
     }
-    if (!(locationsType_ == "faceNodes" || locationsType_ == "faceCenters" || locationsType_ == "faceCentres"))
-    {
-        FatalErrorInFunction
-            << "ERROR: interface points location type "
-            << locationsType_
-            << " is invalid."
-            << exit(FatalError);
-    }
 }
 
 
@@ -281,7 +289,10 @@ void preciceAdapter::Interface::addCouplingDataWriter(
     couplingDataWriter->setPatchIDs(patchIDs_);
 
     // Set the location type in the CouplingDataUser class
-    couplingDataWriter->setLocationsType(locationsType_);
+    couplingDataWriter->setLocationsType(locationType_);
+
+    // Set the location type in the CouplingDataUser class
+    couplingDataWriter->checkDataLocation(meshConnectivity_);
 
     // Initilaize class specific data
     couplingDataWriter->initialize();
@@ -302,7 +313,10 @@ void preciceAdapter::Interface::addCouplingDataReader(
     couplingDataReader->setPatchIDs(patchIDs_);
 
     // Set the location type in the CouplingDataUser class
-    couplingDataReader->setLocationsType(locationsType_);
+    couplingDataReader->setLocationsType(locationType_);
+
+    // Check, if the current location type is supported by the data type
+    couplingDataReader->checkDataLocation(meshConnectivity_);
 
     // Initilaize class specific data
     couplingDataReader->initialize();
