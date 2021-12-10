@@ -45,7 +45,7 @@ bool preciceAdapter::FF::FluidFluid::configure(const IOdictionary& adapterConfig
 
 bool preciceAdapter::FF::FluidFluid::readConfig(const IOdictionary& adapterConfig)
 {
-    const dictionary FFdict = adapterConfig.subOrEmptyDict("FF");
+    const dictionary& FFdict = adapterConfig.subOrEmptyDict("FF");
 
     // Read the solver type (if not specified, it is determined automatically)
     solverType_ = FFdict.lookupOrDefault<word>("solverType", "");

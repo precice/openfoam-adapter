@@ -62,7 +62,7 @@ preciceAdapter::CHT::KappaEff_Incompressible::KappaEff_Incompressible(
     DEBUG(adapterInfo("  Name of turbulent thermal diffusivity: " + nameAlphat_));
 
     // Get the preciceDict/CHT dictionary
-    const dictionary CHTDict =
+    const dictionary& CHTDict =
         mesh_.lookupObject<IOdictionary>("preciceDict").subOrEmptyDict("CHT");
 
     // Read the Prandtl number
@@ -172,7 +172,7 @@ preciceAdapter::CHT::KappaEff_Basic::KappaEff_Basic(
     DEBUG(adapterInfo("  Name of conductivity: " + nameKappa_));
 
     // Get the preciceDict/CHT dictionary
-    const dictionary CHTDict =
+    const dictionary& CHTDict =
         mesh_.lookupObject<IOdictionary>("preciceDict").subOrEmptyDict("CHT");
 
     // Read the conductivity
