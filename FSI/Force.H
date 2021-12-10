@@ -28,7 +28,7 @@ public:
     void read(double* buffer, const unsigned int dim);
 
     //- Returns the normal vectors multiplied by the face area
-    Foam::vectorField getFaceVectors(const unsigned int patchID) const override;
+    Foam::tmp<Foam::vectorField> getFaceVectors(const unsigned int patchID) const override;
 
     //- Destructor
     ~Force();

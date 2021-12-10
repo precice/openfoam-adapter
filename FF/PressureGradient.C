@@ -22,10 +22,10 @@ void preciceAdapter::FF::PressureGradient::write(double* buffer, bool meshConnec
         int patchID = patchIDs_.at(j);
 
         // Get the pressure gradient boundary patch
-        scalarField gradientPatch =
+        scalarField gradientPatch(
             refCast<fixedValueFvPatchScalarField>(
                 p_->boundaryFieldRef()[patchID])
-                .snGrad();
+                .snGrad());
 
         // For every cell of the patch
         forAll(gradientPatch, i)

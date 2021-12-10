@@ -152,8 +152,8 @@ void preciceAdapter::FSI::ForceBase::writeToBuffer(double* buffer,
     // For every boundary patch of the interface
     for (const label patchID : patchIDs_)
     {
-
-        const auto& surface = getFaceVectors(patchID);
+        tmp<vectorField> tsurface = getFaceVectors(patchID);
+        const auto& surface = tsurface();
 
         // Pressure forces
         // FIXME: We need to substract the reference pressure for incompressible calculations

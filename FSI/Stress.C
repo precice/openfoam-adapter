@@ -31,7 +31,7 @@ void preciceAdapter::FSI::Stress::read(double* buffer, const unsigned int dim)
     this->readFromBuffer(buffer);
 }
 
-vectorField preciceAdapter::FSI::Stress::getFaceVectors(const unsigned int patchID) const
+Foam::tmp<Foam::vectorField> preciceAdapter::FSI::Stress::getFaceVectors(const unsigned int patchID) const
 {
     // face normal vectors
     return mesh_.boundary()[patchID].nf();
