@@ -27,10 +27,10 @@ public:
         const std::string solverType);
 
     //- Write the stress values into the buffer
-    void write(double* buffer, bool meshConnectivity, const unsigned int dim);
+    void write(double* buffer, bool meshConnectivity, const unsigned int dim) override;
 
     //- Read the stress values from the buffer
-    void read(double* buffer, const unsigned int dim);
+    void read(double* buffer, const unsigned int dim) override;
 
     //- Returns the face normal vectors (no multiplication by area)
     Foam::tmp<Foam::vectorField> getFaceVectors(const unsigned int patchID) const override;

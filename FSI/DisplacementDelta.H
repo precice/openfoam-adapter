@@ -36,10 +36,10 @@ public:
         const std::string nameCellDisplacement);
 
     //- Write the displacementDelta values into the buffer
-    void write(double* buffer, bool meshConnectivity, const unsigned int dim);
+    void write(double* buffer, bool meshConnectivity, const unsigned int dim) override;
 
     //- Read the displacementDelta values from the buffer
-    void read(double* buffer, const unsigned int dim);
+    void read(double* buffer, const unsigned int dim) override;
 
     //- We need to initialize the cell-based vector and the interpolation object
     // in case we want to use the faceCenter location for the coupling
