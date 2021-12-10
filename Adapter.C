@@ -47,7 +47,7 @@ bool preciceAdapter::Adapter::configFileRead()
         // Read and display the list of modules
         DEBUG(adapterInfo("  modules requested   : "));
         auto modules_ = preciceDict.get<wordList>("modules");
-        for (auto module : modules_)
+        for (const auto& module : modules_)
         {
             DEBUG(adapterInfo("  - " + module + "\n"));
 
@@ -71,7 +71,7 @@ bool preciceAdapter::Adapter::configFileRead()
         // Every interface is a subdictionary of "interfaces",
         // each with an arbitrary name. Read all of them and create
         // a list (here: pointer) of dictionaries.
-        const auto interfaceDictPtr = preciceDict.findDict("interfaces");
+        const auto* interfaceDictPtr = preciceDict.findDict("interfaces");
         DEBUG(adapterInfo("  interfaces : "));
 
         // Check if we found any interfaces
@@ -87,7 +87,7 @@ bool preciceAdapter::Adapter::configFileRead()
             {
                 if (interfaceDictEntry.isDict())
                 {
-                    dictionary interfaceDict = interfaceDictEntry.dict();
+                    const dictionary& interfaceDict = interfaceDictEntry.dict();
                     struct InterfaceConfig interfaceConfig;
 
                     interfaceConfig.meshName = interfaceDict.get<word>("mesh");

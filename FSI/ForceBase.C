@@ -145,9 +145,7 @@ void preciceAdapter::FSI::ForceBase::writeToBuffer(double* buffer,
         trho().boundaryField();
 
     // Pressure boundary field
-    tmp<volScalarField> tp = mesh_.lookupObject<volScalarField>("p");
-    const volScalarField::Boundary& pb(
-        tp().boundaryField());
+    const auto& pb = mesh_.lookupObject<volScalarField>("p").boundaryField();
 
     // For every boundary patch of the interface
     for (const label patchID : patchIDs_)

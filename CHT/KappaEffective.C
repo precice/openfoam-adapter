@@ -119,8 +119,8 @@ void preciceAdapter::CHT::KappaEff_Incompressible::extract(uint patchID, bool me
     // Does the turbulent thermal diffusivity exist in the object registry?
     if (mesh_.foundObject<volScalarField>(nameAlphat_))
     {
-        const scalarField& alphat(
-            mesh_.lookupObject<volScalarField>(nameAlphat_).boundaryField()[patchID]);
+        const scalarField& alphat =
+            mesh_.lookupObject<volScalarField>(nameAlphat_).boundaryField()[patchID];
 
         alphaEff = nu / Pr_.value() + alphat;
     }

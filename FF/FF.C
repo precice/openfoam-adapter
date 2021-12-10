@@ -74,7 +74,7 @@ std::string preciceAdapter::FF::FluidFluid::determineSolverType()
 
     if (mesh_.foundObject<volScalarField>("p"))
     {
-        volScalarField p_ = mesh_.lookupObject<volScalarField>("p");
+        const volScalarField& p_ = mesh_.lookupObject<volScalarField>("p");
 
         if (p_.dimensions() == pressureDimensionsCompressible)
             solverType = "compressible";
