@@ -84,11 +84,11 @@ class preciceAdapterFunctionObject
 
     // Private Member Functions
 
-    //- Disallow default bitwise copy construct
-    preciceAdapterFunctionObject(const preciceAdapterFunctionObject&);
+    //- No copy copy construct
+    preciceAdapterFunctionObject(const preciceAdapterFunctionObject&) = delete;
 
-    //- Disallow default bitwise assignment
-    void operator=(const preciceAdapterFunctionObject&);
+    //- No copy assignment
+    void operator=(const preciceAdapterFunctionObject&) = delete;
 
 
 public:
