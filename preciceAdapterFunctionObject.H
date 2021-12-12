@@ -84,7 +84,7 @@ class preciceAdapterFunctionObject
 
     // Private Member Functions
 
-    //- No copy copy construct
+    //- No copy construct
     preciceAdapterFunctionObject(const preciceAdapterFunctionObject&) = delete;
 
     //- No copy assignment
