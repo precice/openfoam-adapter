@@ -315,37 +315,37 @@ private:
     // Add checkpoint fields, depending on the type
 
     //- Add a volScalarField to checkpoint
-    void addCheckpointField(volScalarField& field);
+    void addCheckpointField(volScalarField* field);
 
     //- Add a volVectorField to checkpoint
-    void addCheckpointField(volVectorField& field);
+    void addCheckpointField(volVectorField* field);
 
     //- Add a surfaceScalarField to checkpoint
-    void addCheckpointField(surfaceScalarField& field);
+    void addCheckpointField(surfaceScalarField* field);
 
     //- Add a surfaceVectorField to checkpoint
-    void addCheckpointField(surfaceVectorField& field);
+    void addCheckpointField(surfaceVectorField* field);
 
     //- Add a pointScalarField to checkpoint
-    void addCheckpointField(pointScalarField& field);
+    void addCheckpointField(pointScalarField* field);
 
     //- Add a pointVectorField to checkpoint
-    void addCheckpointField(pointVectorField& field);
+    void addCheckpointField(pointVectorField* field);
 
     // NOTE: Add here methods to add other object types to checkpoint,
     // if needed.
 
     //- Add a volTensorField to checkpoint
-    void addCheckpointField(volTensorField& field);
+    void addCheckpointField(volTensorField* field);
 
     //- Add a surfaceTensorField to checkpoint
-    void addCheckpointField(surfaceTensorField& field);
+    void addCheckpointField(surfaceTensorField* field);
 
     //- Add a pointTensorField to checkpoint
-    void addCheckpointField(pointTensorField& field);
+    void addCheckpointField(pointTensorField* field);
 
     //- Add a volSymmTensorField to checkpoint
-    void addCheckpointField(volSymmTensorField& field);
+    void addCheckpointField(volSymmTensorField* field);
 
     //- Read the checkpoint - restore the mesh fields and time
     void readMeshCheckpoint();

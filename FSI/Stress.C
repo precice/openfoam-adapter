@@ -41,7 +41,7 @@ std::string preciceAdapter::FSI::Stress::getDataName() const
     return "Stress";
 }
 
-vectorField preciceAdapter::FSI::Stress::getFaceVectors(const unsigned int patchID) const
+Foam::tmp<Foam::vectorField> preciceAdapter::FSI::Stress::getFaceVectors(const unsigned int patchID) const
 {
     // face normal vectors
     return mesh_.boundary()[patchID].nf();

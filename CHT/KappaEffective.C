@@ -62,7 +62,7 @@ preciceAdapter::CHT::KappaEff_Incompressible::KappaEff_Incompressible(
     DEBUG(adapterInfo("  Name of turbulent thermal diffusivity: " + nameAlphat_));
 
     // Get the preciceDict/CHT dictionary
-    const dictionary CHTDict =
+    const dictionary& CHTDict =
         mesh_.lookupObject<IOdictionary>("preciceDict").subOrEmptyDict("CHT");
 
     // Read the Prandtl number
@@ -119,8 +119,8 @@ void preciceAdapter::CHT::KappaEff_Incompressible::extract(uint patchID, bool me
     // Does the turbulent thermal diffusivity exist in the object registry?
     if (mesh_.foundObject<volScalarField>(nameAlphat_))
     {
-        const scalarField& alphat(
-            mesh_.lookupObject<volScalarField>(nameAlphat_).boundaryField()[patchID]);
+        const scalarField& alphat =
+            mesh_.lookupObject<volScalarField>(nameAlphat_).boundaryField()[patchID];
 
         alphaEff = nu / Pr_.value() + alphat;
     }
@@ -172,7 +172,7 @@ preciceAdapter::CHT::KappaEff_Basic::KappaEff_Basic(
     DEBUG(adapterInfo("  Name of conductivity: " + nameKappa_));
 
     // Get the preciceDict/CHT dictionary
-    const dictionary CHTDict =
+    const dictionary& CHTDict =
         mesh_.lookupObject<IOdictionary>("preciceDict").subOrEmptyDict("CHT");
 
     // Read the conductivity

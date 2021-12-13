@@ -47,7 +47,7 @@ bool preciceAdapter::FSI::FluidStructureInteraction::configure(const IOdictionar
 
 bool preciceAdapter::FSI::FluidStructureInteraction::readConfig(const IOdictionary& adapterConfig)
 {
-    const dictionary FSIdict = adapterConfig.subOrEmptyDict("FSI");
+    const dictionary& FSIdict = adapterConfig.subOrEmptyDict("FSI");
 
     // Read the solver type (if not specified, it is determined automatically)
     solverType_ = FSIdict.lookupOrDefault<word>("solverType", "");
@@ -81,7 +81,7 @@ std::string preciceAdapter::FSI::FluidStructureInteraction::determineSolverType(
 
     if (mesh_.foundObject<volScalarField>("p"))
     {
-        volScalarField p_ = mesh_.lookupObject<volScalarField>("p");
+        const volScalarField& p_ = mesh_.lookupObject<volScalarField>("p");
 
         if (p_.dimensions() == pressureDimensionsCompressible)
         {

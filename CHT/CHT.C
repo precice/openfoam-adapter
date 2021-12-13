@@ -46,7 +46,7 @@ bool preciceAdapter::CHT::ConjugateHeatTransfer::configure(const IOdictionary& a
 
 bool preciceAdapter::CHT::ConjugateHeatTransfer::readConfig(const IOdictionary& adapterConfig)
 {
-    const dictionary CHTdict = adapterConfig.subOrEmptyDict("CHT");
+    const dictionary& CHTdict = adapterConfig.subOrEmptyDict("CHT");
 
     // Read the solver type (if not specified, it is determined automatically)
     solverType_ = CHTdict.lookupOrDefault<word>("solverType", "");
@@ -91,7 +91,7 @@ std::string preciceAdapter::CHT::ConjugateHeatTransfer::determineSolverType()
 
     if (mesh_.foundObject<volScalarField>("p"))
     {
-        volScalarField p_ = mesh_.lookupObject<volScalarField>("p");
+        const volScalarField& p_ = mesh_.lookupObject<volScalarField>("p");
 
         if (p_.dimensions() == pressureDimensionsCompressible)
         {
