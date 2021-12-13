@@ -10,7 +10,7 @@ preciceAdapter::Adapter::Adapter(const Time& runTime, const fvMesh& mesh)
 : runTime_(runTime),
   mesh_(mesh)
 {
-    adapterInfo("Loaded the OpenFOAM-preCICE adapter v1.0.0.", "info");
+    adapterInfo("Loaded the OpenFOAM-preCICE adapter - unreleased version.", "info");
 
     return;
 }
@@ -259,22 +259,37 @@ void preciceAdapter::Adapter::configure()
             {
                 std::string dataName = interfacesConfig_.at(i).writeData.at(j);
 
+                unsigned int inModules = 0;
+
                 // Add CHT-related coupling data writers
-                if (CHTenabled_)
+                if (CHTenabled_ && CHT_->addWriters(dataName, interface))
                 {
-                    CHT_->addWriters(dataName, interface);
+                    inModules++;
                 }
 
                 // Add FSI-related coupling data writers
-                if (FSIenabled_)
+                if (FSIenabled_ && FSI_->addWriters(dataName, interface))
                 {
-                    FSI_->addWriters(dataName, interface);
+                    inModules++;
                 }
 
                 // Add FF-related coupling data writers
-                if (FFenabled_)
+                if (FFenabled_ && FF_->addWriters(dataName, interface))
                 {
-                    FF_->addWriters(dataName, interface);
+                    inModules++;
+                }
+
+                if (inModules == 0)
+                {
+                    adapterInfo("I don't know how to write \"" + dataName
+                                    + "\". Maybe this is a typo or maybe you need to enable some adapter module?",
+                                "error-deferred");
+                }
+                else if (inModules > 1)
+                {
+                    adapterInfo("It looks like more than one modules can write \"" + dataName
+                                    + "\" and I don't know how to choose. Try disabling one of the modules.",
+                                "error-deferred");
                 }
 
                 // NOTE: Add any coupling data writers for your module here.
@@ -285,22 +300,28 @@ void preciceAdapter::Adapter::configure()
             {
                 std::string dataName = interfacesConfig_.at(i).readData.at(j);
 
+                unsigned int inModules = 0;
+
                 // Add CHT-related coupling data readers
-                if (CHTenabled_)
-                {
-                    CHT_->addReaders(dataName, interface);
-                }
+                if (CHTenabled_ && CHT_->addReaders(dataName, interface)) inModules++;
 
                 // Add FSI-related coupling data readers
-                if (FSIenabled_)
-                {
-                    FSI_->addReaders(dataName, interface);
-                }
+                if (FSIenabled_ && FSI_->addReaders(dataName, interface)) inModules++;
 
                 // Add FF-related coupling data readers
-                if (FFenabled_)
+                if (FFenabled_ && FF_->addReaders(dataName, interface)) inModules++;
+
+                if (inModules == 0)
                 {
-                    FF_->addReaders(dataName, interface);
+                    adapterInfo("I don't know how to read \"" + dataName
+                                    + "\". Maybe this is a typo or maybe you need to enable some adapter module?",
+                                "error-deferred");
+                }
+                else if (inModules > 1)
+                {
+                    adapterInfo("It looks like more than one modules can read \"" + dataName
+                                    + "\" and I don't know how to choose. Try disabling one of the modules.",
+                                "error-deferred");
                 }
 
                 // NOTE: Add any coupling data readers for your module here.
@@ -395,9 +416,6 @@ void preciceAdapter::Adapter::execute()
         fulfilledReadCheckpoint();
     }
 
-    // Read the received coupling data from the buffer
-    readCouplingData();
-
     // Adjust the timestep, if it is fixed
     if (!adjustableTimestep_)
     {
@@ -429,6 +447,9 @@ void preciceAdapter::Adapter::execute()
             const_cast<Time&>(runTime_).writeNow();
         }
     }
+
+    // Read the received coupling data from the buffer
+    readCouplingData();
 
     // If the coupling is not going to continue, tear down everything
     // and stop the simulation.

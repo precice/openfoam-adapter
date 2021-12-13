@@ -23,7 +23,7 @@ void preciceAdapter::FSI::DisplacementDelta::initialize()
 {
     // Initialize appropriate objects for each interface patch, namely the volField and the interpolation object
     // this is only necessary for face based FSI
-    if (this->locationsType_ == "faceCenters" || this->locationsType_ == "faceCentres")
+    if (this->locationType_ == LocationType::faceCenters)
     {
         for (unsigned int j = 0; j < patchIDs_.size(); ++j)
         {
@@ -54,7 +54,7 @@ void preciceAdapter::FSI::DisplacementDelta::read(double* buffer, const unsigned
         // Get the ID of the current patch
         const unsigned int patchID = patchIDs_.at(j);
 
-        if (this->locationsType_ == "faceCenters" || this->locationsType_ == "faceCentres")
+        if (this->locationType_ == LocationType::faceCenters)
         {
 
             // the boundaryCellDisplacement is a vector and ordered according to the iterator j
@@ -76,7 +76,7 @@ void preciceAdapter::FSI::DisplacementDelta::read(double* buffer, const unsigned
             // Afterwards, continue as usual
             pointDisplacementFluidPatch += interpolationObjects_[j]->faceToPointInterpolate(cellDisplacement_->boundaryField()[patchID]);
         }
-        else if (this->locationsType_ == "faceNodes")
+        else if (this->locationType_ == LocationType::faceNodes)
         {
 
             // Get the displacement on the patch
@@ -92,4 +92,14 @@ void preciceAdapter::FSI::DisplacementDelta::read(double* buffer, const unsigned
             }
         }
     }
+}
+
+bool preciceAdapter::FSI::DisplacementDelta::isLocationTypeSupported(const bool meshConnectivity) const
+{
+    return (this->locationType_ == LocationType::faceCenters || this->locationType_ == LocationType::faceNodes);
+}
+
+std::string preciceAdapter::FSI::DisplacementDelta::getDataName() const
+{
+    return "DisplacementDelta";
 }

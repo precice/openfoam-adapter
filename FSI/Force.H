@@ -27,6 +27,11 @@ public:
     //- Read the forces values from the buffer
     void read(double* buffer, const unsigned int dim) override;
 
+    bool isLocationTypeSupported(const bool meshConnectivity) const override;
+
+    //- Get the name of the current data field
+    std::string getDataName() const override;
+
     //- Returns the normal vectors multiplied by the face area
     Foam::tmp<Foam::vectorField> getFaceVectors(const unsigned int patchID) const override;
 
