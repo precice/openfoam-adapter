@@ -22,10 +22,8 @@ void preciceAdapter::FF::VelocityGradient::write(double* buffer, bool meshConnec
         int patchID = patchIDs_.at(j);
 
         // Get the velocity gradient boundary patch
-        vectorField gradientPatch(
-            refCast<fixedValueFvPatchVectorField>(
-                U_->boundaryFieldRef()[patchID])
-                .snGrad());
+        vectorField gradientPatch((U_->boundaryFieldRef()[patchID])
+                                      .snGrad());
 
         // For every cell of the patch
         forAll(gradientPatch, i)
