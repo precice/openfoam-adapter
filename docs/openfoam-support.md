@@ -133,4 +133,6 @@ However, if you set a *fixed timestep* and *runTimeModifiable*,
 changing the configured timestep *during the simulation* will
 not affect the timestep used. A warning will be shown in this case.
 
-{% include disclaimer.html content="This offering is not approved or endorsed by OpenCFD Limited, producer and distributor of the OpenFOAM software via www.openfoam.com, and owner of the OPENFOAM®  and OpenCFD®  trade marks." %}
+{% disclaimer %}
+This offering is not approved or endorsed by OpenCFD Limited, producer and distributor of the OpenFOAM software via www.openfoam.com, and owner of the OPENFOAM®  and OpenCFD®  trade marks.
+{% enddisclaimer %}
