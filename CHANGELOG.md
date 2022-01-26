@@ -10,6 +10,26 @@ Read more details in the issue [#52: Releases and versioning](https://github.com
 
 ## [Unreleased]
 
+## [v1.0.1] 2022-01-24
+
+### Added
+
+- Added a check for data fields and supported location types of the coupling interface [#206](https://github.com/precice/openfoam-adapter/pull/206).
+- Extended the adapter's DEBUG output to print the rank in addition to the message in parallel runs
+[#201](https://github.com/precice/openfoam-adapter/pull/201).
+
+### Changed
+
+- Removed explicit casting of boundary conditions in the adapter's write function in order to allow more boundary conditions to be compatible with the adapter (e.g. groovyBC) [#195](https://github.com/precice/openfoam-adapter/pull/195).
+- OpenFOAM version bumped to v2112 in GitHub Actions (including preCICE v2.2.1 --> v2.3.0) and documentation. GitHub Action clang-format-action switched to main branch. [#211](https://github.com/precice/openfoam-adapter/pull/211).
+- Cleaned-up the handling of adding checkpoint fields and replaced various unnecessary copies by references [#209](https://github.com/precice/openfoam-adapter/pull/209).
+
+### Fixed
+
+- Fixed a potential memory access issue in the xy-alignment check for parallel 2D cases [#202](https://github.com/precice/openfoam-adapter/issues/202).
+- Fixed a bug that was not allowing more than one module at the same time and added an error message for the case when a dataset is not known by any or too many modules. [#197](https://github.com/precice/openfoam-adapter/pull/197).
+- Fixed the misplaced data reading in the adapter 'advance' function [#188](https://github.com/precice/openfoam-adapter/pull/188).
+
 ## [v1.0.0] 2021-04-29
 
 ### Added

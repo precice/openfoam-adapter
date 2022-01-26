@@ -10,7 +10,7 @@ preciceAdapter::Adapter::Adapter(const Time& runTime, const fvMesh& mesh)
 : runTime_(runTime),
   mesh_(mesh)
 {
-    adapterInfo("Loaded the OpenFOAM-preCICE adapter - unreleased version.", "info");
+    adapterInfo("Loaded the OpenFOAM-preCICE adapter - v1.0.1.", "info");
 
     return;
 }
