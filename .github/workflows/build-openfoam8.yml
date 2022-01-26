@@ -20,7 +20,7 @@ jobs:
         cache: ${{ runner.temp }}/cache-directory
         snapshot: '/'
         exclude: '/boot /data /dev /mnt /proc /run /sys'
-    - name: Merge version-specific branch
-      run: git merge OpenFOAM8 
+    - name: Rebase version-specific branch on ref
+      run: git checkout ${GITHUB_REF##*/} && git rebase OpenFOAM8
     - name: Build OpenFOAM-preCICE adapter
       run: . /opt/openfoam8/etc/bashrc && ./Allwmake
