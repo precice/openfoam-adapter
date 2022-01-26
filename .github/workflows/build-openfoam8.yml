@@ -21,6 +21,6 @@ jobs:
         snapshot: '/'
         exclude: '/boot /data /dev /mnt /proc /run /sys'
     - name: Rebase version-specific branch on ref
-      run: git checkout OpenFOAM8 && git rebase ${GITHUB_REF##*/}
+      run: git checkout origin/OpenFOAM8 && git rebase ${GITHUB_REF##*/}
     - name: Build OpenFOAM-preCICE adapter
       run: . /opt/openfoam8/etc/bashrc && ./Allwmake
