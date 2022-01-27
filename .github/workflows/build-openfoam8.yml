@@ -1,4 +1,4 @@
-name: Custom build
+name: Custom build # Unfortunately, we cannot modify the name: https://github.community/t/github-actions-dynamic-name-of-the-workflow-with-workflow-dispatch/150327
 on:
   workflow_dispatch:
     inputs:
@@ -36,6 +36,7 @@ jobs:
       with:
         ref: ${{ github.event.inputs.branchAdapter }}
     - name: Install OpenFOAM (no cache)
+      id: installOpenFOAM
       run: |
         case "${{ github.event.inputs.versionOpenFOAM }}" in
           OpenFOAMv2112)
