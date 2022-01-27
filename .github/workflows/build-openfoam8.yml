@@ -1,11 +1,17 @@
 name: Build with OpenFOAM 8
-on: workflow_dispatch
+on:
+  workflow_dispatch:
+    inputs:
+      branch:
+        required: true
 jobs:
   build:
     runs-on: ubuntu-20.04
     steps:
     - name: Check out repository
       uses: actions/checkout@v2
+      with:
+        ref: ${{ github.event.inputs.branch }}
     - name: Install OpenFOAM (no cache)
       run: |
         sudo sh -c "wget -O - https://dl.openfoam.org/gpg.key | apt-key add -"
