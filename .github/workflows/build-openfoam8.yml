@@ -1,9 +1,19 @@
-name: Build with OpenFOAM 8
+name: Custom build
 on:
   workflow_dispatch:
     inputs:
-      branch:
+      branchAdapter:
+        description: 'Branch of the OpenFOAM adapter to build'
+        default: 'develop'
         required: true
+      versionOpenFOAM:
+        description: 'Version of OpenFOAM to build with'
+        required: true
+        type: choice
+        options:
+          - OpenFOAM7
+          - OpenFOAM8
+
 jobs:
   build:
     runs-on: ubuntu-20.04
@@ -11,13 +21,21 @@ jobs:
     - name: Check out repository
       uses: actions/checkout@v2
       with:
-        ref: ${{ github.event.inputs.branch }}
+        ref: ${{ github.event.inputs.branchAdapter }}
     - name: Install OpenFOAM (no cache)
       run: |
-        sudo sh -c "wget -O - https://dl.openfoam.org/gpg.key | apt-key add -"
-        sudo add-apt-repository http://dl.openfoam.org/ubuntu
-        sudo apt-get update
-        sudo apt-get -y install openfoam8
+        case "${{ github.event.inputs.branchAdapter }}" in
+          OpenFOAM7)
+            echo "OpenFOAM 7 not supported at the moment.";;
+          OpenFOAM8)
+            sudo sh -c "wget -O - https://dl.openfoam.org/gpg.key | apt-key add -"
+            sudo add-apt-repository http://dl.openfoam.org/ubuntu
+            sudo apt-get update
+            sudo apt-get -y install openfoam8;;
+          *)
+            echo "I don't know ${{ github.event.inputs.branchAdapter }}"
+            exit 1;;
+        esac
     - name: Install preCICE (no cache)
       run: |
         wget https://github.com/precice/precice/releases/download/v2.3.0/libprecice2_2.3.0_focal.deb
