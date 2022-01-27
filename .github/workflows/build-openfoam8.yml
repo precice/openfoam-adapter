@@ -28,9 +28,13 @@ on:
 jobs:
   build:
     runs-on: ubuntu-20.04
-    outputs:
-      openfoam_env: ${{ steps.installOpenFOAM.outputs.openfoam_env }}
     steps:
+    - name: Report log
+      run: |
+        echo "Initiated by: ${{ github.actor }}"
+        echo "Adapter version: ${{ github.event.inputs.branchAdapter }}"
+        echo "OpenFOAM version: ${{ github.event.inputs.versionOpenFOAM }}"
+        echo "preCICE version: ${{ github.event.inputs.versionpreCICE }}"
     - name: Check out repository
       uses: actions/checkout@v2
       with:
@@ -41,8 +45,7 @@ jobs:
         case "${{ github.event.inputs.versionOpenFOAM }}" in
           OpenFOAMv2112)
             wget -q -O - https://dl.openfoam.com/add-debian-repo.sh | sudo bash
-            sudo apt-get install openfoam2112-dev
-            echo "::set-output name=openfoam_env::/usr/bin/openfoam2112";;
+            sudo apt-get install openfoam2112-dev;;
           OpenFOAMv2106)
             wget -q -O - https://dl.openfoam.com/add-debian-repo.sh | sudo bash
             sudo apt-get install openfoam2106-dev;;
@@ -82,7 +85,7 @@ jobs:
       run: |
         case "${{ github.event.inputs.versionOpenFOAM }}" in
           OpenFOAMv2112)
-            ${{ needs.installOpenFOAM.outputs.openfoam_env }} ./Allwmake;;
+            /usr/bin/openfoam2112 ./Allwmake;;
           OpenFOAMv2106)
             /usr/bin/openfoam2106 ./Allwmake;;
           OpenFOAMv2012)
