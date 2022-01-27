@@ -1,4 +1,4 @@
-name: Custom build (${{ github.event.inputs.branchAdapter }}, ${{ github.event.inputs.versionOpenFOAM }}, preCICE ${{ github.event.inputs.versionpreCICE }})
+name: Custom build
 on:
   workflow_dispatch:
     inputs:
