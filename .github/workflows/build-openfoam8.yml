@@ -11,8 +11,19 @@ on:
         required: true
         type: choice
         options:
-          - OpenFOAM7
+          - OpenFOAMv2112
+          - OpenFOAMv2106
+          - OpenFOAMv2012
+          - OpenFOAMv2006
+          - OpenFOAMv1912
+          - OpenFOAM9
           - OpenFOAM8
+          - OpenFOAM7
+          # We don't have precompiled packages for older versions on this Ubuntu version
+      versionpreCICE:
+        description: 'Released version of preCICE to build with'
+        default: '2.3.0'
+        required: true
 
 jobs:
   build:
@@ -25,15 +36,21 @@ jobs:
     - name: Install OpenFOAM (no cache)
       run: |
         case "${{ github.event.inputs.versionOpenFOAM }}" in
-          OpenFOAM4)
-            echo "We don't have precompiled OpenFOAM 4 packages on Ubuntu 20.04."
-            exit 1;;
-          OpenFOAM5)
-            echo "We don't have precompiled OpenFOAM 5 packages on Ubuntu 20.04."
-            exit 1;;
-          OpenFOAM6)
-            echo "We don't have precompiled OpenFOAM 5 packages on Ubuntu 20.04."
-            exit 1;;
+          OpenFOAMv2112)
+            wget -q -O - https://dl.openfoam.com/add-debian-repo.sh | sudo bash
+            sudo apt-get install openfoam2112-dev
+          OpenFOAMv2106)
+            wget -q -O - https://dl.openfoam.com/add-debian-repo.sh | sudo bash
+            sudo apt-get install openfoam2106-dev
+          OpenFOAMv2012)
+            wget -q -O - https://dl.openfoam.com/add-debian-repo.sh | sudo bash
+            sudo apt-get install openfoam2012-dev
+          OpenFOAMv2006)
+            wget -q -O - https://dl.openfoam.com/add-debian-repo.sh | sudo bash
+            sudo apt-get install openfoam2006-dev
+          OpenFOAMv1912)
+            wget -q -O - https://dl.openfoam.com/add-debian-repo.sh | sudo bash
+            sudo apt-get install openfoam1912-dev
           OpenFOAM7)
             sudo sh -c "wget -O - https://dl.openfoam.org/gpg.key | apt-key add -"
             sudo add-apt-repository http://dl.openfoam.org/ubuntu
@@ -55,11 +72,21 @@ jobs:
         esac
     - name: Install preCICE (no cache)
       run: |
-        wget https://github.com/precice/precice/releases/download/v2.3.0/libprecice2_2.3.0_focal.deb
-        sudo apt install ./libprecice2_2.3.0_focal.deb
+        wget "https://github.com/precice/precice/releases/download/v${{ github.event.inputs.versionpreCICE }}/libprecice2_${{ github.event.inputs.versionpreCICE }}_focal.deb"
+        sudo apt install "./libprecice2_${{ github.event.inputs.versionpreCICE }}_focal.deb"
     - name: Build OpenFOAM-preCICE adapter
       run: |
         case "${{ github.event.inputs.versionOpenFOAM }}" in
+          OpenFOAMv2112)
+            /usr/bin/openfoam2112 ./Allwmake
+          OpenFOAMv2106)
+            /usr/bin/openfoam2106 ./Allwmake
+          OpenFOAMv2012)
+            /usr/bin/openfoam2012 ./Allwmake
+          OpenFOAMv2006)
+            /usr/bin/openfoam2006 ./Allwmake
+          OpenFOAMv1912)
+            /usr/bin/openfoam1912 ./Allwmake
           OpenFOAM7)
             . /opt/openfoam8/etc/bashrc && ./Allwmake;;
           OpenFOAM8)
