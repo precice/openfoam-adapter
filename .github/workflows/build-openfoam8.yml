@@ -1,26 +1,20 @@
 name: Build with OpenFOAM 8
-on: [push, pull_request]
+on: workflow_dispatch
 jobs:
   build:
     runs-on: ubuntu-20.04
     steps:
     - name: Check out repository
       uses: actions/checkout@v2
-    - name: Setup caches
-      uses: actions/cache@v2
-      id: cache-id
-      with:
-        path: ${{ runner.temp }}/cache-directory
-        key: ${{ runner.os }}-cache-dependencies-openfoam8-v1.0
-    - name: Install dependencies (considering cache)
-      uses: airvzxf/cache-anything-new-action@v1.0.1
-      with:
-        script: 'install-dependencies-openfoam8.sh'
-        is_cached: ${{ steps.cache-id.outputs.cache-hit }}
-        cache: ${{ runner.temp }}/cache-directory
-        snapshot: '/'
-        exclude: '/boot /data /dev /mnt /proc /run /sys'
-    - name: Rebase version-specific branch on ref
-      run: git remote -v && git fetch origin OpenFOAM8 && git checkout origin/OpenFOAM8 && git rebase ${GITHUB_REF##*/}
+    - name: Install OpenFOAM (no cache)
+      run: |
+        sudo sh -c "wget -O - https://dl.openfoam.org/gpg.key | apt-key add -"
+        sudo add-apt-repository http://dl.openfoam.org/ubuntu
+        sudo apt-get update
+        sudo apt-get -y install openfoam8
+    - name: Install preCICE (no cache)
+      run: |
+        wget https://github.com/precice/precice/releases/download/v2.3.0/libprecice2_2.3.0_focal.deb
+        sudo apt install ./libprecice2_2.3.0_focal.deb
     - name: Build OpenFOAM-preCICE adapter
       run: . /opt/openfoam8/etc/bashrc && ./Allwmake
