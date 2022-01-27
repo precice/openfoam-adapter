@@ -25,15 +25,32 @@ jobs:
     - name: Install OpenFOAM (no cache)
       run: |
         case "${{ github.event.inputs.versionOpenFOAM }}" in
+          OpenFOAM4)
+            echo "We don't have precompiled OpenFOAM 4 packages on Ubuntu 20.04."
+            exit 1;;
+          OpenFOAM5)
+            echo "We don't have precompiled OpenFOAM 5 packages on Ubuntu 20.04."
+            exit 1;;
+          OpenFOAM6)
+            echo "We don't have precompiled OpenFOAM 5 packages on Ubuntu 20.04."
+            exit 1;;
           OpenFOAM7)
-            echo "OpenFOAM 7 not supported at the moment.";;
+            sudo sh -c "wget -O - https://dl.openfoam.org/gpg.key | apt-key add -"
+            sudo add-apt-repository http://dl.openfoam.org/ubuntu
+            sudo apt-get update
+            sudo apt-get -y install openfoam7;;
           OpenFOAM8)
             sudo sh -c "wget -O - https://dl.openfoam.org/gpg.key | apt-key add -"
             sudo add-apt-repository http://dl.openfoam.org/ubuntu
             sudo apt-get update
             sudo apt-get -y install openfoam8;;
+          OpenFOAM9)
+            sudo sh -c "wget -O - https://dl.openfoam.org/gpg.key | apt-key add -"
+            sudo add-apt-repository http://dl.openfoam.org/ubuntu
+            sudo apt-get update
+            sudo apt-get -y install openfoam9;;
           *)
-            echo "I don't know ${{ github.event.inputs.branchAdapter }}"
+            echo "I cannot find ${{ github.event.inputs.branchAdapter }} in my known options."
             exit 1;;
         esac
     - name: Install preCICE (no cache)
@@ -44,7 +61,9 @@ jobs:
       run: |
         case "${{ github.event.inputs.versionOpenFOAM }}" in
           OpenFOAM7)
-            echo "OpenFOAM 7 not supported at the moment.";;
+            . /opt/openfoam8/etc/bashrc && ./Allwmake;;
           OpenFOAM8)
-            . /opt/openfoam8/etc/bashrc && ./Allwmake
+            . /opt/openfoam8/etc/bashrc && ./Allwmake;;
+          OpenFOAM9)
+            . /opt/openfoam9/etc/bashrc && ./Allwmake;;
         esac
