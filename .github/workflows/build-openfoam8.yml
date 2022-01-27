@@ -24,7 +24,7 @@ jobs:
         ref: ${{ github.event.inputs.branchAdapter }}
     - name: Install OpenFOAM (no cache)
       run: |
-        case "${{ github.event.inputs.branchAdapter }}" in
+        case "${{ github.event.inputs.versionOpenFOAM }}" in
           OpenFOAM7)
             echo "OpenFOAM 7 not supported at the moment.";;
           OpenFOAM8)
@@ -41,4 +41,10 @@ jobs:
         wget https://github.com/precice/precice/releases/download/v2.3.0/libprecice2_2.3.0_focal.deb
         sudo apt install ./libprecice2_2.3.0_focal.deb
     - name: Build OpenFOAM-preCICE adapter
-      run: . /opt/openfoam8/etc/bashrc && ./Allwmake
+      run: |
+        case "${{ github.event.inputs.versionOpenFOAM }}" in
+          OpenFOAM7)
+            echo "OpenFOAM 7 not supported at the moment.";;
+          OpenFOAM8)
+            . /opt/openfoam8/etc/bashrc && ./Allwmake
+        esac
