@@ -1,4 +1,4 @@
-name: Custom build # Unfortunately, we cannot modify the name: https://github.community/t/github-actions-dynamic-name-of-the-workflow-with-workflow-dispatch/150327
+name: Custom build (triggered manually) # Unfortunately, we cannot modify the name: https://github.community/t/github-actions-dynamic-name-of-the-workflow-with-workflow-dispatch/150327
 on:
   workflow_dispatch:
     inputs:
@@ -24,6 +24,14 @@ on:
         description: 'Released version of preCICE to build with'
         default: '2.3.0'
         required: true
+      runTutorials:
+        description: Also run some tutorials
+        type: boolean
+        required: true
+      branchTutorials:
+        description: 'Branch of the tutorials to use'
+        default: 'master'
+        required: true
 
 jobs:
   build:
@@ -35,6 +43,8 @@ jobs:
         echo "Adapter branch: ${{ github.event.inputs.branchAdapter }}"
         echo "OpenFOAM version: ${{ github.event.inputs.versionOpenFOAM }}"
         echo "preCICE version: ${{ github.event.inputs.versionpreCICE }}"
+        echo "Run tutorials: ${{ github.event.inputs.runTutorials }}"
+        echo "Tutorials branch: ${{ github.event.inputs.branchTutorials }}"
     - name: Check out repository
       uses: actions/checkout@v2
       with:
@@ -92,12 +102,28 @@ jobs:
     - name: Build OpenFOAM-preCICE adapter
       run: |
           ${{steps.installOpenFOAM.outputs.openfoam_exec}} ./Allwmake
-    - name: Run a tutorial
+    - name: Run tutorial flow-over-heated-plate
       run: |
-        git clone https://github.com/precice/tutorials.git && ls && cd tutorials
-        cd flow-over-heated-plate/fluid-openfoam
-        ${{steps.installOpenFOAM.outputs.openfoam_exec}} ./run.sh &
-        PIDfluid=$!
-        cd ../solid-openfoam
-        ${{steps.installOpenFOAM.outputs.openfoam_exec}} ./run.sh
-        wait $PIDfluid
+        if [ ${{ github.event.inputs.runTutorials }} ]
+        then
+          git clone https://github.com/precice/tutorials.git --branch ${{ github.event.inputs.branchTutorials }} && ls && cd tutorials
+          cd flow-over-heated-plate/fluid-openfoam
+          ${{steps.installOpenFOAM.outputs.openfoam_exec}} ./run.sh &
+          PIDfluid=$!
+          cd ../solid-openfoam
+          ${{steps.installOpenFOAM.outputs.openfoam_exec}} ./run.sh
+          wait $PIDfluid
+          cd ../..
+        fi
+    - name: Run tutorial quickstart
+      run: |
+        if [ ${{ github.event.inputs.runTutorials }} ]
+        then
+          cd quickstart/fluid-openfoam
+          ${{steps.installOpenFOAM.outputs.openfoam_exec}} ./run.sh &
+          PIDfluid=$!
+          cd ../solid-cpp
+          cmake . && make && ./run.sh
+          wait $PIDfluid
+          cd ../..
+        fi
