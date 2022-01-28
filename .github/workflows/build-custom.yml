@@ -101,3 +101,10 @@ jobs:
           OpenFOAM9)
             . /opt/openfoam9/etc/bashrc && ./Allwmake;;
         esac
+    - name: Run a tutorial
+      run: |
+        git clone https://github.org/precice/tutorials.git && ls && cd tutorials
+        cd flow-over-heated-plate/fluid-openfoam
+        /usr/bin/openfoam2112 ./run.sh &
+        cd ../solid-openfoam
+        ./run.sh
