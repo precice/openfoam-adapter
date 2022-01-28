@@ -86,7 +86,7 @@ jobs:
       run: |
         case "${{ github.event.inputs.versionOpenFOAM }}" in
           OpenFOAMv2112)
-            ${{needs.build.outputs.openfoam_exec}} ./Allwmake;;
+            ${{steps.installOpenFOAM.outputs.openfoam_exec}} ./Allwmake;;
           OpenFOAMv2106)
             /usr/bin/openfoam2106 ./Allwmake;;
           OpenFOAMv2012)
