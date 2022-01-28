@@ -31,6 +31,7 @@ on:
         required: true
       runTutorialQuickstart:
         description: Run tutorial quickstart
+        type: boolean
         default: true
         requird: true
       branchTutorials:
