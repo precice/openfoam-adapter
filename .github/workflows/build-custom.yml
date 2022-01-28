@@ -49,31 +49,38 @@ jobs:
             echo "::set-output name=openfoam_exec::/usr/bin/openfoam2112";;
           OpenFOAMv2106)
             wget -q -O - https://dl.openfoam.com/add-debian-repo.sh | sudo bash
-            sudo apt-get install openfoam2106-dev;;
+            sudo apt-get install openfoam2106-dev
+            echo "::set-output name=openfoam_exec::/usr/bin/openfoam2106";;
           OpenFOAMv2012)
             wget -q -O - https://dl.openfoam.com/add-debian-repo.sh | sudo bash
-            sudo apt-get install openfoam2012-dev;;
+            sudo apt-get install openfoam2012-dev
+            echo "::set-output name=openfoam_exec::/usr/bin/openfoam2012";;
           OpenFOAMv2006)
             wget -q -O - https://dl.openfoam.com/add-debian-repo.sh | sudo bash
-            sudo apt-get install openfoam2006-dev;;
+            sudo apt-get install openfoam2006-dev
+            echo "::set-output name=openfoam_exec::/usr/bin/openfoam2006";;
           OpenFOAMv1912)
             wget -q -O - https://dl.openfoam.com/add-debian-repo.sh | sudo bash
-            sudo apt-get install openfoam1912-dev;;
+            sudo apt-get install openfoam1912-dev
+            echo "::set-output name=openfoam_exec::/usr/bin/openfoam1912";;
           OpenFOAM7)
             sudo sh -c "wget -O - https://dl.openfoam.org/gpg.key | apt-key add -"
             sudo add-apt-repository http://dl.openfoam.org/ubuntu
             sudo apt-get update
-            sudo apt-get -y install openfoam7;;
+            sudo apt-get -y install openfoam7
+            echo "::set-output name=openfoam_exec::. /opt/openfoam7/etc/bashrc &&";;
           OpenFOAM8)
             sudo sh -c "wget -O - https://dl.openfoam.org/gpg.key | apt-key add -"
             sudo add-apt-repository http://dl.openfoam.org/ubuntu
             sudo apt-get update
-            sudo apt-get -y install openfoam8;;
+            sudo apt-get -y install openfoam8
+            echo "::set-output name=openfoam_exec::. /opt/openfoam8/etc/bashrc &&";;
           OpenFOAM9)
             sudo sh -c "wget -O - https://dl.openfoam.org/gpg.key | apt-key add -"
             sudo add-apt-repository http://dl.openfoam.org/ubuntu
             sudo apt-get update
-            sudo apt-get -y install openfoam9;;
+            sudo apt-get -y install openfoam9
+            echo "::set-output name=openfoam_exec::. /opt/openfoam9/etc/bashrc &&";;
           *)
             echo "I cannot find ${{ github.event.inputs.branchAdapter }} in my known options."
             exit 1;;
@@ -84,30 +91,13 @@ jobs:
         sudo apt install "./libprecice2_${{ github.event.inputs.versionpreCICE }}_focal.deb"
     - name: Build OpenFOAM-preCICE adapter
       run: |
-        case "${{ github.event.inputs.versionOpenFOAM }}" in
-          OpenFOAMv2112)
-            ${{steps.installOpenFOAM.outputs.openfoam_exec}} ./Allwmake;;
-          OpenFOAMv2106)
-            /usr/bin/openfoam2106 ./Allwmake;;
-          OpenFOAMv2012)
-            /usr/bin/openfoam2012 ./Allwmake;;
-          OpenFOAMv2006)
-            /usr/bin/openfoam2006 ./Allwmake;;
-          OpenFOAMv1912)
-            /usr/bin/openfoam1912 ./Allwmake;;
-          OpenFOAM7)
-            . /opt/openfoam7/etc/bashrc && ./Allwmake;;
-          OpenFOAM8)
-            . /opt/openfoam8/etc/bashrc && ./Allwmake;;
-          OpenFOAM9)
-            . /opt/openfoam9/etc/bashrc && ./Allwmake;;
-        esac
+          ${{steps.installOpenFOAM.outputs.openfoam_exec}} ./Allwmake;;
     - name: Run a tutorial
       run: |
         git clone https://github.com/precice/tutorials.git && ls && cd tutorials
         cd flow-over-heated-plate/fluid-openfoam
-        /usr/bin/openfoam2112 ./run.sh &
+        ${{steps.installOpenFOAM.outputs.openfoam_exec}} ./run.sh &
         PIDfluid=$!
         cd ../solid-openfoam
-        /usr/bin/openfoam2112 ./run.sh
+        ${{steps.installOpenFOAM.outputs.openfoam_exec}} ./run.sh
         wait $PIDfluid
