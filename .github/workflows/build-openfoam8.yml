@@ -32,7 +32,7 @@ jobs:
     - name: Report log
       run: |
         echo "Initiated by: ${{ github.actor }}"
-        echo "Adapter version: ${{ github.event.inputs.branchAdapter }}"
+        echo "Adapter branch: ${{ github.event.inputs.branchAdapter }}"
         echo "OpenFOAM version: ${{ github.event.inputs.versionOpenFOAM }}"
         echo "preCICE version: ${{ github.event.inputs.versionpreCICE }}"
     - name: Check out repository
