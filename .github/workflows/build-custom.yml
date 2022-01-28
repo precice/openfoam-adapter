@@ -109,12 +109,14 @@ jobs:
     - name: Build OpenFOAM-preCICE adapter
       run: |
           ${{steps.installOpenFOAM.outputs.openfoam_exec}} ./Allwmake
+    - name: Get tutorials
+      run: |
+        git clone https://github.com/precice/tutorials.git --branch ${{ github.event.inputs.branchTutorials }}
     - name: Run tutorial flow-over-heated-plate
       run: |
         if [ ${{ github.event.inputs.runTutorialHeatedPlate }} ]
         then
-          git clone https://github.com/precice/tutorials.git --branch ${{ github.event.inputs.branchTutorials }} && ls && cd tutorials
-          cd flow-over-heated-plate/fluid-openfoam
+          cd tutorials/flow-over-heated-plate/fluid-openfoam
           ${{steps.installOpenFOAM.outputs.openfoam_exec}} ./run.sh | tee fluid-openfoam.log 2>&1 &
           PIDfluid=$!
           cd ../solid-openfoam
