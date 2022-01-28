@@ -24,10 +24,15 @@ on:
         description: 'Released version of preCICE to build with'
         default: '2.3.0'
         required: true
-      runTutorials:
-        description: Also run some tutorials
+      runTutorialHeatedPlate:
+        description: Run tutorial flow-over-heated-plate
         type: boolean
+        default: true
         required: true
+      runTutorialQuickstart:
+        description: Run tutorial quickstart
+        default: true
+        requird: true
       branchTutorials:
         description: 'Branch of the tutorials to use'
         default: 'master'
@@ -43,7 +48,8 @@ jobs:
         echo "Adapter branch: ${{ github.event.inputs.branchAdapter }}"
         echo "OpenFOAM version: ${{ github.event.inputs.versionOpenFOAM }}"
         echo "preCICE version: ${{ github.event.inputs.versionpreCICE }}"
-        echo "Run tutorials: ${{ github.event.inputs.runTutorials }}"
+        echo "Run tutorial flow-over-heated-plate: ${{ github.event.inputs.runTutorialHeatedPlate }}"
+        echo "Run tutorial quickstart: ${{ github.event.inputs.runTutorialQuickstart }}"
         echo "Tutorials branch: ${{ github.event.inputs.branchTutorials }}"
     - name: Check out repository
       uses: actions/checkout@v2
@@ -104,7 +110,7 @@ jobs:
           ${{steps.installOpenFOAM.outputs.openfoam_exec}} ./Allwmake
     - name: Run tutorial flow-over-heated-plate
       run: |
-        if [ ${{ github.event.inputs.runTutorials }} ]
+        if [ ${{ github.event.inputs.runTutorialHeatedPlate }} ]
         then
           git clone https://github.com/precice/tutorials.git --branch ${{ github.event.inputs.branchTutorials }} && ls && cd tutorials
           cd flow-over-heated-plate/fluid-openfoam
@@ -113,11 +119,12 @@ jobs:
           cd ../solid-openfoam
           ${{steps.installOpenFOAM.outputs.openfoam_exec}} ./run.sh
           wait $PIDfluid
-          cd ../..
+          cd ../.. && pwd && ls
         fi
     - name: Run tutorial quickstart
       run: |
-        if [ ${{ github.event.inputs.runTutorials }} ]
+        pwd && ls
+        if [ ${{ github.event.inputs.runTutorialQuickstart }} ]
         then
           cd quickstart/fluid-openfoam
           ${{steps.installOpenFOAM.outputs.openfoam_exec}} ./run.sh &
