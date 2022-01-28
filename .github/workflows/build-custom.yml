@@ -115,23 +115,42 @@ jobs:
         then
           git clone https://github.com/precice/tutorials.git --branch ${{ github.event.inputs.branchTutorials }} && ls && cd tutorials
           cd flow-over-heated-plate/fluid-openfoam
-          ${{steps.installOpenFOAM.outputs.openfoam_exec}} ./run.sh &
+          ${{steps.installOpenFOAM.outputs.openfoam_exec}} ./run.sh & | tee fluid-openfoam.log 2>&1 &
           PIDfluid=$!
           cd ../solid-openfoam
-          ${{steps.installOpenFOAM.outputs.openfoam_exec}} ./run.sh
+          ${{steps.installOpenFOAM.outputs.openfoam_exec}} ./run.sh | tee solid-openfoam.log 2>&1 &
           wait $PIDfluid
-          cd ../.. && pwd && ls
         fi
     - name: Run tutorial quickstart
       run: |
-        pwd && ls
         if [ ${{ github.event.inputs.runTutorialQuickstart }} ]
         then
-          cd quickstart/fluid-openfoam
-          ${{steps.installOpenFOAM.outputs.openfoam_exec}} ./run.sh &
+          cd tutorials/quickstart/fluid-openfoam
+          ${{steps.installOpenFOAM.outputs.openfoam_exec}} ./run.sh & | tee fluid-openfoam.log 2>&1 &
           PIDfluid=$!
           cd ../solid-cpp
-          cmake . && make && ./run.sh
+          cmake . && make && ./run.sh | tee solid-cpp.log 2>&1 &
           wait $PIDfluid
           cd ../..
         fi
+    - name: Archive logs
+      uses: actions/upload-artifact@v2
+      with:
+        name: logs
+        path: |
+          Allwmake.log
+          wmake.log
+          ldd.log
+          tutorials/flow-over-heated-plate/fluid-openfoam/fluid-openfoam.log
+          tutorials/flow-over-heated-plate/solid-openfoam/solid-openfoam.log
+          tutorials/quickstart/fluid-openfoam/fluid-openfoam.log
+          tutorials/quickstart/solid-cpp/solid-cpp.log
+    - name: Archive case files
+      uses: actions/upload-artifact@v2
+      with:
+        name: case-files
+        path: |
+          tutorials/flow-over-heated-plate/fluid-openfoam/*
+          tutorials/flow-over-heated-plate/solid-openfoam/*
+          tutorials/quickstart/fluid-openfoam/*
+          tutorials/quickstart/solid-cpp/*
