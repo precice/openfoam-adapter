@@ -1,4 +1,4 @@
-name: Custom build (triggered manually) # Unfortunately, we cannot modify the name: https://github.community/t/github-actions-dynamic-name-of-the-workflow-with-workflow-dispatch/150327
+name: Custom build (manual) # Unfortunately, we cannot modify the name: https://github.community/t/github-actions-dynamic-name-of-the-workflow-with-workflow-dispatch/150327
 on:
   workflow_dispatch:
     inputs:
@@ -115,10 +115,10 @@ jobs:
         then
           git clone https://github.com/precice/tutorials.git --branch ${{ github.event.inputs.branchTutorials }} && ls && cd tutorials
           cd flow-over-heated-plate/fluid-openfoam
-          ${{steps.installOpenFOAM.outputs.openfoam_exec}} ./run.sh & | tee fluid-openfoam.log 2>&1 &
+          ${{steps.installOpenFOAM.outputs.openfoam_exec}} ./run.sh | tee fluid-openfoam.log 2>&1 &
           PIDfluid=$!
           cd ../solid-openfoam
-          ${{steps.installOpenFOAM.outputs.openfoam_exec}} ./run.sh | tee solid-openfoam.log 2>&1 &
+          ${{steps.installOpenFOAM.outputs.openfoam_exec}} ./run.sh | tee solid-openfoam.log 2>&1
           wait $PIDfluid
         fi
     - name: Run tutorial quickstart
@@ -126,10 +126,10 @@ jobs:
         if [ ${{ github.event.inputs.runTutorialQuickstart }} ]
         then
           cd tutorials/quickstart/fluid-openfoam
-          ${{steps.installOpenFOAM.outputs.openfoam_exec}} ./run.sh & | tee fluid-openfoam.log 2>&1 &
+          ${{steps.installOpenFOAM.outputs.openfoam_exec}} ./run.sh | tee fluid-openfoam.log 2>&1 &
           PIDfluid=$!
           cd ../solid-cpp
-          cmake . && make && ./run.sh | tee solid-cpp.log 2>&1 &
+          cmake . && make && ./run.sh | tee solid-cpp.log 2>&1
           wait $PIDfluid
           cd ../..
         fi
