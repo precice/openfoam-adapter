@@ -114,7 +114,7 @@ jobs:
         git clone https://github.com/precice/tutorials.git --branch ${{ github.event.inputs.branchTutorials }}
     - name: Run tutorial flow-over-heated-plate
       run: |
-        if [ ${{ github.event.inputs.runTutorialHeatedPlate }} ]
+        if ${{ github.event.inputs.runTutorialHeatedPlate }}
         then
           cd tutorials/flow-over-heated-plate/fluid-openfoam
           ${{steps.installOpenFOAM.outputs.openfoam_exec}} ./run.sh | tee fluid-openfoam.log 2>&1 &
@@ -125,7 +125,7 @@ jobs:
         fi
     - name: Run tutorial quickstart
       run: |
-        if [ ${{ github.event.inputs.runTutorialQuickstart }} ]
+        if ${{ github.event.inputs.runTutorialQuickstart }}
         then
           cd tutorials/quickstart/fluid-openfoam
           ${{steps.installOpenFOAM.outputs.openfoam_exec}} ./run.sh | tee fluid-openfoam.log 2>&1 &
