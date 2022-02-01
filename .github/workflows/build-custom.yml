@@ -2,6 +2,14 @@ name: Custom build (manual) # Unfortunately, we cannot modify the name: https://
 on:
   workflow_dispatch:
     inputs:
+      virtualEnvironment:
+        description: 'Which GitHub Actions Virtual Environment to use'
+        default: 'ubuntu-20.04'
+        required: true
+        type: choice
+        options:
+          - ubuntu-20.04
+          - ubuntu-18.04
       branchAdapter:
         description: 'Branch of the OpenFOAM adapter to build'
         default: 'develop'
@@ -33,7 +41,7 @@ on:
         description: Run tutorial quickstart
         type: boolean
         default: true
-        requird: true
+        required: true
       branchTutorials:
         description: 'Branch of the tutorials to use'
         default: 'master'
@@ -41,7 +49,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-20.04
+    runs-on: ${{ github.event.inputs.virtualEnvironment }}
     steps:
     - name: Report log
       run: |
