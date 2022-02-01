@@ -18,5 +18,9 @@ You can format all files with clang-format 11 by running `./tools/format-code.sh
 
 We check every contribution with a few GitHub Actions workflows that report at the bottom of each pull request.
 
-Additionally, there is an "custom build" workflow, which can be triggered manually to build any branch of the repository
-with any of the available OpenFOAM versions. Members of the repository can trigger this workflow in the "Actions" tab.
+There are also a few additional workflows that can be triggered manually:
+
+- `Custom build`: builds any branch of the repository with any of the available OpenFOAM versions.
+- `Check links`: checks the links in all markdown files to verify if they are still reachable.
+
+Members of the repository can trigger these workflows in the "Actions" tab.

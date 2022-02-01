@@ -1,4 +1,4 @@
-name: Lint docs and check links
+name: Lint docs
 on: [push, pull_request]
 jobs:
   check_md:
@@ -12,9 +12,3 @@ jobs:
           config: .markdownlint.json
           files: '.'
           ignore: changelog-entries
-      - name: Check links in markdown files (markdown-link-check)
-        uses: gaurav-nelson/github-action-markdown-link-check@v1
-        with:
-          use-quiet-mode: 'yes'
-          use-verbose-mode: 'no'
-          config-file: '.markdown-link-check-config.json'
