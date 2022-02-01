@@ -109,12 +109,14 @@ jobs:
             sudo apt-get -y install openfoam7
             echo "::set-output name=openfoam_exec::. /opt/openfoam7/etc/bashrc &&";;
           OpenFOAM6)
+            echo "OpenFOAM 6 is only available on Ubuntu 18.04 or older."
             sudo sh -c "wget -O - https://dl.openfoam.org/gpg.key | apt-key add -"
             sudo add-apt-repository http://dl.openfoam.org/ubuntu
             sudo apt-get update
             sudo apt-get -y install openfoam6
             echo "::set-output name=openfoam_exec::. /opt/openfoam6/etc/bashrc &&";;
           OpenFOAM5)
+            echo "OpenFOAM 5 is only available on Ubuntu 18.04 or older."
             sudo sh -c "wget -O - https://dl.openfoam.org/gpg.key | apt-key add -"
             sudo add-apt-repository http://dl.openfoam.org/ubuntu
             sudo apt-get update
@@ -159,6 +161,7 @@ jobs:
           cd tutorials/quickstart/fluid-openfoam
           if [ "${{ github.event.inputs.versionOpenFOAM }}" == "OpenFOAM5" ]
           then
+            echo "Manually changing from pimpleFoam to pimpleDyMFoam for compatibility with OpenFOAM 5."
             sed -i 's/pimpleFoam/pimpleDyMFoam/g' system/controlDict
           fi
           ${{steps.installOpenFOAM.outputs.openfoam_exec}} ./run.sh | tee fluid-openfoam.log 2>&1 &
