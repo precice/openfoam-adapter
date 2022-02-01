@@ -126,11 +126,11 @@ jobs:
         esac
     - name: Install preCICE (no cache)
       run: |
-          if [ "${{ github.event.inputs.virtualEnvironment }}" == "ubuntu20.04" ]
+          if [ "${{ github.event.inputs.virtualEnvironment }}" == "ubuntu-20.04" ]
           then
             wget "https://github.com/precice/precice/releases/download/v${{ github.event.inputs.versionpreCICE }}/libprecice2_${{ github.event.inputs.versionpreCICE }}_focal.deb"
             sudo apt install "./libprecice2_${{ github.event.inputs.versionpreCICE }}_focal.deb"
-          elif [ "${{ github.event.inputs.virtualEnvironment }}" == "ubuntu18.04" ]
+          elif [ "${{ github.event.inputs.virtualEnvironment }}" == "ubuntu-18.04" ]
           then
             wget "https://github.com/precice/precice/releases/download/v${{ github.event.inputs.versionpreCICE }}/libprecice2_${{ github.event.inputs.versionpreCICE }}_bionic.deb"
             sudo apt install "./libprecice2_${{ github.event.inputs.versionpreCICE }}_bionic.deb"
