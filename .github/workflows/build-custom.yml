@@ -10,8 +10,8 @@ on:
         options:
           - ubuntu-20.04
           - ubuntu-18.04
-      branchAdapter:
-        description: 'Branch of the OpenFOAM adapter to build'
+      refAdapter:
+        description: 'Ref (branch/tag/commit) of the OpenFOAM adapter to build'
         default: 'develop'
         required: true
       versionOpenFOAM:
@@ -56,7 +56,7 @@ jobs:
       run: |
         echo "Initiated by: ${{ github.actor }}"
         echo "Runs on: ${{ github.event.inputs.virtualEnvironment }}"
-        echo "Adapter branch: ${{ github.event.inputs.branchAdapter }}"
+        echo "Adapter ref (branch/tag/commit): ${{ github.event.inputs.refAdapter }}"
         echo "OpenFOAM version: ${{ github.event.inputs.versionOpenFOAM }}"
         echo "preCICE version: ${{ github.event.inputs.versionpreCICE }}"
         echo "Run tutorial flow-over-heated-plate: ${{ github.event.inputs.runTutorialHeatedPlate }}"
@@ -65,7 +65,7 @@ jobs:
     - name: Check out repository
       uses: actions/checkout@v2
       with:
-        ref: ${{ github.event.inputs.branchAdapter }}
+        ref: ${{ github.event.inputs.refAdapter }}
     - name: Install OpenFOAM (no cache)
       id: installOpenFOAM
       run: |
@@ -121,7 +121,7 @@ jobs:
             sudo apt-get -y install openfoam5
             echo "::set-output name=openfoam_exec::. /opt/openfoam5/etc/bashrc &&";;
           *)
-            echo "I cannot find ${{ github.event.inputs.branchAdapter }} in my known options."
+            echo "I cannot find ${{ github.event.inputs.refAdapter }} in my known options."
             exit 1;;
         esac
     - name: Install preCICE (no cache)
