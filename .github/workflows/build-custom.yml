@@ -4,7 +4,7 @@ on:
     inputs:
       virtualEnvironment:
         description: 'Which GitHub Actions Virtual Environment to use'
-        default: 'ubuntu-20.04'
+        default: 'ubuntu-18.04'
         required: true
         type: choice
         options:
@@ -27,7 +27,8 @@ on:
           - OpenFOAM9
           - OpenFOAM8
           - OpenFOAM7
-          # We don't have precompiled packages for older versions on this Ubuntu version
+          - OpenFOAM6
+          - OpenFOAM5
       versionpreCICE:
         description: 'Released version of preCICE to build with'
         default: '2.3.0'
@@ -54,6 +55,7 @@ jobs:
     - name: Report log
       run: |
         echo "Initiated by: ${{ github.actor }}"
+        echo "Runs on: ${{ github.event.inputs.virtualEnvironment }}"
         echo "Adapter branch: ${{ github.event.inputs.branchAdapter }}"
         echo "OpenFOAM version: ${{ github.event.inputs.versionOpenFOAM }}"
         echo "preCICE version: ${{ github.event.inputs.versionpreCICE }}"
@@ -88,32 +90,51 @@ jobs:
             wget -q -O - https://dl.openfoam.com/add-debian-repo.sh | sudo bash
             sudo apt-get install openfoam1912-dev
             echo "::set-output name=openfoam_exec::/usr/bin/openfoam1912";;
-          OpenFOAM7)
-            sudo sh -c "wget -O - https://dl.openfoam.org/gpg.key | apt-key add -"
-            sudo add-apt-repository http://dl.openfoam.org/ubuntu
-            sudo apt-get update
-            sudo apt-get -y install openfoam7
-            echo "::set-output name=openfoam_exec::. /opt/openfoam7/etc/bashrc &&";;
-          OpenFOAM8)
-            sudo sh -c "wget -O - https://dl.openfoam.org/gpg.key | apt-key add -"
-            sudo add-apt-repository http://dl.openfoam.org/ubuntu
-            sudo apt-get update
-            sudo apt-get -y install openfoam8
-            echo "::set-output name=openfoam_exec::. /opt/openfoam8/etc/bashrc &&";;
           OpenFOAM9)
             sudo sh -c "wget -O - https://dl.openfoam.org/gpg.key | apt-key add -"
             sudo add-apt-repository http://dl.openfoam.org/ubuntu
             sudo apt-get update
             sudo apt-get -y install openfoam9
             echo "::set-output name=openfoam_exec::. /opt/openfoam9/etc/bashrc &&";;
+          OpenFOAM8)
+            sudo sh -c "wget -O - https://dl.openfoam.org/gpg.key | apt-key add -"
+            sudo add-apt-repository http://dl.openfoam.org/ubuntu
+            sudo apt-get update
+            sudo apt-get -y install openfoam8
+            echo "::set-output name=openfoam_exec::. /opt/openfoam8/etc/bashrc &&";;
+          OpenFOAM7)
+            sudo sh -c "wget -O - https://dl.openfoam.org/gpg.key | apt-key add -"
+            sudo add-apt-repository http://dl.openfoam.org/ubuntu
+            sudo apt-get update
+            sudo apt-get -y install openfoam7
+            echo "::set-output name=openfoam_exec::. /opt/openfoam7/etc/bashrc &&";;
+          OpenFOAM6)
+            sudo sh -c "wget -O - https://dl.openfoam.org/gpg.key | apt-key add -"
+            sudo add-apt-repository http://dl.openfoam.org/ubuntu
+            sudo apt-get update
+            sudo apt-get -y install openfoam6
+            echo "::set-output name=openfoam_exec::. /opt/openfoam6/etc/bashrc &&";;
+          OpenFOAM5)
+            sudo sh -c "wget -O - https://dl.openfoam.org/gpg.key | apt-key add -"
+            sudo add-apt-repository http://dl.openfoam.org/ubuntu
+            sudo apt-get update
+            sudo apt-get -y install openfoam5
+            echo "::set-output name=openfoam_exec::. /opt/openfoam5/etc/bashrc &&";;
           *)
             echo "I cannot find ${{ github.event.inputs.branchAdapter }} in my known options."
             exit 1;;
         esac
     - name: Install preCICE (no cache)
       run: |
-        wget "https://github.com/precice/precice/releases/download/v${{ github.event.inputs.versionpreCICE }}/libprecice2_${{ github.event.inputs.versionpreCICE }}_focal.deb"
-        sudo apt install "./libprecice2_${{ github.event.inputs.versionpreCICE }}_focal.deb"
+          if [ ${{ github.event.inputs.virtualEnvironment }} == 'ubuntu20.04' ]
+          then
+            wget "https://github.com/precice/precice/releases/download/v${{ github.event.inputs.versionpreCICE }}/libprecice2_${{ github.event.inputs.versionpreCICE }}_focal.deb"
+            sudo apt install "./libprecice2_${{ github.event.inputs.versionpreCICE }}_focal.deb"
+          elif [ ${{ github.event.inputs.virtualEnvironment }} == 'ubuntu18.04' ]
+          then
+            wget "https://github.com/precice/precice/releases/download/v${{ github.event.inputs.versionpreCICE }}/libprecice2_${{ github.event.inputs.versionpreCICE }}_bionic.deb"
+            sudo apt install "./libprecice2_${{ github.event.inputs.versionpreCICE }}_bionic.deb"
+          fi
     - name: Build OpenFOAM-preCICE adapter
       run: |
           ${{steps.installOpenFOAM.outputs.openfoam_exec}} ./Allwmake
@@ -136,6 +157,10 @@ jobs:
         if ${{ github.event.inputs.runTutorialQuickstart }}
         then
           cd tutorials/quickstart/fluid-openfoam
+          if [ ${{ github.event.inputs.versionOpenFOAM }} == 'OpenFOAM5' ]
+          then
+            sed -i 's/pimpleFoam/pimpleDyMFoam/g' system/controlDict
+          fi
           ${{steps.installOpenFOAM.outputs.openfoam_exec}} ./run.sh | tee fluid-openfoam.log 2>&1 &
           PIDfluid=$!
           cd ../solid-cpp
