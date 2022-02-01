@@ -17,6 +17,7 @@ Read more details in the issue [#52: Releases and versioning](https://github.com
 - Added a check for data fields and supported location types of the coupling interface [#206](https://github.com/precice/openfoam-adapter/pull/206).
 - Extended the adapter's DEBUG output to print the rank in addition to the message in parallel runs
 [#201](https://github.com/precice/openfoam-adapter/pull/201).
+- Added a custom build workflow to check building the adapter with any supported OpenFOAM version [#214](https://github.com/precice/openfoam-adapter/pull/214).
 
 ### Changed
 

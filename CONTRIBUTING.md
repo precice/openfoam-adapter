@@ -13,3 +13,10 @@ merge conflicts and we will merge these files at the time we release a new versi
 ## Code formatting
 
 You can format all files with clang-format 11 by running `./tools/format-code.sh`.
+
+## Automatic checks
+
+We check every contribution with a few GitHub Actions workflows that report at the bottom of each pull request.
+
+Additionally, there is an "custom build" workflow, which can be triggered manually to build any branch of the repository
+with any of the available OpenFOAM versions. Members of the repository can trigger this workflow in the "Actions" tab.
