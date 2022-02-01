@@ -3,7 +3,7 @@ on:
   workflow_dispatch:
     inputs:
       virtualEnvironment:
-        description: 'Which GitHub Actions Virtual Environment to use'
+        description: 'Virtual Environment'
         default: 'ubuntu-18.04'
         required: true
         type: choice
@@ -30,7 +30,7 @@ on:
           - OpenFOAM6
           - OpenFOAM5
       versionpreCICE:
-        description: 'Released version of preCICE to build with'
+        description: 'Version of preCICE to build with'
         default: '2.3.0'
         required: true
       runTutorialHeatedPlate:
