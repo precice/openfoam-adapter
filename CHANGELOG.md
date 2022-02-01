@@ -24,6 +24,7 @@ Read more details in the issue [#52: Releases and versioning](https://github.com
 - Removed explicit casting of boundary conditions in the adapter's write function in order to allow more boundary conditions to be compatible with the adapter (e.g. groovyBC) [#195](https://github.com/precice/openfoam-adapter/pull/195).
 - OpenFOAM version bumped to v2112 in GitHub Actions (including preCICE v2.2.1 --> v2.3.0) and documentation. GitHub Action clang-format-action switched to main branch. [#211](https://github.com/precice/openfoam-adapter/pull/211).
 - Cleaned-up the handling of adding checkpoint fields and replaced various unnecessary copies by references [#209](https://github.com/precice/openfoam-adapter/pull/209).
+- Disabled automatic checking of links. This is now a manual workflow [#215](https://github.com/precice/openfoam-adapter/pull/215).
 
 ### Fixed
 
