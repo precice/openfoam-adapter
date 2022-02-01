@@ -157,7 +157,7 @@ jobs:
         if ${{ github.event.inputs.runTutorialQuickstart }}
         then
           cd tutorials/quickstart/fluid-openfoam
-          if [ ${{ github.event.inputs.versionOpenFOAM }} == 'OpenFOAM5' ]
+          if [ "${{ github.event.inputs.versionOpenFOAM }}" == "OpenFOAM5" ]
           then
             sed -i 's/pimpleFoam/pimpleDyMFoam/g' system/controlDict
           fi
