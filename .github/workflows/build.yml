@@ -1,5 +1,11 @@
 name: Build with OpenFOAM v2112
-on: [push, pull_request]
+on:
+  push:
+    branches-ignore:
+      - 'OpenFOAM*'
+  pull_request:
+    branches-ignore:
+      - 'OpenFOAM*'
 jobs:
   build:
     runs-on: ubuntu-20.04
