@@ -43,6 +43,11 @@ on:
         type: boolean
         default: true
         required: true
+      runTutorialPartitionedPipe:
+        description: Run tutorial partitioned-pipe
+        type: boolean
+        default: true
+        required: true
       branchTutorials:
         description: 'Branch of the tutorials to use'
         default: 'master'
@@ -61,6 +66,7 @@ jobs:
         echo "preCICE version: ${{ github.event.inputs.versionpreCICE }}"
         echo "Run tutorial flow-over-heated-plate: ${{ github.event.inputs.runTutorialHeatedPlate }}"
         echo "Run tutorial quickstart: ${{ github.event.inputs.runTutorialQuickstart }}"
+        echo "Run tutorial partitioned-pipe: ${{ github.event.inputs.runTutorialPartitionedPipe }}"
         echo "Tutorials branch: ${{ github.event.inputs.branchTutorials }}"
     - name: Check out repository
       uses: actions/checkout@v2
@@ -169,7 +175,17 @@ jobs:
           cd ../solid-cpp
           cmake . && make && ./run.sh | tee solid-cpp.log 2>&1
           wait $PIDfluid
-          cd ../..
+        fi
+    - name: Run tutorial partitioned-pipe
+      run: |
+        if ${{ github.event.inputs.runTutorialPartitionedPipe }}
+        then
+          cd tutorials/partitioned-pipe/fluid1-openfoam-pimplefoam
+          ${{steps.installOpenFOAM.outputs.openfoam_exec}} ./run.sh | tee fluid1-openfoam-pimplefoam.log 2>&1 &
+          PIDfluid=$!
+          cd ../fluid2-openfoam-pimplefoam
+          ${{steps.installOpenFOAM.outputs.openfoam_exec}} ./run.sh | tee fluid2-openfoam-pimplefoam.log 2>&1 &
+          wait $PIDfluid
         fi
     - name: Archive logs
       uses: actions/upload-artifact@v2
@@ -183,6 +199,8 @@ jobs:
           tutorials/flow-over-heated-plate/solid-openfoam/solid-openfoam.log
           tutorials/quickstart/fluid-openfoam/fluid-openfoam.log
           tutorials/quickstart/solid-cpp/solid-cpp.log
+          tutorials/partitioned-pipe/fluid1-openfoam-pimplefoam/fluid1-openfoam-pimplefoam.log
+          tutorials/partitioned-pipe/fluid2-openfoam-pimplefoam/fluid2-openfoam-pimplefoam.log
     - name: Archive case files
       uses: actions/upload-artifact@v2
       with:
@@ -192,3 +210,5 @@ jobs:
           tutorials/flow-over-heated-plate/solid-openfoam/*
           tutorials/quickstart/fluid-openfoam/*
           tutorials/quickstart/solid-cpp/*
+          tutorials/partitioned-pipe/fluid1-openfoam-pimplefoam/*
+          tutorials/partitioned-pipe/fluid2-openfoam-pimplefoam/*
