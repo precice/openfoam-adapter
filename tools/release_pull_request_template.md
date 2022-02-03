@@ -34,7 +34,8 @@ Until we get automated system tests again, run all the tests manually.
 - [ ] Trigger a custom build for each version
 
 Overview of branches:
-```
+
+```text
 master <-- OpenFOAM4 <-- OpenFOAM5 <-- OpenFOAM6 <-- OpenFOAM7 <-- OpenFOAM8 <-- OpenFOAMdev
 ^-- develop     ^-- OpenFOAMv1806
 ```
