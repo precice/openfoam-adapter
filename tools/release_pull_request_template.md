@@ -43,6 +43,7 @@ master <-- OpenFOAM4 <-- OpenFOAM5 <-- OpenFOAM6 <-- OpenFOAM7 <-- OpenFOAM8 <--
 
 - [ ] Copy all the changelog entries into `CHANGELOG.md`
 - [ ] Delete `changelog-entries/`
+- [ ] Draft and discuss release notes
 
 ## Bump the version
 
@@ -60,7 +61,6 @@ master <-- OpenFOAM4 <-- OpenFOAM5 <-- OpenFOAM6 <-- OpenFOAM7 <-- OpenFOAM8 <--
 
 ## Release
 
-- [ ] Draft and discuss release notes
 - [ ] Create a Release on GitHub
 - [ ] Download an archive of the repository (i.e., no `.git/` or `.gitignore`) for each version and attach to the release
   - branch `master`: archive `openfoam-adapter_v1.0.0_OpenFOAMv1812-v2112.tar.gz` (adjust `v2112` to the latest supported, and `v1.0.0` to the actual version)
