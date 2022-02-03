@@ -33,6 +33,12 @@ Until we get automated system tests again, run all the tests manually.
 - [ ] Rebase `OpenFOAM5` on `OpenFOAM4`, `OpenFOAM6` on `OpenFOAM5`, ...
 - [ ] Trigger a custom build for each version
 
+Overview of branches:
+```
+master <-- OpenFOAM4 <-- OpenFOAM5 <-- OpenFOAM6 <-- OpenFOAM7 <-- OpenFOAM8 <-- OpenFOAMdev
+^-- develop     ^-- OpenFOAMv1806
+```
+
 ## Preparing the Changelog
 
 - [ ] Copy all the changelog entries into `CHANGELOG.md`
@@ -47,7 +53,7 @@ Until we get automated system tests again, run all the tests manually.
 ## Merge
 
 - [ ] Review pull request
-- [ ] Merge pull request
+- [ ] Merge pull request (**not** squash)
 - [ ] Merge back from `master` to `develop`. No PR is needed for that.
 - [ ] Update the version in `Adapter.C` on `develop` to reflect that this is an unreleased version
 - [ ] Rebase the version-specific branches on `master`
