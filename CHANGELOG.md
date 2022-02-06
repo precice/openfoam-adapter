@@ -10,7 +10,7 @@ Read more details in the issue [#52: Releases and versioning](https://github.com
 
 ## [Unreleased]
 
-## [v1.0.1] 2022-01-24
+## [v1.1.0] 2022-02-07
 
 ### Added
 
@@ -18,6 +18,7 @@ Read more details in the issue [#52: Releases and versioning](https://github.com
 - Extended the adapter's DEBUG output to print the rank in addition to the message in parallel runs
 [#201](https://github.com/precice/openfoam-adapter/pull/201).
 - Added a custom build workflow to check building the adapter with any supported OpenFOAM version [#214](https://github.com/precice/openfoam-adapter/pull/214).
+- Added a release pull request template and documented the versioning strategy and release artifact names. [#216](https://github.com/precice/openfoam-adapter/pull/216)
 
 ### Changed
 
