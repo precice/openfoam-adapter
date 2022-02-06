@@ -19,6 +19,7 @@ Read more details in the issue [#52: Releases and versioning](https://github.com
 [#201](https://github.com/precice/openfoam-adapter/pull/201).
 - Added a custom build workflow to check building the adapter with any supported OpenFOAM version [#214](https://github.com/precice/openfoam-adapter/pull/214).
 - Added a release pull request template and documented the versioning strategy and release artifact names. [#216](https://github.com/precice/openfoam-adapter/pull/216)
+- Added a hint to also cite the adapter, at the end of the coupling. [#217](https://github.com/precice/openfoam-adapter/pull/217)
 
 ### Changed
 
