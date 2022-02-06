@@ -26,6 +26,7 @@ Read more details in the issue [#52: Releases and versioning](https://github.com
 - OpenFOAM version bumped to v2112 in GitHub Actions (including preCICE v2.2.1 --> v2.3.0) and documentation. GitHub Action clang-format-action switched to main branch. [#211](https://github.com/precice/openfoam-adapter/pull/211).
 - Cleaned-up the handling of adding checkpoint fields and replaced various unnecessary copies by references [#209](https://github.com/precice/openfoam-adapter/pull/209).
 - Disabled automatic checking of links. This is now a manual workflow [#215](https://github.com/precice/openfoam-adapter/pull/215).
+- The adapter now is being built with all available logical processors (`nproc`), instead of 4 as default. This should work on every modern system and OpenFOAM version [#219](https://github.com/precice/openfoam-adapter/pull/219).
 
 ### Fixed
 
