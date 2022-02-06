@@ -10,7 +10,7 @@ Read more details in the issue [#52: Releases and versioning](https://github.com
 
 ## [Unreleased]
 
-## [v1.1.0] 2022-02-03
+## [v1.1.0] 2022-02-07
 
 ### Added
 
