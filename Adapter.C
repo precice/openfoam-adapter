@@ -468,6 +468,10 @@ void preciceAdapter::Adapter::execute()
             "The simulation was ended by preCICE. "
             "Calling the end() methods of any functionObject explicitly.",
             "info");
+        adapterInfo("Great that you are using the OpenFOAM-preCICE adapter! "
+                    "Next to the preCICE library and any other components, please also cite this adapter. "
+                    "Find how on https://precice.org/adapter-openfoam-overview.html.",
+                    "info");
         const_cast<Time&>(runTime_).functionObjects().end();
     }
 
