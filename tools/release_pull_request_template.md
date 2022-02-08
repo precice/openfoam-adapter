@@ -50,13 +50,12 @@ master <-- OpenFOAM4 <-- OpenFOAM5 <-- OpenFOAM6 <-- OpenFOAM7 <-- OpenFOAM8 <--
 
 - [ ] Decide on the version using the versioning strategy documented in the user docs (see page "Get the OpenFOAM adapter")
 - [ ] Bump the version in `CHANGELOG.md`
-- [ ] Bump the version in `Adapter.C`
+- [ ] Bump the version in `Adapter.C` (removing the ` + unreleased changes` part).
 
 ## Merge
 
 - [ ] Review pull request
 - [ ] Merge pull request (**not** squash)
-- [ ] Merge back from `master` to `develop`. No PR is needed for that.
 - [ ] Update the version in `Adapter.C` on `develop` to reflect that this is an unreleased version
 - [ ] Rebase the version-specific branches on `master`
 
@@ -72,6 +71,8 @@ master <-- OpenFOAM4 <-- OpenFOAM5 <-- OpenFOAM6 <-- OpenFOAM7 <-- OpenFOAM8 <--
 
 ## Post-release
 
+- [ ] Merge back from `master` to `develop`. No PR is needed for that.
+- [ ] Modify the adapter version message to `Loaded the OpenFOAM-preCICE adapter v1.0.0 + unreleased changes`.
 - [ ] Update the git module on the website
 - [ ] Update workflows in the tutorials repository, if needed (e.g., OpenFOAM version)
 - [ ] Update the VM provisioning, if needed (e.g., OpenFOAM version)
