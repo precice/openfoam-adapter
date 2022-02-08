@@ -5,7 +5,6 @@ ENV OPENFOAM_VERSION=2112
 RUN wget -q -O - https://dl.openfoam.com/add-debian-repo.sh | sudo bash
 RUN sudo apt-get -qq install openfoam${OPENFOAM_VERSION}-dev
 
-
 # Bust the cache: we want that the next steps are always executed
 ARG CACHEBUST
 
