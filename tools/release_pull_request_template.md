@@ -50,7 +50,7 @@ master <-- OpenFOAM4 <-- OpenFOAM5 <-- OpenFOAM6 <-- OpenFOAM7 <-- OpenFOAM8 <--
 
 - [ ] Decide on the version using the versioning strategy documented in the user docs (see page "Get the OpenFOAM adapter")
 - [ ] Bump the version in `CHANGELOG.md`
-- [ ] Bump the version in `Adapter.C` (removing the ` + unreleased changes` part).
+- [ ] Bump the version in `Adapter.C` (removing the `+ unreleased changes` part).
 
 ## Merge
 
