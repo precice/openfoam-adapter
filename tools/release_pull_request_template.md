@@ -57,7 +57,6 @@ master <-- OpenFOAM4 <-- OpenFOAM5 <-- OpenFOAM6 <-- OpenFOAM7 <-- OpenFOAM8 <--
 
 - [ ] Review pull request
 - [ ] Merge pull request (**not** squash)
-- [ ] Update the version in `Adapter.C` on `develop` to reflect that this is an unreleased version
 - [ ] Rebase the version-specific branches on `master`
 
 ## Release
