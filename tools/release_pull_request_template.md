@@ -21,6 +21,7 @@ Copy this template to the release pull request description.
 - [ ] Run and check perpendicular-flap OpenFOAM-deal.II
 - [ ] Run and check elastic-tube-3d OpenFOAM-CalculiX
 - [ ] Run and check partitioned-pipe sonicLiquidFoam-sonicLiquidFoam
+- [ ] Run and check heat-exchanger OpenFOAM-CalculiX-OpenFOAM
 
 Until we get automated system tests again, run all the tests manually.
 
