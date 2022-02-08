@@ -31,7 +31,17 @@ void preciceAdapter::FSI::Force::read(double* buffer, const unsigned int dim)
     this->readFromBuffer(buffer);
 }
 
-vectorField preciceAdapter::FSI::Force::getFaceVectors(const unsigned int patchID) const
+bool preciceAdapter::FSI::Force::isLocationTypeSupported(const bool meshConnectivity) const
+{
+    return (this->locationType_ == LocationType::faceCenters);
+}
+
+std::string preciceAdapter::FSI::Force::getDataName() const
+{
+    return "Force";
+}
+
+Foam::tmp<Foam::vectorField> preciceAdapter::FSI::Force::getFaceVectors(const unsigned int patchID) const
 {
     // Normal vectors multiplied by face area
     return mesh_.boundary()[patchID].Sf();

@@ -58,7 +58,7 @@ void adapterInfo(const std::string message, const std::string level)
     }
     else if (level.compare("debug") == 0)
     {
-        Info << INFO_STR_ADAPTER
+        Pout << INFO_STR_ADAPTER
              << "[DEBUG] "
              << message.c_str()
              << nl;

@@ -31,9 +31,27 @@ void preciceAdapter::CouplingDataUser::setPatchIDs(std::vector<int> patchIDs)
     patchIDs_ = patchIDs;
 }
 
-void preciceAdapter::CouplingDataUser::setLocationsType(std::string locationsType)
+void preciceAdapter::CouplingDataUser::setLocationsType(LocationType locationsType)
 {
-    locationsType_ = locationsType;
+    locationType_ = locationsType;
+}
+
+void preciceAdapter::CouplingDataUser::checkDataLocation(const bool meshConnectivity) const
+{
+    if (this->isLocationTypeSupported(meshConnectivity) == false)
+    {
+        std::string location("none");
+        if (locationType_ == LocationType::faceCenters)
+            location = "faceCenters";
+        else if (locationType_ == LocationType::faceNodes)
+            location = "faceNodes";
+
+        adapterInfo("\"locations = " + location + "\" is not supported for the data \""
+                        + getDataName() + "\". Please select a different "
+                                          "location type, a different data set or provide "
+                                          "additional connectivity information.",
+                    "error");
+    }
 }
 
 // Dummy implementation which can be overwritten in derived classes if required

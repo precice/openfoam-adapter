@@ -15,9 +15,23 @@ To build the adapter, you need to install a few dependencies and then execute th
     * Check for any error messages and suggestions at the end.
     * Modify the `adapter_build_command` to e.g. build using more threads, e.g. `wmake -j 4 libso`.
 
+The adapter also requires [pkg-config](https://linux.die.net/man/1/pkg-config) to [link to preCICE](https://precice.org/installation-linking.html). This is a very common dependency on Linux and is usually already installed.
+
 Adding `-DADAPTER_DEBUG_MODE` flag to the `ADAPTER_PREP_FLAGS` activates additional debug messages. You may also change the target directory or specify the number of threads to use for the compilation. See the comments in `Allwmake` for more.
 
 Next: [configure and load the adapter](https://precice.org/adapter-openfoam-config.html) or [run a tutorial](https://precice.org/tutorials.html).
+
+## What does the adapter version mean?
+
+We use [semantic versioning](https://semver.org/) (MAJOR.MINOR.PATCH), adapted to the nature of an adapter:
+
+* As "API" we define the tutorial configuration files. If you would need to update your `preciceDict`, `controlDict` or any other configuration file to keep using your simulation cases with the same OpenFOAM version, this would be a new major version.
+* If you could run the same cases without any changes, but you would also get new features or modified behavior (non-trivial), then this would be a new minor version.
+* If there would be only bugfixes or trivial changes not affecting the configuration or behavior, then this would be a new patch version.
+
+Note that the OpenFOAM version is not part of the version of the adapter. It is only reflected in the release archives, which target a range of compatible versions. By default, we support the latest OpenFOAM version from OpenCFD (openfoam.com) and we update our release archives or release a new adapter version (including more than compatibility changes) as soon as there is a new OpenFOAM version.
+
+Read the [discussion that lead to this versioning strategy](https://github.com/precice/openfoam-adapter/issues/52) for more details.
 
 ## Troubleshooting
 

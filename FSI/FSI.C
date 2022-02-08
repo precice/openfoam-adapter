@@ -47,7 +47,7 @@ bool preciceAdapter::FSI::FluidStructureInteraction::configure(const IOdictionar
 
 bool preciceAdapter::FSI::FluidStructureInteraction::readConfig(const IOdictionary& adapterConfig)
 {
-    const dictionary FSIdict = adapterConfig.subOrEmptyDict("FSI");
+    const dictionary& FSIdict = adapterConfig.subOrEmptyDict("FSI");
 
     // Read the solver type (if not specified, it is determined automatically)
     solverType_ = FSIdict.lookupOrDefault<word>("solverType", "");
@@ -81,7 +81,7 @@ std::string preciceAdapter::FSI::FluidStructureInteraction::determineSolverType(
 
     if (mesh_.foundObject<volScalarField>("p"))
     {
-        volScalarField p_ = mesh_.lookupObject<volScalarField>("p");
+        const volScalarField& p_ = mesh_.lookupObject<volScalarField>("p");
 
         if (p_.dimensions() == pressureDimensionsCompressible)
         {
@@ -109,8 +109,10 @@ std::string preciceAdapter::FSI::FluidStructureInteraction::determineSolverType(
 }
 
 
-void preciceAdapter::FSI::FluidStructureInteraction::addWriters(std::string dataName, Interface* interface)
+bool preciceAdapter::FSI::FluidStructureInteraction::addWriters(std::string dataName, Interface* interface)
 {
+    bool found = true; // Set to false later, if needed.
+
     if (dataName.find("Force") == 0)
     {
         interface->addCouplingDataWriter(
@@ -141,16 +143,24 @@ void preciceAdapter::FSI::FluidStructureInteraction::addWriters(std::string data
         );
         DEBUG(adapterInfo("Added writer: Stress."));
     }
+    else
+    {
+        found = false;
+    }
 
     // NOTE: If you want to couple another variable, you need
     // to add your new coupling data user as a coupling data
     // writer here (and as a reader below).
     // The argument of the dataName.compare() needs to match
     // the one provided in the adapter's configuration file.
+
+    return found;
 }
 
-void preciceAdapter::FSI::FluidStructureInteraction::addReaders(std::string dataName, Interface* interface)
+bool preciceAdapter::FSI::FluidStructureInteraction::addReaders(std::string dataName, Interface* interface)
 {
+    bool found = true; // Set to false later, if needed.
+
     if (dataName.find("Force") == 0)
     {
         interface->addCouplingDataReader(
@@ -181,10 +191,16 @@ void preciceAdapter::FSI::FluidStructureInteraction::addReaders(std::string data
         );
         DEBUG(adapterInfo("Added reader: Stress."));
     }
+    else
+    {
+        found = false;
+    }
 
     // NOTE: If you want to couple another variable, you need
     // to add your new coupling data user as a coupling data
     // writer here (and as a writer above).
     // The argument of the dataName.compare() needs to match
     // the one provided in the adapter's configuration file.
+
+    return found;
 }

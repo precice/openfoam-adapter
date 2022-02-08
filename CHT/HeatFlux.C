@@ -28,8 +28,7 @@ void preciceAdapter::CHT::HeatFlux::write(double* buffer, bool meshConnectivity,
         int patchID = patchIDs_.at(j);
 
         const scalarField gradientPatch(
-            refCast<const fixedValueFvPatchScalarField>(
-                T_->boundaryField()[patchID])
+            (T_->boundaryField()[patchID])
                 .snGrad());
 
         // Extract the effective conductivity on the patch
@@ -101,6 +100,28 @@ void preciceAdapter::CHT::HeatFlux::read(double* buffer, const unsigned int dim)
                 buffer[bufferIndex++] / getKappaEffAt(i);
         }
     }
+}
+
+bool preciceAdapter::CHT::HeatFlux::isLocationTypeSupported(const bool meshConnectivity) const
+{
+    // For cases with mesh connectivity, we support:
+    // - face nodes, only for writing
+    // - face centers, only for reading
+    // However, since we do not distinguish between reading and writing in the code, we
+    // always return true and offload the handling to the user.
+    if (meshConnectivity)
+    {
+        return true;
+    }
+    else
+    {
+        return (this->locationType_ == LocationType::faceCenters);
+    }
+}
+
+std::string preciceAdapter::CHT::HeatFlux::getDataName() const
+{
+    return "HeatFlux";
 }
 
 //----- preciceAdapter::CHT::HeatFlux_Compressible ----------------------------

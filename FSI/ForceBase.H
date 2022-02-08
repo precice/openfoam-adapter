@@ -45,7 +45,7 @@ public:
 
     void readFromBuffer(double* buffer) const;
 
-    virtual Foam::vectorField getFaceVectors(const unsigned int patchID) const = 0;
+    virtual Foam::tmp<Foam::vectorField> getFaceVectors(const unsigned int patchID) const = 0;
 };
 }
 }

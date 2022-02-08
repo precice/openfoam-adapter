@@ -30,6 +30,11 @@ public:
 
     //- Read the sink temperature values from the buffer
     void read(double* buffer, const unsigned int dim);
+
+    bool isLocationTypeSupported(const bool meshConnectivity) const override;
+
+    //- Get the name of the current data field
+    std::string getDataName() const override;
 };
 
 }

@@ -10,7 +10,7 @@ preciceAdapter::Adapter::Adapter(const Time& runTime, const fvMesh& mesh)
 : runTime_(runTime),
   mesh_(mesh)
 {
-    adapterInfo("Loaded the OpenFOAM-preCICE adapter v1.0.0.", "info");
+    adapterInfo("Loaded the OpenFOAM-preCICE adapter - v1.1.0.", "info");
 
     return;
 }
@@ -47,7 +47,7 @@ bool preciceAdapter::Adapter::configFileRead()
         // Read and display the list of modules
         DEBUG(adapterInfo("  modules requested   : "));
         auto modules_ = preciceDict.get<wordList>("modules");
-        for (auto module : modules_)
+        for (const auto& module : modules_)
         {
             DEBUG(adapterInfo("  - " + module + "\n"));
 
@@ -71,7 +71,7 @@ bool preciceAdapter::Adapter::configFileRead()
         // Every interface is a subdictionary of "interfaces",
         // each with an arbitrary name. Read all of them and create
         // a list (here: pointer) of dictionaries.
-        const auto interfaceDictPtr = preciceDict.findDict("interfaces");
+        const auto* interfaceDictPtr = preciceDict.findDict("interfaces");
         DEBUG(adapterInfo("  interfaces : "));
 
         // Check if we found any interfaces
@@ -87,7 +87,7 @@ bool preciceAdapter::Adapter::configFileRead()
             {
                 if (interfaceDictEntry.isDict())
                 {
-                    dictionary interfaceDict = interfaceDictEntry.dict();
+                    const dictionary& interfaceDict = interfaceDictEntry.dict();
                     struct InterfaceConfig interfaceConfig;
 
                     interfaceConfig.meshName = interfaceDict.get<word>("mesh");
@@ -259,22 +259,37 @@ void preciceAdapter::Adapter::configure()
             {
                 std::string dataName = interfacesConfig_.at(i).writeData.at(j);
 
+                unsigned int inModules = 0;
+
                 // Add CHT-related coupling data writers
-                if (CHTenabled_)
+                if (CHTenabled_ && CHT_->addWriters(dataName, interface))
                 {
-                    CHT_->addWriters(dataName, interface);
+                    inModules++;
                 }
 
                 // Add FSI-related coupling data writers
-                if (FSIenabled_)
+                if (FSIenabled_ && FSI_->addWriters(dataName, interface))
                 {
-                    FSI_->addWriters(dataName, interface);
+                    inModules++;
                 }
 
                 // Add FF-related coupling data writers
-                if (FFenabled_)
+                if (FFenabled_ && FF_->addWriters(dataName, interface))
                 {
-                    FF_->addWriters(dataName, interface);
+                    inModules++;
+                }
+
+                if (inModules == 0)
+                {
+                    adapterInfo("I don't know how to write \"" + dataName
+                                    + "\". Maybe this is a typo or maybe you need to enable some adapter module?",
+                                "error-deferred");
+                }
+                else if (inModules > 1)
+                {
+                    adapterInfo("It looks like more than one modules can write \"" + dataName
+                                    + "\" and I don't know how to choose. Try disabling one of the modules.",
+                                "error-deferred");
                 }
 
                 // NOTE: Add any coupling data writers for your module here.
@@ -285,22 +300,28 @@ void preciceAdapter::Adapter::configure()
             {
                 std::string dataName = interfacesConfig_.at(i).readData.at(j);
 
+                unsigned int inModules = 0;
+
                 // Add CHT-related coupling data readers
-                if (CHTenabled_)
-                {
-                    CHT_->addReaders(dataName, interface);
-                }
+                if (CHTenabled_ && CHT_->addReaders(dataName, interface)) inModules++;
 
                 // Add FSI-related coupling data readers
-                if (FSIenabled_)
-                {
-                    FSI_->addReaders(dataName, interface);
-                }
+                if (FSIenabled_ && FSI_->addReaders(dataName, interface)) inModules++;
 
                 // Add FF-related coupling data readers
-                if (FFenabled_)
+                if (FFenabled_ && FF_->addReaders(dataName, interface)) inModules++;
+
+                if (inModules == 0)
                 {
-                    FF_->addReaders(dataName, interface);
+                    adapterInfo("I don't know how to read \"" + dataName
+                                    + "\". Maybe this is a typo or maybe you need to enable some adapter module?",
+                                "error-deferred");
+                }
+                else if (inModules > 1)
+                {
+                    adapterInfo("It looks like more than one modules can read \"" + dataName
+                                    + "\" and I don't know how to choose. Try disabling one of the modules.",
+                                "error-deferred");
                 }
 
                 // NOTE: Add any coupling data readers for your module here.
@@ -395,9 +416,6 @@ void preciceAdapter::Adapter::execute()
         fulfilledReadCheckpoint();
     }
 
-    // Read the received coupling data from the buffer
-    readCouplingData();
-
     // Adjust the timestep, if it is fixed
     if (!adjustableTimestep_)
     {
@@ -430,6 +448,9 @@ void preciceAdapter::Adapter::execute()
         }
     }
 
+    // Read the received coupling data from the buffer
+    readCouplingData();
+
     // If the coupling is not going to continue, tear down everything
     // and stop the simulation.
     if (!isCouplingOngoing())
@@ -447,6 +468,10 @@ void preciceAdapter::Adapter::execute()
             "The simulation was ended by preCICE. "
             "Calling the end() methods of any functionObject explicitly.",
             "info");
+        adapterInfo("Great that you are using the OpenFOAM-preCICE adapter! "
+                    "Next to the preCICE library and any other components, please also cite this adapter. "
+                    "Find how on https://precice.org/adapter-openfoam-overview.html.",
+                    "info");
         const_cast<Time&>(runTime_).functionObjects().end();
     }
 
@@ -831,410 +856,166 @@ void preciceAdapter::Adapter::setupMeshVolCheckpointing()
 
 void preciceAdapter::Adapter::setupCheckpointing()
 {
-    // Add fields in the checkpointing list
-    DEBUG(adapterInfo("Creating a list of checkpointed fields..."));
+    // Add fields in the checkpointing list - sorted for parallel consistency
+    DEBUG(adapterInfo("Adding in checkpointed fields..."));
 
-    /* Find and add all the registered objects in the mesh_
-       of type volScalarField
-    */
-
-    // Print the available objects of type volScalarField
-    DEBUG(adapterInfo("Collecting objects of type volScalarField... "));
-
-    wordList objectNames_ = mesh_.lookupClass<volScalarField>().toc();
-
-    forAll(objectNames_, i)
-    {
-        if (mesh_.foundObject<volScalarField>(objectNames_[i]))
-        {
-            addCheckpointField(
-                const_cast<volScalarField&>(
-                    mesh_.lookupObject<volScalarField>(objectNames_[i])));
-
-#ifdef ADAPTER_DEBUG_MODE
-            adapterInfo(
-                "Will be checkpointing " + objectNames_[i]);
-#endif
-        }
-        else
-        {
-            adapterInfo("Could not checkpoint " + objectNames_[i], "warning");
-        }
+#undef doLocalCode
+#define doLocalCode(GeomField)                                           \
+    /* Checkpoint registered GeomField objects */                        \
+    for (const word& obj : mesh_.sortedNames<GeomField>())               \
+    {                                                                    \
+        addCheckpointField(mesh_.thisDb().getObjectPtr<GeomField>(obj)); \
+        DEBUG(adapterInfo("Checkpoint " + obj + " : " #GeomField));      \
     }
 
-    /* Find and add all the registered objects in the mesh_
-       of type volVectorField
-    */
+    doLocalCode(volScalarField);
+    doLocalCode(volVectorField);
+    doLocalCode(volTensorField);
+    doLocalCode(volSymmTensorField);
 
-    // Print the available objects of type volVectorField
-    DEBUG(adapterInfo("Collecting objects of type volVectorField... "));
+    doLocalCode(surfaceScalarField);
+    doLocalCode(surfaceVectorField);
+    doLocalCode(surfaceTensorField);
 
-    objectNames_ = mesh_.lookupClass<volVectorField>().toc();
-
-    forAll(objectNames_, i)
-    {
-        if (mesh_.foundObject<volVectorField>(objectNames_[i]))
-        {
-            addCheckpointField(
-                const_cast<volVectorField&>(
-                    mesh_.lookupObject<volVectorField>(objectNames_[i])));
-
-#ifdef ADAPTER_DEBUG_MODE
-            adapterInfo(
-                "Will be checkpointing " + objectNames_[i]);
-#endif
-        }
-        else
-        {
-            adapterInfo("Could not checkpoint " + objectNames_[i], "warning");
-        }
-    }
-
-    // Print the available objects of type surfaceScalarField
-    DEBUG(adapterInfo("Collecting objects of type surfaceScalarField..."));
-
-    /* Find and add all the registered objects in the mesh_
-       of type surfaceScalarField
-    */
-    objectNames_ = mesh_.lookupClass<surfaceScalarField>().toc();
-
-    forAll(objectNames_, i)
-    {
-        if (mesh_.foundObject<surfaceScalarField>(objectNames_[i]))
-        {
-            addCheckpointField(
-                const_cast<surfaceScalarField&>(
-                    mesh_.lookupObject<surfaceScalarField>(objectNames_[i])));
-
-#ifdef ADAPTER_DEBUG_MODE
-            adapterInfo(
-                "Will be checkpointing " + objectNames_[i]);
-#endif
-        }
-        else
-        {
-            adapterInfo("Could not checkpoint " + objectNames_[i], "warning");
-        }
-    }
-
-    /* Find and add all the registered objects in the mesh_
-       of type surfaceVectorField
-    */
-
-    // Print the available objects of type surfaceVectorField
-    DEBUG(adapterInfo("Collecting objects of type surfaceVectorField..."));
-
-    objectNames_ = mesh_.lookupClass<surfaceVectorField>().toc();
-
-    forAll(objectNames_, i)
-    {
-        if (mesh_.foundObject<surfaceVectorField>(objectNames_[i]))
-        {
-            addCheckpointField(
-                const_cast<surfaceVectorField&>(
-                    mesh_.lookupObject<surfaceVectorField>(objectNames_[i])));
-
-#ifdef ADAPTER_DEBUG_MODE
-            adapterInfo(
-                "Will be checkpointing " + objectNames_[i]);
-#endif
-        }
-        else
-        {
-            adapterInfo("Could not checkpoint " + objectNames_[i], "warning");
-        }
-    }
-
-    /* Find and add all the registered objects in the mesh_
-       of type pointScalarField
-    */
-
-    // Print the available objects of type pointScalarField
-    DEBUG(adapterInfo("Collecting objects of type pointScalarField..."));
-
-    objectNames_ = mesh_.lookupClass<pointScalarField>().toc();
-
-    forAll(objectNames_, i)
-    {
-        if (mesh_.foundObject<pointScalarField>(objectNames_[i]))
-        {
-            addCheckpointField(
-                const_cast<pointScalarField&>(
-                    mesh_.lookupObject<pointScalarField>(objectNames_[i])));
-
-#ifdef ADAPTER_DEBUG_MODE
-            adapterInfo(
-                "Will be checkpointing " + objectNames_[i]);
-#endif
-        }
-        else
-        {
-            adapterInfo("Could not checkpoint " + objectNames_[i], "warning");
-        }
-    }
-
-    /* Find and add all the registered objects in the mesh_
-       of type pointVectorField
-    */
-
-    // Print the available objects of type pointVectorField
-    DEBUG(adapterInfo("Collecting objects of type pointVectorField..."));
-
-    objectNames_ = mesh_.lookupClass<pointVectorField>().toc();
-
-    forAll(objectNames_, i)
-    {
-        if (mesh_.foundObject<pointVectorField>(objectNames_[i]))
-        {
-            addCheckpointField(
-                const_cast<pointVectorField&>(
-                    mesh_.lookupObject<pointVectorField>(objectNames_[i])));
-
-#ifdef ADAPTER_DEBUG_MODE
-            adapterInfo(
-                "Will be checkpointing " + objectNames_[i]);
-#endif
-        }
-        else
-        {
-            adapterInfo("Could not checkpoint " + objectNames_[i], "warning");
-        }
-    }
-
-
-    /* Find and add all the registered objects in the mesh_
-       of type volTensorField
-    */
-
-    // Print the available objects of type volTensorField
-    DEBUG(adapterInfo("Collecting objects of type volTensorField..."));
-
-    objectNames_ = mesh_.lookupClass<volTensorField>().toc();
-
-    forAll(objectNames_, i)
-    {
-        if (mesh_.foundObject<volTensorField>(objectNames_[i]))
-        {
-            addCheckpointField(
-                const_cast<volTensorField&>(
-                    mesh_.lookupObject<volTensorField>(objectNames_[i])));
-
-#ifdef ADAPTER_DEBUG_MODE
-            adapterInfo(
-                "Will be checkpointing " + objectNames_[i]);
-#endif
-        }
-        else
-        {
-            adapterInfo("Could not checkpoint " + objectNames_[i], "warning");
-        }
-    }
-
-
-    /* Find and add all the registered objects in the mesh_
-       of type surfaceTensorField
-    */
-
-    DEBUG(adapterInfo("Collecting objects of type surfaceTensorField..."));
-
-    objectNames_ = mesh_.lookupClass<surfaceTensorField>().toc();
-
-    forAll(objectNames_, i)
-    {
-        if (mesh_.foundObject<surfaceTensorField>(objectNames_[i]))
-        {
-            addCheckpointField(
-                const_cast<surfaceTensorField&>(
-                    mesh_.lookupObject<surfaceTensorField>(objectNames_[i])));
-
-#ifdef ADAPTER_DEBUG_MODE
-            adapterInfo(
-                "Will be checkpointing " + objectNames_[i]);
-#endif
-        }
-        else
-        {
-            adapterInfo("Could not checkpoint " + objectNames_[i], "warning");
-        }
-    }
-
-    /* Find and add all the registered objects in the mesh_
-       of type pointTensorField
-    */
-
-    DEBUG(adapterInfo("Collecting objects of type pointTensorField..."));
-
-    objectNames_ = mesh_.lookupClass<pointTensorField>().toc();
-
-    forAll(objectNames_, i)
-    {
-        if (mesh_.foundObject<pointTensorField>(objectNames_[i]))
-        {
-            addCheckpointField(
-                const_cast<pointTensorField&>(
-                    mesh_.lookupObject<pointTensorField>(objectNames_[i])));
-
-#ifdef ADAPTER_DEBUG_MODE
-            adapterInfo(
-                "Will be checkpointing " + objectNames_[i]);
-#endif
-        }
-        else
-        {
-            adapterInfo("Could not checkpoint " + objectNames_[i], "warning");
-        }
-    }
+    doLocalCode(pointScalarField);
+    doLocalCode(pointVectorField);
+    doLocalCode(pointTensorField);
 
     // NOTE: Add here other object types to checkpoint, if needed.
 
-    /* Find and add all the registered objects in the mesh_
-       of type volSymmTensorField
-    */
-
-    DEBUG(adapterInfo("Collecting objects of type volSymmTensorField..."));
-
-    objectNames_ = mesh_.lookupClass<volSymmTensorField>().toc();
-
-    forAll(objectNames_, i)
-    {
-        if (mesh_.foundObject<volSymmTensorField>(objectNames_[i]))
-        {
-            addCheckpointField(
-                const_cast<volSymmTensorField&>(
-                    mesh_.lookupObject<volSymmTensorField>(objectNames_[i])));
-
-#ifdef ADAPTER_DEBUG_MODE
-            adapterInfo(
-                "Will be checkpointing " + objectNames_[i]);
-#endif
-        }
-        else
-        {
-            adapterInfo("Could not checkpoint " + objectNames_[i], "warning");
-        }
-    }
-    return;
+#undef doLocalCode
 }
 
 
 // All mesh checkpointed fields
+
 void preciceAdapter::Adapter::addMeshCheckpointField(surfaceScalarField& field)
 {
-    surfaceScalarField* copy = new surfaceScalarField(field);
-    meshSurfaceScalarFields_.push_back(&field);
-    meshSurfaceScalarFieldCopies_.push_back(copy);
-    return;
+    {
+        meshSurfaceScalarFields_.push_back(&field);
+        meshSurfaceScalarFieldCopies_.push_back(new surfaceScalarField(field));
+    }
 }
 
 void preciceAdapter::Adapter::addMeshCheckpointField(surfaceVectorField& field)
 {
-    surfaceVectorField* copy = new surfaceVectorField(field);
-    meshSurfaceVectorFields_.push_back(&field);
-    meshSurfaceVectorFieldCopies_.push_back(copy);
-    return;
+    {
+        meshSurfaceVectorFields_.push_back(&field);
+        meshSurfaceVectorFieldCopies_.push_back(new surfaceVectorField(field));
+    }
 }
 
 void preciceAdapter::Adapter::addMeshCheckpointField(volVectorField& field)
 {
-    volVectorField* copy = new volVectorField(field);
-    meshVolVectorFields_.push_back(&field);
-    meshVolVectorFieldCopies_.push_back(copy);
-    return;
+    {
+        meshVolVectorFields_.push_back(&field);
+        meshVolVectorFieldCopies_.push_back(new volVectorField(field));
+    }
 }
 
 // TODO Internal field for the V0 (volume old) and V00 (volume old-old) fields
 void preciceAdapter::Adapter::addVolCheckpointField(volScalarField::Internal& field)
 {
-    volScalarField::Internal* copy = new volScalarField::Internal(field);
-    volScalarInternalFields_.push_back(&field);
-    volScalarInternalFieldCopies_.push_back(copy);
-    return;
+    {
+        volScalarInternalFields_.push_back(&field);
+        volScalarInternalFieldCopies_.push_back(new volScalarField::Internal(field));
+    }
 }
 
-// All checkpointed fields
-void preciceAdapter::Adapter::addCheckpointField(volScalarField& field)
+
+void preciceAdapter::Adapter::addCheckpointField(volScalarField* field)
 {
-    volScalarField* copy = new volScalarField(field);
-    volScalarFields_.push_back(&field);
-    volScalarFieldCopies_.push_back(copy);
-    return;
+    if (field)
+    {
+        volScalarFields_.push_back(field);
+        volScalarFieldCopies_.push_back(new volScalarField(*field));
+    }
 }
 
-void preciceAdapter::Adapter::addCheckpointField(volVectorField& field)
+void preciceAdapter::Adapter::addCheckpointField(volVectorField* field)
 {
-    volVectorField* copy = new volVectorField(field);
-    volVectorFields_.push_back(&field);
-    volVectorFieldCopies_.push_back(copy);
-    return;
+    if (field)
+    {
+        volVectorFields_.push_back(field);
+        volVectorFieldCopies_.push_back(new volVectorField(*field));
+    }
 }
 
-void preciceAdapter::Adapter::addCheckpointField(surfaceScalarField& field)
+void preciceAdapter::Adapter::addCheckpointField(surfaceScalarField* field)
 {
-    surfaceScalarField* copy = new surfaceScalarField(field);
-    surfaceScalarFields_.push_back(&field);
-    surfaceScalarFieldCopies_.push_back(copy);
-    return;
+    if (field)
+    {
+        surfaceScalarFields_.push_back(field);
+        surfaceScalarFieldCopies_.push_back(new surfaceScalarField(*field));
+    }
 }
 
-void preciceAdapter::Adapter::addCheckpointField(surfaceVectorField& field)
+void preciceAdapter::Adapter::addCheckpointField(surfaceVectorField* field)
 {
-    surfaceVectorField* copy = new surfaceVectorField(field);
-    surfaceVectorFields_.push_back(&field);
-    surfaceVectorFieldCopies_.push_back(copy);
-    return;
+    if (field)
+    {
+        surfaceVectorFields_.push_back(field);
+        surfaceVectorFieldCopies_.push_back(new surfaceVectorField(*field));
+    }
 }
 
-void preciceAdapter::Adapter::addCheckpointField(pointScalarField& field)
+void preciceAdapter::Adapter::addCheckpointField(pointScalarField* field)
 {
-    pointScalarField* copy = new pointScalarField(field);
-    pointScalarFields_.push_back(&field);
-    pointScalarFieldCopies_.push_back(copy);
-    return;
+    if (field)
+    {
+        pointScalarFields_.push_back(field);
+        pointScalarFieldCopies_.push_back(new pointScalarField(*field));
+    }
 }
 
-void preciceAdapter::Adapter::addCheckpointField(pointVectorField& field)
+void preciceAdapter::Adapter::addCheckpointField(pointVectorField* field)
 {
-    pointVectorField* copy = new pointVectorField(field);
-    pointVectorFields_.push_back(&field);
-    pointVectorFieldCopies_.push_back(copy);
-    // TODO: Old time
-    // pointVectorField * copyOld = new pointVectorField(field.oldTime());
-    // pointVectorFieldsOld_.push_back(&(field.oldTime()));
-    // pointVectorFieldCopiesOld_.push_back(copyOld);
-    return;
+    if (field)
+    {
+        pointVectorFields_.push_back(field);
+        pointVectorFieldCopies_.push_back(new pointVectorField(*field));
+        // TODO: Old time
+        // pointVectorFieldsOld_.push_back(const_cast<pointVectorField&>(field->oldTime())));
+        // pointVectorFieldCopiesOld_.push_back(new pointVectorField(field->oldTime()));
+    }
 }
 
-void preciceAdapter::Adapter::addCheckpointField(volTensorField& field)
+void preciceAdapter::Adapter::addCheckpointField(volTensorField* field)
 {
-    volTensorField* copy = new volTensorField(field);
-    volTensorFields_.push_back(&field);
-    volTensorFieldCopies_.push_back(copy);
-    return;
+    if (field)
+    {
+        volTensorFields_.push_back(field);
+        volTensorFieldCopies_.push_back(new volTensorField(*field));
+    }
 }
 
-void preciceAdapter::Adapter::addCheckpointField(surfaceTensorField& field)
+void preciceAdapter::Adapter::addCheckpointField(surfaceTensorField* field)
 {
-    surfaceTensorField* copy = new surfaceTensorField(field);
-    surfaceTensorFields_.push_back(&field);
-    surfaceTensorFieldCopies_.push_back(copy);
-    return;
+    if (field)
+    {
+        surfaceTensorFields_.push_back(field);
+        surfaceTensorFieldCopies_.push_back(new surfaceTensorField(*field));
+    }
 }
 
-void preciceAdapter::Adapter::addCheckpointField(pointTensorField& field)
+void preciceAdapter::Adapter::addCheckpointField(pointTensorField* field)
 {
-    pointTensorField* copy = new pointTensorField(field);
-    pointTensorFields_.push_back(&field);
-    pointTensorFieldCopies_.push_back(copy);
-    return;
+    if (field)
+    {
+        pointTensorFields_.push_back(field);
+        pointTensorFieldCopies_.push_back(new pointTensorField(*field));
+    }
 }
 
-void preciceAdapter::Adapter::addCheckpointField(volSymmTensorField& field)
+void preciceAdapter::Adapter::addCheckpointField(volSymmTensorField* field)
 {
-    volSymmTensorField* copy = new volSymmTensorField(field);
-    volSymmTensorFields_.push_back(&field);
-    volSymmTensorFieldCopies_.push_back(copy);
-    return;
+    if (field)
+    {
+        volSymmTensorFields_.push_back(field);
+        volSymmTensorFieldCopies_.push_back(new volSymmTensorField(*field));
+    }
 }
+
 
 // NOTE: Add here methods to add other object types to checkpoint, if needed.
 
