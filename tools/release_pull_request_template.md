@@ -76,6 +76,7 @@ master <-- OpenFOAM4 <-- OpenFOAM5 <-- OpenFOAM6 <-- OpenFOAM7 <-- OpenFOAM8 <--
 - [ ] Modify the adapter version message to `Loaded the OpenFOAM-preCICE adapter v1.0.0 + unreleased changes`.
 - [ ] Update the git module on the website
 - [ ] Update workflows in the tutorials repository, if needed (e.g., OpenFOAM version)
-- [ ] Update the VM provisioning, if needed (e.g., OpenFOAM version)
+- [ ] Update external documentation (tutorials, website), e.g., regarding the adapter or OpenFOAM version.
+- [ ] Update the VM provisioning scripts, if needed (e.g., OpenFOAM version)
 - [ ] Update this release checklist (`tools/release_pull_request_template.md`)
 - [ ] Advertise and celebrate! :tada: :beers:
