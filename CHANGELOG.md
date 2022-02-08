@@ -10,23 +10,23 @@ Read more details in the issue [#52: Releases and versioning](https://github.com
 
 ## [Unreleased]
 
-## [v1.1.0] 2022-02-07
+## [v1.1.0] 2022-02-08
 
 ### Added
 
 - Added a check for data fields and supported location types of the coupling interface [#206](https://github.com/precice/openfoam-adapter/pull/206).
 - Extended the adapter's DEBUG output to print the rank in addition to the message in parallel runs
 [#201](https://github.com/precice/openfoam-adapter/pull/201).
-- Added a custom build workflow to check building the adapter with any supported OpenFOAM version [#214](https://github.com/precice/openfoam-adapter/pull/214).
+- Added a custom build GitHub workflow to check building the adapter with any supported OpenFOAM version [#214](https://github.com/precice/openfoam-adapter/pull/214).
 - Added a release pull request template and documented the versioning strategy and release artifact names. [#216](https://github.com/precice/openfoam-adapter/pull/216)
 - Added a hint to also cite the adapter, at the end of the coupling. [#218](https://github.com/precice/openfoam-adapter/pull/218)
 
 ### Changed
 
 - Removed explicit casting of boundary conditions in the adapter's write function in order to allow more boundary conditions to be compatible with the adapter (e.g. groovyBC) [#195](https://github.com/precice/openfoam-adapter/pull/195).
-- OpenFOAM version bumped to v2112 in GitHub Actions (including preCICE v2.2.1 --> v2.3.0) and documentation. GitHub Action clang-format-action switched to main branch. [#211](https://github.com/precice/openfoam-adapter/pull/211).
 - Cleaned-up the handling of adding checkpoint fields and replaced various unnecessary copies by references [#209](https://github.com/precice/openfoam-adapter/pull/209).
-- Disabled automatic checking of links. This is now a manual workflow [#215](https://github.com/precice/openfoam-adapter/pull/215).
+- OpenFOAM version bumped to v2112 in GitHub Actions (including preCICE v2.2.1 --> v2.3.0) and documentation. GitHub Action clang-format-action switched to its main branch. [#211](https://github.com/precice/openfoam-adapter/pull/211).
+- Disabled automatic checking of links in GitHub Actions. This is now a manual workflow [#215](https://github.com/precice/openfoam-adapter/pull/215).
 
 ### Fixed
 
