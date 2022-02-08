@@ -77,4 +77,4 @@ master <-- OpenFOAM4 <-- OpenFOAM5 <-- OpenFOAM6 <-- OpenFOAM7 <-- OpenFOAM8 <--
 - [ ] Update workflows in the tutorials repository, if needed (e.g., OpenFOAM version)
 - [ ] Update the VM provisioning, if needed (e.g., OpenFOAM version)
 - [ ] Update this release checklist (`tools/release_pull_request_template.md`)
-- [ ] Advertise and celebrate! :tada:
+- [ ] Advertise and celebrate! :tada: :beers:
