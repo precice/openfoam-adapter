@@ -89,6 +89,7 @@ if ! adapter_build_command 2>&1 | tee wmake.log ||
     log "- Make sure you are using a compatible version of the adapter for your OpenFOAM version:"
     log "  ${DOC_COMPATIBILITY}"
     log "- Is preCICE discoverable at compile time? Check the content of ADAPTER_PKG_CONFIG_CFLAGS above."
+    log "Attach your Allwmake.log and wmake.log when asking for help."
     exit 1
 else
     ADAPTER_WMAKE_UNDEFINED_SYMBOLS=$(grep -c -E "undefined|not defined" wmake.log) || echo "Everything looks fine in wmake.log."
@@ -97,8 +98,11 @@ else
     if [ "${ADAPTER_WMAKE_UNDEFINED_SYMBOLS}" -gt 0 ] || [ "${ADAPTER_LD_UNDEFINED_SYMBOLS}" -gt 0 ]; then
         log "=== ERROR: Building completed with linking problems: there were undefined symbols. ==="
         log "Possible causes:"
-        log "- Is preCICE discoverable at runtime? Check the content of ADAPTER_PKG_CONFIG_LIBS above."
+        log "- Is preCICE discoverable at runtime? Check the content of pkg-config output above."
+        log "- Did anything go wrong while installing preCICE? Can you run any other preCICE tutorials?"
+        log "- Did anything go wrong while installing OpenFOAM? Can you run any other OpenFOAM tutorials?"
         log "See wmake.log and ldd.log for more details."
+        log "Attach your Allwmake.log, wmake.log, and ldd.log when asking for help."
     else
         log "=== OK: Building completed successfully! ==="
     fi
