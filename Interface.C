@@ -264,13 +264,7 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh)
                         for (uint nodeIndex = 0; nodeIndex < nodesPerTria; nodeIndex++)
                         {
                             for (uint xyz = 0; xyz < componentsPerNode; xyz++)
-                                triCoords[coordIndex++] = pointCoords
-                                [
-                                    triEngine.triPoints()[triIndex]
-                                    [
-                                        nodeIndex
-                                    ]
-                                ][xyz];
+                                triCoords[coordIndex++] = pointCoords[triEngine.triPoints()[triIndex][nodeIndex]][xyz];
                         }
                     }
                 }
