@@ -250,14 +250,7 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh)
                 {
                     const face& faceQuad = faceField[facei];
 
-                    triEngine.triangulate
-                    (
-                        UIndirectList<point>
-                        (
-                            pointCoords,
-                            faceQuad
-                        )
-                    );
+                    triEngine.triangulate(UIndirectList<point>(pointCoords, faceQuad));
 
                     for (uint triIndex = 0; triIndex < triaPerQuad; triIndex++)
                     {
