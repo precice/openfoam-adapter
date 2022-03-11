@@ -1,8 +1,7 @@
 #ifndef CHT_COMMON_KAPPAEFF_H
 #define CHT_COMMON_KAPPAEFF_H
 
-#include "fluidThermoMomentumTransportModel.H"
-#include "kinematicMomentumTransportModel.H"
+#include "momentumTransportModel.H"
 #include "thermophysicalTransportModel.H"
 
 namespace preciceAdapter

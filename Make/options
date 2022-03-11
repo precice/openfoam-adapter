@@ -16,9 +16,11 @@ EXE_INC = \
 LIB_LIBS = \
     -lfiniteVolume \
     -lmeshTools \
-    -lthermophysicalTransportModels \
-    -lfluidThermoMomentumTransportModels \
+    -ltransportModels \
+    -lmomentumTransportModels \
     -lincompressibleMomentumTransportModels \
+    -lcompressibleMomentumTransportModels \
+    -lthermophysicalTransportModels \
     -limmiscibleIncompressibleTwoPhaseMixture \
     $(ADAPTER_PKG_CONFIG_LIBS) \
     -lprecice

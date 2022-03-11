@@ -1,4 +1,5 @@
 #include "ForceBase.H"
+#include "fluidThermo.H"
 
 using namespace Foam;
 
@@ -27,8 +28,8 @@ preciceAdapter::FSI::ForceBase::ForceBase(
 Foam::tmp<Foam::volSymmTensorField> preciceAdapter::FSI::ForceBase::devRhoReff() const
 {
     //For turbulent flows
-    typedef compressible::momentumTransportModel cmpTurbModel;
-    typedef incompressible::momentumTransportModel icoTurbModel;
+    typedef compressibleMomentumTransportModel cmpTurbModel;
+    typedef incompressibleMomentumTransportModel icoTurbModel;
 
     if (mesh_.foundObject<cmpTurbModel>(cmpTurbModel::typeName))
     {
@@ -39,7 +40,7 @@ Foam::tmp<Foam::volSymmTensorField> preciceAdapter::FSI::ForceBase::devRhoReff()
     }
     else if (mesh_.foundObject<icoTurbModel>(icoTurbModel::typeName))
     {
-        const incompressible::momentumTransportModel& turb =
+        const icoTurbModel& turb =
             mesh_.lookupObject<icoTurbModel>(icoTurbModel::typeName);
 
         return rho() * turb.devSigma();
