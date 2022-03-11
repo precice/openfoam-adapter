@@ -24,6 +24,11 @@ DOC_COMPATIBILITY="https://www.precice.org/adapter-openfoam-support.html"
 log() {
     echo "$@" | tee -a "Allwmake.log"
 }
+# Function to print warnings
+warning() {
+    log "WARNING: $*"
+    export ADAPTER_WARNINGS="true"
+}
 ################################################################################
 
 # Information header
@@ -33,22 +38,26 @@ log "Building the OpenFOAM-preCICE adapter..."
 export ADAPTER_PREP_FLAGS
 export ADAPTER_TARGET_DIR
 
-if pkg-config libprecice; then
-  ADAPTER_PKG_CONFIG_CFLAGS="$(pkg-config --silence-errors --cflags libprecice)"
-  ADAPTER_PKG_CONFIG_LIBS="$(pkg-config --silence-errors --libs libprecice)"
+# Check if pkg-config is available and get the config for preCICE
+ADAPTER_PKG_CONFIG_CFLAGS=""
+ADAPTER_PKG_CONFIG_LIBS=""
+if command -v pkg-config >/dev/null 2>&1; then
+    if pkg-config libprecice; then
+        ADAPTER_PKG_CONFIG_CFLAGS="$(pkg-config --silence-errors --cflags libprecice)"
+        ADAPTER_PKG_CONFIG_LIBS="$(pkg-config --silence-errors --libs libprecice)"
+        log ""
+        log "If not already known by the system, preCICE may be located using:"
+        log "  pkg-config --cflags libprecice  = ${ADAPTER_PKG_CONFIG_CFLAGS}"
+        log "  pkg-config --libs libprecice    = ${ADAPTER_PKG_CONFIG_LIBS}"
+    else
+        warning "pkg-config configuration file 'libprecice.pc' was not found in the PKG_CONFIG_PATH.
+        Check the preCICE documentation page 'Linking to preCICE' for more details, or proceed if you know what you are doing."
+    fi
 else
-  log "WARNING: No configuration file 'libprecice.pc' was found in the PKG_CONFIG_PATH."
-  log "Check the preCICE documentation page 'Linking to preCICE' for more details, or proceed if you know what you are doing."
-  ADAPTER_PKG_CONFIG_CFLAGS=""
-  ADAPTER_PKG_CONFIG_LIBS=""
+    warning "pkg-config is not installed and is used to detect the preCICE installation. Only proceed if you know what you are doing."
 fi
 export ADAPTER_PKG_CONFIG_CFLAGS
 export ADAPTER_PKG_CONFIG_LIBS
-
-log ""
-log "If not already known by the system, preCICE may be located using:"
-log "  pkg-config --cflags libprecice  = ${ADAPTER_PKG_CONFIG_CFLAGS}"
-log "  pkg-config --libs libprecice    = ${ADAPTER_PKG_CONFIG_LIBS}"
 
 # Check if an OpenFOAM environment is available
 log ""
@@ -106,4 +115,8 @@ else
     else
         log "=== OK: Building completed successfully! ==="
     fi
+fi
+
+if [ "${ADAPTER_WARNINGS:-}" = "true" ]; then
+    echo "There have been warnings. Check the log above."
 fi
