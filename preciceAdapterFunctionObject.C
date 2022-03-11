@@ -144,21 +144,4 @@ bool Foam::functionObjects::preciceAdapterFunctionObject::write()
     return true;
 }
 
-bool Foam::functionObjects::preciceAdapterFunctionObject::setTimeStep()
-{
-#ifdef ADAPTER_ENABLE_TIMINGS
-    clockValue clock;
-    clock.update();
-#endif
-
-    adapter_.setTimeStep();
-
-#ifdef ADAPTER_ENABLE_TIMINGS
-    timeInAll_ += clock.elapsed();
-    timeInExecute_ += clock.elapsed();
-#endif
-
-    return true;
-}
-
 // ************************************************************************* //

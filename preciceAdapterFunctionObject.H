@@ -133,9 +133,6 @@ public:
     //- Write the preciceAdapterFunctionObject
     bool write() final;
 
-    //- Called at the end of Time::adjustDeltaT() if adjustTime is true
-    bool setTimeStep() final;
-
     /*
         // NOTE: If you add a new module that needs to execute methods
         // whenever the mesh is updated or its points moved,

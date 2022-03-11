@@ -1,6 +1,6 @@
 #include "Interface.H"
 #include "Utilities.H"
-#include "faceTriangulation.H"
+#include "polygonTriangulate.H"
 
 
 using namespace Foam;
@@ -210,6 +210,9 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh, const std::str
         // Initialize the index of the vertices array
         int verticesIndex = 0;
 
+        // Triangulation engine
+        polygonTriangulate triEngine;
+
         // Get the locations of the mesh vertices (here: face nodes)
         // for all the patches
         for (uint j = 0; j < patchIDs_.size(); j++)
@@ -290,14 +293,14 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh, const std::str
                 {
                     const face& faceQuad = faceField[facei];
 
-                    faceTriangulation faceTri(pointCoords, faceQuad, false);
+                    triEngine.triangulate(UIndirectList<point>(pointCoords, faceQuad));
 
                     for (uint triIndex = 0; triIndex < triaPerQuad; triIndex++)
                     {
                         for (uint nodeIndex = 0; nodeIndex < nodesPerTria; nodeIndex++)
                         {
                             for (uint xyz = 0; xyz < componentsPerNode; xyz++)
-                                triCoords[coordIndex++] = pointCoords[faceTri[triIndex][nodeIndex]][xyz];
+                                triCoords[coordIndex++] = pointCoords[triEngine.triPoints()[triIndex][nodeIndex]][xyz];
                         }
                     }
                 }
