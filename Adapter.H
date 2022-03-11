@@ -391,7 +391,8 @@ public:
     //- Called by the functionObject's execute()
     void execute();
 
-    //- Called by the functionObject's setTimeStep()
+    //- Not called by OpenFOAM.org since OpenFOAM 9
+    //  See https://github.com/precice/openfoam-adapter/issues/261
     void setTimeStep();
 
     //- Called by the functionObject's end()

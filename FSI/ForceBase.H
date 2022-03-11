@@ -8,7 +8,7 @@
 
 #include "pointFields.H"
 #include "vectorField.H"
-#include "fluidThermoMomentumTransportModel.H"
+#include "compressibleMomentumTransportModel.H"
 #include "kinematicMomentumTransportModel.H"
 
 namespace preciceAdapter

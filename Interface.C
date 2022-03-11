@@ -1,6 +1,6 @@
 #include "Interface.H"
 #include "Utilities.H"
-#include "faceTriangulation.H"
+#include "polygonTriangulate.H"
 #include "cellSet.H"
 
 
@@ -303,8 +303,7 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh, const std::str
                 {
                     const face& faceQuad = faceField[facei];
 
-                    // Triangulate the face
-                    faceTriangulation faceTri(pointCoords, faceQuad, false);
+                    triEngine.triangulate(UIndirectList<point>(pointCoords, faceQuad));
 
                     // Iterate over all triangles generated out of each (quad) face
                     for (uint triIndex = 0; triIndex < triaPerQuad; triIndex++)
@@ -312,7 +311,7 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh, const std::str
                         // Get the vertex that corresponds to the x,y,z coordinates of each node of a triangle
                         for (uint nodeIndex = 0; nodeIndex < nodesPerTria; nodeIndex++)
                         {
-                            triVertIDs.push_back(verticesMap.at(std::make_tuple(pointCoords[faceTri[triIndex][nodeIndex]][0], pointCoords[faceTri[triIndex][nodeIndex]][1], pointCoords[faceTri[triIndex][nodeIndex]][2])));
+                            triVertIDs.push_back(verticesMap.at(std::make_tuple(pointCoords[triEngine.triPoints()[triIndex][nodeIndex]][0], pointCoords[triEngine.triPoints()[triIndex][nodeIndex]][1], pointCoords[triEngine.triPoints()[triIndex][nodeIndex]][2])));
                         }
                     }
                 }
