@@ -110,6 +110,10 @@ bool preciceAdapter::Adapter::configFileRead()
                     }
                     DEBUG(adapterInfo("    connectivity : " + std::to_string(interfaceConfig.meshConnectivity)));
 
+                    // Reset the displacement when defining the interface
+                    interfaceConfig.resetDisplacement = interfaceDict.lookupOrDefault<bool>("resetDisplacement", true);
+                    DEBUG(adapterInfo("    reset displacement : " + std::to_string(interfaceConfig.resetDisplacement)));
+
                     DEBUG(adapterInfo("    patches      : "));
                     auto patches = interfaceDict.get<wordList>("patches");
                     for (auto patch : patches)
@@ -249,7 +253,7 @@ void preciceAdapter::Adapter::configure()
         DEBUG(adapterInfo("Creating interfaces..."));
         for (uint i = 0; i < interfacesConfig_.size(); i++)
         {
-            Interface* interface = new Interface(*precice_, mesh_, interfacesConfig_.at(i).meshName, interfacesConfig_.at(i).locationsType, interfacesConfig_.at(i).patchNames, interfacesConfig_.at(i).meshConnectivity);
+            Interface* interface = new Interface(*precice_, mesh_, interfacesConfig_.at(i).meshName, interfacesConfig_.at(i).locationsType, interfacesConfig_.at(i).patchNames, interfacesConfig_.at(i).meshConnectivity, interfacesConfig_.at(i).resetDisplacement);
             interfaces_.push_back(interface);
             DEBUG(adapterInfo("Interface created on mesh " + interfacesConfig_.at(i).meshName));
 

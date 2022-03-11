@@ -28,12 +28,6 @@ protected:
     //- Solver type
     std::string solverType_ = "none";
 
-    //- Name of the pointDisplacement field
-    std::string namePointDisplacement_ = "pointDisplacement";
-
-    //- Name of the pointDisplacement field
-    std::string nameCellDisplacement_ = "cellDisplacement";
-
     //- Name of the force field used by the solid
     std::string nameSolidForce_ = "solidForce";
 
@@ -63,6 +57,12 @@ public:
 
     //- Add coupling data readers
     bool addReaders(std::string dataName, Interface* interface);
+
+    //- Name of the pointDisplacement field
+    std::string namePointDisplacement = "pointDisplacement";
+
+    //- Name of the pointDisplacement field
+    std::string nameCellDisplacement = "cellDisplacement";
 };
 
 }

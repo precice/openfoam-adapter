@@ -7,6 +7,7 @@
 #include "CouplingDataUser.H"
 #include "precice/SolverInterface.hpp"
 
+#include "pointPatchField.H"
 
 namespace preciceAdapter
 {
@@ -50,12 +51,17 @@ protected:
     //Switch for faceTriangulation (nearest projection)
     bool meshConnectivity_;
 
+    //- Reset the displacement during interface definition
+    bool resetDisplacement_;
+
     // Simulation dimension
     unsigned int dim_;
 
     //- Extracts the locations of the face centers or face nodes
     //  and exposes them to preCICE with setMeshVertices
-    void configureMesh(const Foam::fvMesh& mesh);
+    void configureMesh(const Foam::fvMesh& mesh,
+                       const std::string& namePointDisplacement,
+                       const std::string& nameCellDisplacement);
 
 public:
     //- Constructor
@@ -65,7 +71,8 @@ public:
         std::string meshName,
         std::string locationsType,
         std::vector<std::string> patchNames,
-        bool meshConnectivity);
+        bool meshConnectivity,
+        bool resetDisplacement);
 
     //- Add a CouplingDataUser to read data from the interface
     void addCouplingDataReader(
