@@ -29,13 +29,14 @@ We provide version-specific [release archives](https://github.com/precice/openfo
   - [OpenFOAM v1812-v2112](https://github.com/precice/openfoam-adapter) or newer
   - [OpenFOAM v1612-v1806](https://github.com/precice/openfoam-adapter/tree/OpenFOAMv1806) (not tested)
 - OpenFOAM Foundation (openfoam.org) - secondary, consider experimental:
+  - [OpenFOAM 9](https://github.com/precice/openfoam-adapter/tree/OpenFOAM9) (rename also `solver` to `motionSolver` in `constant/dynamicMeshDict`)
   - [OpenFOAM 8](https://github.com/precice/openfoam-adapter/tree/OpenFOAM8)
   - [OpenFOAM 7](https://github.com/precice/openfoam-adapter/tree/OpenFOAM7)
-  - [OpenFOAM 6](https://github.com/precice/openfoam-adapter/tree/OpenFOAM6)
+  - [OpenFOAM 6](https://github.com/precice/openfoam-adapter/tree/OpenFOAM6) (modify also `residualControl` to `outerResidualControl` in `system/fvSolution`)
   - [OpenFOAM 5.x](https://github.com/precice/openfoam-adapter/tree/OpenFOAM5)
   - [OpenFOAM 4.0/4.1](https://github.com/precice/openfoam-adapter/tree/OpenFOAM4) (not tested)
 
-Known not supported versions: OpenFOAM 9 ([issue - contributions welcome](https://github.com/precice/openfoam-adapter/issues/200)), OpenFOAM v1606+ or older, OpenFOAM 3 or older, foam-extend (any version).
+Known not supported versions: OpenFOAM v1606+ or older, OpenFOAM 3 or older, foam-extend (any version).
 
 ## Supported OpenFOAM solvers
 
