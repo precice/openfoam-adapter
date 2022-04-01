@@ -72,7 +72,9 @@ public:
         std::string locationsType,
         std::vector<std::string> patchNames,
         bool meshConnectivity,
-        bool resetDisplacement);
+        bool resetDisplacement,
+        const std::string& namePointDisplacement,
+        const std::string& nameCellDisplacement);
 
     //- Add a CouplingDataUser to read data from the interface
     void addCouplingDataReader(

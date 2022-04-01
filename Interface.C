@@ -12,7 +12,9 @@ preciceAdapter::Interface::Interface(
     std::string locationsType,
     std::vector<std::string> patchNames,
     bool meshConnectivity,
-    bool resetDisplacement)
+    bool resetDisplacement,
+    const std::string& namePointDisplacement,
+    const std::string& nameCellDisplacement)
 : precice_(precice),
   meshName_(meshName),
   patchNames_(patchNames),
@@ -70,8 +72,7 @@ preciceAdapter::Interface::Interface(
     }
 
     // Configure the mesh (set the data locations)
-    // TODO: We need to extract the names from the FSI module in case it was enabled
-    configureMesh(mesh, "pointDisplacement", "cellDisplacement");
+    configureMesh(mesh, namePointDisplacement, nameCellDisplacement);
 }
 
 void preciceAdapter::Interface::configureMesh(const fvMesh& mesh, const std::string& namePointDisplacement, const std::string& nameCellDisplacement)
