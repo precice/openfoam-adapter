@@ -39,6 +39,15 @@ The following are common problems that may appear during building the OpenFOAM a
 
 The `Allwmake` script prints the environment variables it uses in the beginning (as well as in `Allwmake.log`) and it writes the building commands in the file `wmake.log`. Afterwards, it checks (using `ldd`) if the library was linked correctly and writes the output to `ldd.log`. **Please check these files and include them in your report if you have need help.**
 
+If you don't have access to the log files, you can also try running `foamHasLibrary -verbose precice libpreciceAdapterFunctionObject`, which should lead to the following message:
+
+```text
+Can load "precice"
+Can load "libpreciceAdapterFunctionObject"
+```
+
+If the libraries are available but cannot be loaded, the most common issue is conflicting or missing dependencies. Run `ldd ${FOAM_USER_LIBBIN}/libpreciceAdapterFunctionObject.so` and check for any undefined symbols messages at the bottom.
+
 ### Unknown function type `preciceAdapterFunctionObject`
 
 <details markdown="1">
