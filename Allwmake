@@ -54,7 +54,7 @@ if command -v pkg-config >/dev/null 2>&1; then
         Check the preCICE documentation page 'Linking to preCICE' for more details, or proceed if you know what you are doing."
     fi
 else
-    warning "pkg-config is not installed and is used to detect the preCICE installation. Only proceed if you know what you are doing."
+    warning "pkg-config is not installed and cannot be used to detect the preCICE installation. Only proceed if you know what you are doing."
 fi
 export ADAPTER_PKG_CONFIG_CFLAGS
 export ADAPTER_PKG_CONFIG_LIBS
