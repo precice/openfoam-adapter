@@ -66,7 +66,7 @@ master <-- OpenFOAM4 <-- OpenFOAM5 <-- OpenFOAM6 <-- OpenFOAM7 <-- OpenFOAM8 <--
 
 - [ ] Create a Release on GitHub
 - [ ] Download an archive of the repository (i.e., no `.git/` or `.gitignore`) for each version and attach to the release. Use the link `https://github.com/precice/openfoam-adapter/archive/refs/heads/BRANCH.tar.gz` (substitute `BRANCH`). Rename the folder in each archive to reflect the name of the archive.
-  - branch `master`: archive `openfoam-adapter_v1.0.0_OpenFOAMv1812-v2112.tar.gz` (adjust `v2112` to the latest supported, and `v1.0.0` to the actual version)
+  - branch `master`: archive `openfoam-adapter_v1.0.0_OpenFOAMv1812-v2206-newer.tar.gz` (adjust `v2206` to the latest supported, and `v1.0.0` to the actual version)
   - branch `OpenFOAM4`: archive `openfoam-adapter_v1.0.0_OpenFOAM4_5_v1806.tar.gz`
   - branch `OpenFOAM6`: archive `openfoam-adapter_v1.0.0_OpenFOAM6_experimental.tar.gz`
   - branch `OpenFOAM7`: archive `openfoam-adapter_v1.0.0_OpenFOAM7_experimental.tar.gz`
