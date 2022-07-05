@@ -10,6 +10,8 @@ Read more details in the issue [#52: Releases and versioning](https://github.com
 
 ## [Unreleased]
 
+### Changed
+
 ## [v1.1.0] 2022-02-08
 
 ### Added
