@@ -25,6 +25,7 @@ on:
           - OpenFOAMv2012
           - OpenFOAMv2006
           - OpenFOAMv1912
+          - OpenFOAM10
           - OpenFOAM9
           - OpenFOAM8
           - OpenFOAM7
