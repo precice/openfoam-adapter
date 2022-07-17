@@ -796,6 +796,7 @@ void preciceAdapter::Adapter::reloadMeshPoints()
     // TODO
     // Switch oldpoints on for pure physics. (is this required?). Switch off for better mesh deformation capabilities?
     // const_cast<pointField&>(mesh_.points()) = oldMeshPoints_;
+    const_cast<fvMesh&>(mesh_).move();
     const_cast<fvMesh&>(mesh_).movePoints(meshPoints_);
 
     DEBUG(adapterInfo("Moved mesh points to their previous locations."));
@@ -841,21 +842,27 @@ void preciceAdapter::Adapter::setupMeshVolCheckpointing()
     DEBUG(adapterInfo("Creating a list of the mesh volume checkpointed fields..."));
     // Add the V0 and the V00 to the list of checkpointed fields.
     // For V0
-    addVolCheckpointField(
-        const_cast<volScalarField::Internal&>(
-            mesh_.V0()));
+    if (mesh_.foundObject<volScalarField::Internal>("V0"))
+    {
+        addVolCheckpointField(
+            const_cast<volScalarField::Internal&>(
+                mesh_.V0()));
 #ifdef ADAPTER_DEBUG_MODE
-    adapterInfo(
-        "Added " + mesh_.V0().name() + " in the list of checkpointed fields.");
+        adapterInfo(
+            "Added " + mesh_.V0().name() + " in the list of checkpointed fields.");
 #endif
+    }
     // For V00
-    addVolCheckpointField(
-        const_cast<volScalarField::Internal&>(
-            mesh_.V00()));
+    if (mesh_.foundObject<volScalarField::Internal>("V00"))
+    {
+        addVolCheckpointField(
+            const_cast<volScalarField::Internal&>(
+                mesh_.V00()));
 #ifdef ADAPTER_DEBUG_MODE
-    adapterInfo(
-        "Added " + mesh_.V00().name() + " in the list of checkpointed fields.");
+        adapterInfo(
+            "Added " + mesh_.V00().name() + " in the list of checkpointed fields.");
 #endif
+    }
 
     // Also add the buffer fields.
     // TODO For V0
@@ -865,23 +872,24 @@ void preciceAdapter::Adapter::setupMeshVolCheckpointing()
         (
             mesh_.V0()
         )
-    ); */
+    );
 #ifdef ADAPTER_DEBUG_MODE
     adapterInfo(
         "Added " + mesh_.V0().name() + " in the list of buffer checkpointed fields.");
 #endif
     // TODO For V00
-    /* addVolCheckpointFieldBuffer
+    addVolCheckpointFieldBuffer
     (
         const_cast<volScalarField::Internal&>
         (
             mesh_.V00()
         )
-    );*/
+    );
 #ifdef ADAPTER_DEBUG_MODE
     adapterInfo(
         "Added " + mesh_.V00().name() + " in the list of buffer checkpointed fields.");
 #endif
+    */
 }
 
 
