@@ -95,10 +95,10 @@ Foam::tmp<Foam::volScalarField> preciceAdapter::FSI::ForceBase::mu() const
 {
     if (solverType_.compare("incompressible") == 0)
     {
-        if (mesh_.foundObject<fluidThermo>(basicThermo::dictName))
+        if (mesh_.foundObject<fluidThermo>(physicalProperties::typeName))
         {
             const fluidThermo& thermo =
-                mesh_.lookupObject<fluidThermo>(basicThermo::dictName);
+                mesh_.lookupObject<fluidThermo>(physicalProperties::typeName);
 
             return thermo.mu();
         }

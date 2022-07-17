@@ -9,7 +9,7 @@
 #include "pointFields.H"
 #include "vectorField.H"
 #include "compressibleMomentumTransportModel.H"
-#include "kinematicMomentumTransportModel.H"
+#include "incompressibleMomentumTransportModel.H"
 
 namespace preciceAdapter
 {
