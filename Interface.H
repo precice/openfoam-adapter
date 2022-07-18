@@ -41,6 +41,9 @@ protected:
     //- Buffer for the coupling data
     double* dataBuffer_;
 
+    //- Buffer for writing gradient data
+    std::vector<double> gradientBuffer_;
+
     //- Vector of CouplingDataReaders
     std::vector<CouplingDataUser*> couplingDataReaders_;
 

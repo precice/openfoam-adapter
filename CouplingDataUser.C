@@ -36,6 +36,15 @@ void preciceAdapter::CouplingDataUser::setLocationsType(LocationType locationsTy
     locationType_ = locationsType;
 }
 
+void preciceAdapter::CouplingDataUser::writeGradients(std::vector<double>& gradientBuffer, const unsigned int dim)
+{
+    adapterInfo("Data \"" + getDataName() + "\" does not support writing gradients. Please select a different "
+                                      "data or a different mapping configuration, which does not require "
+                                      "additional gradient information.",
+                "error");
+}
+
+
 void preciceAdapter::CouplingDataUser::checkDataLocation(const bool meshConnectivity) const
 {
     if (this->isLocationTypeSupported(meshConnectivity) == false)

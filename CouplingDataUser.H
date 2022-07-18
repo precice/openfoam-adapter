@@ -69,6 +69,9 @@ public:
     //- Write the coupling data to the buffer
     virtual void write(double* dataBuffer, bool meshConnectivity, const unsigned int dim) = 0;
 
+    //- Write gradient data to the gradient buffer
+    virtual void writeGradients(std::vector<double>& gradientBuffer, const unsigned int dim);
+
     //- Read the coupling data from the buffer
     virtual void read(double* dataBuffer, const unsigned int dim) = 0;
 

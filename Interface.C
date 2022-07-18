@@ -330,6 +330,7 @@ void preciceAdapter::Interface::createBuffer()
     // Will the interface buffer need to store 3D vector data?
     bool needsVectorData = false;
     int dataBufferSize = 0;
+    bool requiresGradientData = false;
 
     // Check all the coupling data readers
     for (uint i = 0; i < couplingDataReaders_.size(); i++)
@@ -346,6 +347,10 @@ void preciceAdapter::Interface::createBuffer()
         if (couplingDataWriters_.at(i)->hasVectorData())
         {
             needsVectorData = true;
+        }
+        if (precice_.isGradientDataRequired(couplingDataWriters_.at(i)->dataID()))
+        {
+            requiresGradientData = true;
         }
     }
 
@@ -367,6 +372,10 @@ void preciceAdapter::Interface::createBuffer()
     // preCICE implementation, it should work as, when writing scalars,
     // it should  only use the first 1/3 elements of the buffer.
     dataBuffer_ = new double[dataBufferSize]();
+    if (requiresGradientData)
+    {
+        gradientBuffer_.resize(dim_ * dataBufferSize);
+    }
 }
 
 void preciceAdapter::Interface::readCouplingData()
@@ -430,6 +439,15 @@ void preciceAdapter::Interface::writeCouplingData()
                 numDataLocations_,
                 vertexIDs_,
                 dataBuffer_);
+
+            if (precice_.isGradientDataRequired(couplingDataWriter->dataID()))
+            {
+                couplingDataWriter->writeGradients(gradientBuffer_, dim_);
+                precice_.writeBlockVectorGradientData(couplingDataWriter->dataID(),
+                                                      numDataLocations_,
+                                                      vertexIDs_,
+                                                      gradientBuffer_.data());
+            }
         }
         else
         {
@@ -438,6 +456,15 @@ void preciceAdapter::Interface::writeCouplingData()
                 numDataLocations_,
                 vertexIDs_,
                 dataBuffer_);
+
+            if (precice_.isGradientDataRequired(couplingDataWriter->dataID()))
+            {
+                couplingDataWriter->writeGradients(gradientBuffer_, dim_);
+                precice_.writeBlockScalarGradientData(couplingDataWriter->dataID(),
+                                                      numDataLocations_,
+                                                      vertexIDs_,
+                                                      gradientBuffer_.data());
+            }
         }
     }
     // }
