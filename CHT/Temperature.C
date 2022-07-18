@@ -56,6 +56,21 @@ void preciceAdapter::CHT::Temperature::write(double* buffer, bool meshConnectivi
     }
 }
 
+void preciceAdapter::CHT::Temperature::writeGradients(std::vector<double>& gradientBuffer, const unsigned int dim)
+{
+    for (const label patchID : patchIDs_)
+    {
+        const auto& TGrad = fvc::grad(*T_);
+        forAll(TGrad().boundaryField()[patchID], i)
+        {
+            for (unsigned int d = 0; d < dim; ++d)
+            {
+                gradientBuffer[i * dim + d] = TGrad().boundaryField()[patchID][i][d];
+            }
+        }
+    }
+}
+
 void preciceAdapter::CHT::Temperature::read(double* buffer, const unsigned int dim)
 {
     int bufferIndex = 0;
