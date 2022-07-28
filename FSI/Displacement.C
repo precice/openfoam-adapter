@@ -41,9 +41,43 @@ void preciceAdapter::FSI::Displacement::write(double* buffer, bool meshConnectiv
     * the outer for the locations and the inner for the dimensions.
     * See the preCICE writeBlockVectorData() implementation.
     */
-    FatalErrorInFunction
-        << "Writing displacements is not supported."
-        << exit(FatalError);
+
+    // Copy the displacement field from OpenFOAM to the buffer
+
+    if (this->locationType_ == LocationType::faceCenters)
+    {
+        // For every boundary patch of the interface
+        for (const label patchID : patchIDs_)
+        {
+            // Write the displacement to the preCICE buffer
+            // For every cell of the patch
+            forAll(cellDisplacement_->boundaryField()[patchID], i)
+            {
+                for (unsigned int d = 0; d < dim; ++d)
+                    buffer[i * dim + d] =
+                        cellDisplacement_->boundaryField()[patchID][i][d];
+            }
+        }
+    }
+    else if (this->locationType_ == LocationType::faceNodes)
+    {
+        // For every boundary patch of the interface
+        for (const label patchID : patchIDs_)
+        {
+            // Write the displacement to the preCICE buffer
+            // For every cell of the patch
+            forAll(pointDisplacement_->boundaryField()[patchID], i)
+            {
+                const labelList& meshPoints =
+                    mesh_.boundaryMesh()[patchID].meshPoints();
+
+                for (unsigned int d = 0; d < dim; ++d)
+                    buffer[i * dim + d] =
+                        //displacementField.boundaryField()[patchID][i][d];
+                        pointDisplacement_->internalField()[meshPoints[i]][d];
+            }
+        }
+    }
 }
 
 

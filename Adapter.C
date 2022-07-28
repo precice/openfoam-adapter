@@ -757,6 +757,20 @@ void preciceAdapter::Adapter::storeMeshPoints()
 
 void preciceAdapter::Adapter::reloadMeshPoints()
 {
+    // Allow the user to say the mesh should not be moved, e.g. this is required
+    // for solids in solids4foam
+    if
+    (
+        !mesh_.lookupObject<IOdictionary>
+        (
+            "preciceDict"
+        ).subDict("FSI").lookupOrDefault<Switch>("moveMesh", true)
+    )
+    {
+        DEBUG(adapterInfo("Not moving the mesh points!"));
+        return;
+    }
+
     // In Foam::polyMesh::movePoints.
     // TODO: The function movePoints overwrites the pointer to the old mesh.
     // Therefore, if you revert the mesh, the oldpointer will be set to the points, which are the new values.

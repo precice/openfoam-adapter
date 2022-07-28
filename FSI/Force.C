@@ -28,7 +28,53 @@ void preciceAdapter::FSI::Force::write(double* buffer, bool meshConnectivity, co
 
 void preciceAdapter::FSI::Force::read(double* buffer, const unsigned int dim)
 {
-    this->readFromBuffer(buffer);
+    // Copy the force field from the buffer to OpenFOAM
+
+    // Here we assume that a force volVectorField exists, which is used by
+    // the OpenFOAM solver
+
+    // Lookup the force field name
+    const word forceFieldName
+    (
+        mesh_.lookupObject<IOdictionary>
+        (
+            "preciceDict"
+        ).subDict("FSI").lookup("forceFieldName")
+    );
+
+    // Lookup the force field
+    volVectorField& forceField =
+        const_cast<volVectorField&>
+        (
+            mesh_.lookupObject<volVectorField>(forceFieldName)
+        );
+
+    // Set boundary forces
+    for (unsigned int j = 0; j < patchIDs_.size(); j++)
+    {
+        // Get the ID of the current patch
+        const unsigned int patchID = patchIDs_.at(j);
+
+        if (this->locationType_ == LocationType::faceCenters)
+        {
+            // Make a force field
+            vectorField& force = forceField.boundaryFieldRef()[patchID];
+
+            // Copy the forces from the buffer into the force field
+            forAll(force, i)
+            {
+                for (unsigned int d = 0; d < dim; ++d)
+                    force[i][d] = buffer[i * dim + d];
+            }
+        }
+        else if (this->locationType_ == LocationType::faceNodes)
+        {
+            // Here we could easily interpolate the face values to point values
+            // and assign them to some field, but I guess there is no need
+            // unless it will be used
+            notImplemented("Read forces not implemented for faceNodes!");
+        }
+    }
 }
 
 bool preciceAdapter::FSI::Force::isLocationTypeSupported(const bool meshConnectivity) const
