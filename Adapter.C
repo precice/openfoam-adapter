@@ -759,13 +759,11 @@ void preciceAdapter::Adapter::reloadMeshPoints()
 {
     // Allow the user to say the mesh should not be moved, e.g. this is required
     // for solids in solids4foam
-    if
-    (
-        !mesh_.lookupObject<IOdictionary>
-        (
-            "preciceDict"
-        ).subDict("FSI").lookupOrDefault<Switch>("moveMesh", true)
-    )
+    if (
+        !mesh_.lookupObject<IOdictionary>(
+                  "preciceDict")
+             .subDict("FSI")
+             .lookupOrDefault<Switch>("moveMesh", true))
     {
         DEBUG(adapterInfo("Moving the mesh points is switched off in the adapter configuration file."));
         return;
@@ -1315,8 +1313,8 @@ void preciceAdapter::Adapter::readMeshCheckpoint()
 {
     DEBUG(adapterInfo("Reading a mesh checkpoint..."));
 
-    //TODO only the meshPhi field is here, which is a surfaceScalarField. The other fields can be removed.
-    // Reload all the fields of type mesh surfaceScalarField
+    // TODO only the meshPhi field is here, which is a surfaceScalarField. The other fields can be removed.
+    //  Reload all the fields of type mesh surfaceScalarField
     for (uint i = 0; i < meshSurfaceScalarFields_.size(); i++)
     {
         // Load the volume field
@@ -1543,8 +1541,8 @@ void preciceAdapter::Adapter::teardown()
         }
         meshVolVectorFieldCopies_.clear();
 
-        //TODO for the internal volume
-        // volScalarInternal
+        // TODO for the internal volume
+        //  volScalarInternal
         for (uint i = 0; i < volScalarInternalFieldCopies_.size(); i++)
         {
             delete volScalarInternalFieldCopies_.at(i);

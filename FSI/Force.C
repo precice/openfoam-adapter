@@ -34,20 +34,16 @@ void preciceAdapter::FSI::Force::read(double* buffer, const unsigned int dim)
     // the OpenFOAM solver
 
     // Lookup the force field name
-    const word forceFieldName
-    (
-        mesh_.lookupObject<IOdictionary>
-        (
-            "preciceDict"
-        ).subDict("FSI").lookup("forceFieldName")
-    );
+    const word forceFieldName(
+        mesh_.lookupObject<IOdictionary>(
+                 "preciceDict")
+            .subDict("FSI")
+            .lookup("forceFieldName"));
 
     // Lookup the force field
     volVectorField& forceField =
-        const_cast<volVectorField&>
-        (
-            mesh_.lookupObject<volVectorField>(forceFieldName)
-        );
+        const_cast<volVectorField&>(
+            mesh_.lookupObject<volVectorField>(forceFieldName));
 
     // Set boundary forces
     for (unsigned int j = 0; j < patchIDs_.size(); j++)
