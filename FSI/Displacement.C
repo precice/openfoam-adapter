@@ -73,7 +73,6 @@ void preciceAdapter::FSI::Displacement::write(double* buffer, bool meshConnectiv
 
                 for (unsigned int d = 0; d < dim; ++d)
                     buffer[i * dim + d] =
-                        //displacementField.boundaryField()[patchID][i][d];
                         pointDisplacement_->internalField()[meshPoints[i]][d];
             }
         }
