@@ -767,7 +767,7 @@ void preciceAdapter::Adapter::reloadMeshPoints()
         ).subDict("FSI").lookupOrDefault<Switch>("moveMesh", true)
     )
     {
-        DEBUG(adapterInfo("Not moving the mesh points!"));
+        DEBUG(adapterInfo("Moving the mesh points is switched off in the adapter configuration file."));
         return;
     }
 
