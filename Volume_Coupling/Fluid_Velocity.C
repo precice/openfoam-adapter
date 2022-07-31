@@ -73,10 +73,10 @@ void preciceAdapter::Volume_Coupling::Fluid_Velocity::write(double* buffer, bool
 void preciceAdapter::Volume_Coupling::Fluid_Velocity::read(double* buffer, const unsigned int dim)
 {
     /* TODO: Implement
-    * We need two nested for-loops for each patch,
-    * the outer for the locations and the inner for the dimensions.
-    * See the preCICE readBlockVectorData() implementation.
-    */
+     * We need two nested for-loops for each patch,
+     * the outer for the locations and the inner for the dimensions.
+     * See the preCICE readBlockVectorData() implementation.
+     */
     FatalErrorInFunction
         << "Reading Fluid_Velocity is not supported."
         << exit(FatalError);

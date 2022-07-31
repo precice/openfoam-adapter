@@ -20,10 +20,10 @@ void preciceAdapter::CHT::KappaEff_Compressible::extract(uint patchID, bool mesh
 {
     if (meshConnectivity)
     {
-        //Create an Interpolation object at the boundary Field
+        // Create an Interpolation object at the boundary Field
         primitivePatchInterpolation patchInterpolator(mesh_.boundaryMesh()[patchID]);
 
-        //Interpolate kappaEff_ from centers to nodes
+        // Interpolate kappaEff_ from centers to nodes
         kappaEff_ = patchInterpolator.faceToPointInterpolate(turbulence_.kappaEff()().boundaryField()[patchID]);
     }
     else
@@ -142,10 +142,10 @@ void preciceAdapter::CHT::KappaEff_Incompressible::extract(uint patchID, bool me
 
     if (meshConnectivity)
     {
-        //Create an Interpolation object at the boundary Field
+        // Create an Interpolation object at the boundary Field
         primitivePatchInterpolation patchInterpolator(mesh_.boundaryMesh()[patchID]);
 
-        //Interpolate kappaEff_ from centers to nodes, if desired
+        // Interpolate kappaEff_ from centers to nodes, if desired
         kappaEff_ = patchInterpolator.faceToPointInterpolate(kappaEff_temp);
     }
     else

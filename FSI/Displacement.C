@@ -37,10 +37,10 @@ void preciceAdapter::FSI::Displacement::initialize()
 void preciceAdapter::FSI::Displacement::write(double* buffer, bool meshConnectivity, const unsigned int dim)
 {
     /* TODO: Implement
-    * We need two nested for-loops for each patch,
-    * the outer for the locations and the inner for the dimensions.
-    * See the preCICE writeBlockVectorData() implementation.
-    */
+     * We need two nested for-loops for each patch,
+     * the outer for the locations and the inner for the dimensions.
+     * See the preCICE writeBlockVectorData() implementation.
+     */
     FatalErrorInFunction
         << "Writing displacements is not supported."
         << exit(FatalError);

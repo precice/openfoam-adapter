@@ -1547,8 +1547,8 @@ void preciceAdapter::Adapter::readMeshCheckpoint()
 {
     DEBUG(adapterInfo("Reading a mesh checkpoint..."));
 
-    //TODO only the meshPhi field is here, which is a surfaceScalarField. The other fields can be removed.
-    // Reload all the fields of type mesh surfaceScalarField
+    // TODO only the meshPhi field is here, which is a surfaceScalarField. The other fields can be removed.
+    //  Reload all the fields of type mesh surfaceScalarField
     for (uint i = 0; i < meshSurfaceScalarFields_.size(); i++)
     {
         // Load the volume field
@@ -1775,8 +1775,8 @@ void preciceAdapter::Adapter::teardown()
         }
         meshVolVectorFieldCopies_.clear();
 
-        //TODO for the internal volume
-        // volScalarInternal
+        // TODO for the internal volume
+        //  volScalarInternal
         for (uint i = 0; i < volScalarInternalFieldCopies_.size(); i++)
         {
             delete volScalarInternalFieldCopies_.at(i);

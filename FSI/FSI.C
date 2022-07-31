@@ -54,8 +54,8 @@ bool preciceAdapter::FSI::FluidStructureInteraction::readConfig(const IOdictiona
     DEBUG(adapterInfo("    user-defined solver type : " + solverType_));
 
     /* TODO: Read the names of any needed fields and parameters.
-    * Include the force here?
-    */
+     * Include the force here?
+     */
 
     // Read the name of the pointDisplacement field (if different)
     namePointDisplacement_ = FSIdict.lookupOrDefault<word>("namePointDisplacement", "pointDisplacement");

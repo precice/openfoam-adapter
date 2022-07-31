@@ -35,8 +35,8 @@ bool preciceAdapter::Volume_Coupling::Volume_Coupling::readConfig(const IOdictio
 
 
     /* TODO: Read the names of any needed fields and parameters.
-    * Include the force here?
-    */
+     * Include the force here?
+     */
     const dictionary Volume_Couplingdict = adapterConfig.subOrEmptyDict("Volume_Coupling");
 
     // Read the name of the field Fluid_Velocity (if different)
@@ -73,7 +73,7 @@ void preciceAdapter::Volume_Coupling::Volume_Coupling::addWriters(std::string da
     // writer here (and as a reader below).
     // The argument of the dataName.compare() needs to match
     // the one provided in the adapter's configuration file.
-    //return true;
+    // return true;
 }
 
 void preciceAdapter::Volume_Coupling::Volume_Coupling::addReaders(std::string dataName, Interface* interface)
