@@ -44,7 +44,7 @@ bool preciceAdapter::Volume_Coupling::Volume_Coupling::readConfig(const IOdictio
     DEBUG(adapterInfo("    Fluid_Velocity field name : " + nameFluid_Velocity_));
 
     // Read the name of the field Volume_Porosity (if different)
-    nameT_ = Htdict.lookupOrDefault<word>("nameT", "T");
+    nameT_ = Volume_Couplingdict.lookupOrDefault<word>("nameT", "T");
     DEBUG(adapterInfo("    Temperature field name : " + nameT_));
 
     return true;
@@ -64,7 +64,7 @@ void preciceAdapter::Volume_Coupling::Volume_Coupling::addWriters(std::string da
     {
         interface->addCouplingDataWriter(
             dataName,
-            new Fluid_properties::Generic_volScalarField(mesh_, nameT_));
+            new Generic_volScalarField(mesh_, nameT_));
         DEBUG(adapterInfo("Added writer: T."));
     }
 
@@ -90,7 +90,7 @@ void preciceAdapter::Volume_Coupling::Volume_Coupling::addReaders(std::string da
     {
         interface->addCouplingDataReader(
             dataName,
-            new Fluid_properties::Generic_volScalarField(mesh_, nameT_));
+            new Generic_volScalarField(mesh_, nameT_));
         DEBUG(adapterInfo("Added reader: T."));
     }
 

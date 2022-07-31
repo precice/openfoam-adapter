@@ -33,6 +33,10 @@ protected:
     /  so make sure to declare these here.
     */
 
+    std::string nameT_ = "T";
+
+    std::string nameFluid_Velocity_ = "Fluid_Velocity";
+
 protected:
     //- Read the Newcase-related options from the adapter's configuration file
     bool readConfig(const IOdictionary& adapterConfig);
