@@ -73,7 +73,7 @@ void preciceAdapter::Volume_Coupling::Generic_volVectorField::read(double* buffe
         int patchID = patchIDs_.at(j);
 
         // Get the field on the patch
-        fixedValuePointPatchVectorField& pointGeneric_volVectorPatch =
+        fvPatchVectorField& pointGeneric_volVectorPatch =
             refCast<fvPatchVectorField>(
                 generic_volVectorField_->boundaryFieldRef()[patchID]);
 
