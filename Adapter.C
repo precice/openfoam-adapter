@@ -760,10 +760,11 @@ void preciceAdapter::Adapter::reloadMeshPoints()
     // Allow the user to say the mesh should not be moved, e.g. this is required
     // for solids in solids4foam
     if (
-        !mesh_.lookupObject<IOdictionary>(
-                  "preciceDict")
-             .subDict("FSI")
-             .lookupOrDefault<Switch>("moveMesh", true))
+        mesh_.lookupObject<IOdictionary>(
+                 "preciceDict")
+            .subDict("FSI")
+            .lookupOrDefault<word>("solverType", "none")
+        == "solid")
     {
         DEBUG(adapterInfo("Moving the mesh points is switched off in the adapter configuration file."));
         return;

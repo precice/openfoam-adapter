@@ -27,7 +27,9 @@ bool preciceAdapter::FSI::FluidStructureInteraction::configure(const IOdictionar
     // addWriters() and addReaders().
     // Check the solver type and determine it if needed
     if (
-        solverType_.compare("compressible") == 0 || solverType_.compare("incompressible") == 0)
+        solverType_.compare("compressible") == 0
+        || solverType_.compare("incompressible") == 0
+        || solverType_.compare("solid") == 0)
     {
         DEBUG(adapterInfo("Known solver type: " + solverType_));
     }
@@ -38,7 +40,7 @@ bool preciceAdapter::FSI::FluidStructureInteraction::configure(const IOdictionar
     }
     else
     {
-        DEBUG(adapterInfo("Determining the solver type for the FSI module... (override by setting solverType to one of {compressible, incompressible})"));
+        DEBUG(adapterInfo("Determining the solver type for the FSI module... (override by setting solverType to one of {compressible, incompressible, solid})"));
         solverType_ = determineSolverType();
     }
 
@@ -54,8 +56,8 @@ bool preciceAdapter::FSI::FluidStructureInteraction::readConfig(const IOdictiona
     DEBUG(adapterInfo("    user-defined solver type : " + solverType_));
 
     /* TODO: Read the names of any needed fields and parameters.
-    * Include the force here?
-    */
+     * Include the force here?
+     */
 
     // Read the name of the pointDisplacement field (if different)
     namePointDisplacement_ = FSIdict.lookupOrDefault<word>("namePointDisplacement", "pointDisplacement");
