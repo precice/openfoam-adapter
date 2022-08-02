@@ -16,7 +16,7 @@ preciceAdapter::FSI::ForceBase::ForceBase(
     {
         FatalErrorInFunction
             << "Force based calculations only support "
-            << "compressible, incompressible or solid solver types."
+            << "compressible, incompressible, or solid solver types."
             << exit(FatalError);
     }
 
