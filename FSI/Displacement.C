@@ -7,7 +7,9 @@ preciceAdapter::FSI::Displacement::Displacement(
     const std::string namePointDisplacement,
     const std::string nameCellDisplacement)
 : pointDisplacement_(
-    const_cast<pointVectorField*>(
+    namePointDisplacement == "unused"
+    ? NULL
+    : const_cast<pointVectorField*>(
         &mesh.lookupObject<pointVectorField>(namePointDisplacement))),
   cellDisplacement_(
       const_cast<volVectorField*>(
