@@ -4,7 +4,8 @@ using namespace Foam;
 
 preciceAdapter::FSI::Force::Force(
     const Foam::fvMesh& mesh,
-    const std::string solverType)
+    const std::string solverType,
+    const std::string nameSolidForce)
 : ForceBase(mesh, solverType)
 {
     Force_ = new volVectorField(
@@ -19,6 +20,8 @@ preciceAdapter::FSI::Force::Force(
             "fdim",
             dimensionSet(1, 1, -2, 0, 0, 0, 0),
             Foam::vector::zero));
+
+    nameSolidForce_ = nameSolidForce;
 }
 
 void preciceAdapter::FSI::Force::write(double* buffer, bool meshConnectivity, const unsigned int dim)
@@ -33,17 +36,10 @@ void preciceAdapter::FSI::Force::read(double* buffer, const unsigned int dim)
     // Here we assume that a force volVectorField exists, which is used by
     // the OpenFOAM solver
 
-    // Lookup the force field name
-    const word forceFieldName(
-        mesh_.lookupObject<IOdictionary>(
-                 "preciceDict")
-            .subDict("FSI")
-            .lookup("forceFieldName"));
-
     // Lookup the force field
     volVectorField& forceField =
         const_cast<volVectorField&>(
-            mesh_.lookupObject<volVectorField>(forceFieldName));
+            mesh_.lookupObject<volVectorField>(nameSolidForce_));
 
     // Set boundary forces
     for (unsigned int j = 0; j < patchIDs_.size(); j++)

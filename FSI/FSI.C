@@ -67,6 +67,10 @@ bool preciceAdapter::FSI::FluidStructureInteraction::readConfig(const IOdictiona
     nameCellDisplacement_ = FSIdict.lookupOrDefault<word>("nameCellDisplacement", "cellDisplacement");
     DEBUG(adapterInfo("    cellDisplacement field name : " + nameCellDisplacement_));
 
+    // Read the name of the solidForce field (if different)
+    nameSolidForce_ = FSIdict.lookupOrDefault<word>("nameSolidForce", "solidForce");
+    DEBUG(adapterInfo("    solidForce field name : " + nameSolidForce_));
+
     return true;
 }
 
@@ -119,7 +123,7 @@ bool preciceAdapter::FSI::FluidStructureInteraction::addWriters(std::string data
     {
         interface->addCouplingDataWriter(
             dataName,
-            new Force(mesh_, solverType_) /* TODO: Add any other arguments here */
+            new Force(mesh_, solverType_, nameSolidForce_) /* TODO: Add any other arguments here */
         );
         DEBUG(adapterInfo("Added writer: Force."));
     }
@@ -167,7 +171,7 @@ bool preciceAdapter::FSI::FluidStructureInteraction::addReaders(std::string data
     {
         interface->addCouplingDataReader(
             dataName,
-            new Force(mesh_, solverType_) /* TODO: Add any other arguments here */
+            new Force(mesh_, solverType_, nameSolidForce_) /* TODO: Add any other arguments here */
         );
         DEBUG(adapterInfo("Added reader: Force."));
     }

@@ -15,11 +15,15 @@ private:
     //- Force field
     Foam::volVectorField* Force_;
 
+    //- Solid force field name
+    Foam::string nameSolidForce_;
+
 public:
     //- Constructor
     Force(
         const Foam::fvMesh& mesh,
-        const std::string solverType);
+        const std::string solverType,
+        const std::string nameSolidForce);
 
     //- Write the forces values into the buffer
     void write(double* buffer, bool meshConnectivity, const unsigned int dim) override;
