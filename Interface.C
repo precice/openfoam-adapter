@@ -237,7 +237,7 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh)
                 const List<face> faceField = mesh.boundaryMesh()[patchIDs_.at(j)].localFaces();
                 const Field<point> pointCoords = mesh.boundaryMesh()[patchIDs_.at(j)].localPoints();
 
-                // Array to store coordiantes in preCICE format
+                // Array to store coordinates in preCICE format
                 double triCoords[faceField.size() * triaPerQuad * nodesPerTria * componentsPerNode];
 
                 unsigned int coordIndex = 0;

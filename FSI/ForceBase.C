@@ -154,7 +154,7 @@ void preciceAdapter::FSI::ForceBase::writeToBuffer(double* buffer,
         const auto& surface = tsurface();
 
         // Pressure forces
-        // FIXME: We need to substract the reference pressure for incompressible calculations
+        // FIXME: We need to subtract the reference pressure for incompressible calculations
         if (solverType_.compare("incompressible") == 0)
         {
             forceField.boundaryFieldRef()[patchID] =

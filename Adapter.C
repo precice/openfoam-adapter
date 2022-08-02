@@ -511,7 +511,7 @@ void preciceAdapter::Adapter::writeCouplingData()
 
 void preciceAdapter::Adapter::initialize()
 {
-    DEBUG(adapterInfo("Initalizing the preCICE solver interface..."));
+    DEBUG(adapterInfo("Initializing the preCICE solver interface..."));
     timestepPrecice_ = precice_->initialize();
 
     preciceInitialized_ = true;

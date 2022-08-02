@@ -20,7 +20,7 @@ ADAPTER_TARGET_DIR="${FOAM_USER_LIBBIN:-}"
 DOC_COMPATIBILITY="https://www.precice.org/adapter-openfoam-support.html"
 
 ################################################################################
-# Funtion to print to screen and copy to a logfile
+# Function to print to screen and copy to a logfile
 log() {
     echo "$@" | tee -a "Allwmake.log"
 }
