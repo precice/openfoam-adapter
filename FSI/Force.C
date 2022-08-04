@@ -21,7 +21,12 @@ preciceAdapter::FSI::Force::Force(
             dimensionSet(1, 1, -2, 0, 0, 0, 0),
             Foam::vector::zero));
 
-    nameSolidForce_ = nameSolidForce;
+    if (mesh_.foundObject<volVectorField>(nameSolidForce))
+    {
+        solidForce_ =
+            &const_cast<volVectorField&>(
+                mesh_.lookupObject<volVectorField>(nameSolidForce));
+    }
 }
 
 void preciceAdapter::FSI::Force::write(double* buffer, bool meshConnectivity, const unsigned int dim)
@@ -36,11 +41,6 @@ void preciceAdapter::FSI::Force::read(double* buffer, const unsigned int dim)
     // Here we assume that a force volVectorField exists, which is used by
     // the OpenFOAM solver
 
-    // Lookup the force field
-    volVectorField& forceField =
-        const_cast<volVectorField&>(
-            mesh_.lookupObject<volVectorField>(nameSolidForce_));
-
     // Set boundary forces
     for (unsigned int j = 0; j < patchIDs_.size(); j++)
     {
@@ -50,7 +50,7 @@ void preciceAdapter::FSI::Force::read(double* buffer, const unsigned int dim)
         if (this->locationType_ == LocationType::faceCenters)
         {
             // Make a force field
-            vectorField& force = forceField.boundaryFieldRef()[patchID];
+            vectorField& force = solidForce_->boundaryFieldRef()[patchID];
 
             // Copy the forces from the buffer into the force field
             forAll(force, i)

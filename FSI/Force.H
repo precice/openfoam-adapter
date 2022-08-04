@@ -15,8 +15,8 @@ private:
     //- Force field
     Foam::volVectorField* Force_;
 
-    //- Solid force field name
-    Foam::string nameSolidForce_;
+    //- Solid force field
+    Foam::volVectorField* solidForce_;
 
 public:
     //- Constructor
