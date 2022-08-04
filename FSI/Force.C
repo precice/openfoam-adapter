@@ -27,6 +27,10 @@ preciceAdapter::FSI::Force::Force(
             &const_cast<volVectorField&>(
                 mesh_.lookupObject<volVectorField>(nameSolidForce));
     }
+    else
+    {
+        solidForce_ = nullptr;
+    }
 }
 
 void preciceAdapter::FSI::Force::write(double* buffer, bool meshConnectivity, const unsigned int dim)
