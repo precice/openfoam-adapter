@@ -63,6 +63,14 @@ void preciceAdapter::FSI::Displacement::write(double* buffer, bool meshConnectiv
     }
     else if (this->locationType_ == LocationType::faceNodes)
     {
+        WarningIn(
+            "void preciceAdapter::FSI::Displacement::write"
+            "(double* buffer, bool meshConnectivity, const unsigned int dim))")
+            << "Please be aware of issues with using 'locationType faceNodes' "
+            << "in parallel. "
+            << "See https://github.com/precice/openfoam-adapter/issues/153."
+            << endl;
+
         // For every boundary patch of the interface
         for (const label patchID : patchIDs_)
         {
