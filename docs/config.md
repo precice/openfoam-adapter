@@ -312,7 +312,7 @@ and depends on the density (`rho [ 1 -3  0  0 0 0 0 ]`) and heat capacity (`Cp  
 
 #### Fluid-structure interaction
 
-The adapter's FSI functionality supports both compressible and incompressible solvers.
+The adapter's FSI functionality supports both compressible and incompressible solvers, as well as solid (e.g., solids4Foam) solvers.
 
 For incompressible solvers, it tries to read uniform values for the density and kinematic viscosity (if it is not already available) from the `FSI` subdictionary of `preciceDict`:
 
