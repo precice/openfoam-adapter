@@ -9,22 +9,24 @@ preciceAdapter::FSI::ForceBase::ForceBase(
 : mesh_(mesh),
   solverType_(solverType)
 {
-    //What about type "basic"?
-    if (solverType_.compare("incompressible") != 0 && solverType_.compare("compressible") != 0)
+    // What about type "basic"?
+    if (solverType_.compare("incompressible") != 0
+        && solverType_.compare("compressible") != 0
+        && solverType_.compare("solid") != 0)
     {
         FatalErrorInFunction
             << "Force based calculations only support "
-            << "compressible or incompressible solver types."
+            << "compressible, incompressible, or solid solver types."
             << exit(FatalError);
     }
 
     dataType_ = vector;
 }
 
-//Calculate viscous force
+// Calculate viscous force
 Foam::tmp<Foam::volSymmTensorField> preciceAdapter::FSI::ForceBase::devRhoReff() const
 {
-    //For turbulent flows
+    // For turbulent flows
     typedef compressible::turbulenceModel cmpTurbModel;
     typedef incompressible::turbulenceModel icoTurbModel;
 
@@ -52,7 +54,7 @@ Foam::tmp<Foam::volSymmTensorField> preciceAdapter::FSI::ForceBase::devRhoReff()
     }
 }
 
-//lookup correct rho
+// lookup correct rho
 Foam::tmp<Foam::volScalarField> preciceAdapter::FSI::ForceBase::rho() const
 {
     // If volScalarField exists, read it from registry (for compressible cases)
@@ -88,10 +90,9 @@ Foam::tmp<Foam::volScalarField> preciceAdapter::FSI::ForceBase::rho() const
     }
 }
 
-//lookup correct mu
+// lookup correct mu
 Foam::tmp<Foam::volScalarField> preciceAdapter::FSI::ForceBase::mu() const
 {
-
     if (solverType_.compare("incompressible") == 0)
     {
         typedef immiscibleIncompressibleTwoPhaseMixture iitpMixture;
@@ -191,10 +192,10 @@ void preciceAdapter::FSI::ForceBase::writeToBuffer(double* buffer,
 void preciceAdapter::FSI::ForceBase::readFromBuffer(double* buffer) const
 {
     /* TODO: Implement
-    * We need two nested for-loops for each patch,
-    * the outer for the locations and the inner for the dimensions.
-    * See the preCICE readBlockVectorData() implementation.
-    */
+     * We need two nested for-loops for each patch,
+     * the outer for the locations and the inner for the dimensions.
+     * See the preCICE readBlockVectorData() implementation.
+     */
     FatalErrorInFunction
         << "Reading forces is not supported."
         << exit(FatalError);

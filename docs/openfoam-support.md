@@ -41,7 +41,7 @@ Known not supported versions: OpenFOAM v1606+ or older, OpenFOAM 3 or older, foa
 
 ## Supported OpenFOAM solvers
 
-We support mainstream OpenFOAM solvers such as pimpleFoam (for FSI) or buoyantPimpleFoam, buoyantSimpleFoam, laplacianFoam (for CHT). Our community has tried the adapter with multiple different solvers that support function objects.
+We support mainstream OpenFOAM solvers such as pimpleFoam and solids4Foam for FSI, buoyantPimpleFoam, buoyantSimpleFoam, and laplacianFoam for CHT, or pimpleFoam and sonicLiquidFoam for FF. Our community has, additionally, tried the adapter with multiple different solvers that support function objects.
 
 ## Notes on OpenFOAM features
 

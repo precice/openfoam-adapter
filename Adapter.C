@@ -757,6 +757,12 @@ void preciceAdapter::Adapter::storeMeshPoints()
 
 void preciceAdapter::Adapter::reloadMeshPoints()
 {
+    if (!mesh_.moving())
+    {
+        DEBUG(adapterInfo("Mesh points not moved as the mesh is not moving"));
+        return;
+    }
+
     // In Foam::polyMesh::movePoints.
     // TODO: The function movePoints overwrites the pointer to the old mesh.
     // Therefore, if you revert the mesh, the oldpointer will be set to the points, which are the new values.
@@ -1301,8 +1307,8 @@ void preciceAdapter::Adapter::readMeshCheckpoint()
 {
     DEBUG(adapterInfo("Reading a mesh checkpoint..."));
 
-    //TODO only the meshPhi field is here, which is a surfaceScalarField. The other fields can be removed.
-    // Reload all the fields of type mesh surfaceScalarField
+    // TODO only the meshPhi field is here, which is a surfaceScalarField. The other fields can be removed.
+    //  Reload all the fields of type mesh surfaceScalarField
     for (uint i = 0; i < meshSurfaceScalarFields_.size(); i++)
     {
         // Load the volume field
@@ -1529,8 +1535,8 @@ void preciceAdapter::Adapter::teardown()
         }
         meshVolVectorFieldCopies_.clear();
 
-        //TODO for the internal volume
-        // volScalarInternal
+        // TODO for the internal volume
+        //  volScalarInternal
         for (uint i = 0; i < volScalarInternalFieldCopies_.size(); i++)
         {
             delete volScalarInternalFieldCopies_.at(i);
