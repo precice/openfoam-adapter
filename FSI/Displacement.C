@@ -107,14 +107,18 @@ void preciceAdapter::FSI::Displacement::read(double* buffer, const unsigned int 
                 for (unsigned int d = 0; d < dim; ++d)
                     cellDisplacement_->boundaryFieldRef()[patchID][i][d] = buffer[i * dim + d];
             }
-            // Get a reference to the displacement on the point patch in order to overwrite it
-            vectorField& pointDisplacementFluidPatch(
-                refCast<vectorField>(
-                    pointDisplacement_->boundaryFieldRef()[patchID]));
 
-            // Overwrite the node based patch using the interpolation objects and the cell based vector field
-            // Afterwards, continue as usual
-            pointDisplacementFluidPatch = interpolationObjects_[j]->faceToPointInterpolate(cellDisplacement_->boundaryField()[patchID]);
+            if (pointDisplacement_ != nullptr)
+            {
+                // Get a reference to the displacement on the point patch in order to overwrite it
+                vectorField& pointDisplacementFluidPatch(
+                    refCast<vectorField>(
+                        pointDisplacement_->boundaryFieldRef()[patchID]));
+
+                // Overwrite the node based patch using the interpolation objects and the cell based vector field
+                // Afterwards, continue as usual
+                pointDisplacementFluidPatch = interpolationObjects_[j]->faceToPointInterpolate(cellDisplacement_->boundaryField()[patchID]);
+            }
         }
         else if (this->locationType_ == LocationType::faceNodes)
         {

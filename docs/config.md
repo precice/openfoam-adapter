@@ -181,7 +181,7 @@ interface
 * For `readData(Displacement)` or `DisplacementDelta`, you need the following:
   * `type movingWallVelocity` for the interface (e.g. `flap`) in `0/U`,
   * `type fixedValue` for the interface (e.g. `flap`) in the `0/pointDisplacement`, and
-  * `solver displacementLaplacian` in the `constant/dynamicMeshDict`.
+  * `solver displacementLaplacian` in the `constant/dynamicMeshDict`. The solver [`RBFMeshMotionSolver` from solids4foam is also known to work](https://github.com/precice/openfoam-adapter/pull/241), currently (August 2022) with the develop branch of the OpenFOAM adapter and the nextRelease branch of solids4foam.
 
 ```c++
 // File 0/U
@@ -332,13 +332,22 @@ Some optional parameters can allow the adapter to work with more solvers, whose 
 The adapter tries to automatically determine the solver type,
 based on the dictionaries that the solver uses.
 However, you may manually specify the solver type to be `basic`,
-`incompressible` or `compressible` for a CHT or FSI simulation:
+`incompressible` or `compressible` for a CHT simulation:
 
 ```c++
 CHT
 {
     solverType incompressible;
 };
+```
+
+or the `incompressible`, `compressible`, or `solid` (e.g., for solids4Foam) for an FSI simulation:
+
+```c++
+FSI
+{
+    solverType solid;
+}
 ```
 
 This will force the adapter use the boundary condition implementations
@@ -354,20 +363,35 @@ file (the values correspond to the default values):
 ```c++
 CHT
 {
-   # Temperature field
-   nameT T1;
-   # Thermal conductivity
-   nameKappa k1;
-   # Density
-   nameRho rho1;
-   # Heat capacity for constant pressure
-   nameCp Cp1;
-   # Prandtl number
-   namePr Pr1;
-   # Turbulent thermal diffusivity
-   nameAlphat alphat1;
+    // Temperature field
+    nameT T1;
+    // Thermal conductivity
+    nameKappa k1;
+    // Density
+    nameRho rho1;
+    // Heat capacity for constant pressure
+    nameCp Cp1;
+    // Prandtl number
+    namePr Pr1;
+    // Turbulent thermal diffusivity
+    nameAlphat alphat1;
 };
 ```
+
+Similarly for FSI simulations:
+
+```c++
+FSI
+{
+    // Displacement fields
+    namePointDisplacement pointD;
+    nameCellDisplacement D;
+    // Force field on the solid
+    forceFieldName solidForce;
+}
+```
+
+Use the option `namePointDisplacement unused;` for solvers that do not create a pointDisplacement field, such as the RBFMeshMotionSolver.
 
 #### Debugging
 
