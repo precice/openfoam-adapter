@@ -224,6 +224,8 @@ This directs the solver to use the `preciceAdapterFunctionObject` function objec
 which is part of the `libpreciceAdapterFunctionObject.so` shared library.
 The name `preCICE_Adapter` can be arbitrary.
 
+If you are using other function objects in your simulation, add the preCICE adapter to the end of the list. The adapter will then be executed last, which is important, as the adapter also controls the end of the simulation. When the end of the simulation is detected, the adapter also triggers the `end()` method method of all function objects.
+
 ***
 
 ## Advanced configuration
