@@ -16,6 +16,7 @@ void preciceAdapter::Volume_Coupling::Generic_volVectorField::write(double* buff
 {
     int bufferIndex = 0;
 
+    // For every cell of the interface (inner region)
     forAll(generic_volVectorField_->internalField(), k)
     {
         // x-dimension
@@ -66,6 +67,21 @@ void preciceAdapter::Volume_Coupling::Generic_volVectorField::read(double* buffe
 {
     // For every element in the buffer
     int bufferIndex = 0;
+
+
+    // For every cell of the interface (inner region)
+    forAll(generic_volVectorField_->internalField(), k)
+    {
+        // x-dimension
+        generic_volVectorField_->internalField()[k].x() = buffer[bufferIndex++];
+
+        // y-dimension
+        generic_volVectorField_->internalField()[k].y() = buffer[bufferIndex++];
+
+        if (dim == 3)
+            // z-dimension
+            generic_volVectorField_->internalField()[k].z() = buffer[bufferIndex++];
+    }
 
     // For every boundary patch of the interface
     for (uint j = 0; j < patchIDs_.size(); j++)

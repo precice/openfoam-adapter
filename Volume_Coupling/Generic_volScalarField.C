@@ -16,6 +16,7 @@ void preciceAdapter::Volume_Coupling::Generic_volScalarField::write(double* buff
 {
     int bufferIndex = 0;
 
+    // For every cell of the interface (inner region)
     forAll(generic_volScalarField_->internalField(), k)
     {
         buffer[bufferIndex++] =
@@ -45,10 +46,10 @@ void preciceAdapter::Volume_Coupling::Generic_volScalarField::read(double* buffe
 {
     int bufferIndex = 0;
 
-    // for every internal cell
-    forAll(generic_volScalarField_->ref(), k)
+    // For every cell of the interface (inner region)
+    forAll(generic_volScalarField_->internalField(), k)
     {
-        generic_volScalarField_->ref()[k] =
+        generic_volScalarField_->internalField()[k] =
             buffer[bufferIndex++];
     }
 
