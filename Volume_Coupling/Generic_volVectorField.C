@@ -17,20 +17,20 @@ void preciceAdapter::Volume_Coupling::Generic_volVectorField::write(double* buff
     int bufferIndex = 0;
 
     // For every cell of the interface (inner region)
-    forAll(generic_volVectorField_->internalField(), k)
+    forAll(generic_volVectorField_->ref(), k)
     {
         // x-dimension
         buffer[bufferIndex++] =
-            generic_volVectorField_->internalField()[k].x();
+            generic_volVectorField_->ref()[k].x();
 
         // y-dimension
         buffer[bufferIndex++] =
-            generic_volVectorField_->internalField()[k].y();
+            generic_volVectorField_->ref()[k].y();
 
         if (dim == 3)
             // z-dimension
             buffer[bufferIndex++] =
-                generic_volVectorField_->internalField()[k].z();
+                generic_volVectorField_->ref()[k].z();
     }
 
     // For every boundary patch of the interface
@@ -70,17 +70,17 @@ void preciceAdapter::Volume_Coupling::Generic_volVectorField::read(double* buffe
 
 
     // For every cell of the interface (inner region)
-    forAll(generic_volVectorField_->internalField(), k)
+    forAll(generic_volVectorField_->ref(), k)
     {
         // x-dimension
-        generic_volVectorField_->internalField()[k].x() = buffer[bufferIndex++];
+        generic_volVectorField_->ref()[k].x() = buffer[bufferIndex++];
 
         // y-dimension
-        generic_volVectorField_->internalField()[k].y() = buffer[bufferIndex++];
+        generic_volVectorField_->ref()[k].y() = buffer[bufferIndex++];
 
         if (dim == 3)
             // z-dimension
-            generic_volVectorField_->internalField()[k].z() = buffer[bufferIndex++];
+            generic_volVectorField_->ref()[k].z() = buffer[bufferIndex++];
     }
 
     // For every boundary patch of the interface
