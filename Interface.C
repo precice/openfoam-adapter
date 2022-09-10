@@ -282,7 +282,7 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh)
     else if (locationType_ == LocationType::volume)
     {
         // TODO is volume option added everywhere it's supposed to
-        
+
         // module for volume coupling is based on the module for coupling faceCenters
         // as the module was tested and developed on a previous development where faceNodes
         // did not work properly
@@ -353,7 +353,7 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh)
     {
         FatalErrorInFunction
             << "ERROR: interface points location type "
-            << locationsType_
+            << locationType_
             << " is invalid."
             << exit(FatalError);
     }
