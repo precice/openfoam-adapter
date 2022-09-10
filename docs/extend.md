@@ -11,7 +11,7 @@ The OpenFOAM adapter separates the core functionality (e.g. calling preCICE meth
 
 ![simplified UML diagram](images/docs-adapter-openfoam-modules.svg)
 
-While in the begining the adapter only included a module for conjugate heat transfer, [a module for fluid-structure interaction](https://github.com/precice/openfoam-adapter/pull/56) and [a module for fluid-fluid coupling](https://github.com/precice/openfoam-adapter/pull/67) have been added since then.
+While in the beginning the adapter only included a module for conjugate heat transfer, [a module for fluid-structure interaction](https://github.com/precice/openfoam-adapter/pull/56) and [a module for fluid-fluid coupling](https://github.com/precice/openfoam-adapter/pull/67) have been added since then.
 
 ## Starting points
 

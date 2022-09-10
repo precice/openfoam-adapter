@@ -14,7 +14,6 @@ preciceAdapter::Interface::Interface(
     bool meshConnectivity)
 : precice_(precice),
   meshName_(meshName),
-  locationsType_(locationsType),
   patchNames_(patchNames),
   meshConnectivity_(meshConnectivity)
 {
@@ -30,6 +29,23 @@ preciceAdapter::Interface::Interface(
                           "Have a look in the adapter documentation for detailed information.",
                           "warning"));
     }
+
+    if (locationsType == "faceCenters" || locationsType == "faceCentres")
+    {
+        locationType_ = LocationType::faceCenters;
+    }
+    else if (locationsType == "faceNodes")
+    {
+        locationType_ = LocationType::faceNodes;
+    }
+    else
+    {
+        adapterInfo("Interface points location type \""
+                    "locations = "
+                        + locationsType + "\" is invalid.",
+                    "error-deferred");
+    }
+
 
     // For every patch that participates in the coupling
     for (uint j = 0; j < patchNames.size(); j++)
@@ -62,7 +78,7 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh)
     // TODO: Reduce code duplication. In the meantime, take care to update
     // all the branches.
 
-    if (locationsType_ == "faceCenters" || locationsType_ == "faceCentres")
+    if (locationType_ == LocationType::faceCenters)
     {
         // Count the data locations for all the patches
         for (uint j = 0; j < patchIDs_.size(); j++)
@@ -102,16 +118,20 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh)
             {
                 const pointField faceNodes =
                     mesh.boundaryMesh()[patchIDs_.at(j)].localPoints();
+                const auto faceNodesSize = faceNodes.size();
                 //Allocate memory for z-coordinates
                 std::array<double, 2> z_location({0, 0});
                 constexpr unsigned int z_axis = 2;
 
                 // Find out about the existing planes
                 // Store z-coordinate of the first layer
-                z_location[0] = faceNodes[0][z_axis];
+                if (faceNodesSize > 0)
+                {
+                    z_location[0] = faceNodes[0][z_axis];
+                }
                 // Go through the remaining points until we find the second z-coordinate
                 // and store it (there are only two allowed in case we are in the xy-layer)
-                for (int i = 0; i < faceNodes.size(); i++)
+                for (int i = 0; i < faceNodesSize; i++)
                 {
                     if (z_location[0] == faceNodes[i][z_axis])
                     {
@@ -125,7 +145,7 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh)
                 }
 
                 // Check if the z-coordinates of all nodes match the z-coordinates we have collected above
-                for (int i = 0; i < faceNodes.size(); i++)
+                for (int i = 0; i < faceNodesSize; i++)
                 {
                     if (z_location[0] == faceNodes[i][z_axis] || z_location[1] == faceNodes[i][z_axis])
                     {
@@ -146,7 +166,7 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh)
         // Pass the mesh vertices information to preCICE
         precice_.setMeshVertices(meshID_, numDataLocations_, vertices, vertexIDs_);
     }
-    else if (locationsType_ == "faceNodes")
+    else if (locationType_ == LocationType::faceNodes)
     {
         // Count the data locations for all the patches
         for (uint j = 0; j < patchIDs_.size(); j++)
@@ -217,7 +237,7 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh)
                 const List<face> faceField = mesh.boundaryMesh()[patchIDs_.at(j)].localFaces();
                 const Field<point> pointCoords = mesh.boundaryMesh()[patchIDs_.at(j)].localPoints();
 
-                // Array to store coordiantes in preCICE format
+                // Array to store coordinates in preCICE format
                 double triCoords[faceField.size() * triaPerQuad * nodesPerTria * componentsPerNode];
 
                 unsigned int coordIndex = 0;
@@ -345,7 +365,10 @@ void preciceAdapter::Interface::addCouplingDataWriter(
     couplingDataWriter->setPatchIDs(patchIDs_);
 
     // Set the location type in the CouplingDataUser class
-    couplingDataWriter->setLocationsType(locationsType_);
+    couplingDataWriter->setLocationsType(locationType_);
+
+    // Set the location type in the CouplingDataUser class
+    couplingDataWriter->checkDataLocation(meshConnectivity_);
 
     // Initilaize class specific data
     couplingDataWriter->initialize();
@@ -366,7 +389,10 @@ void preciceAdapter::Interface::addCouplingDataReader(
     couplingDataReader->setPatchIDs(patchIDs_);
 
     // Set the location type in the CouplingDataUser class
-    couplingDataReader->setLocationsType(locationsType_);
+    couplingDataReader->setLocationsType(locationType_);
+
+    // Check, if the current location type is supported by the data type
+    couplingDataReader->checkDataLocation(meshConnectivity_);
 
     // Initilaize class specific data
     couplingDataReader->initialize();

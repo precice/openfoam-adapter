@@ -49,7 +49,7 @@ protected:
     //- Determine the solver type
     std::string determineSolverType();
 
-    //- Read the CHT-related options from the adapter's configuraiton file
+    //- Read the CHT-related options from the adapter's configuration file
     bool readConfig(const IOdictionary& adapterConfig);
 
 public:
@@ -60,10 +60,10 @@ public:
     bool configure(const IOdictionary& adapterConfig);
 
     //- Add coupling data writers
-    void addWriters(std::string dataName, Interface* interface);
+    bool addWriters(std::string dataName, Interface* interface);
 
     //- Add coupling data readers
-    void addReaders(std::string dataName, Interface* interface);
+    bool addReaders(std::string dataName, Interface* interface);
 };
 
 }

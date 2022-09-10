@@ -1,6 +1,7 @@
 ---
 title: The OpenFOAM adapter
 permalink: adapter-openfoam-overview.html
+redirect_from: adapter-openfoam.html
 keywords: adapter, openfoam, cite, versions
 summary: An OpenFOAM function object for CHT, FSI, and fluid-fluid coupled simulations using preCICE.
 ---
@@ -17,9 +18,9 @@ This adapter can read/write the following fields:
 - Heat flux (read + write)
 - Sink temperature (read + write)
 - Heat transfer coefficient (read + write)
-- Force (write)
+- Force (read + write)
 - Stress (write)
-- Displacement (read)
+- Displacement (read + write)
 - Displacement delta (read)
 - Pressure (read + write)
 - Pressure gradient (read + write)
@@ -58,4 +59,6 @@ For CHT-specific topics, you may want to additionally look into [2] and for FSI 
 
 [3] Derek Risseeuw. [Fluid Structure Interaction Modelling of Flapping Wings](https://repository.tudelft.nl/islandora/object/uuid:70beddde-e870-4c62-9a2f-8758b4e49123). Master's thesis, Faculty of Aerospace Engineering, Delft University of Technology, 2019.
 
-{% include disclaimer.html content="This offering is not approved or endorsed by OpenCFD Limited, producer and distributor of the OpenFOAM software via www.openfoam.com, and owner of the OPENFOAM®  and OpenCFD®  trade marks." %}
+{% disclaimer %}
+This offering is not approved or endorsed by OpenCFD Limited, producer and distributor of the OpenFOAM software via www.openfoam.com, and owner of the OPENFOAM®  and OpenCFD®  trade marks.
+{% enddisclaimer %}

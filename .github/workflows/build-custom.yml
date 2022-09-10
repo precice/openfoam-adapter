@@ -1,0 +1,226 @@
+name: Custom build (manual) # Unfortunately, we cannot modify the name: https://github.community/t/github-actions-dynamic-name-of-the-workflow-with-workflow-dispatch/150327
+on:
+  workflow_dispatch:
+    inputs:
+      virtualEnvironment:
+        description: 'Virtual Environment'
+        default: 'ubuntu-18.04'
+        required: true
+        type: choice
+        options:
+          - ubuntu-20.04
+          - ubuntu-18.04
+      refAdapter:
+        description: 'Ref (branch/tag/commit) of the OpenFOAM adapter to build'
+        default: 'develop'
+        required: true
+      versionOpenFOAM:
+        description: 'Version of OpenFOAM to build with'
+        required: true
+        type: choice
+        options:
+          - OpenFOAMv2206
+          - OpenFOAMv2112
+          - OpenFOAMv2106
+          - OpenFOAMv2012
+          - OpenFOAMv2006
+          - OpenFOAMv1912
+          - OpenFOAM10
+          - OpenFOAM9
+          - OpenFOAM8
+          - OpenFOAM7
+          - OpenFOAM6
+          - OpenFOAM5
+      versionpreCICE:
+        description: 'Version of preCICE to build with'
+        default: '2.3.0'
+        required: true
+      runTutorialHeatedPlate:
+        description: Run tutorial flow-over-heated-plate
+        type: boolean
+        default: true
+        required: true
+      runTutorialQuickstart:
+        description: Run tutorial quickstart
+        type: boolean
+        default: true
+        required: true
+      runTutorialPartitionedPipe:
+        description: Run tutorial partitioned-pipe
+        type: boolean
+        default: true
+        required: true
+      branchTutorials:
+        description: 'Branch of the tutorials to use'
+        default: 'master'
+        required: true
+
+jobs:
+  build:
+    runs-on: ${{ github.event.inputs.virtualEnvironment }}
+    steps:
+    - name: Report log
+      run: |
+        echo "Initiated by: ${{ github.actor }}"
+        echo "Runs on: ${{ github.event.inputs.virtualEnvironment }}"
+        echo "Adapter ref (branch/tag/commit): ${{ github.event.inputs.refAdapter }}"
+        echo "OpenFOAM version: ${{ github.event.inputs.versionOpenFOAM }}"
+        echo "preCICE version: ${{ github.event.inputs.versionpreCICE }}"
+        echo "Run tutorial flow-over-heated-plate: ${{ github.event.inputs.runTutorialHeatedPlate }}"
+        echo "Run tutorial quickstart: ${{ github.event.inputs.runTutorialQuickstart }}"
+        echo "Run tutorial partitioned-pipe: ${{ github.event.inputs.runTutorialPartitionedPipe }}"
+        echo "Tutorials branch: ${{ github.event.inputs.branchTutorials }}"
+    - name: Check out repository
+      uses: actions/checkout@v2
+      with:
+        ref: ${{ github.event.inputs.refAdapter }}
+    - name: Install OpenFOAM (no cache)
+      id: installOpenFOAM
+      run: |
+        case "${{ github.event.inputs.versionOpenFOAM }}" in
+          OpenFOAMv2206)
+            wget -q -O - https://dl.openfoam.com/add-debian-repo.sh | sudo bash
+            sudo apt-get install openfoam2206-dev
+            echo "::set-output name=openfoam_exec::/usr/bin/openfoam2206";;
+          OpenFOAMv2112)
+            wget -q -O - https://dl.openfoam.com/add-debian-repo.sh | sudo bash
+            sudo apt-get install openfoam2112-dev
+            echo "::set-output name=openfoam_exec::/usr/bin/openfoam2112";;
+          OpenFOAMv2106)
+            wget -q -O - https://dl.openfoam.com/add-debian-repo.sh | sudo bash
+            sudo apt-get install openfoam2106-dev
+            echo "::set-output name=openfoam_exec::/usr/bin/openfoam2106";;
+          OpenFOAMv2012)
+            wget -q -O - https://dl.openfoam.com/add-debian-repo.sh | sudo bash
+            sudo apt-get install openfoam2012-dev
+            echo "::set-output name=openfoam_exec::/usr/bin/openfoam2012";;
+          OpenFOAMv2006)
+            wget -q -O - https://dl.openfoam.com/add-debian-repo.sh | sudo bash
+            sudo apt-get install openfoam2006-dev
+            echo "::set-output name=openfoam_exec::/usr/bin/openfoam2006";;
+          OpenFOAMv1912)
+            wget -q -O - https://dl.openfoam.com/add-debian-repo.sh | sudo bash
+            sudo apt-get install openfoam1912-dev
+            echo "::set-output name=openfoam_exec::/usr/bin/openfoam1912";;
+          OpenFOAM10)
+            sudo sh -c "wget -O - https://dl.openfoam.org/gpg.key | apt-key add -"
+            sudo add-apt-repository http://dl.openfoam.org/ubuntu
+            sudo apt-get update
+            sudo apt-get -y install openfoam10
+            echo "::set-output name=openfoam_exec::. /opt/openfoam10/etc/bashrc &&";;
+          OpenFOAM9)
+            sudo sh -c "wget -O - https://dl.openfoam.org/gpg.key | apt-key add -"
+            sudo add-apt-repository http://dl.openfoam.org/ubuntu
+            sudo apt-get update
+            sudo apt-get -y install openfoam9
+            echo "::set-output name=openfoam_exec::. /opt/openfoam9/etc/bashrc &&";;
+          OpenFOAM8)
+            sudo sh -c "wget -O - https://dl.openfoam.org/gpg.key | apt-key add -"
+            sudo add-apt-repository http://dl.openfoam.org/ubuntu
+            sudo apt-get update
+            sudo apt-get -y install openfoam8
+            echo "::set-output name=openfoam_exec::. /opt/openfoam8/etc/bashrc &&";;
+          OpenFOAM7)
+            sudo sh -c "wget -O - https://dl.openfoam.org/gpg.key | apt-key add -"
+            sudo add-apt-repository http://dl.openfoam.org/ubuntu
+            sudo apt-get update
+            sudo apt-get -y install openfoam7
+            echo "::set-output name=openfoam_exec::. /opt/openfoam7/etc/bashrc &&";;
+          OpenFOAM6)
+            echo "OpenFOAM 6 is only available on Ubuntu 18.04 or older."
+            sudo sh -c "wget -O - https://dl.openfoam.org/gpg.key | apt-key add -"
+            sudo add-apt-repository http://dl.openfoam.org/ubuntu
+            sudo apt-get update
+            sudo apt-get -y install openfoam6
+            echo "::set-output name=openfoam_exec::. /opt/openfoam6/etc/bashrc &&";;
+          OpenFOAM5)
+            echo "OpenFOAM 5 is only available on Ubuntu 18.04 or older."
+            sudo sh -c "wget -O - https://dl.openfoam.org/gpg.key | apt-key add -"
+            sudo add-apt-repository http://dl.openfoam.org/ubuntu
+            sudo apt-get update
+            sudo apt-get -y install openfoam5
+            echo "::set-output name=openfoam_exec::. /opt/openfoam5/etc/bashrc &&";;
+          *)
+            echo "I cannot find ${{ github.event.inputs.refAdapter }} in my known options."
+            exit 1;;
+        esac
+    - name: Install preCICE (no cache)
+      run: |
+          if [ "${{ github.event.inputs.virtualEnvironment }}" == "ubuntu-20.04" ]
+          then
+            wget "https://github.com/precice/precice/releases/download/v${{ github.event.inputs.versionpreCICE }}/libprecice2_${{ github.event.inputs.versionpreCICE }}_focal.deb"
+            sudo apt install "./libprecice2_${{ github.event.inputs.versionpreCICE }}_focal.deb"
+          elif [ "${{ github.event.inputs.virtualEnvironment }}" == "ubuntu-18.04" ]
+          then
+            wget "https://github.com/precice/precice/releases/download/v${{ github.event.inputs.versionpreCICE }}/libprecice2_${{ github.event.inputs.versionpreCICE }}_bionic.deb"
+            sudo apt install "./libprecice2_${{ github.event.inputs.versionpreCICE }}_bionic.deb"
+          fi
+    - name: Build OpenFOAM-preCICE adapter
+      run: |
+          ${{steps.installOpenFOAM.outputs.openfoam_exec}} ./Allwmake
+    - name: Get tutorials
+      run: |
+        git clone https://github.com/precice/tutorials.git --branch ${{ github.event.inputs.branchTutorials }} --depth 1
+    - name: Run tutorial flow-over-heated-plate
+      run: |
+        if ${{ github.event.inputs.runTutorialHeatedPlate }}
+        then
+          cd tutorials/flow-over-heated-plate/fluid-openfoam
+          ${{steps.installOpenFOAM.outputs.openfoam_exec}} ./run.sh | tee fluid-openfoam.log 2>&1 &
+          PIDfluid=$!
+          cd ../solid-openfoam
+          ${{steps.installOpenFOAM.outputs.openfoam_exec}} ./run.sh | tee solid-openfoam.log 2>&1
+          wait $PIDfluid
+        fi
+    - name: Run tutorial quickstart
+      run: |
+        if ${{ github.event.inputs.runTutorialQuickstart }}
+        then
+          cd tutorials/quickstart/fluid-openfoam
+          if [ "${{ github.event.inputs.versionOpenFOAM }}" == "OpenFOAM5" ]
+          then
+            echo "Manually changing from pimpleFoam to pimpleDyMFoam for compatibility with OpenFOAM 5."
+            sed -i 's/pimpleFoam/pimpleDyMFoam/g' system/controlDict
+          fi
+          ${{steps.installOpenFOAM.outputs.openfoam_exec}} ./run.sh | tee fluid-openfoam.log 2>&1 &
+          PIDfluid=$!
+          cd ../solid-cpp
+          cmake . && make && ./run.sh | tee solid-cpp.log 2>&1
+          wait $PIDfluid
+        fi
+    - name: Run tutorial partitioned-pipe
+      run: |
+        if ${{ github.event.inputs.runTutorialPartitionedPipe }}
+        then
+          cd tutorials/partitioned-pipe/fluid1-openfoam-pimplefoam
+          ${{steps.installOpenFOAM.outputs.openfoam_exec}} ./run.sh | tee fluid1-openfoam-pimplefoam.log 2>&1 &
+          PIDfluid=$!
+          cd ../fluid2-openfoam-pimplefoam
+          ${{steps.installOpenFOAM.outputs.openfoam_exec}} ./run.sh | tee fluid2-openfoam-pimplefoam.log 2>&1 &
+          wait $PIDfluid
+        fi
+    - name: Archive logs
+      uses: actions/upload-artifact@v2
+      with:
+        name: logs
+        path: |
+          Allwmake.log
+          wmake.log
+          ldd.log
+          tutorials/flow-over-heated-plate/fluid-openfoam/fluid-openfoam.log
+          tutorials/flow-over-heated-plate/solid-openfoam/solid-openfoam.log
+          tutorials/quickstart/fluid-openfoam/fluid-openfoam.log
+          tutorials/quickstart/solid-cpp/solid-cpp.log
+          tutorials/partitioned-pipe/fluid1-openfoam-pimplefoam/fluid1-openfoam-pimplefoam.log
+          tutorials/partitioned-pipe/fluid2-openfoam-pimplefoam/fluid2-openfoam-pimplefoam.log
+    - name: Archive case files
+      uses: actions/upload-artifact@v2
+      with:
+        name: case-files
+        path: |
+          tutorials/flow-over-heated-plate/fluid-openfoam/*
+          tutorials/flow-over-heated-plate/solid-openfoam/*
+          tutorials/quickstart/fluid-openfoam/*
+          tutorials/quickstart/solid-cpp/*
+          tutorials/partitioned-pipe/fluid1-openfoam-pimplefoam/*
+          tutorials/partitioned-pipe/fluid2-openfoam-pimplefoam/*

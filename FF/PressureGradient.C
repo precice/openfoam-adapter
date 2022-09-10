@@ -22,10 +22,8 @@ void preciceAdapter::FF::PressureGradient::write(double* buffer, bool meshConnec
         int patchID = patchIDs_.at(j);
 
         // Get the pressure gradient boundary patch
-        scalarField gradientPatch =
-            refCast<fixedValueFvPatchScalarField>(
-                p_->boundaryFieldRef()[patchID])
-                .snGrad();
+        const scalarField gradientPatch((p_->boundaryFieldRef()[patchID])
+                                            .snGrad());
 
         // For every cell of the patch
         forAll(gradientPatch, i)
@@ -60,4 +58,14 @@ void preciceAdapter::FF::PressureGradient::read(double* buffer, const unsigned i
                 buffer[bufferIndex++];
         }
     }
+}
+
+bool preciceAdapter::FF::PressureGradient::isLocationTypeSupported(const bool meshConnectivity) const
+{
+    return (this->locationType_ == LocationType::faceCenters);
+}
+
+std::string preciceAdapter::FF::PressureGradient::getDataName() const
+{
+    return "PressureGradient";
 }

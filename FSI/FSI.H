@@ -34,6 +34,9 @@ protected:
     //- Name of the pointDisplacement field
     std::string nameCellDisplacement_ = "cellDisplacement";
 
+    //- Name of the force field used by the solid
+    std::string nameSolidForce_ = "solidForce";
+
     /* TODO: Declare here any parameters that should be read from
     /  the configuration file. See CHT/CHT.H for reference.
     /  We want to support in-house solvers with different field names,
@@ -56,10 +59,10 @@ public:
     bool configure(const IOdictionary& adapterConfig);
 
     //- Add coupling data writers
-    void addWriters(std::string dataName, Interface* interface);
+    bool addWriters(std::string dataName, Interface* interface);
 
     //- Add coupling data readers
-    void addReaders(std::string dataName, Interface* interface);
+    bool addReaders(std::string dataName, Interface* interface);
 };
 
 }

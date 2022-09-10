@@ -45,7 +45,7 @@ bool preciceAdapter::FF::FluidFluid::configure(const IOdictionary& adapterConfig
 
 bool preciceAdapter::FF::FluidFluid::readConfig(const IOdictionary& adapterConfig)
 {
-    const dictionary FFdict = adapterConfig.subOrEmptyDict("FF");
+    const dictionary& FFdict = adapterConfig.subOrEmptyDict("FF");
 
     // Read the solver type (if not specified, it is determined automatically)
     solverType_ = FFdict.lookupOrDefault<word>("solverType", "");
@@ -74,7 +74,7 @@ std::string preciceAdapter::FF::FluidFluid::determineSolverType()
 
     if (mesh_.foundObject<volScalarField>("p"))
     {
-        volScalarField p_ = mesh_.lookupObject<volScalarField>("p");
+        const volScalarField& p_ = mesh_.lookupObject<volScalarField>("p");
 
         if (p_.dimensions() == pressureDimensionsCompressible)
             solverType = "compressible";
@@ -97,8 +97,10 @@ std::string preciceAdapter::FF::FluidFluid::determineSolverType()
     return solverType;
 }
 
-void preciceAdapter::FF::FluidFluid::addWriters(std::string dataName, Interface* interface)
+bool preciceAdapter::FF::FluidFluid::addWriters(std::string dataName, Interface* interface)
 {
+    bool found = true; // Set to false later, if needed.
+
     if (dataName.find("VelocityGradient") == 0)
     {
         interface->addCouplingDataWriter(
@@ -129,7 +131,7 @@ void preciceAdapter::FF::FluidFluid::addWriters(std::string dataName, Interface*
     }
     else
     {
-        adapterInfo("Unknown data type - cannot add " + dataName + ".", "error");
+        found = false;
     }
 
     // NOTE: If you want to couple another variable, you need
@@ -137,10 +139,14 @@ void preciceAdapter::FF::FluidFluid::addWriters(std::string dataName, Interface*
     // writer here (and as a reader below).
     // The argument of the dataName.compare() needs to match
     // the one provided in the adapter's configuration file.
+
+    return found;
 }
 
-void preciceAdapter::FF::FluidFluid::addReaders(std::string dataName, Interface* interface)
+bool preciceAdapter::FF::FluidFluid::addReaders(std::string dataName, Interface* interface)
 {
+    bool found = true; // Set to false later, if needed.
+
     if (dataName.find("VelocityGradient") == 0)
     {
         interface->addCouplingDataReader(
@@ -171,7 +177,7 @@ void preciceAdapter::FF::FluidFluid::addReaders(std::string dataName, Interface*
     }
     else
     {
-        adapterInfo("Unknown data type - cannot add " + dataName + ".", "error");
+        found = false;
     }
 
     // NOTE: If you want to couple another variable, you need
@@ -179,4 +185,6 @@ void preciceAdapter::FF::FluidFluid::addReaders(std::string dataName, Interface*
     // reader here (and as a writer above).
     // The argument of the dataName.compare() needs to match
     // the one provided in the adapter's configuration file.
+
+    return found;
 }

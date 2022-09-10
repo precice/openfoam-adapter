@@ -46,7 +46,7 @@ bool preciceAdapter::CHT::ConjugateHeatTransfer::configure(const IOdictionary& a
 
 bool preciceAdapter::CHT::ConjugateHeatTransfer::readConfig(const IOdictionary& adapterConfig)
 {
-    const dictionary CHTdict = adapterConfig.subOrEmptyDict("CHT");
+    const dictionary& CHTdict = adapterConfig.subOrEmptyDict("CHT");
 
     // Read the solver type (if not specified, it is determined automatically)
     solverType_ = CHTdict.lookupOrDefault<word>("solverType", "");
@@ -91,7 +91,7 @@ std::string preciceAdapter::CHT::ConjugateHeatTransfer::determineSolverType()
 
     if (mesh_.foundObject<volScalarField>("p"))
     {
-        volScalarField p_ = mesh_.lookupObject<volScalarField>("p");
+        const volScalarField& p_ = mesh_.lookupObject<volScalarField>("p");
 
         if (p_.dimensions() == pressureDimensionsCompressible)
         {
@@ -118,8 +118,10 @@ std::string preciceAdapter::CHT::ConjugateHeatTransfer::determineSolverType()
     return solverType;
 }
 
-void preciceAdapter::CHT::ConjugateHeatTransfer::addWriters(std::string dataName, Interface* interface)
+bool preciceAdapter::CHT::ConjugateHeatTransfer::addWriters(std::string dataName, Interface* interface)
 {
+    bool found = true; // Set to false later, if needed.
+
     if (dataName.find("Sink-Temperature") == 0)
     {
         interface->addCouplingDataWriter(
@@ -194,7 +196,7 @@ void preciceAdapter::CHT::ConjugateHeatTransfer::addWriters(std::string dataName
     }
     else
     {
-        adapterInfo("Unknown data type - cannot add " + dataName + ".", "error");
+        found = false;
     }
 
     // NOTE: If you want to couple another variable, you need
@@ -202,10 +204,14 @@ void preciceAdapter::CHT::ConjugateHeatTransfer::addWriters(std::string dataName
     // writer here (and as a reader below).
     // The argument of the dataName.compare() needs to match
     // the one provided in the adapter's configuration file.
+
+    return found;
 }
 
-void preciceAdapter::CHT::ConjugateHeatTransfer::addReaders(std::string dataName, Interface* interface)
+bool preciceAdapter::CHT::ConjugateHeatTransfer::addReaders(std::string dataName, Interface* interface)
 {
+    bool found = true; // Set to false later, if needed.
+
     if (dataName.find("Sink-Temperature") == 0)
     {
         interface->addCouplingDataReader(
@@ -280,7 +286,7 @@ void preciceAdapter::CHT::ConjugateHeatTransfer::addReaders(std::string dataName
     }
     else
     {
-        adapterInfo("Unknown data type - cannot add " + dataName + ".", "error");
+        found = false;
     }
 
     // NOTE: If you want to couple another variable, you need
@@ -288,4 +294,6 @@ void preciceAdapter::CHT::ConjugateHeatTransfer::addReaders(std::string dataName
     // reader here (and as a writer above).
     // The argument of the dataName.compare() needs to match
     // the one provided in the adapter's configuration file.
+
+    return found;
 }

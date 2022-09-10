@@ -1,0 +1,22 @@
+name: Update website
+on:
+  push:
+    branches:
+      - 'develop'
+    paths:
+      - 'docs/**'
+jobs:
+  trigger:
+    runs-on: ubuntu-latest
+    env:
+      WORKFLOW_FILENAME: update-submodules.yml
+    steps:
+    - name: Trigger workflow
+      run: |
+        curl \
+        --request POST \
+        --url https://api.github.com/repos/precice/precice.github.io/actions/workflows/$WORKFLOW_FILENAME/dispatches \
+        --header "authorization: token ${{ secrets.WORKFLOW_DISPATCH_TOKEN }}" \
+        --header "Accept: application/vnd.github.v3+json" \
+        --data '{"ref":"master"}' \
+        --fail

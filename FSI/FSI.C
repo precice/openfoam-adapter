@@ -27,7 +27,9 @@ bool preciceAdapter::FSI::FluidStructureInteraction::configure(const IOdictionar
     // addWriters() and addReaders().
     // Check the solver type and determine it if needed
     if (
-        solverType_.compare("compressible") == 0 || solverType_.compare("incompressible") == 0)
+        solverType_.compare("compressible") == 0
+        || solverType_.compare("incompressible") == 0
+        || solverType_.compare("solid") == 0)
     {
         DEBUG(adapterInfo("Known solver type: " + solverType_));
     }
@@ -38,7 +40,7 @@ bool preciceAdapter::FSI::FluidStructureInteraction::configure(const IOdictionar
     }
     else
     {
-        DEBUG(adapterInfo("Determining the solver type for the FSI module... (override by setting solverType to one of {compressible, incompressible})"));
+        DEBUG(adapterInfo("Determining the solver type for the FSI module... (override by setting solverType to one of {compressible, incompressible, solid})"));
         solverType_ = determineSolverType();
     }
 
@@ -47,15 +49,15 @@ bool preciceAdapter::FSI::FluidStructureInteraction::configure(const IOdictionar
 
 bool preciceAdapter::FSI::FluidStructureInteraction::readConfig(const IOdictionary& adapterConfig)
 {
-    const dictionary FSIdict = adapterConfig.subOrEmptyDict("FSI");
+    const dictionary& FSIdict = adapterConfig.subOrEmptyDict("FSI");
 
     // Read the solver type (if not specified, it is determined automatically)
     solverType_ = FSIdict.lookupOrDefault<word>("solverType", "");
     DEBUG(adapterInfo("    user-defined solver type : " + solverType_));
 
     /* TODO: Read the names of any needed fields and parameters.
-    * Include the force here?
-    */
+     * Include the force here?
+     */
 
     // Read the name of the pointDisplacement field (if different)
     namePointDisplacement_ = FSIdict.lookupOrDefault<word>("namePointDisplacement", "pointDisplacement");
@@ -64,6 +66,10 @@ bool preciceAdapter::FSI::FluidStructureInteraction::readConfig(const IOdictiona
     // Read the name of the pointDisplacement field (if different)
     nameCellDisplacement_ = FSIdict.lookupOrDefault<word>("nameCellDisplacement", "cellDisplacement");
     DEBUG(adapterInfo("    cellDisplacement field name : " + nameCellDisplacement_));
+
+    // Read the name of the solidForce field (if different)
+    nameSolidForce_ = FSIdict.lookupOrDefault<word>("nameSolidForce", "solidForce");
+    DEBUG(adapterInfo("    solidForce field name : " + nameSolidForce_));
 
     return true;
 }
@@ -81,7 +87,7 @@ std::string preciceAdapter::FSI::FluidStructureInteraction::determineSolverType(
 
     if (mesh_.foundObject<volScalarField>("p"))
     {
-        volScalarField p_ = mesh_.lookupObject<volScalarField>("p");
+        const volScalarField& p_ = mesh_.lookupObject<volScalarField>("p");
 
         if (p_.dimensions() == pressureDimensionsCompressible)
         {
@@ -109,13 +115,15 @@ std::string preciceAdapter::FSI::FluidStructureInteraction::determineSolverType(
 }
 
 
-void preciceAdapter::FSI::FluidStructureInteraction::addWriters(std::string dataName, Interface* interface)
+bool preciceAdapter::FSI::FluidStructureInteraction::addWriters(std::string dataName, Interface* interface)
 {
+    bool found = true; // Set to false later, if needed.
+
     if (dataName.find("Force") == 0)
     {
         interface->addCouplingDataWriter(
             dataName,
-            new Force(mesh_, solverType_) /* TODO: Add any other arguments here */
+            new Force(mesh_, solverType_, nameSolidForce_) /* TODO: Add any other arguments here */
         );
         DEBUG(adapterInfo("Added writer: Force."));
     }
@@ -141,21 +149,29 @@ void preciceAdapter::FSI::FluidStructureInteraction::addWriters(std::string data
         );
         DEBUG(adapterInfo("Added writer: Stress."));
     }
+    else
+    {
+        found = false;
+    }
 
     // NOTE: If you want to couple another variable, you need
     // to add your new coupling data user as a coupling data
     // writer here (and as a reader below).
     // The argument of the dataName.compare() needs to match
     // the one provided in the adapter's configuration file.
+
+    return found;
 }
 
-void preciceAdapter::FSI::FluidStructureInteraction::addReaders(std::string dataName, Interface* interface)
+bool preciceAdapter::FSI::FluidStructureInteraction::addReaders(std::string dataName, Interface* interface)
 {
+    bool found = true; // Set to false later, if needed.
+
     if (dataName.find("Force") == 0)
     {
         interface->addCouplingDataReader(
             dataName,
-            new Force(mesh_, solverType_) /* TODO: Add any other arguments here */
+            new Force(mesh_, solverType_, nameSolidForce_) /* TODO: Add any other arguments here */
         );
         DEBUG(adapterInfo("Added reader: Force."));
     }
@@ -181,10 +197,16 @@ void preciceAdapter::FSI::FluidStructureInteraction::addReaders(std::string data
         );
         DEBUG(adapterInfo("Added reader: Stress."));
     }
+    else
+    {
+        found = false;
+    }
 
     // NOTE: If you want to couple another variable, you need
     // to add your new coupling data user as a coupling data
     // writer here (and as a writer above).
     // The argument of the dataName.compare() needs to match
     // the one provided in the adapter's configuration file.
+
+    return found;
 }

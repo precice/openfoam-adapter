@@ -120,9 +120,11 @@ writeData
 );
 ```
 
-For fluid-structure interaction, `writeData` can be `Force` or `Stress`, where `Stress` is essentially a force vector scaled by the cell face in spatial coordinates (with any postfix), thus, a conservative quantity as well.`readData` can be `Displacement` and `DisplacementDelta` (with any postfix). `DisplacementDelta` refers to the last coupling time step, which needs to considered in the case of subcycling.
+For fluid-structure interaction, `writeData` can be `Force` or `Stress`, where `Stress` is essentially a force vector scaled by the cell face in spatial coordinates (with any postfix), thus, a conservative quantity as well. `readData` can be `Displacement` and `DisplacementDelta` (with any postfix). `DisplacementDelta` refers to the last coupling time step, which needs to considered in the case of subcycling. Structure solvers (such as solids4Foam) can also write `Displacement` and read `Force`.
 
-{% include warning.html content="You will run into problems when you use `Displacement(Delta)` as write data set and execute RBF mappings in parallel. This would affect users who use OpenFOAM and the adapter as the Solid participant in order to compute solid mechanics with OpenFOAM (currently not officially supported at all). Have a look [at this issue on GitHub](https://github.com/precice/openfoam-adapter/issues/153) for details." %}
+{% warning %}
+You will run into problems when you use `Displacement(Delta)` as write data set and execute RBF mappings in parallel. This would affect users who use OpenFOAM and the adapter as the Solid participant in order to compute solid mechanics with OpenFOAM (currently not officially supported at all). Have a look [at this issue on GitHub](https://github.com/precice/openfoam-adapter/issues/153) for details.
+{% endwarning %}
 
 ## Configuration of the OpenFOAM case
 
@@ -179,7 +181,7 @@ interface
 * For `readData(Displacement)` or `DisplacementDelta`, you need the following:
   * `type movingWallVelocity` for the interface (e.g. `flap`) in `0/U`,
   * `type fixedValue` for the interface (e.g. `flap`) in the `0/pointDisplacement`, and
-  * `solver displacementLaplacian` in the `constant/dynamicMeshDict`.
+  * `solver displacementLaplacian` in the `constant/dynamicMeshDict`. The solver [`RBFMeshMotionSolver` from solids4foam is also known to work](https://github.com/precice/openfoam-adapter/pull/241), currently (August 2022) with the develop branch of the OpenFOAM adapter and the nextRelease branch of solids4foam.
 
 ```c++
 // File 0/U
@@ -221,6 +223,8 @@ functions
 This directs the solver to use the `preciceAdapterFunctionObject` function object,
 which is part of the `libpreciceAdapterFunctionObject.so` shared library.
 The name `preCICE_Adapter` can be arbitrary.
+
+If you are using other function objects in your simulation, add the preCICE adapter to the end of the list. The adapter will then be executed last, which is important, as the adapter also controls the end of the simulation. When the end of the simulation is detected, the adapter also triggers the `end()` method method of all function objects.
 
 ***
 
@@ -274,8 +278,9 @@ As described already, the data is not stored on the face nodes, but on the face 
 Data is obtained at the face centers, then interpolated to face nodes. Here, we have provided mesh connectivity and finally, preCICE performs the nearest-projection mapping.
 It is important to notice that the target data location is again the face center mesh of the coupling partner. In the standard CHT case, where both data sets are exchanged by a nearest-projection mapping, this leads to two interface meshes (centers and nodes) per participant. Having both the centers and nodes defined, we can skip one interpolation step and read data directly to the centers (cf. picture solver B).
 
-{% include note.html content="As already mentioned, the `Fluid` participant does not need to provide the mesh connectivity in case of a standard FSI. Therefore, the `Solid` participant needs to provide it and nothing special needs to be considered compared to other mapping methods. This implementation supports all CHT-related fields, which are mapped with a `consistent` constraint.
-" %}
+{% note %}
+As already mentioned, the `Fluid` participant does not need to provide the mesh connectivity in case of a standard FSI. Therefore, the `Solid` participant needs to provide it and nothing special needs to be considered compared to other mapping methods. This implementation supports all CHT-related fields, which are mapped with a `consistent` constraint.
+{% endnote %}
 
 ### Additional properties for some solvers
 
@@ -309,7 +314,7 @@ and depends on the density (`rho [ 1 -3  0  0 0 0 0 ]`) and heat capacity (`Cp  
 
 #### Fluid-structure interaction
 
-The adapter's FSI functionality supports both compressible and incompressible solvers.
+The adapter's FSI functionality supports both compressible and incompressible solvers, as well as solid (e.g., solids4Foam) solvers.
 
 For incompressible solvers, it tries to read uniform values for the density and kinematic viscosity (if it is not already available) from the `FSI` subdictionary of `preciceDict`:
 
@@ -329,13 +334,22 @@ Some optional parameters can allow the adapter to work with more solvers, whose 
 The adapter tries to automatically determine the solver type,
 based on the dictionaries that the solver uses.
 However, you may manually specify the solver type to be `basic`,
-`incompressible` or `compressible` for a CHT or FSI simulation:
+`incompressible` or `compressible` for a CHT simulation:
 
 ```c++
 CHT
 {
     solverType incompressible;
 };
+```
+
+or the `incompressible`, `compressible`, or `solid` (e.g., for solids4Foam) for an FSI simulation:
+
+```c++
+FSI
+{
+    solverType solid;
+}
 ```
 
 This will force the adapter use the boundary condition implementations
@@ -351,20 +365,35 @@ file (the values correspond to the default values):
 ```c++
 CHT
 {
-   # Temperature field
-   nameT T1;
-   # Thermal conductivity
-   nameKappa k1;
-   # Density
-   nameRho rho1;
-   # Heat capacity for constant pressure
-   nameCp Cp1;
-   # Prandtl number
-   namePr Pr1;
-   # Turbulent thermal diffusivity
-   nameAlphat alphat1;
+    // Temperature field
+    nameT T1;
+    // Thermal conductivity
+    nameKappa k1;
+    // Density
+    nameRho rho1;
+    // Heat capacity for constant pressure
+    nameCp Cp1;
+    // Prandtl number
+    namePr Pr1;
+    // Turbulent thermal diffusivity
+    nameAlphat alphat1;
 };
 ```
+
+Similarly for FSI simulations:
+
+```c++
+FSI
+{
+    // Displacement fields
+    namePointDisplacement pointD;
+    nameCellDisplacement D;
+    // Force field on the solid
+    forceFieldName solidForce;
+}
+```
+
+Use the option `namePointDisplacement unused;` for solvers that do not create a pointDisplacement field, such as the RBFMeshMotionSolver.
 
 #### Debugging
 

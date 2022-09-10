@@ -20,7 +20,7 @@ ADAPTER_TARGET_DIR="${FOAM_USER_LIBBIN:-}"
 DOC_COMPATIBILITY="https://www.precice.org/adapter-openfoam-support.html"
 
 ################################################################################
-# Funtion to print to screen and copy to a logfile
+# Function to print to screen and copy to a logfile
 log() {
     echo "$@" | tee -a "Allwmake.log"
 }
@@ -32,10 +32,23 @@ log "Building the OpenFOAM-preCICE adapter..."
 # Export the environment variables
 export ADAPTER_PREP_FLAGS
 export ADAPTER_TARGET_DIR
-ADAPTER_PKG_CONFIG_CFLAGS="$(pkg-config --silence-errors --cflags libprecice)"
+
+if pkg-config libprecice; then
+  ADAPTER_PKG_CONFIG_CFLAGS="$(pkg-config --silence-errors --cflags libprecice)"
+  ADAPTER_PKG_CONFIG_LIBS="$(pkg-config --silence-errors --libs libprecice)"
+else
+  log "WARNING: No configuration file 'libprecice.pc' was found in the PKG_CONFIG_PATH."
+  log "Check the preCICE documentation page 'Linking to preCICE' for more details, or proceed if you know what you are doing."
+  ADAPTER_PKG_CONFIG_CFLAGS=""
+  ADAPTER_PKG_CONFIG_LIBS=""
+fi
 export ADAPTER_PKG_CONFIG_CFLAGS
-ADAPTER_PKG_CONFIG_LIBS="$(pkg-config --silence-errors --libs libprecice)"
 export ADAPTER_PKG_CONFIG_LIBS
+
+log ""
+log "If not already known by the system, preCICE may be located using:"
+log "  pkg-config --cflags libprecice  = ${ADAPTER_PKG_CONFIG_CFLAGS}"
+log "  pkg-config --libs libprecice    = ${ADAPTER_PKG_CONFIG_LIBS}"
 
 # Check if an OpenFOAM environment is available
 log ""
@@ -65,11 +78,6 @@ fi
 log ""
 log "The adapter will be built into ${ADAPTER_TARGET_DIR}"
 log "Additional preprocessor/compiler options: ${ADAPTER_PREP_FLAGS}"
-
-log ""
-log "If not already known by the system, preCICE may be located using:"
-log "  pkg-config --cflags libprecice  = ${ADAPTER_PKG_CONFIG_CFLAGS}"
-log "  pkg-config --libs libprecice    = ${ADAPTER_PKG_CONFIG_LIBS}"
 
 # Run wmake (build the adapter) and check the exit code
 log ""
