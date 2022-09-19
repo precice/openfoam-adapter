@@ -106,25 +106,25 @@ public:
 
 
     //- Destructor
-    virtual ~preciceAdapterFunctionObject();
+    ~preciceAdapterFunctionObject() final;
 
 
     // Member Functions
 
     //- Read the preciceAdapterFunctionObject data
-    virtual bool read(const dictionary&);
+    bool read(const dictionary&) final;
 
     //- Execute in the beginning of each time-loop, after the first one
-    virtual bool execute();
+    bool execute() final;
 
     //- Execute at the final time-loop, after execute()
-    virtual bool end();
+    bool end() final;
 
     //- Write the preciceAdapterFunctionObject
-    virtual bool write();
+    bool write() final;
 
     //- Called at the end of Time::adjustDeltaT() if adjustTime is true
-    virtual bool adjustTimeStep();
+    bool adjustTimeStep() final;
 
     /*
         // NOTE: If you add a new module that needs to execute methods
@@ -132,10 +132,10 @@ public:
         // you may put your calls inside the following methods.
 
         // Update for changes of mesh
-        virtual void updateMesh(const mapPolyMesh& mpm);
+        void updateMesh(const mapPolyMesh& mpm) final;
 
         // Update for changes of mesh
-        virtual void movePoints(const polyMesh& mesh);
+        void movePoints(const polyMesh& mesh) final;
     */
 };
 
