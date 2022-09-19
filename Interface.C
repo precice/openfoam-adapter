@@ -371,38 +371,34 @@ void preciceAdapter::Interface::createBuffer()
 
 void preciceAdapter::Interface::readCouplingData()
 {
-    // Are new data available or is the participant subcycling?
-    if (precice_.isReadDataAvailable())
+    // Make every coupling data reader read
+    for (uint i = 0; i < couplingDataReaders_.size(); i++)
     {
-        // Make every coupling data reader read
-        for (uint i = 0; i < couplingDataReaders_.size(); i++)
+        // Pointer to the current reader
+        preciceAdapter::CouplingDataUser*
+            couplingDataReader = couplingDataReaders_.at(i);
+
+        // Make preCICE read vector or scalar data
+        // and fill the adapter's buffer
+        if (couplingDataReader->hasVectorData())
         {
-            // Pointer to the current reader
-            preciceAdapter::CouplingDataUser*
-                couplingDataReader = couplingDataReaders_.at(i);
-
-            // Make preCICE read vector or scalar data
-            // and fill the adapter's buffer
-            if (couplingDataReader->hasVectorData())
-            {
-                precice_.readBlockVectorData(
-                    couplingDataReader->dataID(),
-                    numDataLocations_,
-                    vertexIDs_,
-                    dataBuffer_);
-            }
-            else
-            {
-                precice_.readBlockScalarData(
-                    couplingDataReader->dataID(),
-                    numDataLocations_,
-                    vertexIDs_,
-                    dataBuffer_);
-            }
-
-            // Read the received data from the buffer
-            couplingDataReader->read(dataBuffer_, dim_);
+            precice_.readBlockVectorData(
+                couplingDataReader->dataID(),
+                numDataLocations_,
+                vertexIDs_,
+                dataBuffer_);
         }
+        else
+        {
+            precice_.readBlockScalarData(
+                couplingDataReader->dataID(),
+                numDataLocations_,
+                vertexIDs_,
+                dataBuffer_);
+        }
+
+        // Read the received data from the buffer
+        couplingDataReader->read(dataBuffer_, dim_);
     }
 }
 
