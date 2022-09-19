@@ -161,12 +161,12 @@ bool preciceAdapter::Adapter::configFileRead()
                 if (interfacesConfig_.at(i).meshConnectivity == true)
                 {
                     adapterInfo(
-                        "Mesh connectivity is not supported for FSI, as, usually, "
-                        "the Solid participant needs to provide the connectivity information. "
-                        "Therefore, set provideMeshConnectivity = false. "
-                        "Have a look in the adapter documentation for more information. ",
+                        "You have requested mesh connectivity (most probably for nearest-projection mapping) "
+                        "and you have enabled the FSI module. "
+                        "Note that this is only supported for specific data fields and locations. "
+                        "Have a look in the adapter documentation for more information: "
+                        "https://precice.org/adapter-openfoam-config.html#nearest-projection-mapping ",
                         "warning");
-                    return false;
                 }
             }
 
