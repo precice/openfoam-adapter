@@ -18,6 +18,8 @@ The adapter also requires [pkg-config](https://linux.die.net/man/1/pkg-config) t
 
 Adding `-DADAPTER_DEBUG_MODE` flag to the `ADAPTER_PREP_FLAGS` activates additional debug messages. You may also change the target directory or specify the number of threads to use for the compilation. See the comments in `Allwmake` for more.
 
+If you are building the adapter often, you may want to build it in parallel. You can set the environment variable `WM_NCOMP_PROCS` to the number of parallel threads you want WMake to use.
+
 Next: [configure and load the adapter](https://precice.org/adapter-openfoam-config.html) or [run a tutorial](https://precice.org/tutorials.html).
 
 ## What does the adapter version mean?
