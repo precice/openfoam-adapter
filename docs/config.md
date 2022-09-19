@@ -279,7 +279,7 @@ Data is obtained at the face centers, then interpolated to face nodes. Here, we 
 It is important to notice that the target data location is again the face center mesh of the coupling partner. In the standard CHT case, where both data sets are exchanged by a nearest-projection mapping, this leads to two interface meshes (centers and nodes) per participant. Having both the centers and nodes defined, we can skip one interpolation step and read data directly to the centers (cf. picture solver B).
 
 {% note %}
-As already mentioned, the `Fluid` participant does not need to provide the mesh connectivity in case of a standard FSI. Therefore, the `Solid` participant needs to provide it and nothing special needs to be considered compared to other mapping methods. This implementation supports all CHT-related fields, which are mapped with a `consistent` constraint.
+As already mentioned, the `Fluid` participant does not need to provide the mesh connectivity in case of a standard FSI writing forces. It can, however, provide the mesh connectivity when writing stresses. Alternatively, the `Solid` participant can to provide mesh connectivity on the displacements mesh, and nothing special needs to be considered in the adapter implementation compared to other mapping methods. This implementation supports all CHT-related fields, which are mapped with a `consistent` constraint.
 {% endnote %}
 
 ### Additional properties for some solvers
