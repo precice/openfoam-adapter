@@ -56,7 +56,7 @@ log ""
 log "Current OpenFOAM environment:"
 log "  WM_PROJECT = ${WM_PROJECT:-}"
 log "  WM_PROJECT_VERSION = ${WM_PROJECT_VERSION:-}"
-log "  WM_NCOMPPROCS = ${WM_NCOMP_PROCS:-} (set number for parallel builds)"
+log "  WM_NCOMPPROCS = ${WM_NCOMPPROCS:-} (number of threads for parallel builds)"
 
 if [ -z "${WM_PROJECT:-}" ]; then
     log ""
