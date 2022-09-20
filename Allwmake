@@ -7,10 +7,11 @@ set -e -u
 ADAPTER_PREP_FLAGS=""
 
 # Build command and options
-# In order to compile with multiple threads, add e.g. "-j 4".
+# In order to compile with multiple threads, set the environment variable WM_NCOMPPROCS,
+# e.g., add "export WM_NCOMP_PROCS=4" to your ~/.bashrc
 # Make sure that these options are supported by your OpenFOAM version.
 adapter_build_command(){
-    wmake -j 4 libso
+    wmake libso
 }
 
 # Where should the adapter be built? Default: "${FOAM_USER_LIBBIN}"
@@ -64,6 +65,7 @@ log ""
 log "Current OpenFOAM environment:"
 log "  WM_PROJECT = ${WM_PROJECT:-}"
 log "  WM_PROJECT_VERSION = ${WM_PROJECT_VERSION:-}"
+log "  WM_NCOMPPROCS = ${WM_NCOMPPROCS:=1} (number of threads for parallel builds)"
 
 if [ -z "${WM_PROJECT:-}" ]; then
     log ""

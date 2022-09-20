@@ -13,11 +13,12 @@ To build the adapter, you need to install a few dependencies and then execute th
 4. Execute the build script: `./Allwmake`.
     * See and adjust the configuration in the beginning of the script first, if needed.
     * Check for any error messages and suggestions at the end.
-    * Modify the `adapter_build_command` to e.g. build using more threads, e.g. `wmake -j 4 libso`.
 
 The adapter also requires [pkg-config](https://linux.die.net/man/1/pkg-config) to [link to preCICE](https://precice.org/installation-linking.html). This is a very common dependency on Linux and is usually already installed.
 
 Adding `-DADAPTER_DEBUG_MODE` flag to the `ADAPTER_PREP_FLAGS` activates additional debug messages. You may also change the target directory or specify the number of threads to use for the compilation. See the comments in `Allwmake` for more.
+
+If you are building the adapter often, you may want to build it in parallel. You can set the environment variable `WM_NCOMPPROCS` to the number of parallel threads you want WMake to use.
 
 Next: [configure and load the adapter](https://precice.org/adapter-openfoam-config.html) or [run a tutorial](https://precice.org/tutorials.html).
 
