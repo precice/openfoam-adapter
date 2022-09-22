@@ -388,8 +388,8 @@ FSI
     // Displacement fields
     namePointDisplacement pointD;
     nameCellDisplacement D;
-    // Force field on the solid
-    forceFieldName solidForce;
+    // Force field
+    nameForce Force; // For solids4Foam: solidForce
 }
 ```
 
