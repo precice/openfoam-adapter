@@ -165,7 +165,7 @@ bool preciceAdapter::Adapter::configFileRead()
                         "and you have enabled the FSI module. "
                         "Mapping with connectivity information is not implemented for FSI, only for CHT-related fields. "
                         "warning");
-                        return false;
+                    return false;
                 }
             }
 
