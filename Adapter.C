@@ -163,10 +163,9 @@ bool preciceAdapter::Adapter::configFileRead()
                     adapterInfo(
                         "You have requested mesh connectivity (most probably for nearest-projection mapping) "
                         "and you have enabled the FSI module. "
-                        "Note that this is only supported for specific data fields and locations. "
-                        "Have a look in the adapter documentation for more information: "
-                        "https://precice.org/adapter-openfoam-config.html#nearest-projection-mapping ",
+                        "Mapping with connectivity information is not implemented for FSI, only for CHT-related fields. "
                         "warning");
+                        return false;
                 }
             }
 
