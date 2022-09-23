@@ -436,7 +436,7 @@ FF
 }
 ```
 
-Note that the adapter does not automatically adapt the pressure name for compressible solvers.
+Note that the adapter does not automatically adapt the pressure name for solvers that account for [hydrostatic pressure effects](https://www.openfoam.com/documentation/guides/latest/doc/guide-applications-solvers-variable-transform-p-rgh.html). In these cases, you may want to set `nameP p_rgh` to couple `p_rgh`, as `p` is a derived quantity for these solvers.
 
 #### Debugging
 
