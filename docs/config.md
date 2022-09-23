@@ -181,7 +181,7 @@ interface
 * For `readData(Displacement)` or `DisplacementDelta`, you need the following:
   * `type movingWallVelocity` for the interface (e.g., `flap`) in `0/U`,
   * `type fixedValue` for the interface (e.g., `flap`) in the `0/pointDisplacement`, and
-  * `solver displacementLaplacian` in the `constant/dynamicMeshDict`. The solver [`RBFMeshMotionSolver` from solids4foam is also known to work](https://github.com/precice/openfoam-adapter/pull/241), since the OpenFOAM adapter v1.2.0 and the nextRelease branch of solids4foam.
+  * `solver displacementLaplacian` in the `constant/dynamicMeshDict`. The solver [`RBFMeshMotionSolver` from solids4foam is also known to work](https://github.com/precice/openfoam-adapter/pull/241), since the OpenFOAM adapter v1.2.0 and the [`nextRelease` branch (v2) of solids4foam](https://github.com/solids4foam/solids4foam/commit/971d4c08f0171cfd8d53a6f831ce0745d98521de).
 
 ```c++
 // File 0/U
