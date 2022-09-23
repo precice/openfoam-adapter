@@ -60,7 +60,7 @@ The `participant` needs to be the same as the one specified in the `preciceConfi
 which is the main preCICE configuration file. The `preciceConfig` can be a path and needs to be wrapped with quotation marks.
 
 The list `modules` can contain `CHT`, `FSI`, or/and `FF` (separated by space).
-Each module provides some fields common in the respective type of simulation, and fields from different modules can be combined.
+Each module provides some data fields common in the respective type of simulation, and data fields from different modules can be combined by selecting multiple modules.
 For example, this is a valid combination: `modules (CHT FF);`.
 
 In the `interfaces`, we specify the coupling interfaces (here only one).
@@ -74,7 +74,7 @@ The `locations` field is optional and its default value is `faceCenters` (with `
 The values for `readData` and `writeData`
 for conjugate heat transfer
 can be `Temperature`, `Heat-Flux`, `Sink-Temperature`,
-or `Heat-Transfer-Coefficient`. Postfixed names like `Sink-Temperature-Domain1` are also allowed.
+or `Heat-Transfer-Coefficient`. Postfixed names like `Sink-Temperature-Domain1` are also allowed (e.g., in order to distinguish multiple data sets of the same type).
 For a Dirichlet-Neumann coupling, the `writeData` and `readData` can be
 either:
 
@@ -208,13 +208,11 @@ solver              displacementLaplacian;
 
 The fluid-fluid coupling module supports reading and writing pressure, velocity, and their gradients.
 
-Similarly to the CHT module, you need a `fixedValue` boundary condition in the respective field in order to read a value,
-and a `fixedGradient` boundary condition in order to read a gradient.
+Similarly to the CHT module, you need a `fixedValue` boundary condition of the respective primary field in order to read and apply values, and a `fixedGradient` boundary condition of the respective gradient field in order to read and apply gradients.
 
 {% experimental %}
 The FF module is still experimental and the boundary conditions presented here have not been rigorously tested.
-We already have reasons to believe that a `fixedGradient` can have [side-effects](https://github.com/precice/openfoam-adapter/issues/93)
-and may not lead to completely accurate results.
+We already have reasons to believe that a `fixedGradient` can have [side-effects](https://github.com/precice/openfoam-adapter/issues/93) and may not lead to completely accurate results.
 {% endexperimental %}
 
 ### Load the adapter
