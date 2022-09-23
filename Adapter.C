@@ -161,10 +161,9 @@ bool preciceAdapter::Adapter::configFileRead()
                 if (interfacesConfig_.at(i).meshConnectivity == true)
                 {
                     adapterInfo(
-                        "Mesh connectivity is not supported for FSI, as, usually, "
-                        "the Solid participant needs to provide the connectivity information. "
-                        "Therefore, set provideMeshConnectivity = false. "
-                        "Have a look in the adapter documentation for more information. ",
+                        "You have requested mesh connectivity (most probably for nearest-projection mapping) "
+                        "and you have enabled the FSI module. "
+                        "Mapping with connectivity information is not implemented for FSI, only for CHT-related fields. "
                         "warning");
                     return false;
                 }
