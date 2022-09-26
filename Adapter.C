@@ -113,7 +113,7 @@ bool preciceAdapter::Adapter::configFileRead()
                     // When restarting FSI simulations, we may need to account for previous displacement.
                     // We do this by resetting the displacement when defining the interface.
                     // Since this is a feature that may not work as expected, depending on the implementation of the
-                    // structure solver used, we allow the user to enable this feature.
+                    // structure solver used, we make this feature opt-in.
                     interfaceConfig.resetDisplacement = interfaceDict.lookupOrDefault<bool>("resetDisplacement", false);
                     DEBUG(adapterInfo("    reset displacement : " + std::to_string(interfaceConfig.resetDisplacement)));
 
