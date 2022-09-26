@@ -111,7 +111,7 @@ bool preciceAdapter::Adapter::configFileRead()
                     DEBUG(adapterInfo("    connectivity : " + std::to_string(interfaceConfig.meshConnectivity)));
 
                     // Reset the displacement when defining the interface
-                    interfaceConfig.resetDisplacement = interfaceDict.lookupOrDefault<bool>("resetDisplacement", true);
+                    interfaceConfig.resetDisplacement = interfaceDict.lookupOrDefault<bool>("resetDisplacement", false);
                     DEBUG(adapterInfo("    reset displacement : " + std::to_string(interfaceConfig.resetDisplacement)));
 
                     DEBUG(adapterInfo("    patches      : "));
