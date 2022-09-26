@@ -395,6 +395,22 @@ FSI
 
 Use the option `namePointDisplacement unused;` for solvers that do not create a pointDisplacement field, such as the RBFMeshMotionSolver.
 
+#### Restarting FSI simulations
+
+Restarting a coupled simulation using the OpenFOAM adapter works in principle in the same way as restarting a standalone OpenFOAM solver. However, the adapter and preCICE always redefine the coupling interface and the interface node locations. In case of FSI simulations, the interface deforms over time, which leads to the definition of a deformed interface during the restart. The boolean variable `resetDisplacement` (`false` by default) allows to account for the previously accumulated interface deformation such that the initial interface configuration (`t = 0`) is completely recovered. The setting here needs to coincide with the behavior of the selected solid solver.
+
+```c++
+FSI
+{
+    // Account for previous displacement during a restart
+    resetDisplacement true;
+}
+```
+
+{% note %}
+The CalculiX adapter restarts simulations from the deformed interface mesh.
+{% endnote %}
+
 #### Debugging
 
 The adapter also recognizes a few more parameters, which are mainly used in debugging or development.
