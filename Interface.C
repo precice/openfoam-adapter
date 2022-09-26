@@ -92,6 +92,7 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh, const std::str
         }
         DEBUG(adapterInfo("Number of face centres: " + std::to_string(numDataLocations_)));
 
+        // In case we want to perform the reset later on, look-up the corresponding data field name
         Foam::volVectorField const* cellDisplacement = nullptr;
         if (mesh.foundObject<volVectorField>(nameCellDisplacement))
             cellDisplacement =
@@ -116,6 +117,10 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh, const std::str
             vectorField faceCenters =
                 mesh.boundaryMesh()[patchIDs_.at(j)].faceCentres();
 
+            // Move the interface according to the current values of the cellDisplacement field,
+            // to account for any displacements accumulated before restarting the simulation.
+            // This is information that OpenFOAM reads from its result/restart files.
+            // If the simulation is not restarted, the displacement should be zero and this line should have no effect.
             if (cellDisplacement != nullptr && resetDisplacement_)
                 faceCenters -= cellDisplacement->boundaryField()[patchIDs_.at(j)];
 
@@ -188,6 +193,7 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh, const std::str
         }
         DEBUG(adapterInfo("Number of face nodes: " + std::to_string(numDataLocations_)));
 
+        // In case we want to perform the reset later on, look-up the corresponding data field name
         Foam::pointVectorField const* pointDisplacement = nullptr;
         if (mesh.foundObject<pointVectorField>(namePointDisplacement))
             pointDisplacement =
@@ -216,7 +222,11 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh, const std::str
             pointField faceNodes =
                 mesh.boundaryMesh()[patchIDs_.at(j)].localPoints();
 
-            // Substract the displacement part in case we have deformation
+            // Similar to the cell displacement above:
+            // Move the interface according to the current values of the cellDisplacement field,
+            // to account for any displacements accumulated before restarting the simulation.
+            // This is information that OpenFOAM reads from its result/restart files.
+            // If the simulation is not restarted, the displacement should be zero and this line should have no effect.
             if (pointDisplacement != nullptr && resetDisplacement_)
             {
                 const vectorField& resetField = refCast<const vectorField>(
@@ -262,7 +272,7 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh, const std::str
                 const List<face> faceField = mesh.boundaryMesh()[patchIDs_.at(j)].localFaces();
                 Field<point> pointCoords = mesh.boundaryMesh()[patchIDs_.at(j)].localPoints();
 
-                // Substract the displacement part in case we have deformation
+                // Subtract the displacement part in case we have deformation
                 if (pointDisplacement != nullptr && resetDisplacement_)
                 {
                     const vectorField& resetField = refCast<const vectorField>(
