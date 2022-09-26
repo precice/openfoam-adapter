@@ -248,7 +248,7 @@ If you are using other function objects in your simulation, add the preCICE adap
 
 ## Advanced configuration
 
-These additional parameters may only concern some users is special cases. Keep reading if you want to use nearest-projection mapping, an incompressible or basic (e.g., laplacianFoam) solver, if you are using a solver with different variable names (e.g., a multiphase solver) or if you are trying to debug a simulation.
+These additional parameters may only concern some users in special cases. Keep reading if you want to use the nearest-projection mapping, an incompressible or basic (e.g., laplacianFoam) solver, if you are using a solver with different variable names (e.g., a multiphase solver) or if you are trying to debug a simulation.
 
 ### Nearest-projection mapping
 
