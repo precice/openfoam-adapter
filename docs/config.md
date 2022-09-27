@@ -451,7 +451,7 @@ FSI
 ```
 
 {% note %}
-The CalculiX adapter restarts simulations from the deformed interface mesh, so that the default setting `restoreUndeformedInterface false` should be used.
+The CalculiX adapter restarts simulations from the deformed interface mesh. This means that you need to set `restoreUndeformedInterface false`.
 {% endnote %}
 
 #### Debugging
