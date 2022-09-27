@@ -121,7 +121,7 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh, const std::str
             // to account for any displacements accumulated before restarting the simulation.
             // This is information that OpenFOAM reads from its result/restart files.
             // If the simulation is not restarted, the displacement should be zero and this line should have no effect.
-            if (cellDisplacement != nullptr && restartFromDeformed_)
+            if (cellDisplacement != nullptr && !restartFromDeformed_)
                 faceCenters -= cellDisplacement->boundaryField()[patchIDs_.at(j)];
 
             // Assign the (x,y,z) locations to the vertices
@@ -227,7 +227,7 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh, const std::str
             // to account for any displacements accumulated before restarting the simulation.
             // This is information that OpenFOAM reads from its result/restart files.
             // If the simulation is not restarted, the displacement should be zero and this line should have no effect.
-            if (pointDisplacement != nullptr && restartFromDeformed_)
+            if (pointDisplacement != nullptr && !restartFromDeformed_)
             {
                 const vectorField& resetField = refCast<const vectorField>(
                     pointDisplacement->boundaryField()[patchIDs_.at(j)]);
@@ -273,7 +273,7 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh, const std::str
                 Field<point> pointCoords = mesh.boundaryMesh()[patchIDs_.at(j)].localPoints();
 
                 // Subtract the displacement part in case we have deformation
-                if (pointDisplacement != nullptr && restartFromDeformed_)
+                if (pointDisplacement != nullptr && !restartFromDeformed_)
                 {
                     const vectorField& resetField = refCast<const vectorField>(
                         pointDisplacement->boundaryField()[patchIDs_.at(j)]);
