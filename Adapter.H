@@ -40,7 +40,6 @@ private:
         std::string meshName;
         std::string locationsType;
         bool meshConnectivity;
-        bool restartFromDeformed;
         std::vector<std::string> patchNames;
         std::vector<std::string> writeData;
         std::vector<std::string> readData;

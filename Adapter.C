@@ -110,13 +110,6 @@ bool preciceAdapter::Adapter::configFileRead()
                     }
                     DEBUG(adapterInfo("    connectivity : " + std::to_string(interfaceConfig.meshConnectivity)));
 
-                    // When restarting FSI simulations, we may need to account for previous displacement.
-                    // We do this by resetting the displacement when defining the interface.
-                    // Since this is a feature that may not work as expected, depending on the implementation of the
-                    // structure solver used, we make this feature opt-in.
-                    interfaceConfig.restartFromDeformed = interfaceDict.lookupOrDefault<bool>("restartFromDeformed", true);
-                    DEBUG(adapterInfo("    restart from deformed : " + std::to_string(interfaceConfig.restartFromDeformed)));
-
                     DEBUG(adapterInfo("    patches      : "));
                     auto patches = interfaceDict.get<wordList>("patches");
                     for (auto patch : patches)
@@ -258,8 +251,9 @@ void preciceAdapter::Adapter::configure()
         {
             std::string namePointDisplacement = FSIenabled_ ? FSI_->getPointDisplacementFieldName() : "default";
             std::string nameCellDisplacement = FSIenabled_ ? FSI_->getCellDisplacementFieldName() : "default";
+            bool restartFromDeformed = FSIenabled_ ? FSI_->restartFromDeformed() : false;
 
-            Interface* interface = new Interface(*precice_, mesh_, interfacesConfig_.at(i).meshName, interfacesConfig_.at(i).locationsType, interfacesConfig_.at(i).patchNames, interfacesConfig_.at(i).meshConnectivity, interfacesConfig_.at(i).restartFromDeformed, namePointDisplacement, nameCellDisplacement);
+            Interface* interface = new Interface(*precice_, mesh_, interfacesConfig_.at(i).meshName, interfacesConfig_.at(i).locationsType, interfacesConfig_.at(i).patchNames, interfacesConfig_.at(i).meshConnectivity, restartFromDeformed, namePointDisplacement, nameCellDisplacement);
             interfaces_.push_back(interface);
             DEBUG(adapterInfo("Interface created on mesh " + interfacesConfig_.at(i).meshName));
 

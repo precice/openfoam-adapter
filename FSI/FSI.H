@@ -28,6 +28,9 @@ protected:
     //- Solver type
     std::string solverType_ = "none";
 
+    //- Restart a simulation from an undeformed or a deformed interface
+    bool restartFromDeformed_;
+
     //- Name of the pointDisplacement field
     std::string namePointDisplacement_ = "pointDisplacement";
 
@@ -69,6 +72,9 @@ public:
 
     //- Return the namePointDisplacement_ field name
     std::string getPointDisplacementFieldName();
+
+    //- Return the boolean variable stored in the class
+    bool restartFromDeformed();
 };
 
 }
