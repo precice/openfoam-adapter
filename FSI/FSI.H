@@ -63,6 +63,12 @@ public:
 
     //- Add coupling data readers
     bool addReaders(std::string dataName, Interface* interface);
+
+    //- Return the nameCellDisplacement_ field name
+    std::string getCellDisplacementFieldName();
+
+    //- Return the namePointDisplacement_ field name
+    std::string getPointDisplacementFieldName();
 };
 
 }

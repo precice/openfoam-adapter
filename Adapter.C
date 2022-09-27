@@ -256,8 +256,8 @@ void preciceAdapter::Adapter::configure()
         DEBUG(adapterInfo("Creating interfaces..."));
         for (uint i = 0; i < interfacesConfig_.size(); i++)
         {
-            std::string namePointDisplacement = FSIenabled_ ? FSI_->namePointDisplacement : "default";
-            std::string nameCellDisplacement = FSIenabled_ ? FSI_->nameCellDisplacement : "default";
+            std::string namePointDisplacement = FSIenabled_ ? FSI_->getPointDisplacementFieldName() : "default";
+            std::string nameCellDisplacement = FSIenabled_ ? FSI_->getCellDisplacementFieldName() : "default";
 
             Interface* interface = new Interface(*precice_, mesh_, interfacesConfig_.at(i).meshName, interfacesConfig_.at(i).locationsType, interfacesConfig_.at(i).patchNames, interfacesConfig_.at(i).meshConnectivity, interfacesConfig_.at(i).resetDisplacement, namePointDisplacement, nameCellDisplacement);
             interfaces_.push_back(interface);

@@ -210,3 +210,13 @@ bool preciceAdapter::FSI::FluidStructureInteraction::addReaders(std::string data
 
     return found;
 }
+
+std::string preciceAdapter::FSI::FluidStructureInteraction::getCellDisplacementFieldName()
+{
+    return nameCellDisplacement_;
+}
+
+std::string preciceAdapter::FSI::FluidStructureInteraction::getPointDisplacementFieldName()
+{
+    return namePointDisplacement_;
+}
