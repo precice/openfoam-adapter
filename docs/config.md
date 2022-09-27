@@ -440,7 +440,7 @@ Note that the adapter does not automatically adapt the pressure name for solvers
 
 #### Restarting FSI simulations
 
-Restarting a coupled simulation using the OpenFOAM adapter works in principle in the same way as restarting a standalone OpenFOAM solver. However, the adapter and preCICE always redefine the coupling interface and the interface node locations. In case of FSI simulations, the interface deforms over time, which leads to the definition of a deformed interface during the restart. The boolean variable `restoreUndeformedInterface` (`false` by default) allows to account for the previously accumulated interface deformation such that the initial interface configuration (`t = 0`) is completely recovered. The setting here needs to coincide with the behavior of the selected solid solver.
+Restarting a coupled simulation using the OpenFOAM adapter works in principle in the same way as restarting a standalone OpenFOAM solver. However, the adapter and preCICE define the coupling interface and the interface node locations based on the mesh at the particular time. In case of FSI simulations, the interface deforms over time, which leads to the definition of a deformed interface during the restart. The boolean variable `restoreUndeformedInterface` (`false` by default) allows to account for the previously accumulated interface deformation such that the initial interface configuration (`t = 0`) is completely recovered. The setting here needs to agree with the behavior of the selected solid solver.
 
 ```c++
 FSI
