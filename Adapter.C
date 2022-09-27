@@ -114,8 +114,8 @@ bool preciceAdapter::Adapter::configFileRead()
                     // We do this by resetting the displacement when defining the interface.
                     // Since this is a feature that may not work as expected, depending on the implementation of the
                     // structure solver used, we make this feature opt-in.
-                    interfaceConfig.restoreUndeformedInterface = interfaceDict.lookupOrDefault<bool>("restoreUndeformedInterface", false);
-                    DEBUG(adapterInfo("    restore undeformed interface : " + std::to_string(interfaceConfig.restoreUndeformedInterface)));
+                    interfaceConfig.restartFromDeformed = interfaceDict.lookupOrDefault<bool>("restartFromDeformed", true);
+                    DEBUG(adapterInfo("    restart from deformed : " + std::to_string(interfaceConfig.restartFromDeformed)));
 
                     DEBUG(adapterInfo("    patches      : "));
                     auto patches = interfaceDict.get<wordList>("patches");
@@ -259,7 +259,7 @@ void preciceAdapter::Adapter::configure()
             std::string namePointDisplacement = FSIenabled_ ? FSI_->getPointDisplacementFieldName() : "default";
             std::string nameCellDisplacement = FSIenabled_ ? FSI_->getCellDisplacementFieldName() : "default";
 
-            Interface* interface = new Interface(*precice_, mesh_, interfacesConfig_.at(i).meshName, interfacesConfig_.at(i).locationsType, interfacesConfig_.at(i).patchNames, interfacesConfig_.at(i).meshConnectivity, interfacesConfig_.at(i).restoreUndeformedInterface, namePointDisplacement, nameCellDisplacement);
+            Interface* interface = new Interface(*precice_, mesh_, interfacesConfig_.at(i).meshName, interfacesConfig_.at(i).locationsType, interfacesConfig_.at(i).patchNames, interfacesConfig_.at(i).meshConnectivity, interfacesConfig_.at(i).restartFromDeformed, namePointDisplacement, nameCellDisplacement);
             interfaces_.push_back(interface);
             DEBUG(adapterInfo("Interface created on mesh " + interfacesConfig_.at(i).meshName));
 
