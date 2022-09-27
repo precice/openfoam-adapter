@@ -40,7 +40,7 @@ private:
         std::string meshName;
         std::string locationsType;
         bool meshConnectivity;
-        bool resetDisplacement;
+        bool restoreUndeformedInterface;
         std::vector<std::string> patchNames;
         std::vector<std::string> writeData;
         std::vector<std::string> readData;

@@ -52,7 +52,7 @@ protected:
     bool meshConnectivity_;
 
     //- Reset the displacement during interface definition
-    bool resetDisplacement_;
+    bool restoreUndeformedInterface_;
 
     // Simulation dimension
     unsigned int dim_;
@@ -72,7 +72,7 @@ public:
         std::string locationsType,
         std::vector<std::string> patchNames,
         bool meshConnectivity,
-        bool resetDisplacement,
+        bool restoreUndeformedInterface,
         const std::string& namePointDisplacement,
         const std::string& nameCellDisplacement);
 
