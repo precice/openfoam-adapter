@@ -60,12 +60,12 @@ bool preciceAdapter::FSI::FluidStructureInteraction::readConfig(const IOdictiona
      */
 
     // Read the name of the pointDisplacement field (if different)
-    namePointDisplacement = FSIdict.lookupOrDefault<word>("namePointDisplacement", "pointDisplacement");
-    DEBUG(adapterInfo("    pointDisplacement field name : " + namePointDisplacement));
+    namePointDisplacement_ = FSIdict.lookupOrDefault<word>("namePointDisplacement", "pointDisplacement");
+    DEBUG(adapterInfo("    pointDisplacement field name : " + namePointDisplacement_));
 
     // Read the name of the pointDisplacement field (if different)
-    nameCellDisplacement = FSIdict.lookupOrDefault<word>("nameCellDisplacement", "cellDisplacement");
-    DEBUG(adapterInfo("    cellDisplacement field name : " + nameCellDisplacement));
+    nameCellDisplacement_ = FSIdict.lookupOrDefault<word>("nameCellDisplacement", "cellDisplacement");
+    DEBUG(adapterInfo("    cellDisplacement field name : " + nameCellDisplacement_));
 
     // Read the name of the solidForce field (if different)
     nameSolidForce_ = FSIdict.lookupOrDefault<word>("nameSolidForce", "solidForce");
@@ -131,14 +131,14 @@ bool preciceAdapter::FSI::FluidStructureInteraction::addWriters(std::string data
     {
         interface->addCouplingDataWriter(
             dataName,
-            new DisplacementDelta(mesh_, namePointDisplacement, nameCellDisplacement));
+            new DisplacementDelta(mesh_, namePointDisplacement_, nameCellDisplacement_));
         DEBUG(adapterInfo("Added writer: DisplacementDelta."));
     }
     else if (dataName.find("Displacement") == 0)
     {
         interface->addCouplingDataWriter(
             dataName,
-            new Displacement(mesh_, namePointDisplacement, nameCellDisplacement));
+            new Displacement(mesh_, namePointDisplacement_, nameCellDisplacement_));
         DEBUG(adapterInfo("Added writer: Displacement."));
     }
     else if (dataName.find("Stress") == 0)
@@ -179,14 +179,14 @@ bool preciceAdapter::FSI::FluidStructureInteraction::addReaders(std::string data
     {
         interface->addCouplingDataReader(
             dataName,
-            new DisplacementDelta(mesh_, namePointDisplacement, nameCellDisplacement));
+            new DisplacementDelta(mesh_, namePointDisplacement_, nameCellDisplacement_));
         DEBUG(adapterInfo("Added reader: DisplacementDelta."));
     }
     else if (dataName.find("Displacement") == 0)
     {
         interface->addCouplingDataReader(
             dataName,
-            new Displacement(mesh_, namePointDisplacement, nameCellDisplacement));
+            new Displacement(mesh_, namePointDisplacement_, nameCellDisplacement_));
         DEBUG(adapterInfo("Added reader: Displacement."));
     }
     else if (dataName.find("Stress") == 0)
