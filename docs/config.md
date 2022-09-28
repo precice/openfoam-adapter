@@ -451,7 +451,7 @@ FSI
 ```
 
 {% important %}
-The option here defines the way the interface mesh is initialized when restarting an FSI simulation in OpenFOAM. In order to restart a coupled simulation, your solid solver needs to be capable of restarting mechanism as well. You can find more information about restarting coupled simulations on [Dsicourse](https://precice.discourse.group/t/how-can-i-restart-a-coupled-simulation/675).
+The option here defines the way the interface mesh is initialized when restarting an FSI simulation in OpenFOAM. In order to restart a coupled simulation, your solid solver needs to be capable of restarting as well. Furthermore, the two participants need to follow the same assumption for the initialization, which for OpenFOAM you can configure with this option. You can find more information about restarting coupled simulations on [Dsicourse](https://precice.discourse.group/t/how-can-i-restart-a-coupled-simulation/675).
 {% endimportant %}
 
 #### Debugging
