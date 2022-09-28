@@ -74,7 +74,7 @@ public:
     std::string getPointDisplacementFieldName();
 
     //- Return the boolean variable stored in the class
-    bool restartFromDeformed();
+    bool isRestartingFromDeformed();
 };
 
 }

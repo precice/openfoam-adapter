@@ -251,7 +251,7 @@ void preciceAdapter::Adapter::configure()
         {
             std::string namePointDisplacement = FSIenabled_ ? FSI_->getPointDisplacementFieldName() : "default";
             std::string nameCellDisplacement = FSIenabled_ ? FSI_->getCellDisplacementFieldName() : "default";
-            bool restartFromDeformed = FSIenabled_ ? FSI_->restartFromDeformed() : false;
+            bool restartFromDeformed = FSIenabled_ ? FSI_->isRestartingFromDeformed() : false;
 
             Interface* interface = new Interface(*precice_, mesh_, interfacesConfig_.at(i).meshName, interfacesConfig_.at(i).locationsType, interfacesConfig_.at(i).patchNames, interfacesConfig_.at(i).meshConnectivity, restartFromDeformed, namePointDisplacement, nameCellDisplacement);
             interfaces_.push_back(interface);

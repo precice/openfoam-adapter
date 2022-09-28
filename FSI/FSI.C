@@ -234,7 +234,7 @@ std::string preciceAdapter::FSI::FluidStructureInteraction::getPointDisplacement
     return namePointDisplacement_;
 }
 
-bool preciceAdapter::FSI::FluidStructureInteraction::restartFromDeformed()
+bool preciceAdapter::FSI::FluidStructureInteraction::isRestartingFromDeformed()
 {
     return restartFromDeformed_;
 }
