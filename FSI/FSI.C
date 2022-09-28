@@ -65,7 +65,7 @@ bool preciceAdapter::FSI::FluidStructureInteraction::readConfig(const IOdictiona
 
     if (solverType_.compare("solid") && !restartFromDeformed_)
     {
-        adapterInfo("Solid solvers usually use exclusively the reference configuration for computations and the mesh is not deforming over time. Therefore, you have to set \"restartFromDeformed = true\" in order to restart from the initial configuraiton.", "warning")
+        adapterInfo("Solid solvers usually use exclusively the reference configuration for computations and the mesh is not deforming over time. Therefore, you have to set \"restartFromDeformed = true\" in order to restart from the initial configuraiton.", "warning");
     }
 
     /* TODO: Read the names of any needed fields and parameters.
