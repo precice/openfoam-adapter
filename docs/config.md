@@ -450,9 +450,9 @@ FSI
 }
 ```
 
-{% note %}
-The CalculiX adapter restarts simulations from the deformed interface mesh. This means that you need to set `restartFromDeformed true`.
-{% endnote %}
+{% important %}
+The option here defines the way the interface mesh is initialized when restarting an FSI simulation in OpenFOAM. In order to restart a coupled simulation, your solid solver needs to be capable of restarting mechanism as well. You can find more information about restarting coupled simulations on [Dsicourse](https://precice.discourse.group/t/how-can-i-restart-a-coupled-simulation/675).
+{% endimportant %}
 
 #### Debugging
 
