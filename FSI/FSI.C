@@ -61,7 +61,7 @@ bool preciceAdapter::FSI::FluidStructureInteraction::readConfig(const IOdictiona
     // structure solver used, we make this feature opt-in.
     restartFromDeformed_ = FSIdict.lookupOrDefault<bool>("restartFromDeformed", true);
 
-    DEBUG(adapterInfo("    restart from deformed : " + restartFromDeformed_));
+    DEBUG(adapterInfo("    restart from deformed : " + std::to_string(restartFromDeformed_)));
 
     /* TODO: Read the names of any needed fields and parameters.
      * Include the force here?
