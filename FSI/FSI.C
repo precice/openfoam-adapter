@@ -61,13 +61,15 @@ bool preciceAdapter::FSI::FluidStructureInteraction::readConfig(const IOdictiona
     // structure solver used, we make this feature opt-in.
     restartFromDeformed_ = FSIdict.lookupOrDefault<bool>("restartFromDeformed", true);
 
-    DEBUG(adapterInfo("    restart from deformed : " + std::to_string(restartFromDeformed_)));
-
     if (solverType_ == "solid" && !restartFromDeformed_)
     {
         adapterInfo("The option \"restartFromDeformed\" is only valid for Fluid solvers. Solid solvers usually use exclusively the reference configuration for computations and the mesh is not deforming over time.", "error");
     }
 
+    if (solverType_ != "solid")
+    {
+        DEBUG(adapterInfo("    restart from deformed : " + std::to_string(restartFromDeformed_)));
+    }
     /* TODO: Read the names of any needed fields and parameters.
      * Include the force here?
      */
