@@ -55,6 +55,21 @@ bool preciceAdapter::FSI::FluidStructureInteraction::readConfig(const IOdictiona
     solverType_ = FSIdict.lookupOrDefault<word>("solverType", "");
     DEBUG(adapterInfo("    user-defined solver type : " + solverType_));
 
+    // When restarting FSI simulations, we may need to account for previous displacement.
+    // We do this by resetting the displacement when defining the interface.
+    // Since this is a feature that may not work as expected, depending on the implementation of the
+    // structure solver used, we make this feature opt-in.
+    restartFromDeformed_ = FSIdict.lookupOrDefault<bool>("restartFromDeformed", true);
+
+    if (solverType_ == "solid" && !restartFromDeformed_)
+    {
+        adapterInfo("The option \"restartFromDeformed\" is only valid for Fluid solvers. Solid solvers usually use exclusively the reference configuration for computations and the mesh is not deforming over time.", "error");
+    }
+
+    if (solverType_ != "solid")
+    {
+        DEBUG(adapterInfo("    restart from deformed : " + std::to_string(restartFromDeformed_)));
+    }
     /* TODO: Read the names of any needed fields and parameters.
      * Include the force here?
      */
@@ -209,4 +224,19 @@ bool preciceAdapter::FSI::FluidStructureInteraction::addReaders(std::string data
     // the one provided in the adapter's configuration file.
 
     return found;
+}
+
+std::string preciceAdapter::FSI::FluidStructureInteraction::getCellDisplacementFieldName()
+{
+    return nameCellDisplacement_;
+}
+
+std::string preciceAdapter::FSI::FluidStructureInteraction::getPointDisplacementFieldName()
+{
+    return namePointDisplacement_;
+}
+
+bool preciceAdapter::FSI::FluidStructureInteraction::isRestartingFromDeformed()
+{
+    return restartFromDeformed_;
 }

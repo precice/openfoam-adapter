@@ -11,11 +11,15 @@ preciceAdapter::Interface::Interface(
     std::string meshName,
     std::string locationsType,
     std::vector<std::string> patchNames,
-    bool meshConnectivity)
+    bool meshConnectivity,
+    bool restartFromDeformed,
+    const std::string& namePointDisplacement,
+    const std::string& nameCellDisplacement)
 : precice_(precice),
   meshName_(meshName),
   patchNames_(patchNames),
-  meshConnectivity_(meshConnectivity)
+  meshConnectivity_(meshConnectivity),
+  restartFromDeformed_(restartFromDeformed)
 {
     // Get the meshID from preCICE
     meshID_ = precice_.getMeshID(meshName_);
@@ -68,10 +72,10 @@ preciceAdapter::Interface::Interface(
     }
 
     // Configure the mesh (set the data locations)
-    configureMesh(mesh);
+    configureMesh(mesh, namePointDisplacement, nameCellDisplacement);
 }
 
-void preciceAdapter::Interface::configureMesh(const fvMesh& mesh)
+void preciceAdapter::Interface::configureMesh(const fvMesh& mesh, const std::string& namePointDisplacement, const std::string& nameCellDisplacement)
 {
     // The way we configure the mesh differs between meshes based on face centers
     // and meshes based on face nodes.
@@ -87,6 +91,12 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh)
                 mesh.boundaryMesh()[patchIDs_.at(j)].faceCentres().size();
         }
         DEBUG(adapterInfo("Number of face centres: " + std::to_string(numDataLocations_)));
+
+        // In case we want to perform the reset later on, look-up the corresponding data field name
+        Foam::volVectorField const* cellDisplacement = nullptr;
+        if (mesh.foundObject<volVectorField>(nameCellDisplacement))
+            cellDisplacement =
+                &mesh.lookupObject<volVectorField>(nameCellDisplacement);
 
         // Array of the mesh vertices.
         // One mesh is used for all the patches and each vertex has 3D coordinates.
@@ -104,8 +114,15 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh)
         for (uint j = 0; j < patchIDs_.size(); j++)
         {
             // Get the face centers of the current patch
-            const vectorField faceCenters =
+            vectorField faceCenters =
                 mesh.boundaryMesh()[patchIDs_.at(j)].faceCentres();
+
+            // Move the interface according to the current values of the cellDisplacement field,
+            // to account for any displacements accumulated before restarting the simulation.
+            // This is information that OpenFOAM reads from its result/restart files.
+            // If the simulation is not restarted, the displacement should be zero and this line should have no effect.
+            if (cellDisplacement != nullptr && !restartFromDeformed_)
+                faceCenters -= cellDisplacement->boundaryField()[patchIDs_.at(j)];
 
             // Assign the (x,y,z) locations to the vertices
             for (int i = 0; i < faceCenters.size(); i++)
@@ -176,6 +193,12 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh)
         }
         DEBUG(adapterInfo("Number of face nodes: " + std::to_string(numDataLocations_)));
 
+        // In case we want to perform the reset later on, look-up the corresponding data field name
+        Foam::pointVectorField const* pointDisplacement = nullptr;
+        if (mesh.foundObject<pointVectorField>(namePointDisplacement))
+            pointDisplacement =
+                &mesh.lookupObject<pointVectorField>(namePointDisplacement);
+
         // Array of the mesh vertices.
         // One mesh is used for all the patches and each vertex has 3D coordinates.
         double vertices[dim_ * numDataLocations_];
@@ -196,8 +219,20 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh)
             // TODO: Check if this behaves correctly in parallel.
             // TODO: Check if this behaves correctly with multiple, connected patches.
             // TODO: Maybe this should be a pointVectorField?
-            const pointField faceNodes =
+            pointField faceNodes =
                 mesh.boundaryMesh()[patchIDs_.at(j)].localPoints();
+
+            // Similar to the cell displacement above:
+            // Move the interface according to the current values of the cellDisplacement field,
+            // to account for any displacements accumulated before restarting the simulation.
+            // This is information that OpenFOAM reads from its result/restart files.
+            // If the simulation is not restarted, the displacement should be zero and this line should have no effect.
+            if (pointDisplacement != nullptr && !restartFromDeformed_)
+            {
+                const vectorField& resetField = refCast<const vectorField>(
+                    pointDisplacement->boundaryField()[patchIDs_.at(j)]);
+                faceNodes -= resetField;
+            }
 
             // Assign the (x,y,z) locations to the vertices
             // TODO: Ensure consistent order when writing/reading
@@ -235,7 +270,15 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh)
 
                 // Get the list of faces and coordinates at the interface patch
                 const List<face> faceField = mesh.boundaryMesh()[patchIDs_.at(j)].localFaces();
-                const Field<point> pointCoords = mesh.boundaryMesh()[patchIDs_.at(j)].localPoints();
+                Field<point> pointCoords = mesh.boundaryMesh()[patchIDs_.at(j)].localPoints();
+
+                // Subtract the displacement part in case we have deformation
+                if (pointDisplacement != nullptr && !restartFromDeformed_)
+                {
+                    const vectorField& resetField = refCast<const vectorField>(
+                        pointDisplacement->boundaryField()[patchIDs_.at(j)]);
+                    pointCoords -= resetField;
+                }
 
                 // Array to store coordinates in preCICE format
                 double triCoords[faceField.size() * triaPerQuad * nodesPerTria * componentsPerNode];

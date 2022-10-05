@@ -438,6 +438,22 @@ FF
 
 Note that the adapter does not automatically adapt the pressure name for solvers that account for [hydrostatic pressure effects](https://www.openfoam.com/documentation/guides/latest/doc/guide-applications-solvers-variable-transform-p-rgh.html). In these cases, you may want to set `nameP p_rgh` to couple `p_rgh`, as `p` is a derived quantity for these solvers.
 
+#### Restarting FSI simulations
+
+Restarting a coupled simulation using the OpenFOAM adapter works in principle in the same way as restarting a standalone OpenFOAM solver. However, the adapter and preCICE define the coupling interface and the interface node locations based on the mesh at the particular time. In case of FSI simulations, the interface deforms over time, which leads to the definition of a deformed interface during the restart. The boolean variable `restartFromDeformed` (`true` by default) allows to account for the previously accumulated interface deformation such that the initial interface configuration (`t = 0`) is completely recovered. The setting here needs to agree with the behavior of the selected solid solver.
+
+```c++
+FSI
+{
+    // Account for previous displacement during a restart
+    restartFromDeformed true;
+}
+```
+
+{% important %}
+The option here defines the way the interface mesh is initialized when restarting an FSI simulation in OpenFOAM. In order to restart a coupled simulation, your solid solver needs to be capable of restarting as well. Furthermore, the two participants need to follow the same assumption for the initialization, which for OpenFOAM you can configure with this option. You can find more information about restarting coupled simulations on [Dsicourse](https://precice.discourse.group/t/how-can-i-restart-a-coupled-simulation/675).
+{% endimportant %}
+
 #### Debugging
 
 The user can toggle debug messages at [build time](https://precice.org/adapter-openfoam-get.html).
