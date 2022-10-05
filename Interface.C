@@ -124,7 +124,7 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh)
                     mesh.boundaryMesh()[patchIDs_.at(j)].localPoints();
 
                 const auto faceNodesSize = faceNodes.size();
-                //Allocate memory for z-coordinates
+                // Allocate memory for z-coordinates
                 std::array<double, 2> z_location({0, 0});
                 constexpr unsigned int z_axis = 2;
 
@@ -280,7 +280,7 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh)
             }
         }
     }
-    
+
     else if (locationType_ == LocationType::volume)
     {
         // TODO is volume option added everywhere it's supposed to
@@ -350,14 +350,6 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh)
 
         // Pass the mesh vertices information to preCICE
         precice_.setMeshVertices(meshID_, numDataLocations_, vertices, vertexIDs_);
-    }
-    else
-    {
-        FatalErrorInFunction
-            << "ERROR: interface points location type "
-            << locationType_
-            << " is invalid."
-            << exit(FatalError);
     }
 }
 
