@@ -70,10 +70,6 @@ bool preciceAdapter::Adapter::configFileRead()
             {
                 Volume_Couplingenabled_ = true;
             }
-            //            if ( module.empty )
-            //            {
-            //                return false;
-            //            }
         }
 
         // Every interface is a subdictionary of "interfaces",
@@ -204,7 +200,7 @@ bool preciceAdapter::Adapter::configFileRead()
 
         // NOTE: Create your module and read any options specific to it here
 
-        if (!CHTenabled_ && !FSIenabled_ && !FFenabled_) // NOTE: Add your new switch here
+        if (!CHTenabled_ && !FSIenabled_ && !FFenabled_ && !Volume_Couplingenabled_) // NOTE: Add your new switch here
         {
             adapterInfo("No module is enabled.", "error-deferred");
             return false;
