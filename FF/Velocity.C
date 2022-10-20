@@ -41,6 +41,24 @@ void preciceAdapter::FF::Velocity::write(double* buffer, bool meshConnectivity, 
             }
         }
     }
+
+    if (this->locationType_ == LocationType::volume)
+    {
+        forAll(U_->ref(), k)
+        {
+            // x-dimension
+            buffer[bufferIndex++] = U_->ref()[k].x();
+
+            // y-dimension
+            buffer[bufferIndex++] = U_->ref()[k].y();
+
+            if (dim == 3)
+            {
+                // z-dimension
+                buffer[bufferIndex++] = U_->ref()[k].z();
+            }   
+        }
+    }
 }
 
 void preciceAdapter::FF::Velocity::read(double* buffer, const unsigned int dim)
@@ -69,6 +87,24 @@ void preciceAdapter::FF::Velocity::read(double* buffer, const unsigned int dim)
                 // z-dimension
                 U_->boundaryFieldRef()[patchID][i].z() =
                     buffer[bufferIndex++];
+            }
+        }
+    }
+
+    if (this->locationType_ == LocationType::volume)
+    {
+        forAll(U_->ref(), k)
+        {
+            // x-dimension
+            U_->ref()[k].x() = buffer[bufferIndex++];
+
+            // y-dimension
+            U_->ref()[k].y() = buffer[bufferIndex++];
+
+            if (dim == 3)
+            {
+                // z-dimension
+                U_->ref()[k].z() = buffer[bufferIndex++];
             }
         }
     }

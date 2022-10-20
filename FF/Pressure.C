@@ -29,6 +29,15 @@ void preciceAdapter::FF::Pressure::write(double* buffer, bool meshConnectivity, 
                 p_->boundaryFieldRef()[patchID][i];
         }
     }
+
+    if (this->locationType_ == LocationType::volume)
+    {
+        // set in Interface::addCouplingDataR/W
+        forAll(p_->ref(), k)
+        {
+            buffer[bufferIndex++] = p_->ref()[k];
+        }
+    }
 }
 
 void preciceAdapter::FF::Pressure::read(double* buffer, const unsigned int dim)
@@ -46,6 +55,14 @@ void preciceAdapter::FF::Pressure::read(double* buffer, const unsigned int dim)
             // Set the pressure as the buffer value
             p_->boundaryFieldRef()[patchID][i] =
                 buffer[bufferIndex++];
+        }
+    }
+
+    if (this->locationType_ == LocationType::volume)
+    {
+        forAll(p_->ref(), k)
+        {
+            p_->ref()[k] = buffer[bufferIndex++];
         }
     }
 }
