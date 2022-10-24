@@ -15,15 +15,12 @@ private:
     //- Force field
     Foam::volVectorField* Force_;
 
-    //- Solid force field
-    Foam::volVectorField* solidForce_;
-
 public:
     //- Constructor
     Force(
         const Foam::fvMesh& mesh,
         const std::string solverType,
-        const std::string nameSolidForce);
+        const std::string nameForce);
 
     //- Write the forces values into the buffer
     void write(double* buffer, bool meshConnectivity, const unsigned int dim) final;
