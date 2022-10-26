@@ -33,9 +33,9 @@ void preciceAdapter::FF::Pressure::write(double* buffer, bool meshConnectivity, 
     if (this->locationType_ == LocationType::volume)
     {
         // set in Interface::addCouplingDataR/W
-        forAll(p_->ref(), k)
+        forAll(p_->ref(), i)
         {
-            buffer[bufferIndex++] = p_->ref()[k];
+            buffer[bufferIndex++] = p_->ref()[i];
         }
     }
 }
@@ -60,9 +60,9 @@ void preciceAdapter::FF::Pressure::read(double* buffer, const unsigned int dim)
 
     if (this->locationType_ == LocationType::volume)
     {
-        forAll(p_->ref(), k)
+        forAll(p_->ref(), i)
         {
-            p_->ref()[k] = buffer[bufferIndex++];
+            p_->ref()[i] = buffer[bufferIndex++];
         }
     }
 }

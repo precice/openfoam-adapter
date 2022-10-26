@@ -33,6 +33,8 @@ void preciceAdapter::FF::PressureGradient::write(double* buffer, bool meshConnec
                 -gradientPatch[i];
         }
     }
+
+    // snGrad is only applicable to boundary field
 }
 
 void preciceAdapter::FF::PressureGradient::read(double* buffer, const unsigned int dim)
