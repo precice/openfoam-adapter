@@ -12,8 +12,9 @@ preciceAdapter::Adapter::Adapter(const Time& runTime, const fvMesh& mesh)
 {
     adapterInfo("Loaded the OpenFOAM-preCICE adapter - v1.1.0 + unreleased changes.", "info");
 
-    clockGlobal_.update();
-
+    /* Example of using different timers - remove before merging,
+       together with the timers defined in Adapter.H.
+       
     clockAdapter_.update();
     Info << "Timing something that takes 1s..." << nl;
     sleep(1);
@@ -37,9 +38,7 @@ preciceAdapter::Adapter::Adapter(const Time& runTime, const fvMesh& mesh)
     Info << "elapsed = " << clockAdapter_.elapsed() << nl;
     Info << "timeInAdapter = " << timeInAdapter_.seconds() << "s" << nl;
     Info << "timeInPrecice = " << timeInPrecice_.seconds() << "s" << nl;
-
-    timeInAll_ += clockGlobal_.elapsed();
-    Info << "timeInAll = " << timeInAll_.seconds() << "s" << nl;
+    */
 
     return;
 }

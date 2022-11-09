@@ -378,17 +378,11 @@ private:
 public:
     // Timers
 
-    //- Global clock
-    clockValue clockGlobal_{Foam::clockValue()};
-
     //- Adapter-only clock
     clockValue clockAdapter_;
 
     //- preCICE-only clock
     clockValue clockPrecice_;
-
-    //- Cummulative time spent in the adapter function object
-    clockValue timeInAll_;
 
     //- Cummulative time spent in calls to preCICE
     clockValue timeInPrecice_;
