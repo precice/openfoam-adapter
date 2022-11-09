@@ -21,6 +21,11 @@
 #include "Time.H"
 #include "fvMesh.H"
 
+// OpenFOAM header files specific to timing
+#include "clock.H"
+#include "clockTime.H"
+#include "clockValue.H"
+
 // preCICE Solver Interface
 #include "precice/SolverInterface.hpp"
 
@@ -371,6 +376,26 @@ private:
     void teardown();
 
 public:
+    // Timers
+
+    //- Global clock
+    clockValue clockGlobal_{Foam::clockValue()};
+
+    //- Adapter-only clock
+    clockValue clockAdapter_;
+
+    //- preCICE-only clock
+    clockValue clockPrecice_;
+
+    //- Cummulative time spent in the adapter function object
+    clockValue timeInAll_;
+
+    //- Cummulative time spent in calls to preCICE
+    clockValue timeInPrecice_;
+
+    //- Cummulative time spent in the adapter, excluding preCICE
+    clockValue timeInAdapter_;
+
     // Methods called by the functionObject
 
     //- Constructor
