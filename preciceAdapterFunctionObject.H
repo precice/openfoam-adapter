@@ -59,8 +59,6 @@ SourceFiles
 
 // OpenFOAM header files
 #include "fvMeshFunctionObject.H"
-
-// OpenFOAM header files specific to timing
 #include "clockValue.H"
 
 // Main adapter header file
