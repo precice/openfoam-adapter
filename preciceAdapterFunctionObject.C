@@ -72,7 +72,7 @@ Foam::functionObjects::preciceAdapterFunctionObject::preciceAdapterFunctionObjec
 
 Foam::functionObjects::preciceAdapterFunctionObject::~preciceAdapterFunctionObject()
 {
-    Info << "Total time spent in the adapter and preCICE: " << timeInAll_.str() << "day-hh:mm:ss.ms" << nl;
+    Info << "Total time spent in the adapter and preCICE: " << timeInAll_.str() << " (format: day-hh:mm:ss.ms)" << nl;
 }
 
 
