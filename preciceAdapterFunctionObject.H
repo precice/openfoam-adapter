@@ -80,7 +80,7 @@ class preciceAdapterFunctionObject
     // Private data
 
     //- Global clock
-    clockValue clockGlobal_ {Foam::clockValue()};
+    clockValue clockGlobal_;
 
     //- Cummulative time spent in the complete adapter function object (including preCICE calls)
     clockValue timeInAll_;
