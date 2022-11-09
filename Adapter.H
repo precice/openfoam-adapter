@@ -21,11 +21,6 @@
 #include "Time.H"
 #include "fvMesh.H"
 
-// OpenFOAM header files specific to timing
-#include "clock.H"
-#include "clockTime.H"
-#include "clockValue.H"
-
 // preCICE Solver Interface
 #include "precice/SolverInterface.hpp"
 
