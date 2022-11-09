@@ -376,19 +376,6 @@ private:
     void teardown();
 
 public:
-    // Timers
-
-    //- Adapter-only clock
-    clockValue clockAdapter_;
-
-    //- preCICE-only clock
-    clockValue clockPrecice_;
-
-    //- Cumulative time spent in calls to preCICE
-    clockValue timeInPrecice_;
-
-    //- Cumulative time spent in the adapter, excluding preCICE
-    clockValue timeInAdapter_;
 
     // Methods called by the functionObject
 
