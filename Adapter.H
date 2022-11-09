@@ -384,10 +384,10 @@ public:
     //- preCICE-only clock
     clockValue clockPrecice_;
 
-    //- Cummulative time spent in calls to preCICE
+    //- Cumulative time spent in calls to preCICE
     clockValue timeInPrecice_;
 
-    //- Cummulative time spent in the adapter, excluding preCICE
+    //- Cumulative time spent in the adapter, excluding preCICE
     clockValue timeInAdapter_;
 
     // Methods called by the functionObject
