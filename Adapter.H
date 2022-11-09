@@ -371,7 +371,6 @@ private:
     void teardown();
 
 public:
-
     // Methods called by the functionObject
 
     //- Constructor
