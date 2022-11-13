@@ -54,6 +54,8 @@ private:
     clockValue timeInInitializeData_;
     clockValue timeInAdvance_;
     clockValue timeInFinalize_;
+    clockValue timeInCheckpointingRead_;
+    clockValue timeInCheckpointingWrite_;
 
     //- OpenFOAM runTime object
     const Foam::Time& runTime_;

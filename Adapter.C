@@ -1038,6 +1038,8 @@ void preciceAdapter::Adapter::addCheckpointField(volSymmTensorField* field)
 
 void preciceAdapter::Adapter::readCheckpoint()
 {
+    clockAdapter_.update();
+
     // TODO: To increase efficiency: only the oldTime() fields of the quantities which are used in the time
     //  derivative are necessary. (In general this is only the velocity). Also old information of the mesh
     //  is required.
@@ -1228,12 +1230,16 @@ void preciceAdapter::Adapter::readCheckpoint()
         "Checkpoint was read. Time = " + std::to_string(runTime_.value()));
 #endif
 
+    timeInCheckpointingRead_ += clockAdapter_.elapsed();
+
     return;
 }
 
 
 void preciceAdapter::Adapter::writeCheckpoint()
 {
+    clockAdapter_.update();
+
     DEBUG(adapterInfo("Writing a checkpoint..."));
 
     // Store the runTime
@@ -1310,6 +1316,8 @@ void preciceAdapter::Adapter::writeCheckpoint()
     adapterInfo(
         "Checkpoint for time t = " + std::to_string(runTime_.value()) + " was stored.");
 #endif
+
+    timeInCheckpointingWrite_ += clockAdapter_.elapsed();
 
     return;
 }
@@ -1621,6 +1629,8 @@ preciceAdapter::Adapter::~Adapter()
     teardown();
 
     // Continuing the output started in the destructor of preciceAdapterFunctionObject
+    Info << "    Time spent in the adapter for checkpointing: " << (timeInCheckpointingWrite_ + timeInCheckpointingRead_).str() << " (part of iterations time)" << nl;
+    Info << "    ...of which " << timeInCheckpointingWrite_.str() << " to write and " << timeInCheckpointingRead_.str() << " to read checkpoints." << nl;
     Info << "Time spent exclusively in preCICE: " << (timeInInitialize_ + timeInInitializeData_ + timeInAdvance_ + timeInFinalize_).str() << nl;
     Info << "  Time spent exclusively in preCICE for initialize(): " << timeInInitialize_.str() << " (part of setup time)" << nl;
     Info << "  Time spent exclusively in preCICE for initializeData(): " << timeInInitializeData_.str() << " (part of setup time)" << nl;
