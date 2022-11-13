@@ -15,7 +15,6 @@ namespace preciceAdapter
 class Interface
 {
 protected:
-
     //- preCICE solver interface
     precice::SolverInterface& precice_;
 

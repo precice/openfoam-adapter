@@ -23,6 +23,8 @@ bool preciceAdapter::Adapter::configFileRead()
     // See also comment in preciceAdapter::Adapter::configure().
     try
     {
+        clockValue clock;
+        clock.update();
         adapterInfo("Reading preciceDict...", "info");
 
         // TODO: static is just a quick workaround to be able
@@ -195,6 +197,8 @@ bool preciceAdapter::Adapter::configFileRead()
 
         // TODO: Loading modules should be implemented in more general way,
         // in order to avoid code duplication. See issue #16 on GitHub.
+
+        timeInConfigRead_ += clock.elapsed();
     }
     catch (const Foam::error& e)
     {
@@ -238,15 +242,17 @@ void preciceAdapter::Adapter::configure()
             DEBUG(adapterInfo("  Timestep type: fixed."));
         }
 
-        // Initialize preCICE
+        // Construct preCICE
+        clockValue clock;
+        clock.update();
         DEBUG(adapterInfo("Creating the preCICE solver interface..."));
         DEBUG(adapterInfo("  Number of processes: " + std::to_string(Pstream::nProcs())));
         DEBUG(adapterInfo("  MPI rank: " + std::to_string(Pstream::myProcNo())));
         precice_ = new precice::SolverInterface(participantName_, preciceConfigFilename_, Pstream::myProcNo(), Pstream::nProcs());
         DEBUG(adapterInfo("  preCICE solver interface was created."));
+        timeInPreciceConstruct_ += clock.elapsed();
 
         // Create interfaces
-        clockValue clock;
         clock.update();
         DEBUG(adapterInfo("Creating interfaces..."));
         for (uint i = 0; i < interfacesConfig_.size(); i++)
@@ -440,6 +446,8 @@ void preciceAdapter::Adapter::execute()
     // coupling, we write again when the coupling timestep is complete.
     // Check the behavior e.g. by using watch on a result file:
     //     watch -n 0.1 -d ls --full-time Fluid/0.01/T.gz
+    clockValue clock;
+    clock.update();
     if (checkpointing_ && isCouplingTimeWindowComplete())
     {
         // Check if the time directory already exists
@@ -453,6 +461,7 @@ void preciceAdapter::Adapter::execute()
             const_cast<Time&>(runTime_).writeNow();
         }
     }
+    timeInWriteResults_ += clock.elapsed();
 
     // Read the received coupling data from the buffer
     readCouplingData();
@@ -885,6 +894,9 @@ void preciceAdapter::Adapter::setupMeshVolCheckpointing()
 
 void preciceAdapter::Adapter::setupCheckpointing()
 {
+    clockValue clock;
+    clock.update();
+
     // Add fields in the checkpointing list - sorted for parallel consistency
     DEBUG(adapterInfo("Adding in checkpointed fields..."));
 
@@ -913,6 +925,8 @@ void preciceAdapter::Adapter::setupCheckpointing()
     // NOTE: Add here other object types to checkpoint, if needed.
 
 #undef doLocalCode
+
+    timeInCheckpointingSetup_ = clock.elapsed();
 }
 
 
@@ -1643,18 +1657,23 @@ preciceAdapter::Adapter::~Adapter()
     teardown();
 
     // Continuing the output started in the destructor of preciceAdapterFunctionObject
-    Info << "Time in the adapter for setting up the interfaces: " << timeInMeshSetup_.str() << " (part of setup time)" << nl;
-    Info << "Time in the adapter for writing data: " << timeInWrite_.str() << " (part of iterations time)" << nl;
-    Info << "Time in the adapter for reading data: " << timeInRead_.str() << " (part of iterations time)" << nl;
-    Info << "Time in the adapter for checkpointing: " << (timeInCheckpointingWrite_ + timeInCheckpointingRead_).str() << " (part of iterations time)" << nl;
-    Info << "  ...of which " << timeInCheckpointingWrite_.str() << " to write and " << timeInCheckpointingRead_.str() << " to read checkpoints." << nl;
-    Info << "Time exclusively in preCICE: " << (timeInInitialize_ + timeInInitializeData_ + timeInAdvance_ + timeInFinalize_).str() << nl;
-    Info << "  Time in preCICE for initialize(): " << timeInInitialize_.str() << " (part of setup time)" << nl;
-    Info << "  Time in preCICE for initializeData(): " << timeInInitializeData_.str() << " (part of setup time)" << nl;
-    Info << "  Time in preCICE for advance(): " << timeInAdvance_.str() << " (part of iterations time)" << nl;
-    Info << "  Time in preCICE for finalize(): " << timeInFinalize_.str() << " (part of iterations time)" << nl;
-    Info << "Time in initialization, advance, and iterations includes time waiting for other participants." << nl;
-    Info << "See the precice-<participant>-events-summary.log for details in time in preCICE itself." << nl;
-    Info << "-------------------------------------------------------------------------------" << nl;
+    Info << "Time exclusively in the adapter: " << (timeInConfigRead_+timeInMeshSetup_+timeInCheckpointingSetup_+timeInWrite_+timeInRead_+timeInCheckpointingWrite_+timeInCheckpointingRead_).str() << nl;
+    Info << "  (S) reading preciceDict:       " << timeInConfigRead_.str() << nl;
+    Info << "  (S) constructing preCICE:      " << timeInPreciceConstruct_.str() << nl;
+    Info << "  (S) setting up the interfaces: " << timeInMeshSetup_.str() << nl;
+    Info << "  (S) setting up checkpointing:  " << timeInCheckpointingSetup_.str() << nl;
+    Info << "  (I) writing data:              " << timeInWrite_.str() << nl;
+    Info << "  (I) reading data:              " << timeInRead_.str() << nl;
+    Info << "  (I) writing checkpoints:       " << timeInCheckpointingWrite_.str() << nl;
+    Info << "  (I) reading checkpoints:       " << timeInCheckpointingRead_.str() << nl;
+    Info << "  (I) writing OpenFOAM results:  " << timeInWriteResults_.str() << " (at the end of converged time windows)" << nl << nl;
+    Info << "Time exclusively in preCICE:     " << (timeInInitialize_ + timeInInitializeData_ + timeInAdvance_ + timeInFinalize_).str() << nl;
+    Info << "  (S) initialize():              " << timeInInitialize_.str() << nl;
+    Info << "  (S) initializeData():          " << timeInInitializeData_.str() << nl;
+    Info << "  (I) advance():                 " << timeInAdvance_.str() << nl;
+    Info << "  (I) finalize():                " << timeInFinalize_.str() << nl;
+    Info << "  These times include time waiting for other participants." << nl;
+    Info << "  See also precice-<participant>-events-summary.log." << nl;
+    Info << "-------------------------------------------------------------------------------------" << nl;
     return;
 }

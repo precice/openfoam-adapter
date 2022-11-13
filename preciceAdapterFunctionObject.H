@@ -80,9 +80,6 @@ class preciceAdapterFunctionObject
 {
     // Private data
 
-    //- Global clock
-    clockValue clockGlobal_;
-
     //- Cumulative time spent in the complete adapter function object (including preCICE calls)
     clockValue timeInAll_;
     clockValue timeInSetup_;

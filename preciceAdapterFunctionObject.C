@@ -66,10 +66,10 @@ Foam::functionObjects::preciceAdapterFunctionObject::preciceAdapterFunctionObjec
 
 Foam::functionObjects::preciceAdapterFunctionObject::~preciceAdapterFunctionObject()
 {
-    Info << "-------------------- preCICE adapter timers (primary rank) --------------------" << nl;
-    Info << "Total time in the adapter and preCICE: " << timeInAll_.str() << " (format: day-hh:mm:ss.ms)" << nl;
-    Info << "  Time in the adapter and preCICE for setting up: " << timeInSetup_.str() << " (read() function)" << nl;
-    Info << "  Time in the adapter and preCICE for iterations: " << timeInExecute_.str() << " (execute() and adjustTimeStep() functions)" << nl;
+    Info << "-------------------- preCICE adapter timers (primary rank) --------------------------" << nl;
+    Info << "Total time in adapter + preCICE: " << timeInAll_.str() << " (format: day-hh:mm:ss.ms)" << nl;
+    Info << "  For setting up (S):            " << timeInSetup_.str() << " (read() function)" << nl;
+    Info << "  For iterations (I):            " << timeInExecute_.str() << " (execute() and adjustTimeStep() functions)" << nl << nl;
 }
 
 
@@ -78,12 +78,13 @@ Foam::functionObjects::preciceAdapterFunctionObject::~preciceAdapterFunctionObje
 bool Foam::functionObjects::preciceAdapterFunctionObject::read(const dictionary& dict)
 {
     // Save the current wall clock time stamp to the clock
-    clockGlobal_.update();
+    clockValue clock;
+    clock.update();
     adapter_.configure();
     // Accumulate the time in this section into a global timer.
     // Same in all function object methods.
-    timeInAll_ += clockGlobal_.elapsed();
-    timeInSetup_ = clockGlobal_.elapsed();
+    timeInAll_ += clock.elapsed();
+    timeInSetup_ = clock.elapsed();
 
     return true;
 }
@@ -91,10 +92,11 @@ bool Foam::functionObjects::preciceAdapterFunctionObject::read(const dictionary&
 
 bool Foam::functionObjects::preciceAdapterFunctionObject::execute()
 {
-    clockGlobal_.update();
+    clockValue clock;
+    clock.update();
     adapter_.execute();
-    timeInAll_ += clockGlobal_.elapsed();
-    timeInExecute_ += clockGlobal_.elapsed();
+    timeInAll_ += clock.elapsed();
+    timeInExecute_ += clock.elapsed();
 
     return true;
 }
@@ -102,10 +104,11 @@ bool Foam::functionObjects::preciceAdapterFunctionObject::execute()
 
 bool Foam::functionObjects::preciceAdapterFunctionObject::end()
 {
-    clockGlobal_.update();
+    clockValue clock;
+    clock.update();
     adapter_.end();
-    timeInAll_ += clockGlobal_.elapsed();
-    timeInExecute_ += clockGlobal_.elapsed();
+    timeInAll_ += clock.elapsed();
+    timeInExecute_ += clock.elapsed();
 
     return true;
 }
@@ -118,10 +121,11 @@ bool Foam::functionObjects::preciceAdapterFunctionObject::write()
 
 bool Foam::functionObjects::preciceAdapterFunctionObject::adjustTimeStep()
 {
-    clockGlobal_.update();
+    clockValue clock;
+    clock.update();
     adapter_.adjustTimeStep();
-    timeInAll_ += clockGlobal_.elapsed();
-    timeInExecute_ += clockGlobal_.elapsed();
+    timeInAll_ += clock.elapsed();
+    timeInExecute_ += clock.elapsed();
 
     return true;
 }

@@ -49,14 +49,18 @@ private:
     std::vector<struct InterfaceConfig> interfacesConfig_;
 
     //- Timers
+    clockValue timeInConfigRead_;
+    clockValue timeInPreciceConstruct_;
     clockValue timeInMeshSetup_;
     clockValue timeInInitialize_;
     clockValue timeInInitializeData_;
+    clockValue timeInCheckpointingSetup_;
     clockValue timeInWrite_;
     clockValue timeInAdvance_;
     clockValue timeInRead_;
     clockValue timeInCheckpointingRead_;
     clockValue timeInCheckpointingWrite_;
+    clockValue timeInWriteResults_;
     clockValue timeInFinalize_;
 
     //- OpenFOAM runTime object
