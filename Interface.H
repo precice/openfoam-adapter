@@ -15,11 +15,6 @@ namespace preciceAdapter
 class Interface
 {
 protected:
-    //- Timers
-    clockValue clockInterface_;
-    clockValue timeInCreate_;
-    clockValue timeInRead_;
-    clockValue timeInWrite_;
 
     //- preCICE solver interface
     precice::SolverInterface& precice_;
