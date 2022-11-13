@@ -246,7 +246,8 @@ void preciceAdapter::Adapter::configure()
         DEBUG(adapterInfo("  preCICE solver interface was created."));
 
         // Create interfaces
-        clockAdapter_.update();
+        clockValue clock;
+        clock.update();
         DEBUG(adapterInfo("Creating interfaces..."));
         for (uint i = 0; i < interfacesConfig_.size(); i++)
         {
@@ -334,7 +335,7 @@ void preciceAdapter::Adapter::configure()
             // Create the interface's data buffer
             interface->createBuffer();
         }
-        timeInMeshSetup_ += clockAdapter_.elapsed();
+        timeInMeshSetup_ += clock.elapsed();
 
         // Initialize preCICE and exchange the first coupling data
         initialize();
@@ -492,7 +493,8 @@ void preciceAdapter::Adapter::adjustTimeStep()
 
 void preciceAdapter::Adapter::readCouplingData()
 {
-    clockAdapter_.update();
+    clockValue clock;
+    clock.update();
     DEBUG(adapterInfo("Reading coupling data..."));
 
     for (uint i = 0; i < interfaces_.size(); i++)
@@ -500,13 +502,14 @@ void preciceAdapter::Adapter::readCouplingData()
         interfaces_.at(i)->readCouplingData();
     }
 
-    timeInRead_ += clockAdapter_.elapsed();
+    timeInRead_ += clock.elapsed();
     return;
 }
 
 void preciceAdapter::Adapter::writeCouplingData()
 {
-    clockAdapter_.update();
+    clockValue clock;
+    clock.update();
     DEBUG(adapterInfo("Writing coupling data..."));
 
     for (uint i = 0; i < interfaces_.size(); i++)
@@ -514,16 +517,17 @@ void preciceAdapter::Adapter::writeCouplingData()
         interfaces_.at(i)->writeCouplingData();
     }
 
-    timeInWrite_ += clockAdapter_.elapsed();
+    timeInWrite_ += clock.elapsed();
     return;
 }
 
 void preciceAdapter::Adapter::initialize()
 {
     DEBUG(adapterInfo("Initializing the preCICE solver interface..."));
-    clockAdapter_.update();
+    clockValue clock;
+    clock.update();
     timestepPrecice_ = precice_->initialize();
-    timeInInitialize_ = clockAdapter_.elapsed();
+    timeInInitialize_ = clock.elapsed();
 
     preciceInitialized_ = true;
 
@@ -534,9 +538,9 @@ void preciceAdapter::Adapter::initialize()
     }
 
     DEBUG(adapterInfo("Initializing preCICE data..."));
-    clockAdapter_.update();
+    clock.update();
     precice_->initializeData();
-    timeInInitializeData_ = clockAdapter_.elapsed();
+    timeInInitializeData_ = clock.elapsed();
 
     adapterInfo("preCICE was configured and initialized", "info");
 
@@ -550,9 +554,10 @@ void preciceAdapter::Adapter::finalize()
         DEBUG(adapterInfo("Finalizing the preCICE solver interface..."));
 
         // Finalize the preCICE solver interface
-        clockAdapter_.update();
+        clockValue clock;
+        clock.update();
         precice_->finalize();
-        timeInFinalize_ = clockAdapter_.elapsed();
+        timeInFinalize_ = clock.elapsed();
 
         preciceInitialized_ = false;
 
@@ -571,9 +576,10 @@ void preciceAdapter::Adapter::advance()
 {
     DEBUG(adapterInfo("Advancing preCICE..."));
 
-    clockAdapter_.update();
+    clockValue clock;
+    clock.update();
     timestepPrecice_ = precice_->advance(timestepSolver_);
-    timeInAdvance_ += clockAdapter_.elapsed();
+    timeInAdvance_ += clock.elapsed();
 
     return;
 }
@@ -1044,7 +1050,8 @@ void preciceAdapter::Adapter::addCheckpointField(volSymmTensorField* field)
 
 void preciceAdapter::Adapter::readCheckpoint()
 {
-    clockAdapter_.update();
+    clockValue clock;
+    clock.update();
 
     // TODO: To increase efficiency: only the oldTime() fields of the quantities which are used in the time
     //  derivative are necessary. (In general this is only the velocity). Also old information of the mesh
@@ -1236,7 +1243,7 @@ void preciceAdapter::Adapter::readCheckpoint()
         "Checkpoint was read. Time = " + std::to_string(runTime_.value()));
 #endif
 
-    timeInCheckpointingRead_ += clockAdapter_.elapsed();
+    timeInCheckpointingRead_ += clock.elapsed();
 
     return;
 }
@@ -1244,7 +1251,8 @@ void preciceAdapter::Adapter::readCheckpoint()
 
 void preciceAdapter::Adapter::writeCheckpoint()
 {
-    clockAdapter_.update();
+    clockValue clock;
+    clock.update();
 
     DEBUG(adapterInfo("Writing a checkpoint..."));
 
@@ -1323,7 +1331,7 @@ void preciceAdapter::Adapter::writeCheckpoint()
         "Checkpoint for time t = " + std::to_string(runTime_.value()) + " was stored.");
 #endif
 
-    timeInCheckpointingWrite_ += clockAdapter_.elapsed();
+    timeInCheckpointingWrite_ += clock.elapsed();
 
     return;
 }
@@ -1635,18 +1643,18 @@ preciceAdapter::Adapter::~Adapter()
     teardown();
 
     // Continuing the output started in the destructor of preciceAdapterFunctionObject
-    Info << "Time spent in the adapter for setting up the interfaces: " << timeInMeshSetup_.str() << " (part of setup time)" << nl;
-    Info << "Time spent in the adapter for writing data: " << timeInWrite_.str() << " (part of iterations time)" << nl;
-    Info << "Time spent in the adapter for reading data: " << timeInRead_.str() << " (part of iterations time)" << nl;
-    Info << "Time spent in the adapter for checkpointing: " << (timeInCheckpointingWrite_ + timeInCheckpointingRead_).str() << " (part of iterations time)" << nl;
+    Info << "Time in the adapter for setting up the interfaces: " << timeInMeshSetup_.str() << " (part of setup time)" << nl;
+    Info << "Time in the adapter for writing data: " << timeInWrite_.str() << " (part of iterations time)" << nl;
+    Info << "Time in the adapter for reading data: " << timeInRead_.str() << " (part of iterations time)" << nl;
+    Info << "Time in the adapter for checkpointing: " << (timeInCheckpointingWrite_ + timeInCheckpointingRead_).str() << " (part of iterations time)" << nl;
     Info << "  ...of which " << timeInCheckpointingWrite_.str() << " to write and " << timeInCheckpointingRead_.str() << " to read checkpoints." << nl;
-    Info << "Time spent exclusively in preCICE: " << (timeInInitialize_ + timeInInitializeData_ + timeInAdvance_ + timeInFinalize_).str() << nl;
-    Info << "  Time spent exclusively in preCICE for initialize(): " << timeInInitialize_.str() << " (part of setup time)" << nl;
-    Info << "  Time spent exclusively in preCICE for initializeData(): " << timeInInitializeData_.str() << " (part of setup time)" << nl;
-    Info << "  Time spent exclusively in preCICE for advance(): " << timeInAdvance_.str() << " (part of iterations time)" << nl;
-    Info << "  Time spent exclusively in preCICE for finalize(): " << timeInFinalize_.str() << " (part of iterations time)" << nl;
+    Info << "Time exclusively in preCICE: " << (timeInInitialize_ + timeInInitializeData_ + timeInAdvance_ + timeInFinalize_).str() << nl;
+    Info << "  Time in preCICE for initialize(): " << timeInInitialize_.str() << " (part of setup time)" << nl;
+    Info << "  Time in preCICE for initializeData(): " << timeInInitializeData_.str() << " (part of setup time)" << nl;
+    Info << "  Time in preCICE for advance(): " << timeInAdvance_.str() << " (part of iterations time)" << nl;
+    Info << "  Time in preCICE for finalize(): " << timeInFinalize_.str() << " (part of iterations time)" << nl;
     Info << "Time in initialization, advance, and iterations includes time waiting for other participants." << nl;
-    Info << "See the precice-<participant>-events-summary.log for details in time spent in preCICE itself." << nl;
+    Info << "See the precice-<participant>-events-summary.log for details in time in preCICE itself." << nl;
     Info << "-------------------------------------------------------------------------------" << nl;
     return;
 }

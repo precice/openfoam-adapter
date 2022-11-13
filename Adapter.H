@@ -49,7 +49,6 @@ private:
     std::vector<struct InterfaceConfig> interfacesConfig_;
 
     //- Timers
-    clockValue clockAdapter_;
     clockValue timeInMeshSetup_;
     clockValue timeInInitialize_;
     clockValue timeInInitializeData_;
