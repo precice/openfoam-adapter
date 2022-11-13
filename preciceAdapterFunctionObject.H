@@ -85,6 +85,8 @@ class preciceAdapterFunctionObject
 
     //- Cumulative time spent in the complete adapter function object (including preCICE calls)
     clockValue timeInAll_;
+    clockValue timeInSetup_;
+    clockValue timeInExecute_;
 
     //- Adapter's main class instance
     preciceAdapter::Adapter adapter_;
