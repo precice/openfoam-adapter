@@ -490,12 +490,8 @@ void preciceAdapter::Interface::writeCouplingData()
 
 preciceAdapter::Interface::~Interface()
 {
-    adapterInfo("Time spent inside the Interface class for creating: " + timeInCreate_.str() +
-                ", for reading: " + timeInRead_.str() +
-                ", and for writing: " + timeInWrite_.str() + " (mesh " +
-                meshName_ + ").",
-                "info");
-    
+    adapterInfo("Time spent inside the Interface class for creating: " + timeInCreate_.str() + ", for reading: " + timeInRead_.str() + ", and for writing: " + timeInWrite_.str() + " (mesh " + meshName_ + ").", "info");
+
     // Delete all the coupling data readers
     for (uint i = 0; i < couplingDataReaders_.size(); i++)
     {
