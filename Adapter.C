@@ -515,7 +515,9 @@ void preciceAdapter::Adapter::writeCouplingData()
 void preciceAdapter::Adapter::initialize()
 {
     DEBUG(adapterInfo("Initializing the preCICE solver interface..."));
+    clockAdapter_.update();
     timestepPrecice_ = precice_->initialize();
+    timeInInitialize_ = clockAdapter_.elapsed();
 
     preciceInitialized_ = true;
 
@@ -526,7 +528,9 @@ void preciceAdapter::Adapter::initialize()
     }
 
     DEBUG(adapterInfo("Initializing preCICE data..."));
+    clockAdapter_.update();
     precice_->initializeData();
+    timeInInitializeData_ = clockAdapter_.elapsed();
 
     adapterInfo("preCICE was configured and initialized", "info");
 
@@ -540,7 +544,9 @@ void preciceAdapter::Adapter::finalize()
         DEBUG(adapterInfo("Finalizing the preCICE solver interface..."));
 
         // Finalize the preCICE solver interface
+        clockAdapter_.update();
         precice_->finalize();
+        timeInFinalize_ = clockAdapter_.elapsed();
 
         preciceInitialized_ = false;
 
@@ -559,7 +565,9 @@ void preciceAdapter::Adapter::advance()
 {
     DEBUG(adapterInfo("Advancing preCICE..."));
 
+    clockAdapter_.update();
     timestepPrecice_ = precice_->advance(timestepSolver_);
+    timeInAdvance_ += clockAdapter_.elapsed();
 
     return;
 }
@@ -1612,5 +1620,15 @@ preciceAdapter::Adapter::~Adapter()
 {
     teardown();
 
+    // Continuing the output started in the destructor of preciceAdapterFunctionObject
+    Info << "Time spent exclusively in preCICE: " << (timeInInitialize_ + timeInInitializeData_ + timeInAdvance_ + timeInFinalize_).str() << nl;
+    Info << "  Time spent exclusively in preCICE for initialize(): " << timeInInitialize_.str() << " (part of setup time)" << nl;
+    Info << "  Time spent exclusively in preCICE for initializeData(): " << timeInInitializeData_.str() << " (part of setup time)" << nl;
+    Info << "  Time spent exclusively in preCICE for advance(): " << timeInAdvance_.str() << " (part of iterations time)" << nl;
+    Info << "  Time spent exclusively in preCICE for finalize(): " << timeInFinalize_.str() << " (part of iterations time)" << nl;
+    Info << "Time in initialization, advance, and iterations includes time waiting for other participants." << nl;
+    Info << "Time in preCICE setMeshVertives, read/write, and state queries is considered as time spent in the adapter." << nl;
+    Info << "See the precice-<participant>-events-summary.log for details in time spent in preCICE itself." << nl;
+    Info << "-------------------------------------------------------------------------------" << nl;
     return;
 }

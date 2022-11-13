@@ -66,9 +66,10 @@ Foam::functionObjects::preciceAdapterFunctionObject::preciceAdapterFunctionObjec
 
 Foam::functionObjects::preciceAdapterFunctionObject::~preciceAdapterFunctionObject()
 {
+    Info << "-------------------- preCICE adapter timers (primary rank) --------------------" << nl;
     Info << "Total time spent in the adapter and preCICE: " << timeInAll_.str() << " (format: day-hh:mm:ss.ms)" << nl;
-    Info << "Time spent in the adapter and preCICE for setting up: " << timeInSetup_.str() << " (format: day-hh:mm:ss.ms) (read() function)" << nl;
-    Info << "Time spent in the adapter and preCICE for iterations: " << timeInExecute_.str() << " (format: day-hh:mm:ss.ms) (execute() and adjustTimeStep() functions, including time waiting for other participants)" << nl;
+    Info << "  Time spent in the adapter and preCICE only for setting up: " << timeInSetup_.str() << " (read() function)" << nl;
+    Info << "  Time spent in the adapter and preCICE only for iterations: " << timeInExecute_.str() << " (execute() and adjustTimeStep() functions)" << nl;
 }
 
 
@@ -82,7 +83,7 @@ bool Foam::functionObjects::preciceAdapterFunctionObject::read(const dictionary&
     // Accumulate the time spent in this section into a global timer.
     // Same in all function object methods.
     timeInAll_ += clockGlobal_.elapsed();
-    timeInSetup_ += clockGlobal_.elapsed();
+    timeInSetup_ = clockGlobal_.elapsed();
 
     return true;
 }

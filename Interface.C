@@ -21,6 +21,7 @@ preciceAdapter::Interface::Interface(
   meshConnectivity_(meshConnectivity),
   restartFromDeformed_(restartFromDeformed)
 {
+    clockInterface_.update();
     // Get the meshID from preCICE
     meshID_ = precice_.getMeshID(meshName_);
 
@@ -73,6 +74,7 @@ preciceAdapter::Interface::Interface(
 
     // Configure the mesh (set the data locations)
     configureMesh(mesh, namePointDisplacement, nameCellDisplacement);
+    timeInCreate_ = clockInterface_.elapsed();
 }
 
 void preciceAdapter::Interface::configureMesh(const fvMesh& mesh, const std::string& namePointDisplacement, const std::string& nameCellDisplacement)
@@ -414,6 +416,7 @@ void preciceAdapter::Interface::createBuffer()
 
 void preciceAdapter::Interface::readCouplingData()
 {
+    clockInterface_.update();
     // Make every coupling data reader read
     for (uint i = 0; i < couplingDataReaders_.size(); i++)
     {
@@ -443,10 +446,12 @@ void preciceAdapter::Interface::readCouplingData()
         // Read the received data from the buffer
         couplingDataReader->read(dataBuffer_, dim_);
     }
+    timeInRead_ += clockInterface_.elapsed();
 }
 
 void preciceAdapter::Interface::writeCouplingData()
 {
+    clockInterface_.update();
     // TODO: wrap around isWriteDataRequired
     // Does the participant need to write data or is it subcycling?
     // if (precice_.isWriteDataRequired(computedTimestepLength))
@@ -480,10 +485,17 @@ void preciceAdapter::Interface::writeCouplingData()
         }
     }
     // }
+    timeInWrite_ += clockInterface_.elapsed();
 }
 
 preciceAdapter::Interface::~Interface()
 {
+    adapterInfo("Time spent inside the Interface class for creating: " + timeInCreate_.str() +
+                ", for reading: " + timeInRead_.str() +
+                ", and for writing: " + timeInWrite_.str() + " (mesh " +
+                meshName_ + ").",
+                "info");
+    
     // Delete all the coupling data readers
     for (uint i = 0; i < couplingDataReaders_.size(); i++)
     {

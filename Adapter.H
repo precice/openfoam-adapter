@@ -48,6 +48,13 @@ private:
     //- Configuration interfaces
     std::vector<struct InterfaceConfig> interfacesConfig_;
 
+    //- Timers
+    clockValue clockAdapter_;
+    clockValue timeInInitialize_;
+    clockValue timeInInitializeData_;
+    clockValue timeInAdvance_;
+    clockValue timeInFinalize_;
+
     //- OpenFOAM runTime object
     const Foam::Time& runTime_;
 
