@@ -1657,7 +1657,7 @@ preciceAdapter::Adapter::~Adapter()
     teardown();
 
     // Continuing the output started in the destructor of preciceAdapterFunctionObject
-    Info << "Time exclusively in the adapter: " << (timeInConfigRead_+timeInMeshSetup_+timeInCheckpointingSetup_+timeInWrite_+timeInRead_+timeInCheckpointingWrite_+timeInCheckpointingRead_).str() << nl;
+    Info << "Time exclusively in the adapter: " << (timeInConfigRead_ + timeInMeshSetup_ + timeInCheckpointingSetup_ + timeInWrite_ + timeInRead_ + timeInCheckpointingWrite_ + timeInCheckpointingRead_).str() << nl;
     Info << "  (S) reading preciceDict:       " << timeInConfigRead_.str() << nl;
     Info << "  (S) constructing preCICE:      " << timeInPreciceConstruct_.str() << nl;
     Info << "  (S) setting up the interfaces: " << timeInMeshSetup_.str() << nl;
