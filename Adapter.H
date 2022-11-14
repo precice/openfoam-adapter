@@ -48,7 +48,7 @@ private:
     //- Configuration interfaces
     std::vector<struct InterfaceConfig> interfacesConfig_;
 
-#ifdef ADAPTER_TIMING_MODE
+#ifdef ADAPTER_ENABLE_TIMINGS
     //- Timers
     clockValue timeInConfigRead_;
     clockValue timeInPreciceConstruct_;

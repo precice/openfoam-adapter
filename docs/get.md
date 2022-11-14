@@ -18,7 +18,7 @@ The adapter also requires [pkg-config](https://linux.die.net/man/1/pkg-config) t
 
 Adding the `-DADAPTER_DEBUG_MODE` flag to the `ADAPTER_PREP_FLAGS` activates additional debug messages. You may also change the target directory or specify the number of threads to use for the compilation. See the comments in `Allwmake` for more.
 
-Adding the `-DADAPTER_TIMING_MODE` flag to the `ADAPTER_PREP_FLAGS` activates time measurements for several regions of the adapter, printed at the end of the simulation output (available since v1.2.0).
+Adding the `-DADAPTER_ENABLE_TIMINGS` flag to the `ADAPTER_PREP_FLAGS` activates time measurements for several regions of the adapter, printed at the end of the simulation output (available since v1.2.0).
 
 If you are building the adapter often, you may want to build it in parallel. You can set the environment variable `WM_NCOMPPROCS` to the number of parallel threads you want WMake to use.
 

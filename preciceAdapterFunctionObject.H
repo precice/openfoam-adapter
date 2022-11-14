@@ -80,7 +80,7 @@ class preciceAdapterFunctionObject
 {
     // Private data
 
-#ifdef ADAPTER_TIMING_MODE
+#ifdef ADAPTER_ENABLE_TIMINGS
     //- Cumulative time spent in the complete adapter function object (including preCICE calls)
     clockValue timeInAll_;
     clockValue timeInSetup_;

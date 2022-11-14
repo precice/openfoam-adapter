@@ -9,14 +9,14 @@
 #endif
 
 // Filter-out timing when not required
-#ifdef ADAPTER_TIMING_MODE
+#ifdef ADAPTER_ENABLE_TIMINGS
 #define TIMING_MODE(x) x
 #else
 #define TIMING_MODE(x)
 #endif
 
 // Shortcut for constructing clocks
-#ifdef ADAPTER_TIMING_MODE
+#ifdef ADAPTER_ENABLE_TIMINGS
 #define SETUP_TIMER() \
     clockValue clock; \
     clock.update()
@@ -28,7 +28,7 @@
 
 
 // Shortcut for adding time
-#ifdef ADAPTER_TIMING_MODE
+#ifdef ADAPTER_ENABLE_TIMINGS
 #define ACCUMULATE_TIMER(x) x += clock.elapsed()
 #else
 #define ACCUMULATE_TIMER(x)

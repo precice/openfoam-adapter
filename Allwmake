@@ -5,7 +5,7 @@ set -e -u
 
 # Optional: Preprocessor flags
 # "-DADAPTER_DEBUG_MODE" enables debug messages
-# "-DADAPTER_TIMING_MODE" enables time measurements
+# "-DADAPTER_ENABLE_TIMINGS" enables time measurements
 ADAPTER_PREP_FLAGS=""
 
 # Build command and options
