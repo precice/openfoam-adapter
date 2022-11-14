@@ -15,6 +15,7 @@ Read more details in the issue [#52: Releases and versioning](https://github.com
 - Added support for a restart from the initial undeformed interface mesh for Fluid solvers in FSI simulations [#224](https://github.com/precice/openfoam-adapter/pull/224).
 - Added functionality to allow use of solids4foam with the OpenFOAM adapter.
 - Enabled mesh motion solvers that do not register a pointDisplacement field (such as the RBFMeshMotionSolver from solids4foam) to work with the adapter [#241](https://github.com/precice/openfoam-adapter/pull/241)
+- Added timers for tracking the time spent in the adapter and preCICE (disabled by default) [#256](https://github.com/precice/openfoam-adapter/pull/256).
 - Added a warning for trying to build without pkg-config being available and more suggestions for possible problems [#220](https://github.com/precice/openfoam-adapter/pull/220).
 - Added more documentation, specifically for configuring the FF module. [#254](https://github.com/precice/openfoam-adapter/pull/254)
 
