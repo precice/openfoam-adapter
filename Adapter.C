@@ -23,8 +23,10 @@ bool preciceAdapter::Adapter::configFileRead()
     // See also comment in preciceAdapter::Adapter::configure().
     try
     {
+        #ifdef ADAPTER_TIMING_MODE
         clockValue clock;
         clock.update();
+        #endif
         adapterInfo("Reading preciceDict...", "info");
 
         // TODO: static is just a quick workaround to be able
@@ -198,7 +200,9 @@ bool preciceAdapter::Adapter::configFileRead()
         // TODO: Loading modules should be implemented in more general way,
         // in order to avoid code duplication. See issue #16 on GitHub.
 
+        #ifdef ADAPTER_TIMING_MODE
         timeInConfigRead_ += clock.elapsed();
+        #endif
     }
     catch (const Foam::error& e)
     {
@@ -243,17 +247,23 @@ void preciceAdapter::Adapter::configure()
         }
 
         // Construct preCICE
+        #ifdef ADAPTER_TIMING_MODE
         clockValue clock;
         clock.update();
+        #endif
         DEBUG(adapterInfo("Creating the preCICE solver interface..."));
         DEBUG(adapterInfo("  Number of processes: " + std::to_string(Pstream::nProcs())));
         DEBUG(adapterInfo("  MPI rank: " + std::to_string(Pstream::myProcNo())));
         precice_ = new precice::SolverInterface(participantName_, preciceConfigFilename_, Pstream::myProcNo(), Pstream::nProcs());
         DEBUG(adapterInfo("  preCICE solver interface was created."));
+        #ifdef ADAPTER_TIMING_MODE
         timeInPreciceConstruct_ += clock.elapsed();
+        #endif
 
         // Create interfaces
+        #ifdef ADAPTER_TIMING_MODE
         clock.update();
+        #endif
         DEBUG(adapterInfo("Creating interfaces..."));
         for (uint i = 0; i < interfacesConfig_.size(); i++)
         {
@@ -341,7 +351,9 @@ void preciceAdapter::Adapter::configure()
             // Create the interface's data buffer
             interface->createBuffer();
         }
+        #ifdef ADAPTER_TIMING_MODE
         timeInMeshSetup_ += clock.elapsed();
+        #endif
 
         // Initialize preCICE and exchange the first coupling data
         initialize();
@@ -446,8 +458,10 @@ void preciceAdapter::Adapter::execute()
     // coupling, we write again when the coupling timestep is complete.
     // Check the behavior e.g. by using watch on a result file:
     //     watch -n 0.1 -d ls --full-time Fluid/0.01/T.gz
+    #ifdef ADAPTER_TIMING_MODE
     clockValue clock;
     clock.update();
+    #endif
     if (checkpointing_ && isCouplingTimeWindowComplete())
     {
         // Check if the time directory already exists
@@ -461,7 +475,9 @@ void preciceAdapter::Adapter::execute()
             const_cast<Time&>(runTime_).writeNow();
         }
     }
+    #ifdef ADAPTER_TIMING_MODE
     timeInWriteResults_ += clock.elapsed();
+    #endif
 
     // Read the received coupling data from the buffer
     readCouplingData();
@@ -502,8 +518,10 @@ void preciceAdapter::Adapter::adjustTimeStep()
 
 void preciceAdapter::Adapter::readCouplingData()
 {
+    #ifdef ADAPTER_TIMING_MODE
     clockValue clock;
     clock.update();
+    #endif
     DEBUG(adapterInfo("Reading coupling data..."));
 
     for (uint i = 0; i < interfaces_.size(); i++)
@@ -511,14 +529,19 @@ void preciceAdapter::Adapter::readCouplingData()
         interfaces_.at(i)->readCouplingData();
     }
 
+    #ifdef ADAPTER_TIMING_MODE
     timeInRead_ += clock.elapsed();
+    #endif
+
     return;
 }
 
 void preciceAdapter::Adapter::writeCouplingData()
 {
+    #ifdef ADAPTER_TIMING_MODE
     clockValue clock;
     clock.update();
+    #endif
     DEBUG(adapterInfo("Writing coupling data..."));
 
     for (uint i = 0; i < interfaces_.size(); i++)
@@ -526,17 +549,24 @@ void preciceAdapter::Adapter::writeCouplingData()
         interfaces_.at(i)->writeCouplingData();
     }
 
+    #ifdef ADAPTER_TIMING_MODE
     timeInWrite_ += clock.elapsed();
+    #endif
+
     return;
 }
 
 void preciceAdapter::Adapter::initialize()
 {
     DEBUG(adapterInfo("Initializing the preCICE solver interface..."));
+    #ifdef ADAPTER_TIMING_MODE
     clockValue clock;
     clock.update();
+    #endif
     timestepPrecice_ = precice_->initialize();
+    #ifdef ADAPTER_TIMING_MODE
     timeInInitialize_ = clock.elapsed();
+    #endif
 
     preciceInitialized_ = true;
 
@@ -547,9 +577,13 @@ void preciceAdapter::Adapter::initialize()
     }
 
     DEBUG(adapterInfo("Initializing preCICE data..."));
+    #ifdef ADAPTER_TIMING_MODE
     clock.update();
+    #endif
     precice_->initializeData();
+    #ifdef ADAPTER_TIMING_MODE
     timeInInitializeData_ = clock.elapsed();
+    #endif
 
     adapterInfo("preCICE was configured and initialized", "info");
 
@@ -563,10 +597,14 @@ void preciceAdapter::Adapter::finalize()
         DEBUG(adapterInfo("Finalizing the preCICE solver interface..."));
 
         // Finalize the preCICE solver interface
+        #ifdef ADAPTER_TIMING_MODE
         clockValue clock;
         clock.update();
+        #endif
         precice_->finalize();
+        #ifdef ADAPTER_TIMING_MODE
         timeInFinalize_ = clock.elapsed();
+        #endif
 
         preciceInitialized_ = false;
 
@@ -585,10 +623,14 @@ void preciceAdapter::Adapter::advance()
 {
     DEBUG(adapterInfo("Advancing preCICE..."));
 
+    #ifdef ADAPTER_TIMING_MODE
     clockValue clock;
     clock.update();
+    #endif
     timestepPrecice_ = precice_->advance(timestepSolver_);
+    #ifdef ADAPTER_TIMING_MODE
     timeInAdvance_ += clock.elapsed();
+    #endif
 
     return;
 }
@@ -894,8 +936,10 @@ void preciceAdapter::Adapter::setupMeshVolCheckpointing()
 
 void preciceAdapter::Adapter::setupCheckpointing()
 {
+    #ifdef ADAPTER_TIMING_MODE
     clockValue clock;
     clock.update();
+    #endif
 
     // Add fields in the checkpointing list - sorted for parallel consistency
     DEBUG(adapterInfo("Adding in checkpointed fields..."));
@@ -926,7 +970,9 @@ void preciceAdapter::Adapter::setupCheckpointing()
 
 #undef doLocalCode
 
+    #ifdef ADAPTER_TIMING_MODE
     timeInCheckpointingSetup_ = clock.elapsed();
+    #endif
 }
 
 
@@ -1064,8 +1110,10 @@ void preciceAdapter::Adapter::addCheckpointField(volSymmTensorField* field)
 
 void preciceAdapter::Adapter::readCheckpoint()
 {
+    #ifdef ADAPTER_TIMING_MODE
     clockValue clock;
     clock.update();
+    #endif
 
     // TODO: To increase efficiency: only the oldTime() fields of the quantities which are used in the time
     //  derivative are necessary. (In general this is only the velocity). Also old information of the mesh
@@ -1257,7 +1305,9 @@ void preciceAdapter::Adapter::readCheckpoint()
         "Checkpoint was read. Time = " + std::to_string(runTime_.value()));
 #endif
 
+    #ifdef ADAPTER_TIMING_MODE
     timeInCheckpointingRead_ += clock.elapsed();
+    #endif
 
     return;
 }
@@ -1265,8 +1315,10 @@ void preciceAdapter::Adapter::readCheckpoint()
 
 void preciceAdapter::Adapter::writeCheckpoint()
 {
+    #ifdef ADAPTER_TIMING_MODE
     clockValue clock;
     clock.update();
+    #endif
 
     DEBUG(adapterInfo("Writing a checkpoint..."));
 
@@ -1345,7 +1397,9 @@ void preciceAdapter::Adapter::writeCheckpoint()
         "Checkpoint for time t = " + std::to_string(runTime_.value()) + " was stored.");
 #endif
 
+    #ifdef ADAPTER_TIMING_MODE
     timeInCheckpointingWrite_ += clock.elapsed();
+    #endif
 
     return;
 }
@@ -1656,6 +1710,7 @@ preciceAdapter::Adapter::~Adapter()
 {
     teardown();
 
+    #ifdef ADAPTER_TIMING_MODE
     // Continuing the output started in the destructor of preciceAdapterFunctionObject
     Info << "Time exclusively in the adapter: " << (timeInConfigRead_ + timeInMeshSetup_ + timeInCheckpointingSetup_ + timeInWrite_ + timeInRead_ + timeInCheckpointingWrite_ + timeInCheckpointingRead_).str() << nl;
     Info << "  (S) reading preciceDict:       " << timeInConfigRead_.str() << nl;
@@ -1675,5 +1730,7 @@ preciceAdapter::Adapter::~Adapter()
     Info << "  These times include time waiting for other participants." << nl;
     Info << "  See also precice-<participant>-events-summary.log." << nl;
     Info << "-------------------------------------------------------------------------------------" << nl;
+    #endif
+    
     return;
 }
