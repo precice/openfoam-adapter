@@ -66,12 +66,12 @@ Foam::functionObjects::preciceAdapterFunctionObject::preciceAdapterFunctionObjec
 
 Foam::functionObjects::preciceAdapterFunctionObject::~preciceAdapterFunctionObject()
 {
-    #ifdef ADAPTER_TIMING_MODE
+#ifdef ADAPTER_TIMING_MODE
     Info << "-------------------- preCICE adapter timers (primary rank) --------------------------" << nl;
     Info << "Total time in adapter + preCICE: " << timeInAll_.str() << " (format: day-hh:mm:ss.ms)" << nl;
     Info << "  For setting up (S):            " << timeInSetup_.str() << " (read() function)" << nl;
     Info << "  For iterations (I):            " << timeInExecute_.str() << " (execute() and adjustTimeStep() functions)" << nl << nl;
-    #endif
+#endif
 }
 
 
@@ -79,20 +79,20 @@ Foam::functionObjects::preciceAdapterFunctionObject::~preciceAdapterFunctionObje
 
 bool Foam::functionObjects::preciceAdapterFunctionObject::read(const dictionary& dict)
 {
-    #ifdef ADAPTER_TIMING_MODE
+#ifdef ADAPTER_TIMING_MODE
     // Save the current wall clock time stamp to the clock
     clockValue clock;
     clock.update();
-    #endif
+#endif
 
     adapter_.configure();
 
-    #ifdef ADAPTER_TIMING_MODE
+#ifdef ADAPTER_TIMING_MODE
     // Accumulate the time in this section into a global timer.
     // Same in all function object methods.
     timeInAll_ += clock.elapsed();
     timeInSetup_ = clock.elapsed();
-    #endif
+#endif
 
     return true;
 }
@@ -100,17 +100,17 @@ bool Foam::functionObjects::preciceAdapterFunctionObject::read(const dictionary&
 
 bool Foam::functionObjects::preciceAdapterFunctionObject::execute()
 {
-    #ifdef ADAPTER_TIMING_MODE
+#ifdef ADAPTER_TIMING_MODE
     clockValue clock;
     clock.update();
-    #endif
+#endif
 
     adapter_.execute();
 
-    #ifdef ADAPTER_TIMING_MODE
+#ifdef ADAPTER_TIMING_MODE
     timeInAll_ += clock.elapsed();
     timeInExecute_ += clock.elapsed();
-    #endif
+#endif
 
     return true;
 }
@@ -118,17 +118,17 @@ bool Foam::functionObjects::preciceAdapterFunctionObject::execute()
 
 bool Foam::functionObjects::preciceAdapterFunctionObject::end()
 {
-    #ifdef ADAPTER_TIMING_MODE
+#ifdef ADAPTER_TIMING_MODE
     clockValue clock;
     clock.update();
-    #endif
+#endif
 
     adapter_.end();
 
-    #ifdef ADAPTER_TIMING_MODE
+#ifdef ADAPTER_TIMING_MODE
     timeInAll_ += clock.elapsed();
     timeInExecute_ += clock.elapsed();
-    #endif
+#endif
 
     return true;
 }
@@ -141,17 +141,17 @@ bool Foam::functionObjects::preciceAdapterFunctionObject::write()
 
 bool Foam::functionObjects::preciceAdapterFunctionObject::adjustTimeStep()
 {
-    #ifdef ADAPTER_TIMING_MODE
+#ifdef ADAPTER_TIMING_MODE
     clockValue clock;
     clock.update();
-    #endif
+#endif
 
     adapter_.adjustTimeStep();
 
-    #ifdef ADAPTER_TIMING_MODE
+#ifdef ADAPTER_TIMING_MODE
     timeInAll_ += clock.elapsed();
     timeInExecute_ += clock.elapsed();
-    #endif
+#endif
 
     return true;
 }

@@ -48,7 +48,7 @@ private:
     //- Configuration interfaces
     std::vector<struct InterfaceConfig> interfacesConfig_;
 
-    #ifdef ADAPTER_TIMING_MODE
+#ifdef ADAPTER_TIMING_MODE
     //- Timers
     clockValue timeInConfigRead_;
     clockValue timeInPreciceConstruct_;
@@ -63,7 +63,7 @@ private:
     clockValue timeInCheckpointingWrite_;
     clockValue timeInWriteResults_;
     clockValue timeInFinalize_;
-    #endif
+#endif
 
     //- OpenFOAM runTime object
     const Foam::Time& runTime_;
