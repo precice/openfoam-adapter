@@ -70,7 +70,7 @@ Foam::functionObjects::preciceAdapterFunctionObject::~preciceAdapterFunctionObje
     Info << "-------------------- preCICE adapter timers (primary rank) --------------------------" << nl;
     Info << "Total time in adapter + preCICE: " << timeInAll_.str() << " (format: day-hh:mm:ss.ms)" << nl;
     Info << "  For setting up (S):            " << timeInSetup_.str() << " (read() function)" << nl;
-    Info << "  For iterations (I):            " << timeInExecute_.str() << " (execute() and adjustTimeStep() functions)" << nl << nl;
+    Info << "  For all iterations (I):        " << timeInExecute_.str() << " (execute() and adjustTimeStep() functions)" << nl << nl;
 #endif
 }
 
