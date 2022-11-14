@@ -3,7 +3,9 @@ set -e -u
 
 ########## CONFIGURATION - You may want to change these ########################
 
-# Optional: Preprocessor flags ("-DADAPTER_DEBUG_MODE" enables debug messages)
+# Optional: Preprocessor flags
+# "-DADAPTER_DEBUG_MODE" enables debug messages
+# "-DADAPTER_ENABLE_TIMINGS" enables time measurements
 ADAPTER_PREP_FLAGS=""
 
 # Build command and options

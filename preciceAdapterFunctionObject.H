@@ -59,6 +59,7 @@ SourceFiles
 
 // OpenFOAM header files
 #include "fvMeshFunctionObject.H"
+#include "clockValue.H"
 
 // Main adapter header file
 #include "Adapter.H"
@@ -78,6 +79,13 @@ class preciceAdapterFunctionObject
 : public fvMeshFunctionObject
 {
     // Private data
+
+#ifdef ADAPTER_ENABLE_TIMINGS
+    //- Cumulative time spent in the complete adapter function object (including preCICE calls)
+    clockValue timeInAll_;
+    clockValue timeInSetup_;
+    clockValue timeInExecute_;
+#endif
 
     //- Adapter's main class instance
     preciceAdapter::Adapter adapter_;
