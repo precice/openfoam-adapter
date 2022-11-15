@@ -31,7 +31,7 @@ preciceAdapter::FSI::Force::Force(
                 "fdim",
                 dimensionSet(1, 1, -2, 0, 0, 0, 0),
                 Foam::vector::zero)));
-        
+
         Force_ = ForceOwning_.get();
     }
 }
@@ -91,4 +91,3 @@ Foam::tmp<Foam::vectorField> preciceAdapter::FSI::Force::getFaceVectors(const un
     // Normal vectors multiplied by face area
     return mesh_.boundary()[patchID].Sf();
 }
-
