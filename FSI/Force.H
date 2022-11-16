@@ -12,8 +12,11 @@ namespace FSI
 class Force : public ForceBase
 {
 private:
-    //- Force field
+    //- Force field (non-owning pointer, it may already be constructed by the solver)
     Foam::volVectorField* Force_;
+
+    //- Force field (owning pointer, we bind to Force_)
+    std::unique_ptr<Foam::volVectorField> ForceOwning_;
 
 public:
     //- Constructor
@@ -35,9 +38,6 @@ public:
 
     //- Returns the normal vectors multiplied by the face area
     Foam::tmp<Foam::vectorField> getFaceVectors(const unsigned int patchID) const final;
-
-    //- Destructor
-    ~Force();
 };
 
 }

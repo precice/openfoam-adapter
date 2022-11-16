@@ -19,7 +19,7 @@ preciceAdapter::FSI::Force::Force(
     }
     else
     {
-        Force_ = new volVectorField(
+        ForceOwning_ = std::make_unique<volVectorField>(volVectorField(
             IOobject(
                 nameForce,
                 mesh_.time().timeName(),
@@ -30,7 +30,9 @@ preciceAdapter::FSI::Force::Force(
             dimensionedVector(
                 "fdim",
                 dimensionSet(1, 1, -2, 0, 0, 0, 0),
-                Foam::vector::zero));
+                Foam::vector::zero)));
+
+        Force_ = ForceOwning_.get();
     }
 }
 
@@ -88,9 +90,4 @@ Foam::tmp<Foam::vectorField> preciceAdapter::FSI::Force::getFaceVectors(const un
 {
     // Normal vectors multiplied by face area
     return mesh_.boundary()[patchID].Sf();
-}
-
-preciceAdapter::FSI::Force::~Force()
-{
-    delete Force_;
 }
