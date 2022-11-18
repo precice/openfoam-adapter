@@ -45,6 +45,8 @@ master <-- OpenFOAM4 <-- OpenFOAM5 <-- OpenFOAM6 <-- OpenFOAM7 <-- OpenFOAM8 <--
 
 - [ ] Copy all the changelog entries into `CHANGELOG.md`
 - [ ] Delete `changelog-entries/`
+- [ ] Mark issues and pull requests that made it to this milestone.
+- [ ] Collect a list of contributors to acknowledge (particularly non-code contributions that are not easily visible on GitHub).
 - [ ] Draft and discuss release notes
 
 ## Bump the version
@@ -52,6 +54,7 @@ master <-- OpenFOAM4 <-- OpenFOAM5 <-- OpenFOAM6 <-- OpenFOAM7 <-- OpenFOAM8 <--
 - [ ] Decide on the version using the versioning strategy documented in the user docs (see page "Get the OpenFOAM adapter")
 - [ ] Bump the version in `CHANGELOG.md`
 - [ ] Bump the version in `Adapter.C` (removing the `+ unreleased changes` part).
+- [ ] Make the version bump commit the last commit before merging.
 
 ## Merge
 
@@ -62,8 +65,8 @@ master <-- OpenFOAM4 <-- OpenFOAM5 <-- OpenFOAM6 <-- OpenFOAM7 <-- OpenFOAM8 <--
 ## Release
 
 - [ ] Create a Release on GitHub
-- [ ] Download an archive of the repository (i.e., no `.git/` or `.gitignore`) for each version and attach to the release
-  - branch `master`: archive `openfoam-adapter_v1.0.0_OpenFOAMv1812-v2112.tar.gz` (adjust `v2112` to the latest supported, and `v1.0.0` to the actual version)
+- [ ] Download an archive of the repository (i.e., no `.git/` or `.gitignore`) for each version and attach to the release. Use the link `https://github.com/precice/openfoam-adapter/archive/refs/heads/BRANCH.tar.gz` (substitute `BRANCH`). Rename the folder in each archive to reflect the name of the archive.
+  - branch `master`: archive `openfoam-adapter_v1.0.0_OpenFOAMv1812-v2206-newer.tar.gz` (adjust `v2206` to the latest supported, and `v1.0.0` to the actual version)
   - branch `OpenFOAM4`: archive `openfoam-adapter_v1.0.0_OpenFOAM4_5_v1806.tar.gz`
   - branch `OpenFOAM6`: archive `openfoam-adapter_v1.0.0_OpenFOAM6_experimental.tar.gz`
   - branch `OpenFOAM7`: archive `openfoam-adapter_v1.0.0_OpenFOAM7_experimental.tar.gz`
@@ -76,6 +79,7 @@ master <-- OpenFOAM4 <-- OpenFOAM5 <-- OpenFOAM6 <-- OpenFOAM7 <-- OpenFOAM8 <--
 - [ ] Update the git module on the website
 - [ ] Update workflows in the tutorials repository, if needed (e.g., OpenFOAM version)
 - [ ] Update external documentation (tutorials, website), e.g., regarding the adapter or OpenFOAM version.
+  - [ ] Quickstart
 - [ ] Update the VM provisioning scripts, if needed (e.g., OpenFOAM version)
 - [ ] Update this release checklist (`tools/release_pull_request_template.md`)
 - [ ] Advertise and celebrate! :tada: :beers:

@@ -13,11 +13,14 @@ To build the adapter, you need to install a few dependencies and then execute th
 4. Execute the build script: `./Allwmake`.
     * See and adjust the configuration in the beginning of the script first, if needed.
     * Check for any error messages and suggestions at the end.
-    * Modify the `adapter_build_command` to e.g. build using more threads, e.g. `wmake -j 4 libso`.
 
 The adapter also requires [pkg-config](https://linux.die.net/man/1/pkg-config) to [link to preCICE](https://precice.org/installation-linking.html). This is a very common dependency on Linux and is usually already installed.
 
-Adding `-DADAPTER_DEBUG_MODE` flag to the `ADAPTER_PREP_FLAGS` activates additional debug messages. You may also change the target directory or specify the number of threads to use for the compilation. See the comments in `Allwmake` for more.
+Adding the `-DADAPTER_DEBUG_MODE` flag to the `ADAPTER_PREP_FLAGS` activates additional debug messages. You may also change the target directory or specify the number of threads to use for the compilation. See the comments in `Allwmake` for more.
+
+Adding the `-DADAPTER_ENABLE_TIMINGS` flag to the `ADAPTER_PREP_FLAGS` activates time measurements for several regions of the adapter, printed at the end of the simulation output (available since v1.2.0).
+
+If you are building the adapter often, you may want to build it in parallel. You can set the environment variable `WM_NCOMPPROCS` to the number of parallel threads you want WMake to use.
 
 Next: [configure and load the adapter](https://precice.org/adapter-openfoam-config.html) or [run a tutorial](https://precice.org/tutorials.html).
 
@@ -38,6 +41,15 @@ Read the [discussion that lead to this versioning strategy](https://github.com/p
 The following are common problems that may appear during building the OpenFOAM adapter if something went wrong in the described steps. Make sure to always check for error messages at every step before continuing to the next.
 
 The `Allwmake` script prints the environment variables it uses in the beginning (as well as in `Allwmake.log`) and it writes the building commands in the file `wmake.log`. Afterwards, it checks (using `ldd`) if the library was linked correctly and writes the output to `ldd.log`. **Please check these files and include them in your report if you have need help.**
+
+If you don't have access to the log files, you can also try running `foamHasLibrary -verbose precice libpreciceAdapterFunctionObject`, which should lead to the following message:
+
+```text
+Can load "precice"
+Can load "libpreciceAdapterFunctionObject"
+```
+
+If the libraries are available but cannot be loaded, the most common issue is conflicting or missing dependencies. Run `ldd ${FOAM_USER_LIBBIN}/libpreciceAdapterFunctionObject.so` and check for any undefined symbols messages at the bottom.
 
 ### Unknown function type `preciceAdapterFunctionObject`
 

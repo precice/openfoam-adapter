@@ -1,6 +1,7 @@
 ---
 title: The OpenFOAM adapter
 permalink: adapter-openfoam-overview.html
+redirect_from: adapter-openfoam.html
 keywords: adapter, openfoam, cite, versions
 summary: An OpenFOAM function object for CHT, FSI, and fluid-fluid coupled simulations using preCICE.
 ---
@@ -17,9 +18,9 @@ This adapter can read/write the following fields:
 - Heat flux (read + write)
 - Sink temperature (read + write)
 - Heat transfer coefficient (read + write)
-- Force (write)
+- Force (read + write)
 - Stress (write)
-- Displacement (read)
+- Displacement (read + write)
 - Displacement delta (read)
 - Pressure (read + write)
 - Pressure gradient (read + write)
