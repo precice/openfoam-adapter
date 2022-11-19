@@ -57,12 +57,10 @@ bool preciceAdapter::Adapter::configFileRead()
             {
                 CHTenabled_ = true;
             }
-
             if (module == "FSI")
             {
                 FSIenabled_ = true;
             }
-
             if (module == "FF")
             {
                 FFenabled_ = true;
@@ -491,7 +489,7 @@ void preciceAdapter::Adapter::execute()
     return;
 }
 
-void preciceAdapter::Adapter::adjustTimeStep()
+void preciceAdapter::Adapter::setTimeStep()
 {
     adjustSolverTimeStep();
 
@@ -682,7 +680,7 @@ void preciceAdapter::Adapter::adjustSolverTimeStep()
     // Update the solver's timestep (but don't trigger the adjustDeltaT(),
     // which also triggers the functionObject's adjustTimeStep())
     // TODO: Keep this in mind if any relevant problem appears.
-    const_cast<Time&>(runTime_).setDeltaT(timestepSolver_, false);
+    const_cast<Time&>(runTime_).setDeltaTNoAdjust(timestepSolver_);
 
     return;
 }
