@@ -688,12 +688,6 @@ void preciceAdapter::Adapter::adjustSolverTimeStepAndReadData()
     // TODO: Keep this in mind if any relevant problem appears.
     const_cast<Time&>(runTime_).setDeltaTNoAdjust(timestepSolver_);
 
-    DEBUG(adapterInfo("Reading coupling data associated to the calculated time-step size..."));
-
-    // Read the received coupling data from the buffer
-    // Fits to an implicit Euler
-    readCouplingData(runTime_.deltaT().value());
-
     return;
 }
 
