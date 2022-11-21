@@ -54,7 +54,6 @@ private:
     clockValue timeInPreciceConstruct_;
     clockValue timeInMeshSetup_;
     clockValue timeInInitialize_;
-    clockValue timeInInitializeData_;
     clockValue timeInCheckpointingSetup_;
     clockValue timeInWrite_;
     clockValue timeInAdvance_;

@@ -532,10 +532,6 @@ void preciceAdapter::Adapter::initialize()
 {
     DEBUG(adapterInfo("Initializing the preCICE solver interface..."));
     SETUP_TIMER();
-    timestepPrecice_ = precice_->initialize();
-    ACCUMULATE_TIMER(timeInInitialize_);
-
-    preciceInitialized_ = true;
 
     if (precice_->isActionRequired(precice::constants::actionWriteInitialData()))
     {
@@ -544,9 +540,9 @@ void preciceAdapter::Adapter::initialize()
     }
 
     DEBUG(adapterInfo("Initializing preCICE data..."));
-    REUSE_TIMER();
-    precice_->initializeData();
-    ACCUMULATE_TIMER(timeInInitializeData_);
+    timestepPrecice_ = precice_->initialize();
+    preciceInitialized_ = true;
+    ACCUMULATE_TIMER(timeInInitialize_);
 
     adapterInfo("preCICE was configured and initialized", "info");
 
@@ -1660,9 +1656,8 @@ preciceAdapter::Adapter::~Adapter()
         Info << "  (I) writing checkpoints:       " << timeInCheckpointingWrite_.str() << nl;
         Info << "  (I) reading checkpoints:       " << timeInCheckpointingRead_.str() << nl;
         Info << "  (I) writing OpenFOAM results:  " << timeInWriteResults_.str() << " (at the end of converged time windows)" << nl << nl;
-        Info << "Time exclusively in preCICE:     " << (timeInInitialize_ + timeInInitializeData_ + timeInAdvance_ + timeInFinalize_).str() << nl;
+        Info << "Time exclusively in preCICE:     " << (timeInInitialize_ + timeInAdvance_ + timeInFinalize_).str() << nl;
         Info << "  (S) initialize():              " << timeInInitialize_.str() << nl;
-        Info << "  (S) initializeData():          " << timeInInitializeData_.str() << nl;
         Info << "  (I) advance():                 " << timeInAdvance_.str() << nl;
         Info << "  (I) finalize():                " << timeInFinalize_.str() << nl;
         Info << "  These times include time waiting for other participants." << nl;
