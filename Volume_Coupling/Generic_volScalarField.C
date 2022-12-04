@@ -72,3 +72,13 @@ void preciceAdapter::Volume_Coupling::Generic_volScalarField::read(double* buffe
         }
     }
 }
+
+bool preciceAdapter::Volume_Coupling::Generic_volScalarField::isLocationTypeSupported(const bool meshConnectivity) const
+{
+    return false;
+}
+
+std::string preciceAdapter::Volume_Coupling::Generic_volScalarField::getDataName() const
+{
+    return "Generic_volScalarField";
+}

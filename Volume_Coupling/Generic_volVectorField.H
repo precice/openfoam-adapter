@@ -30,6 +30,10 @@ public:
     //- Read the volVectorField values from the buffer
     void read(double* buffer, const unsigned int dim);
 
+    std::string getDataName() const override;
+
+    bool isLocationTypeSupported(const bool meshConnectivity) const override;
+
     //- Destructor
     virtual ~Generic_volVectorField() {}
 };

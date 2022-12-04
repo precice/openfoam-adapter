@@ -105,7 +105,7 @@ bool preciceAdapter::CHT::Temperature::isLocationTypeSupported(const bool meshCo
     }
     else
     {
-        return (this->locationType_ == LocationType::faceCenters);
+        return (this->locationType_ == LocationType::faceCenters || this->locationType_ == LocationType::volume);
     }
 }
 
