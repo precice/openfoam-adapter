@@ -279,16 +279,10 @@ private:
     bool isCouplingTimeWindowComplete();
 
     //- Determine if a checkpoint must be read
-    bool isReadCheckpointRequired();
+    bool requiresReadingCheckpoint();
 
     //- Determine if a checkpoint must be written
-    bool isWriteCheckpointRequired();
-
-    //- Tell preCICE that the checkpoint has been read
-    void fulfilledReadCheckpoint();
-
-    //- Tell preCICE that the checkpoint has been written
-    void fulfilledWriteCheckpoint();
+    bool requiresWritingCheckpoint();
 
     // Methods for checkpointing
 
