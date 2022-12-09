@@ -350,7 +350,7 @@ void preciceAdapter::Adapter::configure()
 
         // If checkpointing is required, specify the checkpointed fields
         // and write the first checkpoint
-        if (isWriteCheckpointRequired())
+        if (requiresWritingCheckpoint())
         {
             checkpointing_ = true;
 
@@ -359,7 +359,6 @@ void preciceAdapter::Adapter::configure()
 
             // Write checkpoint (for the first iteration)
             writeCheckpoint();
-            fulfilledWriteCheckpoint();
         }
 
         // Adjust the timestep for the first iteration, if it is fixed
@@ -421,10 +420,9 @@ void preciceAdapter::Adapter::execute()
     advance();
 
     // Read checkpoint if required
-    if (isReadCheckpointRequired())
+    if (requiresReadingCheckpoint())
     {
         readCheckpoint();
-        fulfilledReadCheckpoint();
     }
 
     // Adjust the timestep, if it is fixed
@@ -434,10 +432,9 @@ void preciceAdapter::Adapter::execute()
     }
 
     // Write checkpoint if required
-    if (isWriteCheckpointRequired())
+    if (requiresWritingCheckpoint())
     {
         writeCheckpoint();
-        fulfilledWriteCheckpoint();
     }
 
     // As soon as OpenFOAM writes the results, it will not try to write again
@@ -533,11 +530,8 @@ void preciceAdapter::Adapter::initialize()
     DEBUG(adapterInfo("Initializing the preCICE solver interface..."));
     SETUP_TIMER();
 
-    if (precice_->isActionRequired(precice::constants::actionWriteInitialData()))
-    {
+    if (precice_->requiresInitialData())
         writeCouplingData();
-        precice_->markActionFulfilled(precice::constants::actionWriteInitialData());
-    }
 
     DEBUG(adapterInfo("Initializing preCICE data..."));
     timestepPrecice_ = precice_->initialize();
@@ -704,29 +698,16 @@ bool preciceAdapter::Adapter::isCouplingTimeWindowComplete()
     return precice_->isTimeWindowComplete();
 }
 
-bool preciceAdapter::Adapter::isReadCheckpointRequired()
+bool preciceAdapter::Adapter::requiresReadingCheckpoint()
 {
-    return precice_->isActionRequired(precice::constants::actionReadIterationCheckpoint());
+    return precice_->requiresReadingCheckpoint();
 }
 
-bool preciceAdapter::Adapter::isWriteCheckpointRequired()
+bool preciceAdapter::Adapter::requiresWritingCheckpoint()
 {
-    return precice_->isActionRequired(precice::constants::actionWriteIterationCheckpoint());
+    return precice_->requiresWritingCheckpoint();
 }
 
-void preciceAdapter::Adapter::fulfilledReadCheckpoint()
-{
-    precice_->markActionFulfilled(precice::constants::actionReadIterationCheckpoint());
-
-    return;
-}
-
-void preciceAdapter::Adapter::fulfilledWriteCheckpoint()
-{
-    precice_->markActionFulfilled(precice::constants::actionWriteIterationCheckpoint());
-
-    return;
-}
 
 void preciceAdapter::Adapter::storeCheckpointTime()
 {
