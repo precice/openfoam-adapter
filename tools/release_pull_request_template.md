@@ -53,15 +53,13 @@ Until we get automated system tests again, run all the tests manually.
   - `git push --force`
 - [ ] Rebase `OpenFOAM5` on `OpenFOAM4`, `OpenFOAM6` on `OpenFOAM5`, ...
 - [ ] Trigger a custom build for each version and tick each when it succeeds:
-   - [ ] [OpenFOAM5 on Ubuntu 18.04 with preCICE 2.3.0 and tutorials from develop](https://github.com/precice/openfoam-adapter/actions/runs/3503114699)
-     - Does not know `std::make_unique` and `std::unique_ptr`, I replaced it with `Foam::autoPtr`.
-     - Does not know `clockValue`, I made also the header include optional. Will need to port to develop.
-   - [ ] OpenFOAM6 on Ubuntu 18.04 with preCICE 2.3.0 and tutorials from develop
-   - [ ] OpenFOAM7 on Ubuntu 20.04 with preCICE latest and tutorials from develop
-   - [ ] OpenFOAM8 on Ubuntu 20.04 with preCICE latest and tutorials from develop
-   - [ ] OpenFOAM9 on Ubuntu 20.04 with preCICE latest and tutorials from develop
-   - [ ] OpenFOAM10 on Ubuntu 20.04 with preCICE latest and tutorials from OpenFOAM10
-   - [ ] OpenFOAM v1912 (adapter master) on Ubuntu 18.04 with preCICE v2.3.0 and tutorials from develop
+  - [ ] OpenFOAM5 on Ubuntu 18.04 with preCICE 2.3.0 and tutorials from develop
+  - [ ] OpenFOAM6 on Ubuntu 18.04 with preCICE 2.3.0 and tutorials from develop
+  - [ ] OpenFOAM7 on Ubuntu 20.04 with preCICE latest and tutorials from develop
+  - [ ] OpenFOAM8 on Ubuntu 20.04 with preCICE latest and tutorials from develop
+  - [ ] OpenFOAM9 on Ubuntu 20.04 with preCICE latest and tutorials from develop
+  - [ ] OpenFOAM10 on Ubuntu 20.04 with preCICE latest and tutorials from OpenFOAM10
+  - [ ] OpenFOAM v1912 (adapter master) on Ubuntu 18.04 with preCICE v2.3.0 and tutorials from develop
 
 Overview of branches:
 
@@ -69,7 +67,6 @@ Overview of branches:
 master <-- OpenFOAM4 <-- OpenFOAM5 <-- OpenFOAM6 <-- OpenFOAM7 <-- ... <-- OpenFOAMdev
 ^-- develop     ^-- OpenFOAMv1806
 ```
-
 
 ## Release
 
