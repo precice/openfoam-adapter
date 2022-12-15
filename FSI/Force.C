@@ -19,7 +19,7 @@ preciceAdapter::FSI::Force::Force(
     }
     else
     {
-        ForceOwning_ = std::make_unique<volVectorField>(volVectorField(
+        ForceOwning_.reset(new volVectorField(
             IOobject(
                 nameForce,
                 mesh_.time().timeName(),
