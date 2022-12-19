@@ -182,6 +182,11 @@ jobs:
             echo "Manually changing from pimpleFoam to pimpleDyMFoam for compatibility with OpenFOAM 5."
             sed -i 's/pimpleFoam/pimpleDyMFoam/g' system/controlDict
           fi
+          if [ "${{ github.event.inputs.versionOpenFOAM }}" == "OpenFOAM9" ]
+          then
+            echo "Manually changing from solver to motionSolver in dynamicMeshDict for compatibility with OpenFOAM 9."
+            sed -i 's/solver/motionSolver/g' constant/dynamicMeshDict
+          fi
           ${{steps.installOpenFOAM.outputs.openfoam_exec}} ./run.sh | tee fluid-openfoam.log 2>&1 &
           PIDfluid=$!
           cd ../solid-cpp

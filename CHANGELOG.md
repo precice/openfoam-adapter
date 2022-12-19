@@ -8,6 +8,10 @@ Read more details in the issue [#52: Releases and versioning](https://github.com
 
 <!-- markdownlint-configure-file {"MD024": { "siblings_only": true } } -->
 
+## [v1.2.1] 2022-12-15
+
+- Replaced a `std::make_unique` by `new` in order to remain C++11 compatible and support older compilers [#264](https://github.com/precice/openfoam-adapter/pull/264).
+
 ## [v1.2.0] 2022-11-14
 
 ### Added

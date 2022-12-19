@@ -29,11 +29,16 @@ We provide version-specific [release archives](https://github.com/precice/openfo
   - [OpenFOAM v1812-v2206](https://github.com/precice/openfoam-adapter) or newer
   - [OpenFOAM v1612-v1806](https://github.com/precice/openfoam-adapter/tree/OpenFOAMv1806) (not tested)
 - OpenFOAM Foundation (openfoam.org) - secondary, consider experimental:
-  - [OpenFOAM 10](https://github.com/precice/openfoam-adapter/tree/OpenFOAM10) (several [changes to the tutorials](https://github.com/precice/tutorials/tree/OpenFOAM10) are also needed, read the [discussion](https://github.com/precice/tutorials/pull/283))
-  - [OpenFOAM 9](https://github.com/precice/openfoam-adapter/tree/OpenFOAM9) (rename also `solver` to `motionSolver` in `constant/dynamicMeshDict`)
+  - [OpenFOAM 10](https://github.com/precice/openfoam-adapter/tree/OpenFOAM10)
+    - Several [changes to the tutorials](https://github.com/precice/tutorials/tree/OpenFOAM10) are also needed, read the [discussion](https://github.com/precice/tutorials/pull/283).
+    - Same limitations as for OpenFOAM 9.
+  - [OpenFOAM 9](https://github.com/precice/openfoam-adapter/tree/OpenFOAM9)
+    - Rename `solver` to `motionSolver` in `constant/dynamicMeshDict`.
+    - Limitations in adjustable time step size ([#261](https://github.com/precice/openfoam-adapter/issues/261)).
   - [OpenFOAM 8](https://github.com/precice/openfoam-adapter/tree/OpenFOAM8)
   - [OpenFOAM 7](https://github.com/precice/openfoam-adapter/tree/OpenFOAM7)
-  - [OpenFOAM 6](https://github.com/precice/openfoam-adapter/tree/OpenFOAM6) (modify also `residualControl` to `outerResidualControl` in `system/fvSolution`)
+  - [OpenFOAM 6](https://github.com/precice/openfoam-adapter/tree/OpenFOAM6)
+    - Modify also `residualControl` to `outerResidualControl` in `system/fvSolution`.
   - [OpenFOAM 5.x](https://github.com/precice/openfoam-adapter/tree/OpenFOAM5)
   - [OpenFOAM 4.0/4.1](https://github.com/precice/openfoam-adapter/tree/OpenFOAM4) (not tested)
 
