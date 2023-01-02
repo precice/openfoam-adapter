@@ -16,6 +16,24 @@ void preciceAdapter::FF::Velocity::write(double* buffer, bool meshConnectivity, 
 {
     int bufferIndex = 0;
 
+    if (this->locationType_ == LocationType::volume)
+    {
+        forAll(U_->ref(), i)
+        {
+            // x-dimension
+            buffer[bufferIndex++] = U_->ref()[i].x();
+
+            // y-dimension
+            buffer[bufferIndex++] = U_->ref()[i].y();
+
+            if (dim == 3)
+            {
+                // z-dimension
+                buffer[bufferIndex++] = U_->ref()[i].z();
+            }   
+        }
+    }
+    
     // For every boundary patch of the interface
     for (uint j = 0; j < patchIDs_.size(); j++)
     {
@@ -41,29 +59,29 @@ void preciceAdapter::FF::Velocity::write(double* buffer, bool meshConnectivity, 
             }
         }
     }
+}
+
+void preciceAdapter::FF::Velocity::read(double* buffer, const unsigned int dim)
+{
+    int bufferIndex = 0;
 
     if (this->locationType_ == LocationType::volume)
     {
         forAll(U_->ref(), i)
         {
             // x-dimension
-            buffer[bufferIndex++] = U_->ref()[i].x();
+            U_->ref()[i].x() = buffer[bufferIndex++];
 
             // y-dimension
-            buffer[bufferIndex++] = U_->ref()[i].y();
+            U_->ref()[i].y() = buffer[bufferIndex++];
 
             if (dim == 3)
             {
                 // z-dimension
-                buffer[bufferIndex++] = U_->ref()[i].z();
-            }   
+                U_->ref()[i].z() = buffer[bufferIndex++];
+            }
         }
     }
-}
-
-void preciceAdapter::FF::Velocity::read(double* buffer, const unsigned int dim)
-{
-    int bufferIndex = 0;
 
     // For every boundary patch of the interface
     for (uint j = 0; j < patchIDs_.size(); j++)
@@ -87,24 +105,6 @@ void preciceAdapter::FF::Velocity::read(double* buffer, const unsigned int dim)
                 // z-dimension
                 U_->boundaryFieldRef()[patchID][i].z() =
                     buffer[bufferIndex++];
-            }
-        }
-    }
-
-    if (this->locationType_ == LocationType::volume)
-    {
-        forAll(U_->ref(), i)
-        {
-            // x-dimension
-            U_->ref()[i].x() = buffer[bufferIndex++];
-
-            // y-dimension
-            U_->ref()[i].y() = buffer[bufferIndex++];
-
-            if (dim == 3)
-            {
-                // z-dimension
-                U_->ref()[i].z() = buffer[bufferIndex++];
             }
         }
     }

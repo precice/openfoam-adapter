@@ -19,6 +19,14 @@ void preciceAdapter::CHT::Temperature::write(double* buffer, bool meshConnectivi
 {
     int bufferIndex = 0;
 
+    if (this->locationType_ == LocationType::volume)
+    {
+        forAll(T_->ref(), i)
+        {
+            buffer[bufferIndex++] = T_->ref()[i];
+        }
+    }
+
     // For every boundary patch of the interface
     for (uint j = 0; j < patchIDs_.size(); j++)
     {
@@ -54,20 +62,19 @@ void preciceAdapter::CHT::Temperature::write(double* buffer, bool meshConnectivi
             }
         }
     }
-
-    // TODO: where to put this in the control flow
-    if (this->locationType_ == LocationType::volume)
-    {
-        forAll(T_->ref(), i)
-        {
-            buffer[bufferIndex++] = T_->ref()[i];
-        }
-    }
 }
 
 void preciceAdapter::CHT::Temperature::read(double* buffer, const unsigned int dim)
 {
     int bufferIndex = 0;
+
+    if (this->locationType_ == LocationType::volume)
+    {
+        forAll(T_->ref(), i)
+        {
+            T_->ref()[i] = buffer[bufferIndex++];
+        }
+    }
 
     // For every boundary patch of the interface
     for (uint j = 0; j < patchIDs_.size(); j++)
@@ -80,14 +87,6 @@ void preciceAdapter::CHT::Temperature::read(double* buffer, const unsigned int d
             // Set the temperature as the buffer value
             T_->boundaryFieldRef()[patchID][i] =
                 buffer[bufferIndex++];
-        }
-    }
-
-    if (this->locationType_ == LocationType::volume)
-    {
-        forAll(T_->ref(), i)
-        {
-            T_->ref()[i] = buffer[bufferIndex++];
         }
     }
 }
