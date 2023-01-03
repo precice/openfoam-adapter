@@ -8,6 +8,10 @@ Read more details in the issue [#52: Releases and versioning](https://github.com
 
 <!-- markdownlint-configure-file {"MD024": { "siblings_only": true } } -->
 
+## [v1.2.2] 2022-01-03
+
+- Fix compatibility with OpenFOAM v2212, removing an unneeded `refCast` [commit e40fe](https://github.com/precice/openfoam-adapter/commit/e40fec1681a85d5147faa3100d21d28c2e205004).
+
 ## [v1.2.1] 2022-12-15
 
 - Replaced a `std::make_unique` by `new` in order to remain C++11 compatible and support older compilers [#264](https://github.com/precice/openfoam-adapter/pull/264).
