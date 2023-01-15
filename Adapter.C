@@ -119,6 +119,8 @@ bool preciceAdapter::Adapter::configFileRead()
                         DEBUG(adapterInfo("      - " + patch));
                     }
 
+                    // TODO add cellSetNames
+                    
                     DEBUG(adapterInfo("    writeData    : "));
                     auto writeData = interfaceDict.get<wordList>("writeData");
                     for (auto writeDatum : writeData)

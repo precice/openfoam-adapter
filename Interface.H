@@ -33,6 +33,9 @@ protected:
     //- OpenFOAM patches that form the interface
     std::vector<int> patchIDs_;
 
+    //- TODO
+    std::vector<std::string> cellSetNames_;
+
     //- Number of data points (cell centers) on the interface
     int numDataLocations_ = 0;
 
@@ -63,6 +66,7 @@ protected:
                        const std::string& namePointDisplacement,
                        const std::string& nameCellDisplacement);
 
+// TODO add cellSetNames to constructor
 public:
     //- Constructor
     Interface(

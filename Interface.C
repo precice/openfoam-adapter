@@ -5,6 +5,7 @@
 
 using namespace Foam;
 
+// TODO add cellSetNames to constructor + adjust meshConfig
 preciceAdapter::Interface::Interface(
     precice::Participant& precice,
     const fvMesh& mesh,

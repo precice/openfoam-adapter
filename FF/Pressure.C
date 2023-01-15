@@ -43,6 +43,9 @@ void preciceAdapter::FF::Pressure::read(double* buffer, const unsigned int dim)
 {
     int bufferIndex = 0;
 
+    cellSet overlapRegion(p_, cellSetNames_[j]);
+	const labelList & cells = overlapRegion.toc();
+    
     if (this->locationType_ == LocationType::volumeCenters)
     {
         forAll(p_->ref(), i)
