@@ -1,17 +1,19 @@
 #include "Interface.H"
 #include "Utilities.H"
 #include "faceTriangulation.H"
+#include "cellSet.H"
 
 
 using namespace Foam;
 
-// TODO add cellSetNames to constructor + adjust meshConfig
+// TODO adjust meshConfig
 preciceAdapter::Interface::Interface(
     precice::Participant& precice,
     const fvMesh& mesh,
     std::string meshName,
     std::string locationsType,
     std::vector<std::string> patchNames,
+    std::vector<std::string> cellSetNames,
     bool meshConnectivity,
     bool restartFromDeformed,
     const std::string& namePointDisplacement,
@@ -19,6 +21,7 @@ preciceAdapter::Interface::Interface(
 : precice_(precice),
   meshName_(meshName),
   patchNames_(patchNames),
+  cellSetNames_(cellSetNames),
   meshConnectivity_(meshConnectivity),
   restartFromDeformed_(restartFromDeformed)
 {
@@ -330,11 +333,28 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh, const std::str
     }
     else if (locationType_ == LocationType::volumeCenters)
     {
+
+        // TODO is volume option added everywhere it's supposed to
+
         // The volume coupling implementation considers the mesh points in the volume and
         // on the boundary patches in order to take the boundary conditions into account
 
-        // Get the number of (volume centered) mesh points in the volume
-        numDataLocations_ = mesh.C().size();
+        // Get the cell labels of the overlapping region
+	    std::vector<labelList> overlapCells;
+        // For every cellSet that participates in the coupling
+	    for (uint j = 0; j < cellSetNames_.size(); j++)
+	    {
+		    // Create a cell set
+		    cellSet overlapRegion(mesh, cellSetNames_[j]);
+
+            // Add the cells ID's to the vector and count how many overlap cells does the interface has
+            overlapCells.push_back(overlapRegion.toc());
+            numDataLocations_ += overlapCells[j].size();
+	    }
+
+        // --FULL domain: get the number of (volume centered) mesh points in the volume
+        // numDataLocations_ = mesh.C().size();
+        // ----------------------------------
 
         // Count the data locations for all the patches
         // and add those to the previously determined number of mesh points in the volume
@@ -356,7 +376,8 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh, const std::str
         // Initialize the index of the vertices array
         int verticesIndex = 0;
 
-        // Get the locations of the volume centered mesh vertices
+        //--FULL domain: Get the locations of the volume centered mesh vertices
+        /*
         const vectorField& CellCenters = mesh.C();
 
         for (auto i = 0; i < CellCenters.size(); i++)
@@ -366,6 +387,22 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh, const std::str
             if (dim_ == 3)
             {
                 vertices[verticesIndex++] = CellCenters[i].z();
+            }
+        }*/
+        //--------------------------------------------
+
+        // for all the overlapping cells (cellSets)
+        for (uint j = 0; j < cellSetNames_.size(); j++)
+        {
+            // Get the cell centres of the current cellSet.
+            const labelList & cells = overlapCells.at(j);
+
+            // Get the coordinates of the cells of the current cellSet.
+            for (int i=0; i < cells.size(); i++)
+            {
+                vertices[verticesIndex++] = mesh.C().internalField()[cells[i]].x();
+                vertices[verticesIndex++] = mesh.C().internalField()[cells[i]].y();
+                vertices[verticesIndex++] = mesh.C().internalField()[cells[i]].z();
             }
         }
 
@@ -405,6 +442,9 @@ void preciceAdapter::Interface::addCouplingDataWriter(
     // Set the patchIDs of the patches that form the interface
     couplingDataWriter->setPatchIDs(patchIDs_);
 
+    // TODO
+    couplingDataWriter->setCellSetNames(cellSetNames_);
+
     // Set the location type in the CouplingDataUser class
     couplingDataWriter->setLocationsType(locationType_);
 
@@ -431,6 +471,9 @@ void preciceAdapter::Interface::addCouplingDataReader(
 
     // Set the location type in the CouplingDataUser class
     couplingDataReader->setLocationsType(locationType_);
+
+    // TODO
+    couplingDataReader->setCellSetNames(cellSetNames_);
 
     // Check, if the current location type is supported by the data type
     couplingDataReader->checkDataLocation(meshConnectivity_);

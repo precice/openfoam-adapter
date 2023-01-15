@@ -66,7 +66,6 @@ protected:
                        const std::string& namePointDisplacement,
                        const std::string& nameCellDisplacement);
 
-// TODO add cellSetNames to constructor
 public:
     //- Constructor
     Interface(
@@ -75,6 +74,7 @@ public:
         std::string meshName,
         std::string locationsType,
         std::vector<std::string> patchNames,
+        std::vector<std::string> cellSetNames,
         bool meshConnectivity,
         bool restartFromDeformed,
         const std::string& namePointDisplacement,
