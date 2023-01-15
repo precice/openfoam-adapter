@@ -16,7 +16,7 @@ void preciceAdapter::FF::Pressure::write(double* buffer, bool meshConnectivity, 
 {
     int bufferIndex = 0;
 
-     if (this->locationType_ == LocationType::volume)
+    if (this->locationType_ == LocationType::volume)
     {
         // set in Interface::addCouplingDataR/W
         forAll(p_->ref(), i)
@@ -51,7 +51,7 @@ void preciceAdapter::FF::Pressure::read(double* buffer, const unsigned int dim)
             p_->ref()[i] = buffer[bufferIndex++];
         }
     }
-    
+
     // For every boundary patch of the interface
     for (uint j = 0; j < patchIDs_.size(); j++)
     {

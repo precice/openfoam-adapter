@@ -25,11 +25,6 @@ FF/VelocityGradient.C
 FF/Pressure.C
 FF/PressureGradient.C
 
-Volume_Coupling/Generic_volVectorField.C
-Volume_Coupling/Generic_volScalarField.C
-Volume_Coupling/Volume_Coupling.C
-Volume_Coupling/Fluid_Velocity.C
-
 Adapter.C
 
 preciceAdapterFunctionObject.C

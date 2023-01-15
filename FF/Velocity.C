@@ -30,10 +30,10 @@ void preciceAdapter::FF::Velocity::write(double* buffer, bool meshConnectivity, 
             {
                 // z-dimension
                 buffer[bufferIndex++] = U_->ref()[i].z();
-            }   
+            }
         }
     }
-    
+
     // For every boundary patch of the interface
     for (uint j = 0; j < patchIDs_.size(); j++)
     {
