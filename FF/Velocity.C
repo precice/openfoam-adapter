@@ -18,18 +18,43 @@ void preciceAdapter::FF::Velocity::write(double* buffer, bool meshConnectivity, 
 
     if (this->locationType_ == LocationType::volumeCenters)
     {
-        forAll(U_->internalField(), i)
+        if(cellSetNames_.empty())
         {
-            // x-dimension
-            buffer[bufferIndex++] = U_->internalField()[i].x();
-
-            // y-dimension
-            buffer[bufferIndex++] = U_->internalField()[i].y();
-
-            if (dim == 3)
+            forAll(U_->internalField(), i)
             {
-                // z-dimension
-                buffer[bufferIndex++] = U_->internalField()[i].z();
+                // x-dimension
+                buffer[bufferIndex++] = U_->internalField()[i].x();
+
+                // y-dimension
+                buffer[bufferIndex++] = U_->internalField()[i].y();
+
+                if (dim == 3)
+                {
+                    // z-dimension
+                    buffer[bufferIndex++] = U_->internalField()[i].z();
+                }
+            }
+        }
+        else 
+        {
+            for (uint j = 0; j < cellSetNames_.size(); j++) {
+                cellSet overlapRegion(U_->mesh(), cellSetNames_[j]);
+	            const labelList & cells = overlapRegion.toc();
+
+                for( int i=0; i < cells.size(); i++)
+                {
+                    // x-dimension
+                    buffer[bufferIndex++] = U_->ref()[cells[i]].x();
+
+                    // y-dimension
+                    buffer[bufferIndex++] = U_->ref()[cells[i]].y();
+
+                    if (dim == 3)
+                    {
+                        // z-dimension
+                        buffer[bufferIndex++] = U_->ref()[cells[i]].z();
+                    }
+                }
             }
         }
     }
@@ -67,20 +92,46 @@ void preciceAdapter::FF::Velocity::read(double* buffer, const unsigned int dim)
 
     if (this->locationType_ == LocationType::volumeCenters)
     {
-        forAll(U_->ref(), i)
+        if(cellSetNames_.empty())
         {
-            // x-dimension
-            U_->ref()[i].x() = buffer[bufferIndex++];
-
-            // y-dimension
-            U_->ref()[i].y() = buffer[bufferIndex++];
-
-            if (dim == 3)
+            forAll(U_->ref(), i)
             {
-                // z-dimension
-                U_->ref()[i].z() = buffer[bufferIndex++];
+                // x-dimension
+                U_->ref()[i].x() = buffer[bufferIndex++];
+
+                // y-dimension
+                U_->ref()[i].y() = buffer[bufferIndex++];
+
+                if (dim == 3)
+                {
+                    // z-dimension
+                    U_->ref()[i].z() = buffer[bufferIndex++];
+                }
             }
         }
+        else
+        {
+            for (uint j = 0; j < cellSetNames_.size(); j++) {
+                cellSet overlapRegion(U_->mesh(), cellSetNames_[j]);
+	            const labelList & cells = overlapRegion.toc();
+
+                for( int i=0; i < cells.size(); i++)
+                {
+                    // x-dimension
+                    U_->ref()[cells[i]].x() = buffer[bufferIndex++];
+
+                    // y-dimension
+                    U_->ref()[cells[i]].y() = buffer[bufferIndex++];
+
+                    if (dim == 3)
+                    {
+                        // z-dimension
+                        U_->ref()[cells[i]].z() = buffer[bufferIndex++];
+                    }
+                }
+            }
+        }
+        
     }
 
     // For every boundary patch of the interface

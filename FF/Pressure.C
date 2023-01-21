@@ -18,10 +18,27 @@ void preciceAdapter::FF::Pressure::write(double* buffer, bool meshConnectivity, 
 
     if (this->locationType_ == LocationType::volumeCenters)
     {
-        forAll(p_->internalField(), i)
+        if(cellSetNames_.empty())
         {
-            buffer[bufferIndex++] = p_->internalField()[i];
+            forAll(p_->internalField(), i)
+            {
+                buffer[bufferIndex++] = p_->internalField()[i];
+            }
         }
+        else
+        {
+            for (uint j = 0; j < cellSetNames_.size(); j++) {
+                cellSet overlapRegion(p_->mesh(), cellSetNames_[j]);
+	            const labelList & cells = overlapRegion.toc();
+
+                for( int i=0; i < cells.size(); i++)
+                {
+                    // Copy the pressure into the buffer
+                    buffer[bufferIndex++] = p_->ref()[cells[i]];
+                }
+            }
+        }
+        
     }
 
     // For every boundary patch of the interface
@@ -42,16 +59,30 @@ void preciceAdapter::FF::Pressure::write(double* buffer, bool meshConnectivity, 
 void preciceAdapter::FF::Pressure::read(double* buffer, const unsigned int dim)
 {
     int bufferIndex = 0;
-
-    cellSet overlapRegion(p_, cellSetNames_[j]);
-	const labelList & cells = overlapRegion.toc();
     
     if (this->locationType_ == LocationType::volumeCenters)
     {
-        forAll(p_->ref(), i)
+        if(cellSetNames_.empty())
         {
-            p_->ref()[i] = buffer[bufferIndex++];
+            forAll(p_->ref(), i)
+            {
+                p_->ref()[i] = buffer[bufferIndex++];
+            }
         }
+        else 
+        {
+            for (uint j = 0; j < cellSetNames_.size(); j++) {
+                cellSet overlapRegion(p_->mesh(), cellSetNames_[j]);
+	            const labelList & cells = overlapRegion.toc();
+
+                for( int i=0; i < cells.size(); i++)
+                {
+                    // Copy the pressure into the buffer
+                    p_->ref()[cells[i]] = buffer[bufferIndex++];
+                }
+            }
+        }
+        
     }
 
     // For every boundary patch of the interface
