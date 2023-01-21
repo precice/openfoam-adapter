@@ -119,16 +119,23 @@ bool preciceAdapter::Adapter::configFileRead()
                         DEBUG(adapterInfo("      - " + patch));
                     }
 
-                    // TODO cellSets don't have to be specified?
-                    // should specifying cellSets only work for locationType volume?
-                    // should we allow *not* specifying cellSets for locationType volume (and assume it's the whole domain)
-                    // + not associating them to patches?
+                    // TODO: check if this works correctly
                     DEBUG(adapterInfo("    cellSets      : "));
-                    auto cellSets = interfaceDict.get<wordList>("cellSets");
+                    auto cellSets = interfaceDict.lookupOrDefault<wordList>("cellSets", wordList());
+                    
                     for (auto cellSet : cellSets)
                     {
                         interfaceConfig.cellSetNames.push_back(cellSet);
                         DEBUG(adapterInfo("      - " + cellSet));
+                    }
+
+                    if (!interfaceConfig.cellSetNames.empty() && interfaceConfig.locationsType != "volume")
+                    {
+                        DEBUG(adapterInfo("Cell sets are not supported for locationType != volume. \n"
+                                          "Please configure the desired interface with the locationsType volume. \n"
+                                          "Have a look in the adapter documentation for detailed information.",
+                                          "warning"));
+                        return false;
                     }
                     
                     DEBUG(adapterInfo("    writeData    : "));

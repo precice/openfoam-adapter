@@ -340,21 +340,23 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh, const std::str
         // on the boundary patches in order to take the boundary conditions into account
 
         // Get the cell labels of the overlapping region
-	    std::vector<labelList> overlapCells;
-        // For every cellSet that participates in the coupling
-	    for (uint j = 0; j < cellSetNames_.size(); j++)
-	    {
-		    // Create a cell set
-		    cellSet overlapRegion(mesh, cellSetNames_[j]);
+        std::vector<labelList> overlapCells;
 
-            // Add the cells ID's to the vector and count how many overlap cells does the interface has
-            overlapCells.push_back(overlapRegion.toc());
-            numDataLocations_ += overlapCells[j].size();
-	    }
+        if (!cellSetNames_.empty()){
+            // For every cellSet that participates in the coupling
+            for (uint j = 0; j < cellSetNames_.size(); j++)
+            {
+                // Create a cell set
+                cellSet overlapRegion(mesh, cellSetNames_[j]);
 
-        // --FULL domain: get the number of (volume centered) mesh points in the volume
-        // numDataLocations_ = mesh.C().size();
-        // ----------------------------------
+                // Add the cells ID's to the vector and count how many overlap cells does the interface has
+                overlapCells.push_back(overlapRegion.toc());
+                numDataLocations_ += overlapCells[j].size();
+            }
+        }
+        else {
+            numDataLocations_ = mesh.C().size();
+        }
 
         // Count the data locations for all the patches
         // and add those to the previously determined number of mesh points in the volume
@@ -376,36 +378,36 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh, const std::str
         // Initialize the index of the vertices array
         int verticesIndex = 0;
 
-        //--FULL domain: Get the locations of the volume centered mesh vertices
-        /*
-        const vectorField& CellCenters = mesh.C();
-
-        for (auto i = 0; i < CellCenters.size(); i++)
-        {
-            vertices[verticesIndex++] = CellCenters[i].x();
-            vertices[verticesIndex++] = CellCenters[i].y();
-            if (dim_ == 3)
+        if (!cellSetNames_.empty()){
+            // for all the overlapping cells (cellSets)
+            for (uint j = 0; j < cellSetNames_.size(); j++)
             {
-                vertices[verticesIndex++] = CellCenters[i].z();
-            }
-        }*/
-        //--------------------------------------------
+                // Get the cell centres of the current cellSet.
+                const labelList & cells = overlapCells.at(j);
 
-        // for all the overlapping cells (cellSets)
-        for (uint j = 0; j < cellSetNames_.size(); j++)
-        {
-            // Get the cell centres of the current cellSet.
-            const labelList & cells = overlapCells.at(j);
-
-            // Get the coordinates of the cells of the current cellSet.
-            for (int i=0; i < cells.size(); i++)
-            {
-                vertices[verticesIndex++] = mesh.C().internalField()[cells[i]].x();
-                vertices[verticesIndex++] = mesh.C().internalField()[cells[i]].y();
-                vertices[verticesIndex++] = mesh.C().internalField()[cells[i]].z();
+                // Get the coordinates of the cells of the current cellSet.
+                for (int i=0; i < cells.size(); i++)
+                {
+                    vertices[verticesIndex++] = mesh.C().internalField()[cells[i]].x();
+                    vertices[verticesIndex++] = mesh.C().internalField()[cells[i]].y();
+                    vertices[verticesIndex++] = mesh.C().internalField()[cells[i]].z();
+                }
             }
         }
+        else {
+            const vectorField& CellCenters = mesh.C();
 
+            for (int i = 0; i < CellCenters.size(); i++)
+            {
+                vertices[verticesIndex++] = CellCenters[i].x();
+                vertices[verticesIndex++] = CellCenters[i].y();
+                if (dim_ == 3)
+                {
+                    vertices[verticesIndex++] = CellCenters[i].z();
+                }
+            }
+        }
+        
         // Get the locations of the mesh vertices (here: face centers)
         // for all the patches
         for (uint j = 0; j < patchIDs_.size(); j++)
