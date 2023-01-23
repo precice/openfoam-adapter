@@ -21,10 +21,27 @@ void preciceAdapter::CHT::Temperature::write(double* buffer, bool meshConnectivi
 
     if (this->locationType_ == LocationType::volumeCenters)
     {
-        forAll(T_->internalField(), i)
+        if(cellSetNames_.empty())
         {
-            buffer[bufferIndex++] = T_->internalField()[i];
+            forAll(T_->internalField(), i)
+            {
+                buffer[bufferIndex++] = T_->internalField()[i];
+            }
         }
+        else
+        {
+            for (uint j = 0; j < cellSetNames_.size(); j++) {
+                cellSet overlapRegion(T_->mesh(), cellSetNames_[j]);
+	            const labelList & cells = overlapRegion.toc();
+
+                for( int i=0; i < cells.size(); i++)
+                {
+                    // Copy temperature into the buffer
+                    buffer[bufferIndex++] = T_->ref()[cells[i]];
+                }
+            }
+        }
+        
     }
 
     // For every boundary patch of the interface
@@ -70,10 +87,27 @@ void preciceAdapter::CHT::Temperature::read(double* buffer, const unsigned int d
 
     if (this->locationType_ == LocationType::volumeCenters)
     {
-        forAll(T_->ref(), i)
+        if(cellSetNames_.empty())
         {
-            T_->ref()[i] = buffer[bufferIndex++];
+            forAll(T_->ref(), i)
+            {
+                T_->ref()[i] = buffer[bufferIndex++];
+            }
         }
+        else
+        {
+            for (uint j = 0; j < cellSetNames_.size(); j++) {
+                cellSet overlapRegion(T_->mesh(), cellSetNames_[j]);
+	            const labelList & cells = overlapRegion.toc();
+
+                for( int i=0; i < cells.size(); i++)
+                {
+                    // Copy temperature into the buffer
+                    T_->ref()[cells[i]] = buffer[bufferIndex++];
+                }
+            }
+        }
+        
     }
 
     // For every boundary patch of the interface
