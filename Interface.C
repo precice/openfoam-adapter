@@ -283,18 +283,18 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh)
 
     else if (locationType_ == LocationType::volume)
     {
-        // module for volume coupling is based on the module for coupling faceCenters
-        // as the module was tested and developed on a previous development where faceNodes
+        // The volume coupling implementation is based on the coupling with faceCenters
+        // as the volume coupling was tested and developed on a previous development where faceNodes
         // did not work properly
         //
-        // the module for volume coupling considers the mesh points in the volume and
+        // The volume coupling implementation considers the mesh points in the volume and
         // on the boundary patches in order to take the boundary conditions into account
 
-        // get the number (volume centered) mesh points in the volume
+        // Get the number of (volume centered) mesh points in the volume
         numDataLocations_ = mesh.C().size();
 
         // Count the data locations for all the patches
-        // and add the those to the previously determined number of mesh points in the volume
+        // and add those to the previously determined number of mesh points in the volume
         for (uint j = 0; j < patchIDs_.size(); j++)
         {
             numDataLocations_ +=
@@ -316,7 +316,7 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh)
         // Get the locations of the volume centered mesh vertices
         const vectorField& CellCenters = mesh.C();
 
-        for (int i = 0; i < CellCenters.size(); i++)
+        for (uint i = 0; i < CellCenters.size(); i++)
         {
             vertices[verticesIndex++] = CellCenters[i].x();
             vertices[verticesIndex++] = CellCenters[i].y();
