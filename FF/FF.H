@@ -5,8 +5,10 @@
 
 #include "FF/Velocity.H"
 #include "FF/Pressure.H"
+#include "FF/Temperature.H"
 #include "FF/PressureGradient.H"
 #include "FF/VelocityGradient.H"
+#include "FF/TemperatureGradient.H"
 
 #include "fvCFD.H"
 
@@ -32,6 +34,9 @@ protected:
 
     //- Name of the pressure field
     std::string nameP_ = "p";
+
+    //- Name of the temperature field
+    std::string nameT_ = "T";
 
     //- Determine the solver type
     std::string determineSolverType();

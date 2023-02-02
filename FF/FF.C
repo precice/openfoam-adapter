@@ -59,6 +59,10 @@ bool preciceAdapter::FF::FluidFluid::readConfig(const IOdictionary& adapterConfi
     nameP_ = FFdict.lookupOrDefault<word>("nameP", "p");
     DEBUG(adapterInfo("    pressure field name : " + nameP_));
 
+    // Read the name of the temperature field (if different)
+    nameT_ = FFdict.lookupOrDefault<word>("nameT", "T");
+    DEBUG(adapterInfo("    temperature field name : " + nameT_));
+
     return true;
 }
 
@@ -129,6 +133,20 @@ bool preciceAdapter::FF::FluidFluid::addWriters(std::string dataName, Interface*
             new Pressure(mesh_, nameP_));
         DEBUG(adapterInfo("Added writer: Pressure."));
     }
+    else if (dataName.find("TemperatureGradient") == 0)
+    {
+        interface->addCouplingDataWriter(
+            dataName,
+            new TemperatureGradient(mesh_, nameT_));
+        DEBUG(adapterInfo("Added writer: Temperature Gradient."));
+    }
+    else if (dataName.find("Temperature") == 0)
+    {
+        interface->addCouplingDataWriter(
+            dataName,
+            new Temperature(mesh_, nameT_));
+        DEBUG(adapterInfo("Added writer: Temperature."));
+    }
     else
     {
         found = false;
@@ -174,6 +192,20 @@ bool preciceAdapter::FF::FluidFluid::addReaders(std::string dataName, Interface*
             dataName,
             new Pressure(mesh_, nameP_));
         DEBUG(adapterInfo("Added reader: Pressure."));
+    }
+    else if (dataName.find("TemperatureGradient") == 0)
+    {
+        interface->addCouplingDataReader(
+            dataName,
+            new TemperatureGradient(mesh_, nameT_));
+        DEBUG(adapterInfo("Added reader: Temperature Gradient."));
+    }
+    else if (dataName.find("Temperature") == 0)
+    {
+        interface->addCouplingDataReader(
+            dataName,
+            new Temperature(mesh_, nameT_));
+        DEBUG(adapterInfo("Added reader: Temperature."));
     }
     else
     {
