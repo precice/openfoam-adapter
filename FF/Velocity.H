@@ -17,6 +17,8 @@ class Velocity : public CouplingDataUser
 private:
     //- Velocity field
     Foam::volVectorField* U_;
+    //- Face flux field
+    Foam::surfaceScalarField* phi_;
 
 public:
     //- Constructor

@@ -7,7 +7,9 @@ preciceAdapter::FF::Velocity::Velocity(
     const std::string nameU)
 : U_(
     const_cast<volVectorField*>(
-        &mesh.lookupObject<volVectorField>(nameU)))
+        &mesh.lookupObject<volVectorField>(nameU))),
+    phi_(const_cast<surfaceScalarField*>(
+        &mesh.lookupObject<surfaceScalarField>("phi")))
 {
     dataType_ = vector;
 }
@@ -21,23 +23,29 @@ void preciceAdapter::FF::Velocity::write(double* buffer, bool meshConnectivity, 
     {
         int patchID = patchIDs_.at(j);
 
+        scalarField phip = phi_->boundaryFieldRef()[patchID];
+        vectorField n = U_->boundaryField()[patchID].patch().nf();
+        scalarField magS = U_->boundaryField()[patchID].patch().magSf();
+        vectorField u_corrected = U_->boundaryField()[patchID] - 
+            n*(n & U_->boundaryField()[patchID]) + n*phip/magS;
+
         // For every cell of the patch
         forAll(U_->boundaryFieldRef()[patchID], i)
         {
             // Copy the velocity into the buffer
             // x-dimension
             buffer[bufferIndex++] =
-                U_->boundaryFieldRef()[patchID][i].x();
+                u_corrected[i].x();
 
             // y-dimension
             buffer[bufferIndex++] =
-                U_->boundaryFieldRef()[patchID][i].y();
+                u_corrected[i].y();
 
             if (dim == 3)
             {
                 // z-dimension
                 buffer[bufferIndex++] =
-                    U_->boundaryFieldRef()[patchID][i].z();
+                    u_corrected[i].z();
             }
         }
     }
