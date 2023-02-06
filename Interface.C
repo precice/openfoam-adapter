@@ -124,7 +124,7 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh)
                     mesh.boundaryMesh()[patchIDs_.at(j)].localPoints();
 
                 const auto faceNodesSize = faceNodes.size();
-                // Allocate memory for z-coordinates
+                //Allocate memory for z-coordinates
                 std::array<double, 2> z_location({0, 0});
                 constexpr unsigned int z_axis = 2;
 
@@ -264,15 +264,15 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh)
                     }
                 }
 
-                // Array to store the IDs we get from preCICE
+                //Array to store the IDs we get from preCICE
                 int triVertIDs[faceField.size() * (triaPerQuad * nodesPerTria)];
 
-                // Get preCICE IDs
+                //Get preCICE IDs
                 precice_.getMeshVertexIDsFromPositions(meshID_, faceField.size() * (triaPerQuad * nodesPerTria), triCoords, triVertIDs);
 
                 DEBUG(adapterInfo("Number of triangles: " + std::to_string(faceField.size() * triaPerQuad)));
 
-                // Set Triangles
+                //Set Triangles
                 for (int facei = 0; facei < faceField.size() * triaPerQuad; facei++)
                 {
                     precice_.setMeshTriangleWithEdges(meshID_, triVertIDs[facei * nodesPerTria], triVertIDs[facei * nodesPerTria + 1], triVertIDs[facei * nodesPerTria + 2]);

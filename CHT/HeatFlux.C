@@ -37,12 +37,12 @@ void preciceAdapter::CHT::HeatFlux::write(double* buffer, bool meshConnectivity,
         // If we use the mesh connectivity, we interpolate from the centres to the nodes
         if (meshConnectivity)
         {
-            // Setup Interpolation object
+            //Setup Interpolation object
             primitivePatchInterpolation patchInterpolator(mesh_.boundaryMesh()[patchID]);
 
             scalarField gradientPoints;
 
-            // Interpolate
+            //Interpolate
             gradientPoints = patchInterpolator.faceToPointInterpolate(gradientPatch);
 
             // For every cell of the patch
@@ -50,7 +50,7 @@ void preciceAdapter::CHT::HeatFlux::write(double* buffer, bool meshConnectivity,
             {
                 // Copy the heat flux into the buffer
                 // Q = - k * gradient(T)
-                // TODO: Interpolate kappa in case of a turbulent calculation
+                //TODO: Interpolate kappa in case of a turbulent calculation
                 buffer[bufferIndex++] =
                     -getKappaEffAt(i) * gradientPoints[i];
             }
@@ -62,7 +62,7 @@ void preciceAdapter::CHT::HeatFlux::write(double* buffer, bool meshConnectivity,
             {
                 // Copy the heat flux into the buffer
                 // Q = - k * gradient(T)
-                // TODO: Interpolate kappa in case of a turbulent calculation
+                //TODO: Interpolate kappa in case of a turbulent calculation
                 buffer[bufferIndex++] =
                     -getKappaEffAt(i) * gradientPatch[i];
             }
