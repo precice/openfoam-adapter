@@ -53,7 +53,7 @@ void preciceAdapter::FF::TemperatureGradient::read(double* buffer, const unsigne
 
         // For every cell of the patch
         forAll(gradientPatch, i)
-        {            
+        {
             // Set the Temperature gradient as the buffer value
             gradientPatch[i] =
                 -buffer[bufferIndex++];

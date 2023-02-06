@@ -26,6 +26,8 @@ FF/Pressure.C
 FF/PressureGradient.C
 FF/Temperature.C
 FF/TemperatureGradient.C
+FF/BoundaryConditions/coupledPressure/coupledPressureFvPatchField.C
+FF/BoundaryConditions/coupledVelocity/coupledVelocityFvPatchField.C
 
 Adapter.C
 

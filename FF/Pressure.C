@@ -1,4 +1,5 @@
 #include "Pressure.H"
+#include "coupledPressureFvPatchField.H"
 
 using namespace Foam;
 
@@ -40,11 +41,21 @@ void preciceAdapter::FF::Pressure::read(double* buffer, const unsigned int dim)
     {
         int patchID = patchIDs_.at(j);
 
+        // Get the pressure value boundary patch
+        scalarField* valuePatchPtr = &p_->boundaryFieldRef()[patchID];
+        if (isA<coupledPressureFvPatchField>(p_->boundaryFieldRef()[patchID]))
+        {
+            valuePatchPtr = &refCast<coupledPressureFvPatchField>(
+                                 p_->boundaryFieldRef()[patchID])
+                                 .refValue();
+        }
+        scalarField& valuePatch = *valuePatchPtr;
+
         // For every cell of the patch
         forAll(p_->boundaryFieldRef()[patchID], i)
         {
             // Set the pressure as the buffer value
-            p_->boundaryFieldRef()[patchID][i] =
+            valuePatch[i] =
                 buffer[bufferIndex++];
         }
     }
