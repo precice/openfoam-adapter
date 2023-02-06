@@ -38,9 +38,9 @@ preciceAdapter::Interface::Interface(
     {
         locationType_ = LocationType::faceNodes;
     }
-    else if (locationsType == "volume")
+    else if (locationsType == "volumeCenters" || locationsType == "volumeCentres")
     {
-        locationType_ = LocationType::volume;
+        locationType_ = LocationType::volumeCenters;
     }
     else
     {
@@ -281,7 +281,7 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh)
         }
     }
 
-    else if (locationType_ == LocationType::volume)
+    else if (locationType_ == LocationType::volumeCenters)
     {
         // The volume coupling implementation is based on the coupling with faceCenters
         // as the volume coupling was tested and developed on a previous development where faceNodes

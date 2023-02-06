@@ -14,7 +14,7 @@ enum class LocationType
     none,
     faceCenters,
     faceNodes,
-    volume
+    volumeCenters
 };
 
 class CouplingDataUser

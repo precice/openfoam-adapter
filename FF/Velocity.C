@@ -16,7 +16,7 @@ void preciceAdapter::FF::Velocity::write(double* buffer, bool meshConnectivity, 
 {
     int bufferIndex = 0;
 
-    if (this->locationType_ == LocationType::volume)
+    if (this->locationType_ == LocationType::volumeCenters)
     {
         forAll(U_->ref(), i)
         {
@@ -65,7 +65,7 @@ void preciceAdapter::FF::Velocity::read(double* buffer, const unsigned int dim)
 {
     int bufferIndex = 0;
 
-    if (this->locationType_ == LocationType::volume)
+    if (this->locationType_ == LocationType::volumeCenters)
     {
         forAll(U_->ref(), i)
         {
@@ -112,7 +112,7 @@ void preciceAdapter::FF::Velocity::read(double* buffer, const unsigned int dim)
 
 bool preciceAdapter::FF::Velocity::isLocationTypeSupported(const bool meshConnectivity) const
 {
-    return (this->locationType_ == LocationType::faceCenters || this->locationType_ == LocationType::volume);
+    return (this->locationType_ == LocationType::faceCenters);
 }
 
 std::string preciceAdapter::FF::Velocity::getDataName() const

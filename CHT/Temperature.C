@@ -19,7 +19,7 @@ void preciceAdapter::CHT::Temperature::write(double* buffer, bool meshConnectivi
 {
     int bufferIndex = 0;
 
-    if (this->locationType_ == LocationType::volume)
+    if (this->locationType_ == LocationType::volumeCenters)
     {
         forAll(T_->ref(), i)
         {
@@ -68,7 +68,7 @@ void preciceAdapter::CHT::Temperature::read(double* buffer, const unsigned int d
 {
     int bufferIndex = 0;
 
-    if (this->locationType_ == LocationType::volume)
+    if (this->locationType_ == LocationType::volumeCenters)
     {
         forAll(T_->ref(), i)
         {
@@ -104,7 +104,7 @@ bool preciceAdapter::CHT::Temperature::isLocationTypeSupported(const bool meshCo
     }
     else
     {
-        return (this->locationType_ == LocationType::faceCenters || this->locationType_ == LocationType::volume);
+        return (this->locationType_ == LocationType::faceCenters);
     }
 }
 
