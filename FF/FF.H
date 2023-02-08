@@ -38,6 +38,12 @@ protected:
     //- Name of the temperature field
     std::string nameT_ = "T";
 
+    //- Name of the face flux field
+    std::string namePhi_ = "phi";
+
+    //- Flux correction of velocity
+    bool fluxCorrection_ = false;
+
     //- Determine the solver type
     std::string determineSolverType();
 

@@ -19,12 +19,16 @@ private:
     Foam::volVectorField* U_;
     //- Face flux field
     Foam::surfaceScalarField* phi_;
+    //- Correct velocity by face flux
+    bool fluxCorrection_ = false;
 
 public:
     //- Constructor
     Velocity(
         const Foam::fvMesh& mesh,
-        const std::string nameU);
+        const std::string nameU,
+        const std::string namePhi,
+        bool fluxCorrection = false);
 
     //- Write the velocity values into the buffer
     void write(double* buffer, bool meshConnectivity, const unsigned int dim);

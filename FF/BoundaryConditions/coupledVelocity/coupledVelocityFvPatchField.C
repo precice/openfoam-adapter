@@ -122,7 +122,7 @@ void Foam::coupledVelocityFvPatchField::updateCoeffs()
     }
     const Foam::surfaceScalarField* phi = &db().lookupObject<surfaceScalarField>(phiName_);
     const scalarField& phip = phi->boundaryField()[this->patch().index()];
-    const vectorField& n = this->patch().nf();
+    const vectorField n = this->patch().nf();
 
     int t0 = this->patch().boundaryMesh().mesh().time().startTimeIndex();
     int t = this->patch().boundaryMesh().mesh().time().timeIndex();

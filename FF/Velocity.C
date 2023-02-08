@@ -5,12 +5,15 @@ using namespace Foam;
 
 preciceAdapter::FF::Velocity::Velocity(
     const Foam::fvMesh& mesh,
-    const std::string nameU)
+    const std::string nameU,
+    const std::string namePhi,
+    bool fluxCorrection)
 : U_(
     const_cast<volVectorField*>(
         &mesh.lookupObject<volVectorField>(nameU))),
   phi_(const_cast<surfaceScalarField*>(
-      &mesh.lookupObject<surfaceScalarField>("phi")))
+      &mesh.lookupObject<surfaceScalarField>(namePhi))),
+  fluxCorrection_(fluxCorrection)
 {
     dataType_ = vector;
 }
@@ -27,29 +30,30 @@ void preciceAdapter::FF::Velocity::write(double* buffer, bool meshConnectivity, 
         // Correct the velocity by the boundary face flux
         scalarField phip = phi_->boundaryFieldRef()[patchID];
         vectorField n = U_->boundaryField()[patchID].patch().nf();
-        scalarField magS = U_->boundaryField()[patchID].patch().magSf();
-        vectorField u_corrected = U_->boundaryField()[patchID];
-        //  - n*(n & U_->boundaryField()[patchID]) + n*phip/magS;
+        const scalarField& magS = U_->boundaryFieldRef()[patchID].patch().magSf();
+        vectorField UPatch = U_->boundaryField()[patchID];
+        if (fluxCorrection_) 
+        {
+            UPatch = UPatch - n*(n & U_->boundaryField()[patchID]) + n*phip/magS;
+        }
 
-        // Info << endl << "Subtract: " << n[440]*(n[440]&U_->boundaryField()[patchID][440]) << endl;
-        // Info << "Add: " << n[440]*phip[440]/magS[440] << endl;
         // For every cell of the patch
         forAll(U_->boundaryFieldRef()[patchID], i)
         {
             // Copy the velocity into the buffer
             // x-dimension
             buffer[bufferIndex++] =
-                u_corrected[i].x();
+                UPatch[i].x();
 
             // y-dimension
             buffer[bufferIndex++] =
-                u_corrected[i].y();
+                UPatch[i].y();
 
             if (dim == 3)
             {
                 // z-dimension
                 buffer[bufferIndex++] =
-                    u_corrected[i].z();
+                    UPatch[i].z();
             }
         }
     }

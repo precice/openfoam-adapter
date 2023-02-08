@@ -63,6 +63,14 @@ bool preciceAdapter::FF::FluidFluid::readConfig(const IOdictionary& adapterConfi
     nameT_ = FFdict.lookupOrDefault<word>("nameT", "T");
     DEBUG(adapterInfo("    temperature field name : " + nameT_));
 
+    // Read the name of the face flux field (if different)
+    namePhi_ = FFdict.lookupOrDefault<word>("namePhi", "phi");
+    DEBUG(adapterInfo("    face flux field name : " + namePhi_));
+
+    // Check whether to enable flux correction for velocity
+    fluxCorrection_ = FFdict.lookupOrDefault<bool>("fluxCorrection", false);
+    DEBUG(adapterInfo("    flux correction of velocity is set to : " + fluxCorrection_));
+
     return true;
 }
 
@@ -116,7 +124,7 @@ bool preciceAdapter::FF::FluidFluid::addWriters(std::string dataName, Interface*
     {
         interface->addCouplingDataWriter(
             dataName,
-            new Velocity(mesh_, nameU_));
+            new Velocity(mesh_, nameU_, namePhi_, fluxCorrection_));
         DEBUG(adapterInfo("Added writer: Velocity."));
     }
     else if (dataName.find("PressureGradient") == 0)
@@ -176,7 +184,7 @@ bool preciceAdapter::FF::FluidFluid::addReaders(std::string dataName, Interface*
     {
         interface->addCouplingDataReader(
             dataName,
-            new Velocity(mesh_, nameU_));
+            new Velocity(mesh_, nameU_, namePhi_));
         DEBUG(adapterInfo("Added reader: Velocity."));
     }
     else if (dataName.find("PressureGradient") == 0)
