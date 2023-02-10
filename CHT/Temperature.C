@@ -100,11 +100,11 @@ bool preciceAdapter::CHT::Temperature::isLocationTypeSupported(const bool meshCo
     // always return true and offload the handling to the user.
     if (meshConnectivity)
     {
-        return true;
+        return (this->locationType_ != LocationType::volumeCenters); // we do not support meshConnectivity for volumeCenters (yet)
     }
     else
     {
-        return (this->locationType_ == LocationType::faceCenters);
+        return (this->locationType_ == LocationType::faceCenters || this->locationType_ == LocationType::volumeCenters);
     }
 }
 

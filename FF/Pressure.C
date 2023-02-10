@@ -69,7 +69,14 @@ void preciceAdapter::FF::Pressure::read(double* buffer, const unsigned int dim)
 
 bool preciceAdapter::FF::Pressure::isLocationTypeSupported(const bool meshConnectivity) const
 {
-    return (this->locationType_ == LocationType::faceCenters);
+    if (meshConnectivity)
+    {
+        return (this->locationType_ == LocationType::faceCenters);
+    }
+    else 
+    {
+        return (this->locationType_ == LocationType::faceCenters || this->locationType_ == LocationType::volumeCenters);
+    }
 }
 
 std::string preciceAdapter::FF::Pressure::getDataName() const
