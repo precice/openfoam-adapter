@@ -73,7 +73,7 @@ bool preciceAdapter::FF::Pressure::isLocationTypeSupported(const bool meshConnec
     {
         return (this->locationType_ == LocationType::faceCenters);
     }
-    else 
+    else
     {
         return (this->locationType_ == LocationType::faceCenters || this->locationType_ == LocationType::volumeCenters);
     }
