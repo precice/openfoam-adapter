@@ -30,14 +30,14 @@ void preciceAdapter::CHT::Temperature::write(double* buffer, bool meshConnectivi
         }
         else
         {
-            for (uint j = 0; j < cellSetNames_.size(); j++) {
-                cellSet overlapRegion(T_->mesh(), cellSetNames_[j]);
+            for (auto cellSetName : cellSetNames_) {
+                cellSet overlapRegion(T_->mesh(), cellSetName);
 	            const labelList & cells = overlapRegion.toc();
 
-                for( int i=0; i < cells.size(); i++)
+                for(auto currentCell : cells)
                 {
                     // Copy temperature into the buffer
-                    buffer[bufferIndex++] = T_->ref()[cells[i]];
+                    buffer[bufferIndex++] = T_->ref()[currentCell];
                 }
             }
         }
@@ -96,14 +96,14 @@ void preciceAdapter::CHT::Temperature::read(double* buffer, const unsigned int d
         }
         else
         {
-            for (uint j = 0; j < cellSetNames_.size(); j++) {
-                cellSet overlapRegion(T_->mesh(), cellSetNames_[j]);
+            for (auto cellSetName : cellSetNames_) {
+                cellSet overlapRegion(T_->mesh(), cellSetName);
 	            const labelList & cells = overlapRegion.toc();
 
-                for( int i=0; i < cells.size(); i++)
+                for(auto currentCell : cells)
                 {
                     // Copy temperature into the buffer
-                    T_->ref()[cells[i]] = buffer[bufferIndex++];
+                    T_->ref()[currentCell] = buffer[bufferIndex++];
                 }
             }
         }

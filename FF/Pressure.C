@@ -27,14 +27,14 @@ void preciceAdapter::FF::Pressure::write(double* buffer, bool meshConnectivity, 
         }
         else
         {
-            for (uint j = 0; j < cellSetNames_.size(); j++) {
-                cellSet overlapRegion(p_->mesh(), cellSetNames_[j]);
+            for (auto cellSetName : cellSetNames_) {
+                cellSet overlapRegion(p_->mesh(), cellSetName);
 	            const labelList & cells = overlapRegion.toc();
 
-                for( int i=0; i < cells.size(); i++)
+                for(auto currentCell : cells)
                 {
                     // Copy the pressure into the buffer
-                    buffer[bufferIndex++] = p_->ref()[cells[i]];
+                    buffer[bufferIndex++] = p_->ref()[currentCell];
                 }
             }
         }
@@ -71,14 +71,14 @@ void preciceAdapter::FF::Pressure::read(double* buffer, const unsigned int dim)
         }
         else 
         {
-            for (uint j = 0; j < cellSetNames_.size(); j++) {
-                cellSet overlapRegion(p_->mesh(), cellSetNames_[j]);
+            for (auto cellSetName : cellSetNames_) {
+                cellSet overlapRegion(p_->mesh(), cellSetName);
 	            const labelList & cells = overlapRegion.toc();
 
-                for( int i=0; i < cells.size(); i++)
+                for(auto currentCell : cells)
                 {
                     // Copy the pressure into the buffer
-                    p_->ref()[cells[i]] = buffer[bufferIndex++];
+                    p_->ref()[currentCell] = buffer[bufferIndex++];
                 }
             }
         }

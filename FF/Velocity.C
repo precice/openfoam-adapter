@@ -37,22 +37,22 @@ void preciceAdapter::FF::Velocity::write(double* buffer, bool meshConnectivity, 
         }
         else 
         {
-            for (uint j = 0; j < cellSetNames_.size(); j++) {
-                cellSet overlapRegion(U_->mesh(), cellSetNames_[j]);
+            for (auto cellSetName : cellSetNames_) {
+                cellSet overlapRegion(U_->mesh(), cellSetName);
 	            const labelList & cells = overlapRegion.toc();
 
-                for( int i=0; i < cells.size(); i++)
+                for(auto currentCell : cells)
                 {
                     // x-dimension
-                    buffer[bufferIndex++] = U_->ref()[cells[i]].x();
+                    buffer[bufferIndex++] = U_->ref()[currentCell].x();
 
                     // y-dimension
-                    buffer[bufferIndex++] = U_->ref()[cells[i]].y();
+                    buffer[bufferIndex++] = U_->ref()[currentCell].y();
 
                     if (dim == 3)
                     {
                         // z-dimension
-                        buffer[bufferIndex++] = U_->ref()[cells[i]].z();
+                        buffer[bufferIndex++] = U_->ref()[currentCell].z();
                     }
                 }
             }
@@ -111,22 +111,22 @@ void preciceAdapter::FF::Velocity::read(double* buffer, const unsigned int dim)
         }
         else
         {
-            for (uint j = 0; j < cellSetNames_.size(); j++) {
-                cellSet overlapRegion(U_->mesh(), cellSetNames_[j]);
+            for (auto cellSetName : cellSetNames_) {
+                cellSet overlapRegion(U_->mesh(), cellSetName);
 	            const labelList & cells = overlapRegion.toc();
 
-                for( int i=0; i < cells.size(); i++)
+                for(auto currentCell : cells)
                 {
                     // x-dimension
-                    U_->ref()[cells[i]].x() = buffer[bufferIndex++];
+                    U_->ref()[currentCell].x() = buffer[bufferIndex++];
 
                     // y-dimension
-                    U_->ref()[cells[i]].y() = buffer[bufferIndex++];
+                    U_->ref()[currentCell].y() = buffer[bufferIndex++];
 
                     if (dim == 3)
                     {
                         // z-dimension
-                        U_->ref()[cells[i]].z() = buffer[bufferIndex++];
+                        U_->ref()[currentCell].z() = buffer[bufferIndex++];
                     }
                 }
             }
