@@ -35,6 +35,10 @@ void preciceAdapter::FF::Pressure::write(double* buffer, bool meshConnectivity, 
 void preciceAdapter::FF::Pressure::read(double* buffer, const unsigned int dim)
 {
     int bufferIndex = 0;
+    if (firstRead) {
+        firstRead = false;
+        return;
+    }
 
     // For every boundary patch of the interface
     for (uint j = 0; j < patchIDs_.size(); j++)

@@ -69,7 +69,7 @@ bool preciceAdapter::FF::FluidFluid::readConfig(const IOdictionary& adapterConfi
 
     // Check whether to enable flux correction for velocity
     fluxCorrection_ = FFdict.lookupOrDefault<bool>("fluxCorrection", false);
-    DEBUG(adapterInfo("    flux correction of velocity is set to : " + fluxCorrection_));
+    DEBUG(adapterInfo("    flux correction of velocity is set to : " + std::string(fluxCorrection_)));
 
     return true;
 }
@@ -141,19 +141,19 @@ bool preciceAdapter::FF::FluidFluid::addWriters(std::string dataName, Interface*
             new Pressure(mesh_, nameP_));
         DEBUG(adapterInfo("Added writer: Pressure."));
     }
-    else if (dataName.find("TemperatureGradient") == 0)
+    else if (dataName.find("FlowTemperatureGradient") == 0)
     {
         interface->addCouplingDataWriter(
             dataName,
             new TemperatureGradient(mesh_, nameT_));
-        DEBUG(adapterInfo("Added writer: Temperature Gradient."));
+        DEBUG(adapterInfo("Added writer: Flow Temperature Gradient."));
     }
-    else if (dataName.find("Temperature") == 0)
+    else if (dataName.find("FlowTemperature") == 0)
     {
         interface->addCouplingDataWriter(
             dataName,
             new Temperature(mesh_, nameT_));
-        DEBUG(adapterInfo("Added writer: Temperature."));
+        DEBUG(adapterInfo("Added writer: Flow Temperature."));
     }
     else
     {
@@ -201,19 +201,19 @@ bool preciceAdapter::FF::FluidFluid::addReaders(std::string dataName, Interface*
             new Pressure(mesh_, nameP_));
         DEBUG(adapterInfo("Added reader: Pressure."));
     }
-    else if (dataName.find("TemperatureGradient") == 0)
+    else if (dataName.find("FlowTemperatureGradient") == 0)
     {
         interface->addCouplingDataReader(
             dataName,
             new TemperatureGradient(mesh_, nameT_));
-        DEBUG(adapterInfo("Added reader: Temperature Gradient."));
+        DEBUG(adapterInfo("Added reader: Flow Temperature Gradient."));
     }
-    else if (dataName.find("Temperature") == 0)
+    else if (dataName.find("FlowTemperature") == 0)
     {
         interface->addCouplingDataReader(
             dataName,
             new Temperature(mesh_, nameT_));
-        DEBUG(adapterInfo("Added reader: Temperature."));
+        DEBUG(adapterInfo("Added reader: Flow Temperature."));
     }
     else
     {
