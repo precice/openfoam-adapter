@@ -96,3 +96,14 @@ This is a common problem e.g. when installing dependencies in non-system directo
 ### Rellocation-related errors
 
 Make sure to build both preCICE as a shared library (i.e. `.so`, not `.a`).
+
+### Undefined symbols from FFTW
+
+When building the adapter, it may fail to at the very end, reporting the following in the `ldd.log`:
+
+```text
+undefined symbol: fftw_taint	(/lib/x86_64-linux-gnu/libfftw3_mpi.so.3)
+undefined symbol: fftw_join_taint	(/lib/x86_64-linux-gnu/libfftw3_mpi.so.3)
+```
+
+This seems to always be related to building OpenFOAM from source, while also already having FFTW (an OpenFOAM dependency) installed. Removing FFTW from the `ThirdParty` directory of the OpenFOAM source code, and running `Allwmake` in OpenFOAM (and then also in the adapter) should help. This should also be very fast, as it will only relink, not rebuild.
