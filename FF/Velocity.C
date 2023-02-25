@@ -32,9 +32,9 @@ void preciceAdapter::FF::Velocity::write(double* buffer, bool meshConnectivity, 
         vectorField n = U_->boundaryField()[patchID].patch().nf();
         const scalarField& magS = U_->boundaryFieldRef()[patchID].patch().magSf();
         vectorField UPatch = U_->boundaryField()[patchID];
-        if (fluxCorrection_) 
+        if (fluxCorrection_)
         {
-            UPatch = UPatch - n*(n & U_->boundaryField()[patchID]) + n*phip/magS;
+            UPatch = UPatch - n * (n & U_->boundaryField()[patchID]) + n * phip / magS;
         }
 
         // For every cell of the patch
