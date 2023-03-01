@@ -6,7 +6,7 @@ set -e -u
 # Optional: Preprocessor flags
 # "-DADAPTER_DEBUG_MODE" enables debug messages
 # "-DADAPTER_ENABLE_TIMINGS" enables time measurements
-ADAPTER_PREP_FLAGS=""
+ADAPTER_PREP_FLAGS="${ADAPTER_PREP_FLAGS:-}"
 
 # Build command and options
 # In order to compile with multiple threads, set the environment variable WM_NCOMPPROCS,
