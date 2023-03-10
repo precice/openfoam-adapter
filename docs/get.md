@@ -16,7 +16,7 @@ To build the adapter, you need to install a few dependencies and then execute th
 
 The adapter also requires [pkg-config](https://linux.die.net/man/1/pkg-config) to [link to preCICE](https://precice.org/installation-linking.html). This is a very common dependency on Linux and is usually already installed.
 
-You can set compile flags by either changing the `ADAPTER_PREP_FLAGS` variable in the `Allwmake` script, or you can influence the value of `ADAPTER_PREP_FLAGS` by setting it as an environment variable.
+You can set compile flags by either changing the `ADAPTER_PREP_FLAGS` variable in the `Allwmake` script, or directly setting the value of `ADAPTER_PREP_FLAGS`  as an environment variable.
 To do so, `export ADAPTER_PREP_FLAGS="-D<desired> -D<options>"` before compiling the adapter.
 
 Adding the `-DADAPTER_DEBUG_MODE` flag to the `ADAPTER_PREP_FLAGS` activates additional debug messages. You may also change the target directory or specify the number of threads to use for the compilation. See the comments in `Allwmake` for more.
