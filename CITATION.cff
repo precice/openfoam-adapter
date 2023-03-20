@@ -16,14 +16,15 @@ doi: 10.51560/ofj.v3.88
 date-released: 2022-02-08
 url: "https://journal.openfoam.com/index.php/ofj/article/view/88"
 preferred-citation:
-  type: article
-  authors:
-  - family-names: "Lisa"
-    given-names: "Mona"
-    orcid: "https://orcid.org/0000-0000-0000-0000"
-  - family-names: "Bot"
-    given-names: "Hew"
-    orcid: "https://orcid.org/0000-0000-0000-0000"
+  - family-names: "Chourdakis"
+    given-names: "Gerasimos"
+    orcid: "https://orcid.org/0000-0002-3977-1385"
+  - family-names: "Schneider"
+    given-names: "David"
+    orcid: "https://orcid.org/0000-0002-3487-9688"
+  - family-names: "Uekermann"
+    given-names: "Benjamin"
+    orcid: "https://orcid.org/0000-0002-1314-9969"
   doi: "10.0000/00000"
   journal: "Journal Title"
   month: 9
