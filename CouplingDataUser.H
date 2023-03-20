@@ -32,8 +32,8 @@ protected:
     //- OpenFOAM patches that form the interface
     std::vector<int> patchIDs_;
 
-    //- preCICE data ID
-    int dataID_;
+    //- data name
+    std::string dataName_;
 
     //- location type of the interface
     LocationType locationType_ = LocationType::none;
@@ -48,11 +48,11 @@ public:
     //- Returns true if the data are vector
     bool hasVectorData();
 
-    //- Set the preCICE data ID
-    void setDataID(int dataID);
+    //- Set the data name
+    void setDataName(std::string dataName);
 
-    //- Get the preCICE data ID
-    int dataID();
+    //- Get the data name
+    const std::string& dataName();
 
     //- Set the patch IDs that form the interface
     void setPatchIDs(std::vector<int> patchIDs);
