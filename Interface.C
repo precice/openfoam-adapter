@@ -21,9 +21,6 @@ preciceAdapter::Interface::Interface(
   meshConnectivity_(meshConnectivity),
   restartFromDeformed_(restartFromDeformed)
 {
-    // Get the meshID from preCICE
-    meshID_ = precice_.getMeshID(meshName_);
-
     dim_ = precice_.getDimensions();
 
     if (dim_ == 2 && meshConnectivity_ == true)
@@ -181,7 +178,7 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh, const std::str
         }
 
         // Pass the mesh vertices information to preCICE
-        precice_.setMeshVertices(meshID_, numDataLocations_, vertices, vertexIDs_);
+        precice_.setMeshVertices(meshName_, numDataLocations_, vertices, vertexIDs_);
     }
     else if (locationType_ == LocationType::faceNodes)
     {
@@ -242,7 +239,7 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh, const std::str
         }
 
         // Pass the mesh vertices information to preCICE
-        precice_.setMeshVertices(meshID_, numDataLocations_, vertices, vertexIDs_);
+        precice_.setMeshVertices(meshName_, numDataLocations_, vertices, vertexIDs_);
 
         // meshConnectivity for prototype neglected
         // Only set the triangles, if necessary
@@ -325,8 +322,8 @@ void preciceAdapter::Interface::addCouplingDataWriter(
     std::string dataName,
     CouplingDataUser* couplingDataWriter)
 {
-    // Set the dataID (from preCICE)
-    couplingDataWriter->setDataID(precice_.getDataID(dataName, meshID_));
+    // Set the data name (from preCICE)
+    couplingDataWriter->setDataName(dataName);
 
     // Set the patchIDs of the patches that form the interface
     couplingDataWriter->setPatchIDs(patchIDs_);
@@ -350,7 +347,7 @@ void preciceAdapter::Interface::addCouplingDataReader(
     preciceAdapter::CouplingDataUser* couplingDataReader)
 {
     // Set the patchIDs of the patches that form the interface
-    couplingDataReader->setDataID(precice_.getDataID(dataName, meshID_));
+    couplingDataReader->setDataName(dataName);
 
     // Add the CouplingDataUser to the list of readers
     couplingDataReader->setPatchIDs(patchIDs_);
@@ -426,7 +423,8 @@ void preciceAdapter::Interface::readCouplingData()
         if (couplingDataReader->hasVectorData())
         {
             precice_.readBlockVectorData(
-                couplingDataReader->dataID(),
+                meshName_,
+                couplingDataReader->dataName(),
                 numDataLocations_,
                 vertexIDs_,
                 dataBuffer_);
@@ -434,7 +432,8 @@ void preciceAdapter::Interface::readCouplingData()
         else
         {
             precice_.readBlockScalarData(
-                couplingDataReader->dataID(),
+                meshName_,
+                couplingDataReader->dataName(),
                 numDataLocations_,
                 vertexIDs_,
                 dataBuffer_);
@@ -465,7 +464,8 @@ void preciceAdapter::Interface::writeCouplingData()
         if (couplingDataWriter->hasVectorData())
         {
             precice_.writeBlockVectorData(
-                couplingDataWriter->dataID(),
+                meshName_,
+                couplingDataWriter->dataName(),
                 numDataLocations_,
                 vertexIDs_,
                 dataBuffer_);
@@ -473,7 +473,8 @@ void preciceAdapter::Interface::writeCouplingData()
         else
         {
             precice_.writeBlockScalarData(
-                couplingDataWriter->dataID(),
+                meshName_,
+                couplingDataWriter->dataName(),
                 numDataLocations_,
                 vertexIDs_,
                 dataBuffer_);
