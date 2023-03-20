@@ -28,7 +28,7 @@ preferred-citation:
     given-names: "Benjamin"
     orcid: "https://orcid.org/0000-0002-1314-9969"
   doi: "10.51560/ofj.v3.88"
-  journal: "OpenFOAM$^{\textregistered}$ Journal"
+  journal: "OpenFOAM Journal"
   month: 2
   start: 1 # First page number
   end: 25 # Last page number
