@@ -122,7 +122,6 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh)
             {
                 const pointField faceNodes =
                     mesh.boundaryMesh()[patchIDs_.at(j)].localPoints();
-
                 const auto faceNodesSize = faceNodes.size();
                 //Allocate memory for z-coordinates
                 std::array<double, 2> z_location({0, 0});
@@ -280,7 +279,6 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh)
             }
         }
     }
-
     else if (locationType_ == LocationType::volumeCenters)
     {
         // The volume coupling implementation is based on the coupling with faceCenters
@@ -316,7 +314,7 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh)
         // Get the locations of the volume centered mesh vertices
         const vectorField& CellCenters = mesh.C();
 
-        for (uint i = 0; i < CellCenters.size(); i++)
+        for (uint i = 0; i < static_cast<uint>(CellCenters.size()); i++)
         {
             vertices[verticesIndex++] = CellCenters[i].x();
             vertices[verticesIndex++] = CellCenters[i].y();

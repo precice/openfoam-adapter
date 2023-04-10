@@ -18,7 +18,6 @@ void preciceAdapter::FF::Pressure::write(double* buffer, bool meshConnectivity, 
 
     if (this->locationType_ == LocationType::volumeCenters)
     {
-        // set in Interface::addCouplingDataR/W
         forAll(p_->ref(), i)
         {
             buffer[bufferIndex++] = p_->ref()[i];
