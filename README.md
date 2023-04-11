@@ -23,7 +23,7 @@ Check the file `CONTRIBUTING.md` for a few tips and guidelines.
 
 ## Citing
 
-Whenever using or referring to this adapter in academic publications, please cite it. See the option "Cite this repository" in the "About" section, as well as the [preCICE literature guide](https://precice.org/fundamentals-literature-guide.html) for a reference paper.
+Whenever using or referring to this adapter in academic publications, please cite it. See the option "Cite this repository" in the "About" section, as well as the [preCICE literature guide](https://precice.org/fundamentals-literature-guide.html) for a reference paper [4].
 
 ## History
 
@@ -45,6 +45,8 @@ The adapter is [easily extensible](https://precice.org/adapter-openfoam-extend.h
 [2] Lucia Cheung Yau. Conjugate heat transfer with the multiphysics coupling library preCICE. Master’s thesis, Department of Informatics, Technical University of Munich, 2016.
 
 [3] Derek Risseeuw. Fluid Structure Interaction Modelling of Flapping Wings. Master's thesis, Faculty of Aerospace Engineering, Delft University of Technology, 2019.
+
+[4] Chourdakis, G., Schneider, D., & Uekermann, B. (2023). OpenFOAM-preCICE: Coupling OpenFOAM with External Solvers for Multi-Physics Simulations. OpenFOAM® Journal, 3, 1–25. https://doi.org/10.51560/ofj.v3.88
 
 ## Disclaimer
 
