@@ -40,7 +40,7 @@ The adapter is [easily extensible](https://precice.org/adapter-openfoam-extend.h
 
 ## References
 
-[1] Chourdakis, G., Schneider, D., & Uekermann, B. (2023). OpenFOAM-preCICE: Coupling OpenFOAM with External Solvers for Multi-Physics Simulations. OpenFOAM® Journal, 3, 1–25. https://doi.org/10.51560/ofj.v3.88
+[1] Chourdakis, G., Schneider, D., & Uekermann, B. (2023). OpenFOAM-preCICE: Coupling OpenFOAM with External Solvers for Multi-Physics Simulations. OpenFOAM® Journal, 3, 1–25. [DOI: 10.51560/ofj.v3.88](https://doi.org/10.51560/ofj.v3.88)
 
 [2] Gerasimos Chourdakis. A general OpenFOAM adapter for the coupling library preCICE. Master's thesis, Department of Informatics, Technical University of Munich, 2017.
 
