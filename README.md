@@ -23,7 +23,7 @@ Check the file `CONTRIBUTING.md` for a few tips and guidelines.
 
 ## Citing
 
-Whenever using or referring to this adapter in academic publications, please cite it. See the option "Cite this repository" in the "About" section, as well as the [preCICE literature guide](https://precice.org/fundamentals-literature-guide.html) for a reference paper [4].
+Whenever using or referring to this adapter in academic publications, please cite it [4]. See the option "Cite this repository" in the "About" section, as well as the [preCICE literature guide](https://precice.org/fundamentals-literature-guide.html) for more information.
 
 ## History
 
