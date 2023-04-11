@@ -45,7 +45,18 @@ our [training session from the 15th OpenFOAM Workshop](https://mediatum.ub.tum.d
 
 Please cite this adapter using our [reference paper in the OpenFOAM Journal](https://doi.org/10.51560/ofj.v3.88) [1]. See the [preCICE literature guide](https://precice.org/fundamentals-literature-guide.html) for more details.
 
-For the design of the adapter as an OpenFOAM adapter (and especially the function object approach), see the Master's thesis of Gerasimos Chourdakis [2]. For CHT-specific topics, you may want to additionally look into the Master's thesis of Lucia Cheung Yau [3] and for the FSI module into the Master's thesis of Derek Risseeuw [4].
+## History
+
+This project is actively maintained on [precice/openfoam-adapter](https://github.com/precice/openfoam-adapter). Current maintainers: [@MakisH](https://github.com/MakisH/) and [@DavidSCN](https://github.com/DavidSCN).
+
+This adapter was developed as part of [Gerasimos Chourdakis' master's thesis](https://mediatum.ub.tum.de/1462269) [2].
+It is based on [previous work](https://github.com/ludcila/CHT-preCICE) by Lucia Cheung ([master's thesis](https://www5.in.tum.de/pub/Cheung2016_Thesis.pdf) [3], in cooperation with [SimScale](https://www.simscale.com/)).
+
+The fluid-structure interaction module was developed in close collaboration between Gerasimos Chourdakis and Derek Risseeuw (TU Delft), in the context of the [master's thesis of the latter](http://resolver.tudelft.nl/uuid:70beddde-e870-4c62-9a2f-8758b4e49123) [4]. We would also like to thank David Schneider (Univ. Siegen / TUM) and Maximilian Müller (TU Braunschweig) for sharing the code and experience of their similar previous work.
+
+The fluid-fluid coupling module was added by Gerasimos Chourdakis, in the context of his dissertation. [#67](https://github.com/precice/openfoam-adapter/pull/67)
+
+The adapter is [easily extensible](https://precice.org/adapter-openfoam-extend.html).
 
 ### Related literature
 
