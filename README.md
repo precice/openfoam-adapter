@@ -21,6 +21,10 @@ We welcome contributions! Have a look at open [good first issues](https://github
 
 Check the file `CONTRIBUTING.md` for a few tips and guidelines.
 
+## Citing
+
+Whenever using or referring to this adapter in academic publications, please cite it. See the [CITATION.cff](./CITATION.cff) file, as well as the [preCICE literature guide](https://precice.org/fundamentals-literature-guide.html) for a reference paper.
+
 ## History
 
 This project is actively maintained on [precice/openfoam-adapter](https://github.com/precice/openfoam-adapter). Current maintainers: [@MakisH](https://github.com/MakisH/) and [@DavidSCN](https://github.com/DavidSCN).
