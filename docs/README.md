@@ -43,7 +43,7 @@ our [training session from the 15th OpenFOAM Workshop](https://mediatum.ub.tum.d
 
 ## Cite
 
-Please cite this adapter using our [reference paper at the OpenFOAM Journal](https://doi.org/10.51560/ofj.v3.88) [1]. See the [preCICE literature guide](https://precice.org/fundamentals-literature-guide.html) for more details.
+Please cite this adapter using our [reference paper in the OpenFOAM Journal](https://doi.org/10.51560/ofj.v3.88) [1]. See the [preCICE literature guide](https://precice.org/fundamentals-literature-guide.html) for more details.
 
 For the design of the adapter as an OpenFOAM adapter (and especially the function object approach), see the Master's thesis of Gerasimos Chourdakis [2]. For CHT-specific topics, you may want to additionally look into the Master's thesis of Lucia Cheung Yau [3] and for the FSI module into the Master's thesis of Derek Risseeuw [4].
 
