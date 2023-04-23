@@ -314,7 +314,7 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh)
         // Get the locations of the volume centered mesh vertices
         const vectorField& CellCenters = mesh.C();
 
-        for (uint i = 0; i < static_cast<uint>(CellCenters.size()); i++)
+        for (auto i = 0; i < CellCenters.size(); i++)
         {
             vertices[verticesIndex++] = CellCenters[i].x();
             vertices[verticesIndex++] = CellCenters[i].y();
