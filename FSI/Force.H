@@ -12,35 +12,32 @@ namespace FSI
 class Force : public ForceBase
 {
 private:
-    //- Force field
+    //- Force field (non-owning pointer, it may already be constructed by the solver)
     Foam::volVectorField* Force_;
 
-    //- Solid force field
-    Foam::volVectorField* solidForce_;
+    //- Force field (owning pointer, we bind to Force_)
+    std::unique_ptr<Foam::volVectorField> ForceOwning_;
 
 public:
     //- Constructor
     Force(
         const Foam::fvMesh& mesh,
         const std::string solverType,
-        const std::string nameSolidForce);
+        const std::string nameForce);
 
     //- Write the forces values into the buffer
-    void write(double* buffer, bool meshConnectivity, const unsigned int dim) override;
+    void write(double* buffer, bool meshConnectivity, const unsigned int dim) final;
 
     //- Read the forces values from the buffer
-    void read(double* buffer, const unsigned int dim) override;
+    void read(double* buffer, const unsigned int dim) final;
 
-    bool isLocationTypeSupported(const bool meshConnectivity) const override;
+    bool isLocationTypeSupported(const bool meshConnectivity) const final;
 
     //- Get the name of the current data field
-    std::string getDataName() const override;
+    std::string getDataName() const final;
 
     //- Returns the normal vectors multiplied by the face area
-    Foam::tmp<Foam::vectorField> getFaceVectors(const unsigned int patchID) const override;
-
-    //- Destructor
-    ~Force();
+    Foam::tmp<Foam::vectorField> getFaceVectors(const unsigned int patchID) const final;
 };
 
 }

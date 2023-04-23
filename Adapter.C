@@ -10,7 +10,7 @@ preciceAdapter::Adapter::Adapter(const Time& runTime, const fvMesh& mesh)
 : runTime_(runTime),
   mesh_(mesh)
 {
-    adapterInfo("Loaded the OpenFOAM-preCICE adapter - v1.1.0 + unreleased changes.", "info");
+    adapterInfo("Loaded the OpenFOAM-preCICE adapter - v1.2.2.", "info");
 
     return;
 }
@@ -23,6 +23,7 @@ bool preciceAdapter::Adapter::configFileRead()
     // See also comment in preciceAdapter::Adapter::configure().
     try
     {
+        SETUP_TIMER();
         adapterInfo("Reading preciceDict...", "info");
 
         // TODO: static is just a quick workaround to be able
@@ -161,10 +162,9 @@ bool preciceAdapter::Adapter::configFileRead()
                 if (interfacesConfig_.at(i).meshConnectivity == true)
                 {
                     adapterInfo(
-                        "Mesh connectivity is not supported for FSI, as, usually, "
-                        "the Solid participant needs to provide the connectivity information. "
-                        "Therefore, set provideMeshConnectivity = false. "
-                        "Have a look in the adapter documentation for more information. ",
+                        "You have requested mesh connectivity (most probably for nearest-projection mapping) "
+                        "and you have enabled the FSI module. "
+                        "Mapping with connectivity information is not implemented for FSI, only for CHT-related fields. "
                         "warning");
                     return false;
                 }
@@ -196,6 +196,8 @@ bool preciceAdapter::Adapter::configFileRead()
 
         // TODO: Loading modules should be implemented in more general way,
         // in order to avoid code duplication. See issue #16 on GitHub.
+
+        ACCUMULATE_TIMER(timeInConfigRead_);
     }
     catch (const Foam::error& e)
     {
@@ -239,18 +241,26 @@ void preciceAdapter::Adapter::configure()
             DEBUG(adapterInfo("  Timestep type: fixed."));
         }
 
-        // Initialize preCICE
+        // Construct preCICE
+        SETUP_TIMER();
         DEBUG(adapterInfo("Creating the preCICE solver interface..."));
         DEBUG(adapterInfo("  Number of processes: " + std::to_string(Pstream::nProcs())));
         DEBUG(adapterInfo("  MPI rank: " + std::to_string(Pstream::myProcNo())));
         precice_ = new precice::SolverInterface(participantName_, preciceConfigFilename_, Pstream::myProcNo(), Pstream::nProcs());
         DEBUG(adapterInfo("  preCICE solver interface was created."));
 
+        ACCUMULATE_TIMER(timeInPreciceConstruct_);
+
         // Create interfaces
+        REUSE_TIMER();
         DEBUG(adapterInfo("Creating interfaces..."));
         for (uint i = 0; i < interfacesConfig_.size(); i++)
         {
-            Interface* interface = new Interface(*precice_, mesh_, interfacesConfig_.at(i).meshName, interfacesConfig_.at(i).locationsType, interfacesConfig_.at(i).patchNames, interfacesConfig_.at(i).meshConnectivity);
+            std::string namePointDisplacement = FSIenabled_ ? FSI_->getPointDisplacementFieldName() : "default";
+            std::string nameCellDisplacement = FSIenabled_ ? FSI_->getCellDisplacementFieldName() : "default";
+            bool restartFromDeformed = FSIenabled_ ? FSI_->isRestartingFromDeformed() : false;
+
+            Interface* interface = new Interface(*precice_, mesh_, interfacesConfig_.at(i).meshName, interfacesConfig_.at(i).locationsType, interfacesConfig_.at(i).patchNames, interfacesConfig_.at(i).meshConnectivity, restartFromDeformed, namePointDisplacement, nameCellDisplacement);
             interfaces_.push_back(interface);
             DEBUG(adapterInfo("Interface created on mesh " + interfacesConfig_.at(i).meshName));
 
@@ -330,6 +340,7 @@ void preciceAdapter::Adapter::configure()
             // Create the interface's data buffer
             interface->createBuffer();
         }
+        ACCUMULATE_TIMER(timeInMeshSetup_);
 
         // Initialize preCICE and exchange the first coupling data
         initialize();
@@ -434,6 +445,7 @@ void preciceAdapter::Adapter::execute()
     // coupling, we write again when the coupling timestep is complete.
     // Check the behavior e.g. by using watch on a result file:
     //     watch -n 0.1 -d ls --full-time Fluid/0.01/T.gz
+    SETUP_TIMER();
     if (checkpointing_ && isCouplingTimeWindowComplete())
     {
         // Check if the time directory already exists
@@ -447,6 +459,7 @@ void preciceAdapter::Adapter::execute()
             const_cast<Time&>(runTime_).writeNow();
         }
     }
+    ACCUMULATE_TIMER(timeInWriteResults_);
 
     // Read the received coupling data from the buffer
     readCouplingData();
@@ -487,6 +500,7 @@ void preciceAdapter::Adapter::adjustTimeStep()
 
 void preciceAdapter::Adapter::readCouplingData()
 {
+    SETUP_TIMER();
     DEBUG(adapterInfo("Reading coupling data..."));
 
     for (uint i = 0; i < interfaces_.size(); i++)
@@ -494,11 +508,14 @@ void preciceAdapter::Adapter::readCouplingData()
         interfaces_.at(i)->readCouplingData();
     }
 
+    ACCUMULATE_TIMER(timeInRead_);
+
     return;
 }
 
 void preciceAdapter::Adapter::writeCouplingData()
 {
+    SETUP_TIMER();
     DEBUG(adapterInfo("Writing coupling data..."));
 
     for (uint i = 0; i < interfaces_.size(); i++)
@@ -506,13 +523,17 @@ void preciceAdapter::Adapter::writeCouplingData()
         interfaces_.at(i)->writeCouplingData();
     }
 
+    ACCUMULATE_TIMER(timeInWrite_);
+
     return;
 }
 
 void preciceAdapter::Adapter::initialize()
 {
     DEBUG(adapterInfo("Initializing the preCICE solver interface..."));
+    SETUP_TIMER();
     timestepPrecice_ = precice_->initialize();
+    ACCUMULATE_TIMER(timeInInitialize_);
 
     preciceInitialized_ = true;
 
@@ -523,7 +544,9 @@ void preciceAdapter::Adapter::initialize()
     }
 
     DEBUG(adapterInfo("Initializing preCICE data..."));
+    REUSE_TIMER();
     precice_->initializeData();
+    ACCUMULATE_TIMER(timeInInitializeData_);
 
     adapterInfo("preCICE was configured and initialized", "info");
 
@@ -537,7 +560,9 @@ void preciceAdapter::Adapter::finalize()
         DEBUG(adapterInfo("Finalizing the preCICE solver interface..."));
 
         // Finalize the preCICE solver interface
+        SETUP_TIMER();
         precice_->finalize();
+        ACCUMULATE_TIMER(timeInFinalize_);
 
         preciceInitialized_ = false;
 
@@ -556,7 +581,9 @@ void preciceAdapter::Adapter::advance()
 {
     DEBUG(adapterInfo("Advancing preCICE..."));
 
+    SETUP_TIMER();
     timestepPrecice_ = precice_->advance(timestepSolver_);
+    ACCUMULATE_TIMER(timeInAdvance_);
 
     return;
 }
@@ -862,6 +889,8 @@ void preciceAdapter::Adapter::setupMeshVolCheckpointing()
 
 void preciceAdapter::Adapter::setupCheckpointing()
 {
+    SETUP_TIMER();
+
     // Add fields in the checkpointing list - sorted for parallel consistency
     DEBUG(adapterInfo("Adding in checkpointed fields..."));
 
@@ -890,6 +919,8 @@ void preciceAdapter::Adapter::setupCheckpointing()
     // NOTE: Add here other object types to checkpoint, if needed.
 
 #undef doLocalCode
+
+    ACCUMULATE_TIMER(timeInCheckpointingSetup_);
 }
 
 
@@ -1027,6 +1058,8 @@ void preciceAdapter::Adapter::addCheckpointField(volSymmTensorField* field)
 
 void preciceAdapter::Adapter::readCheckpoint()
 {
+    SETUP_TIMER();
+
     // TODO: To increase efficiency: only the oldTime() fields of the quantities which are used in the time
     //  derivative are necessary. (In general this is only the velocity). Also old information of the mesh
     //  is required.
@@ -1217,12 +1250,16 @@ void preciceAdapter::Adapter::readCheckpoint()
         "Checkpoint was read. Time = " + std::to_string(runTime_.value()));
 #endif
 
+    ACCUMULATE_TIMER(timeInCheckpointingRead_);
+
     return;
 }
 
 
 void preciceAdapter::Adapter::writeCheckpoint()
 {
+    SETUP_TIMER();
+
     DEBUG(adapterInfo("Writing a checkpoint..."));
 
     // Store the runTime
@@ -1299,6 +1336,8 @@ void preciceAdapter::Adapter::writeCheckpoint()
     adapterInfo(
         "Checkpoint for time t = " + std::to_string(runTime_.value()) + " was stored.");
 #endif
+
+    ACCUMULATE_TIMER(timeInCheckpointingWrite_);
 
     return;
 }
@@ -1608,6 +1647,27 @@ void preciceAdapter::Adapter::teardown()
 preciceAdapter::Adapter::~Adapter()
 {
     teardown();
+
+    TIMING_MODE(
+        // Continuing the output started in the destructor of preciceAdapterFunctionObject
+        Info << "Time exclusively in the adapter: " << (timeInConfigRead_ + timeInMeshSetup_ + timeInCheckpointingSetup_ + timeInWrite_ + timeInRead_ + timeInCheckpointingWrite_ + timeInCheckpointingRead_).str() << nl;
+        Info << "  (S) reading preciceDict:       " << timeInConfigRead_.str() << nl;
+        Info << "  (S) constructing preCICE:      " << timeInPreciceConstruct_.str() << nl;
+        Info << "  (S) setting up the interfaces: " << timeInMeshSetup_.str() << nl;
+        Info << "  (S) setting up checkpointing:  " << timeInCheckpointingSetup_.str() << nl;
+        Info << "  (I) writing data:              " << timeInWrite_.str() << nl;
+        Info << "  (I) reading data:              " << timeInRead_.str() << nl;
+        Info << "  (I) writing checkpoints:       " << timeInCheckpointingWrite_.str() << nl;
+        Info << "  (I) reading checkpoints:       " << timeInCheckpointingRead_.str() << nl;
+        Info << "  (I) writing OpenFOAM results:  " << timeInWriteResults_.str() << " (at the end of converged time windows)" << nl << nl;
+        Info << "Time exclusively in preCICE:     " << (timeInInitialize_ + timeInInitializeData_ + timeInAdvance_ + timeInFinalize_).str() << nl;
+        Info << "  (S) initialize():              " << timeInInitialize_.str() << nl;
+        Info << "  (S) initializeData():          " << timeInInitializeData_.str() << nl;
+        Info << "  (I) advance():                 " << timeInAdvance_.str() << nl;
+        Info << "  (I) finalize():                " << timeInFinalize_.str() << nl;
+        Info << "  These times include time waiting for other participants." << nl;
+        Info << "  See also precice-<participant>-events-summary.log." << nl;
+        Info << "-------------------------------------------------------------------------------------" << nl;)
 
     return;
 }

@@ -25,22 +25,6 @@ Copy this template to the release pull request description.
 
 Until we get automated system tests again, run all the tests manually.
 
-## Prepare version-specific branches
-
-- [ ] Rebase `OpenFOAM4` on `develop` and force-push
-  - `git checkout OpenFOAM4 && git rebase develop`
-  - Resolve any conflicts. We should have only one commit in the end.
-  - `git push --force`
-- [ ] Rebase `OpenFOAM5` on `OpenFOAM4`, `OpenFOAM6` on `OpenFOAM5`, ...
-- [ ] Trigger a custom build for each version
-
-Overview of branches:
-
-```text
-master <-- OpenFOAM4 <-- OpenFOAM5 <-- OpenFOAM6 <-- OpenFOAM7 <-- OpenFOAM8 <-- OpenFOAMdev
-^-- develop     ^-- OpenFOAMv1806
-```
-
 ## Preparing the Changelog
 
 - [ ] Copy all the changelog entries into `CHANGELOG.md`
@@ -60,7 +44,29 @@ master <-- OpenFOAM4 <-- OpenFOAM5 <-- OpenFOAM6 <-- OpenFOAM7 <-- OpenFOAM8 <--
 
 - [ ] Review pull request
 - [ ] Merge pull request (**not** squash)
-- [ ] Rebase the version-specific branches on `master`
+
+## Prepare version-specific branches
+
+- [ ] Rebase `OpenFOAM4` on `master` and force-push
+  - `git checkout OpenFOAM4 && git rebase develop`
+  - Resolve any conflicts. We should have only one commit in the end.
+  - `git push --force`
+- [ ] Rebase `OpenFOAM5` on `OpenFOAM4`, `OpenFOAM6` on `OpenFOAM5`, ...
+- [ ] Trigger a custom build for each version and tick each when it succeeds:
+  - [ ] OpenFOAM5 on Ubuntu 18.04 with preCICE 2.3.0 and tutorials from develop
+  - [ ] OpenFOAM6 on Ubuntu 18.04 with preCICE 2.3.0 and tutorials from develop
+  - [ ] OpenFOAM7 on Ubuntu 20.04 with preCICE latest and tutorials from develop
+  - [ ] OpenFOAM8 on Ubuntu 20.04 with preCICE latest and tutorials from develop
+  - [ ] OpenFOAM9 on Ubuntu 20.04 with preCICE latest and tutorials from develop
+  - [ ] OpenFOAM10 on Ubuntu 20.04 with preCICE latest and tutorials from OpenFOAM10
+  - [ ] OpenFOAM v1912 (adapter master) on Ubuntu 18.04 with preCICE v2.3.0 and tutorials from develop
+
+Overview of branches:
+
+```text
+master <-- OpenFOAM4 <-- OpenFOAM5 <-- OpenFOAM6 <-- OpenFOAM7 <-- ... <-- OpenFOAMdev
+^-- develop     ^-- OpenFOAMv1806
+```
 
 ## Release
 
@@ -76,7 +82,6 @@ master <-- OpenFOAM4 <-- OpenFOAM5 <-- OpenFOAM6 <-- OpenFOAM7 <-- OpenFOAM8 <--
 
 - [ ] Merge back from `master` to `develop`. No PR is needed for that.
 - [ ] Modify the adapter version message to `Loaded the OpenFOAM-preCICE adapter v1.0.0 + unreleased changes`.
-- [ ] Update the git module on the website
 - [ ] Update workflows in the tutorials repository, if needed (e.g., OpenFOAM version)
 - [ ] Update external documentation (tutorials, website), e.g., regarding the adapter or OpenFOAM version.
   - [ ] Quickstart

@@ -8,9 +8,43 @@ Read more details in the issue [#52: Releases and versioning](https://github.com
 
 <!-- markdownlint-configure-file {"MD024": { "siblings_only": true } } -->
 
-## [Unreleased]
+## [v1.2.2] 2022-01-03
 
 ### Changed
+
+- Updated the default OpenFOAM version in documentation and CI to v2212 [commit 9b2b2](https://github.com/precice/openfoam-adapter/commit/9b2b27fb6d0c9506c109e5a714d64607d4f73565).
+
+### Fixed
+
+- Fixed compatibility with OpenFOAM v2212, removing an unneeded `refCast` [commit e40fe](https://github.com/precice/openfoam-adapter/commit/e40fec1681a85d5147faa3100d21d28c2e205004).
+
+## [v1.2.1] 2022-12-15
+
+### Fixed
+
+- Replaced a `std::make_unique` by `new` in order to remain C++11 compatible and support older compilers [#264](https://github.com/precice/openfoam-adapter/pull/264).
+
+## [v1.2.0] 2022-11-14
+
+### Added
+
+- Added support for a restart from the initial undeformed interface mesh for Fluid solvers in FSI simulations [#224](https://github.com/precice/openfoam-adapter/pull/224).
+- Added functionality to allow use of solids4foam with the OpenFOAM adapter (new solver type "solid"). This includes reading forces and writing displacements.
+- Enabled mesh motion solvers that do not register a pointDisplacement field (such as the RBFMeshMotionSolver from solids4foam) to work with the adapter [#241](https://github.com/precice/openfoam-adapter/pull/241)
+- Added timers for tracking the time spent in the adapter and preCICE (disabled by default) [#256](https://github.com/precice/openfoam-adapter/pull/256).
+- Added a warning for trying to build without pkg-config being available and more suggestions for possible problems [#220](https://github.com/precice/openfoam-adapter/pull/220).
+- Added more documentation, specifically for configuring the FF module. [#254](https://github.com/precice/openfoam-adapter/pull/254)
+
+### Changed
+
+- Removed the default `-j 4` option from the wmake command. Instead, documented the `WM_NCOMPPROCS` option of OpenFOAM. [#244](https://github.com/precice/openfoam-adapter/pull/244)
+- Changed virtual function declarations to explicitly define one (only) of virtual/override/final. If you need to extend a method marked as `final`, please report. [#245](https://github.com/precice/openfoam-adapter/pull/245)
+- Changed the xy-plane error to a warning, to support 2D axisymmetric cases. [#246](https://github.com/precice/openfoam-adapter/pull/246)
+- OpenFOAM version bumped to v2206 in GitHub Actions (including preCICE v2.3.0 --> v2.5.0) and documentation [#230](https://github.com/precice/openfoam-adapter/pull/230).
+
+### Removed
+
+- Removed the (deprecated since preCICE v2.5.0) call to isReadDataAvailable. [#247](https://github.com/precice/openfoam-adapter/pull/247)
 
 ## [v1.1.0] 2022-02-08
 
