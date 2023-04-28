@@ -121,7 +121,7 @@ bool preciceAdapter::Adapter::configFileRead()
 
                     DEBUG(adapterInfo("    cellSets      : "));
                     auto cellSets = interfaceDict.lookupOrDefault<wordList>("cellSets", wordList());
-                    
+
                     for (auto cellSet : cellSets)
                     {
                         interfaceConfig.cellSetNames.push_back(cellSet);
@@ -136,7 +136,7 @@ bool preciceAdapter::Adapter::configFileRead()
                                           "warning"));
                         return false;
                     }
-                    
+
                     DEBUG(adapterInfo("    writeData    : "));
                     auto writeData = interfaceDict.get<wordList>("writeData");
                     for (auto writeDatum : writeData)

@@ -341,7 +341,8 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh, const std::str
         // Get the cell labels of the overlapping region
         std::vector<labelList> overlapCells;
 
-        if (!cellSetNames_.empty()){
+        if (!cellSetNames_.empty())
+        {
             // For every cellSet that participates in the coupling
             for (uint j = 0; j < cellSetNames_.size(); j++)
             {
@@ -353,7 +354,8 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh, const std::str
                 numDataLocations_ += overlapCells[j].size();
             }
         }
-        else {
+        else
+        {
             numDataLocations_ = mesh.C().size();
         }
 
@@ -377,26 +379,28 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh, const std::str
         // Initialize the index of the vertices array
         int verticesIndex = 0;
 
-        if (!cellSetNames_.empty()){
+        if (!cellSetNames_.empty())
+        {
             // for all the overlapping cells (cellSets)
             for (uint j = 0; j < cellSetNames_.size(); j++)
             {
                 // Get the cell centres of the current cellSet.
-                const labelList & cells = overlapCells.at(j);
+                const labelList& cells = overlapCells.at(j);
 
                 // Get the coordinates of the cells of the current cellSet.
-                for (int i=0; i < cells.size(); i++)
+                for (int i = 0; i < cells.size(); i++)
                 {
                     vertices[verticesIndex++] = mesh.C().internalField()[cells[i]].x();
                     vertices[verticesIndex++] = mesh.C().internalField()[cells[i]].y();
                     if (dim_ == 3)
                     {
                         vertices[verticesIndex++] = mesh.C().internalField()[cells[i]].z();
-                    }   
+                    }
                 }
             }
         }
-        else {
+        else
+        {
             const vectorField& CellCenters = mesh.C();
 
             for (int i = 0; i < CellCenters.size(); i++)
@@ -409,7 +413,7 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh, const std::str
                 }
             }
         }
-        
+
         // Get the locations of the mesh vertices (here: face centers)
         // for all the patches
         for (uint j = 0; j < patchIDs_.size(); j++)

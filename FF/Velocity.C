@@ -18,30 +18,31 @@ void preciceAdapter::FF::Velocity::write(double* buffer, bool meshConnectivity, 
 
     if (this->locationType_ == LocationType::volumeCenters)
     {
-        if(cellSetNames_.empty())
+        if (cellSetNames_.empty())
         {
-            forAll(U_->internalField(), i)
+            for (const auto& cell : U_->internalField())
             {
                 // x-dimension
-                buffer[bufferIndex++] = U_->internalField()[i].x();
+                buffer[bufferIndex++] = cell.x();
 
                 // y-dimension
-                buffer[bufferIndex++] = U_->internalField()[i].y();
+                buffer[bufferIndex++] = cell.y();
 
                 if (dim == 3)
                 {
                     // z-dimension
-                    buffer[bufferIndex++] = U_->internalField()[i].z();
+                    buffer[bufferIndex++] = cell.z();
                 }
             }
         }
-        else 
+        else
         {
-            for (auto cellSetName : cellSetNames_) {
+            for (const auto& cellSetName : cellSetNames_)
+            {
                 cellSet overlapRegion(U_->mesh(), cellSetName);
-	            const labelList & cells = overlapRegion.toc();
+                const labelList& cells = overlapRegion.toc();
 
-                for(auto currentCell : cells)
+                for (const auto& currentCell : cells)
                 {
                     // x-dimension
                     buffer[bufferIndex++] = U_->ref()[currentCell].x();
@@ -92,30 +93,31 @@ void preciceAdapter::FF::Velocity::read(double* buffer, const unsigned int dim)
 
     if (this->locationType_ == LocationType::volumeCenters)
     {
-        if(cellSetNames_.empty())
+        if (cellSetNames_.empty())
         {
-            forAll(U_->ref(), i)
+            for (auto& cell : U_->ref())
             {
                 // x-dimension
-                U_->ref()[i].x() = buffer[bufferIndex++];
+                cell.x() = buffer[bufferIndex++];
 
                 // y-dimension
-                U_->ref()[i].y() = buffer[bufferIndex++];
+                cell.y() = buffer[bufferIndex++];
 
                 if (dim == 3)
                 {
                     // z-dimension
-                    U_->ref()[i].z() = buffer[bufferIndex++];
+                    cell.z() = buffer[bufferIndex++];
                 }
             }
         }
         else
         {
-            for (auto cellSetName : cellSetNames_) {
+            for (const auto& cellSetName : cellSetNames_)
+            {
                 cellSet overlapRegion(U_->mesh(), cellSetName);
-	            const labelList & cells = overlapRegion.toc();
+                const labelList& cells = overlapRegion.toc();
 
-                for(auto currentCell : cells)
+                for (const auto& currentCell : cells)
                 {
                     // x-dimension
                     U_->ref()[currentCell].x() = buffer[bufferIndex++];
@@ -131,7 +133,6 @@ void preciceAdapter::FF::Velocity::read(double* buffer, const unsigned int dim)
                 }
             }
         }
-        
     }
 
     // For every boundary patch of the interface

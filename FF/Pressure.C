@@ -18,27 +18,27 @@ void preciceAdapter::FF::Pressure::write(double* buffer, bool meshConnectivity, 
 
     if (this->locationType_ == LocationType::volumeCenters)
     {
-        if(cellSetNames_.empty())
+        if (cellSetNames_.empty())
         {
-            forAll(p_->internalField(), i)
+            for (const auto& cell : p_->internalField())
             {
-                buffer[bufferIndex++] = p_->internalField()[i];
+                buffer[bufferIndex++] = cell;
             }
         }
         else
         {
-            for (auto cellSetName : cellSetNames_) {
+            for (const auto& cellSetName : cellSetNames_)
+            {
                 cellSet overlapRegion(p_->mesh(), cellSetName);
-	            const labelList & cells = overlapRegion.toc();
+                const labelList& cells = overlapRegion.toc();
 
-                for(auto currentCell : cells)
+                for (const auto& currentCell : cells)
                 {
                     // Copy the pressure into the buffer
                     buffer[bufferIndex++] = p_->ref()[currentCell];
                 }
             }
         }
-        
     }
 
     // For every boundary patch of the interface
@@ -59,30 +59,35 @@ void preciceAdapter::FF::Pressure::write(double* buffer, bool meshConnectivity, 
 void preciceAdapter::FF::Pressure::read(double* buffer, const unsigned int dim)
 {
     int bufferIndex = 0;
+<<<<<<< HEAD
     
     if (this->locationType_ == LocationType::volumeCenters)
+=======
+
+    if (this->locationType_ == LocationType::volume)
+>>>>>>> 16aab8a (foreach loops with references)
     {
-        if(cellSetNames_.empty())
+        if (cellSetNames_.empty())
         {
-            forAll(p_->ref(), i)
+            for (auto& cell : p_->ref())
             {
-                p_->ref()[i] = buffer[bufferIndex++];
+                cell = buffer[bufferIndex++];
             }
         }
-        else 
+        else
         {
-            for (auto cellSetName : cellSetNames_) {
+            for (const auto& cellSetName : cellSetNames_)
+            {
                 cellSet overlapRegion(p_->mesh(), cellSetName);
-	            const labelList & cells = overlapRegion.toc();
+                const labelList& cells = overlapRegion.toc();
 
-                for(auto currentCell : cells)
+                for (const auto& currentCell : cells)
                 {
                     // Copy the pressure into the buffer
                     p_->ref()[currentCell] = buffer[bufferIndex++];
                 }
             }
         }
-        
     }
 
     // For every boundary patch of the interface

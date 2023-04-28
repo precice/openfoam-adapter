@@ -21,27 +21,27 @@ void preciceAdapter::CHT::Temperature::write(double* buffer, bool meshConnectivi
 
     if (this->locationType_ == LocationType::volumeCenters)
     {
-        if(cellSetNames_.empty())
+        if (cellSetNames_.empty())
         {
-            forAll(T_->internalField(), i)
+            for (const auto& cell : T_->internalField())
             {
-                buffer[bufferIndex++] = T_->internalField()[i];
+                buffer[bufferIndex++] = cell;
             }
         }
         else
         {
-            for (auto cellSetName : cellSetNames_) {
+            for (const auto& cellSetName : cellSetNames_)
+            {
                 cellSet overlapRegion(T_->mesh(), cellSetName);
-	            const labelList & cells = overlapRegion.toc();
+                const labelList& cells = overlapRegion.toc();
 
-                for(auto currentCell : cells)
+                for (const auto& currentCell : cells)
                 {
                     // Copy temperature into the buffer
                     buffer[bufferIndex++] = T_->ref()[currentCell];
                 }
             }
         }
-        
     }
 
     // For every boundary patch of the interface
@@ -87,27 +87,27 @@ void preciceAdapter::CHT::Temperature::read(double* buffer, const unsigned int d
 
     if (this->locationType_ == LocationType::volumeCenters)
     {
-        if(cellSetNames_.empty())
+        if (cellSetNames_.empty())
         {
-            forAll(T_->ref(), i)
+            for (auto& cell : T_->ref())
             {
-                T_->ref()[i] = buffer[bufferIndex++];
+                cell = buffer[bufferIndex++];
             }
         }
         else
         {
-            for (auto cellSetName : cellSetNames_) {
+            for (const auto& cellSetName : cellSetNames_)
+            {
                 cellSet overlapRegion(T_->mesh(), cellSetName);
-	            const labelList & cells = overlapRegion.toc();
+                const labelList& cells = overlapRegion.toc();
 
-                for(auto currentCell : cells)
+                for (const auto& currentCell : cells)
                 {
                     // Copy temperature into the buffer
                     T_->ref()[currentCell] = buffer[bufferIndex++];
                 }
             }
         }
-        
     }
 
     // For every boundary patch of the interface
