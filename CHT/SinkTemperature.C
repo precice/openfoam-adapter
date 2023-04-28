@@ -24,8 +24,7 @@ void preciceAdapter::CHT::SinkTemperature::write(double* buffer, bool meshConnec
         int patchID = patchIDs_.at(j);
 
         // Get the boundary field of Temperature on the patch
-        const fvPatchScalarField& TPatch(
-            T_->boundaryField()[patchID]);
+        const fvPatchScalarField& TPatch(T_->boundaryField()[patchID]);
 
         // Get the internal field next to the patch // TODO: Simplify?
         tmp<scalarField> patchInternalFieldTmp = TPatch.patchInternalField();

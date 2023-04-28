@@ -7,14 +7,14 @@ summary: Recent OpenFOAM.com versions work out-of-the-box. Recent OpenFOAM.org v
 
 ## How to get OpenFOAM
 
-The easiest way to start is to get binary packages for your Linux distribution. For example, to [get OpenFOAM v2206 on Ubuntu](https://develop.openfoam.com/Development/openfoam/-/wikis/precompiled/debian#precompiled-packages-debianubuntu):
+The easiest way to start is to get binary packages for your Linux distribution. For example, to [get OpenFOAM v2212 on Ubuntu](https://develop.openfoam.com/Development/openfoam/-/wikis/precompiled/debian#precompiled-packages-debianubuntu):
 
 ```bash
 # Add the signing key, add the repository, update:
 wget -q -O - https://dl.openfoam.com/add-debian-repo.sh | sudo bash
 
-# Install OpenFOAM v2206:
-sudo apt-get install openfoam2206-dev
+# Install OpenFOAM v2212:
+sudo apt-get install openfoam2212-dev
 ```
 
 As these steps change your `.profile`, you need to log out and in again to make OpenFOAM fully discoverable.
@@ -26,14 +26,20 @@ OpenFOAM is a project with long history and many forks, of which we try to suppo
 We provide version-specific [release archives](https://github.com/precice/openfoam-adapter/releases/latest) and respective Git branches for:
 
 - OpenCFD / ESI (openfoam.com) - main focus:
-  - [OpenFOAM v1812-v2206](https://github.com/precice/openfoam-adapter) or newer
+  - [OpenFOAM v1812-v2212](https://github.com/precice/openfoam-adapter) or newer
+    - OpenFOAM v2212 is only supported since v1.2.2 of the adapter.
   - [OpenFOAM v1612-v1806](https://github.com/precice/openfoam-adapter/tree/OpenFOAMv1806) (not tested)
 - OpenFOAM Foundation (openfoam.org) - secondary, consider experimental:
-  - [OpenFOAM 10](https://github.com/precice/openfoam-adapter/tree/OpenFOAM10) (several [changes to the tutorials](https://github.com/precice/tutorials/tree/OpenFOAM10) are also needed, read the [discussion](https://github.com/precice/tutorials/pull/283))
-  - [OpenFOAM 9](https://github.com/precice/openfoam-adapter/tree/OpenFOAM9) (rename also `solver` to `motionSolver` in `constant/dynamicMeshDict`)
+  - [OpenFOAM 10](https://github.com/precice/openfoam-adapter/tree/OpenFOAM10)
+    - Several [changes to the tutorials](https://github.com/precice/tutorials/tree/OpenFOAM10) are also needed, read the [discussion](https://github.com/precice/tutorials/pull/283).
+    - Same limitations as for OpenFOAM 9.
+  - [OpenFOAM 9](https://github.com/precice/openfoam-adapter/tree/OpenFOAM9)
+    - Rename `solver` to `motionSolver` in `constant/dynamicMeshDict`.
+    - Limitations in adjustable time step size ([#261](https://github.com/precice/openfoam-adapter/issues/261)).
   - [OpenFOAM 8](https://github.com/precice/openfoam-adapter/tree/OpenFOAM8)
   - [OpenFOAM 7](https://github.com/precice/openfoam-adapter/tree/OpenFOAM7)
-  - [OpenFOAM 6](https://github.com/precice/openfoam-adapter/tree/OpenFOAM6) (modify also `residualControl` to `outerResidualControl` in `system/fvSolution`)
+  - [OpenFOAM 6](https://github.com/precice/openfoam-adapter/tree/OpenFOAM6)
+    - Modify also `residualControl` to `outerResidualControl` in `system/fvSolution`.
   - [OpenFOAM 5.x](https://github.com/precice/openfoam-adapter/tree/OpenFOAM5)
   - [OpenFOAM 4.0/4.1](https://github.com/precice/openfoam-adapter/tree/OpenFOAM4) (not tested)
 

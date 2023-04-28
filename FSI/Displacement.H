@@ -36,19 +36,19 @@ public:
         const std::string nameCellDisplacement);
 
     //- Write the displacement values into the buffer
-    void write(double* buffer, bool meshConnectivity, const unsigned int dim) override;
+    void write(double* buffer, bool meshConnectivity, const unsigned int dim) final;
 
     //- Read the displacement values from the buffer
-    void read(double* buffer, const unsigned int dim) override;
+    void read(double* buffer, const unsigned int dim) final;
 
-    bool isLocationTypeSupported(const bool meshConnectivity) const override;
+    bool isLocationTypeSupported(const bool meshConnectivity) const final;
 
     //- Get the name of the current data field
-    std::string getDataName() const override;
+    std::string getDataName() const final;
 
     //- We need to initialize the cell-based vector and the interpolation object
     // in case we want to use the faceCenter location for the coupling
-    void initialize() override;
+    void initialize() final;
 };
 
 }

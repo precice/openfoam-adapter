@@ -5,31 +5,34 @@ using namespace Foam;
 preciceAdapter::FSI::Force::Force(
     const Foam::fvMesh& mesh,
     const std::string solverType,
-    const std::string nameSolidForce)
+    const std::string nameForce)
 : ForceBase(mesh, solverType)
 {
-    Force_ = new volVectorField(
-        IOobject(
-            "Force",
-            mesh_.time().timeName(),
-            mesh,
-            IOobject::NO_READ,
-            IOobject::AUTO_WRITE),
-        mesh,
-        dimensionedVector(
-            "fdim",
-            dimensionSet(1, 1, -2, 0, 0, 0, 0),
-            Foam::vector::zero));
-
-    if (mesh_.foundObject<volVectorField>(nameSolidForce))
+    // Check if a force field with the requested name exists.
+    // If yes (e.g., solids4Foam), bind Force_ to that field.
+    // If not (e.g., pimpleFoam without the Forces function object), create it.
+    if (mesh_.foundObject<volVectorField>(nameForce))
     {
-        solidForce_ =
+        Force_ =
             &const_cast<volVectorField&>(
-                mesh_.lookupObject<volVectorField>(nameSolidForce));
+                mesh_.lookupObject<volVectorField>(nameForce));
     }
     else
     {
-        solidForce_ = nullptr;
+        ForceOwning_.reset(new volVectorField(
+            IOobject(
+                nameForce,
+                mesh_.time().timeName(),
+                mesh,
+                IOobject::NO_READ,
+                IOobject::AUTO_WRITE),
+            mesh,
+            dimensionedVector(
+                "fdim",
+                dimensionSet(1, 1, -2, 0, 0, 0, 0),
+                Foam::vector::zero)));
+
+        Force_ = ForceOwning_.get();
     }
 }
 
@@ -54,7 +57,7 @@ void preciceAdapter::FSI::Force::read(double* buffer, const unsigned int dim)
         if (this->locationType_ == LocationType::faceCenters)
         {
             // Make a force field
-            vectorField& force = solidForce_->boundaryFieldRef()[patchID];
+            vectorField& force = Force_->boundaryFieldRef()[patchID];
 
             // Copy the forces from the buffer into the force field
             forAll(force, i)
@@ -87,9 +90,4 @@ Foam::tmp<Foam::vectorField> preciceAdapter::FSI::Force::getFaceVectors(const un
 {
     // Normal vectors multiplied by face area
     return mesh_.boundary()[patchID].Sf();
-}
-
-preciceAdapter::FSI::Force::~Force()
-{
-    delete Force_;
 }

@@ -48,6 +48,23 @@ private:
     //- Configuration interfaces
     std::vector<struct InterfaceConfig> interfacesConfig_;
 
+#ifdef ADAPTER_ENABLE_TIMINGS
+    //- Timers
+    clockValue timeInConfigRead_;
+    clockValue timeInPreciceConstruct_;
+    clockValue timeInMeshSetup_;
+    clockValue timeInInitialize_;
+    clockValue timeInInitializeData_;
+    clockValue timeInCheckpointingSetup_;
+    clockValue timeInWrite_;
+    clockValue timeInAdvance_;
+    clockValue timeInRead_;
+    clockValue timeInCheckpointingRead_;
+    clockValue timeInCheckpointingWrite_;
+    clockValue timeInWriteResults_;
+    clockValue timeInFinalize_;
+#endif
+
     //- OpenFOAM runTime object
     const Foam::Time& runTime_;
 

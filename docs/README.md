@@ -43,21 +43,30 @@ our [training session from the 15th OpenFOAM Workshop](https://mediatum.ub.tum.d
 
 ## Cite
 
-We are currently working on an up-to-date reference paper. Until then, please cite this adapter using [1]:
+Please cite this adapter using our [reference paper in the OpenFOAM Journal](https://doi.org/10.51560/ofj.v3.88) [1]. See the [preCICE literature guide](https://precice.org/fundamentals-literature-guide.html) for more details.
 
-```text
-Gerasimos Chourdakis. A general OpenFOAM adapter for the coupling library preCICE. Master's thesis, Department of Informatics, Technical University of Munich, 2017.
-```
+## History
 
-For CHT-specific topics, you may want to additionally look into [2] and for FSI into [3].
+This project is actively maintained on [precice/openfoam-adapter](https://github.com/precice/openfoam-adapter). Current maintainers: [@MakisH](https://github.com/MakisH/) and [@DavidSCN](https://github.com/DavidSCN).
+
+This adapter was developed as part of [Gerasimos Chourdakis' master's thesis](https://mediatum.ub.tum.de/1462269) [2].
+It is based on [previous work](https://github.com/ludcila/CHT-preCICE) by Lucia Cheung ([master's thesis](https://www5.in.tum.de/pub/Cheung2016_Thesis.pdf) [3], in cooperation with [SimScale](https://www.simscale.com/)).
+
+The fluid-structure interaction module was developed in close collaboration between Gerasimos Chourdakis and Derek Risseeuw (TU Delft), in the context of the [master's thesis of the latter](http://resolver.tudelft.nl/uuid:70beddde-e870-4c62-9a2f-8758b4e49123) [4]. We would also like to thank David Schneider (Univ. Siegen / TUM) and Maximilian Müller (TU Braunschweig) for sharing the code and experience of their similar previous work.
+
+The fluid-fluid coupling module was added by Gerasimos Chourdakis, in the context of his dissertation. [#67](https://github.com/precice/openfoam-adapter/pull/67)
+
+The adapter is [easily extensible](https://precice.org/adapter-openfoam-extend.html).
 
 ### Related literature
 
-[1] Gerasimos Chourdakis. [A general OpenFOAM adapter for the coupling library preCICE](https://mediatum.ub.tum.de/1462269). Master's thesis, Department of Informatics, Technical University of Munich, 2017.
+[1] Chourdakis, G., Schneider, D., & Uekermann, B. (2023). OpenFOAM-preCICE: Coupling OpenFOAM with External Solvers for Multi-Physics Simulations. OpenFOAM® Journal, 3, 1–25. [DOI: 10.51560/ofj.v3.88](https://doi.org/10.51560/ofj.v3.88)
 
-[2] Lucia Cheung Yau. [Conjugate heat transfer with the multiphysics coupling library preCICE](http://www5.in.tum.de/pub/Cheung2016_Thesis.pdf). Master’s thesis, Department of Informatics, Technical University of Munich, 2016.
+[2] Gerasimos Chourdakis. A general OpenFOAM adapter for the coupling library preCICE. Master's thesis, Department of Informatics, Technical University of Munich, 2017.
 
-[3] Derek Risseeuw. [Fluid Structure Interaction Modelling of Flapping Wings](https://repository.tudelft.nl/islandora/object/uuid:70beddde-e870-4c62-9a2f-8758b4e49123). Master's thesis, Faculty of Aerospace Engineering, Delft University of Technology, 2019.
+[3] Lucia Cheung Yau. Conjugate heat transfer with the multiphysics coupling library preCICE. Master’s thesis, Department of Informatics, Technical University of Munich, 2016.
+
+[4] Derek Risseeuw. Fluid Structure Interaction Modelling of Flapping Wings. Master's thesis, Faculty of Aerospace Engineering, Delft University of Technology, 2019.
 
 {% disclaimer %}
 This offering is not approved or endorsed by OpenCFD Limited, producer and distributor of the OpenFOAM software via www.openfoam.com, and owner of the OPENFOAM®  and OpenCFD®  trade marks.

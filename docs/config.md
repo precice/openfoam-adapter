@@ -11,11 +11,9 @@ In order to run a coupled simulation, you need to:
 2. prepare an adapter's configuration file,
 3. set the coupling boundaries in the OpenFOAM case,
 4. load the adapter, and
-5. start all the solvers normally, from the same directory, e.g. in two different terminals.
+5. start all the solvers normally, from the same directory, e.g., in two different terminals.
 
-If you prefer, you may find an already prepared case in our [Tutorial for CHT: Flow over a heated plate](https://precice.org/tutorials-flow-over-heated-plate.html).
-
-You may skip the section _"Advanced configuration"_ in the beginning, as it only concerns special cases. You may also find more details in the [Pull Request #105](https://github.com/precice/openfoam-adapter/pull/105), especially for changes regarding the previous, yaml-based configuration format.
+You may skip the section _"Advanced configuration"_ in the beginning, as it only concerns special cases.
 
 ## The adapter's configuration file
 
@@ -61,20 +59,22 @@ interfaces
 The `participant` needs to be the same as the one specified in the `preciceConfig`,
 which is the main preCICE configuration file. The `preciceConfig` can be a path and needs to be wrapped with quotation marks.
 
-The list `modules` can contain `CHT` or/and `FSI` (separated by space).
+The list `modules` can contain `CHT`, `FSI`, or/and `FF` (separated by space).
+Each module provides some data fields common in the respective type of simulation, and data fields from different modules can be combined by selecting multiple modules.
+For example, this is a valid combination: `modules (CHT FF);`.
 
 In the `interfaces`, we specify the coupling interfaces (here only one).
 The `mesh` needs to be the same as the one specified in the `preciceConfig`.
 The `patches` specifies a list of the names of the OpenFOAM boundary patches that are
 participating in the coupled simulation. These need to be defined in the files
-included in the `0/` directory. The names of the interfaces (e.g. `Interface1`) are arbitrary and are not used.
+included in the `0/` directory. The names of the interfaces (e.g., `Interface1`) are arbitrary and are not used.
 
-The `locations` field is optional and its default value is `faceCenters` (with `faceCentres` also accepted), signifying that the interface mesh is defined on the cell face centers. The alternative option is `faceNodes`, which defines the mesh on the face nodes and is needed e.g. for reading displacements in an FSI scenario.
+The `locations` field is optional and its default value is `faceCenters` (with `faceCentres` also accepted), signifying that the interface mesh is defined on the cell face centers. The alternative option is `faceNodes`, which defines the mesh on the face nodes and is needed, e.g., for reading displacements in an FSI scenario.
 
 The values for `readData` and `writeData`
 for conjugate heat transfer
 can be `Temperature`, `Heat-Flux`, `Sink-Temperature`,
-or `Heat-Transfer-Coefficient`. Values like `Sink-Temperature-Domain1` are also allowed.
+or `Heat-Transfer-Coefficient`. Postfixed names like `Sink-Temperature-Domain1` are also allowed (e.g., in order to distinguish multiple data sets of the same type).
 For a Dirichlet-Neumann coupling, the `writeData` and `readData` can be
 either:
 
@@ -109,18 +109,25 @@ For a Robin-Robin coupling, we need to write and read both of `Sink-Temperature`
 ```c++
 readData
 (
-  Sink-Temperature          // e.g. Sink-Temperature-Solid
-  Heat-Transfer-Coefficient // e.g. Heat-Transfer-Coefficient-Solid
+  Sink-Temperature          // e.g., Sink-Temperature-Solid
+  Heat-Transfer-Coefficient // e.g., Heat-Transfer-Coefficient-Solid
 );
 
 writeData
 (
-  Sink-Temperature          // e.g. Sink-Temperature-Fluid
-  Heat-Transfer-Coefficient // e.g. Heat-Transfer-Coefficient-Fluid
+  Sink-Temperature          // e.g., Sink-Temperature-Fluid
+  Heat-Transfer-Coefficient // e.g., Heat-Transfer-Coefficient-Fluid
 );
 ```
 
-For fluid-structure interaction, `writeData` can be `Force` or `Stress`, where `Stress` is essentially a force vector scaled by the cell face in spatial coordinates (with any postfix), thus, a conservative quantity as well. `readData` can be `Displacement` and `DisplacementDelta` (with any postfix). `DisplacementDelta` refers to the last coupling time step, which needs to considered in the case of subcycling. Structure solvers (such as solids4Foam) can also write `Displacement` and read `Force`.
+For fluid-structure interaction, coupled quantities can be:
+
+- `writeData`:
+  - fluid participants: `Force`, `Stress` (force over area, consistent)
+  - solid participants: `Displacement`
+- `readData`:
+  - fluid participants: `Displacement`, `DisplacementDelta` (difference to the displacement at the last coupling time window)
+  - solid participants: `Force`, `Stress`
 
 {% warning %}
 You will run into problems when you use `Displacement(Delta)` as write data set and execute RBF mappings in parallel. This would affect users who use OpenFOAM and the adapter as the Solid participant in order to compute solid mechanics with OpenFOAM (currently not officially supported at all). Have a look [at this issue on GitHub](https://github.com/precice/openfoam-adapter/issues/153) for details.
@@ -139,9 +146,9 @@ Read the [OpenFOAM User Guide](https://www.openfoam.com/documentation/user-guide
 
 #### CHT
 
-* For `readData(Temperature)`, use `type fixedValue` for the `interface` in `0/T`.
+- For `readData(Temperature)`, use `type fixedValue` for the `interface` in `0/T`.
 OpenFOAM requires that you also give a (redundant) `value`, but the adapter
-will overwrite it. ParaView uses this value for the initial time. As a placeholder, you can e.g. use the value from the `internalField`.
+will overwrite it. ParaView uses this value for the initial time. As a placeholder, you can, e.g., use the value from the `internalField`.
 
 ```c++
 interface
@@ -151,7 +158,7 @@ interface
 }
 ```
 
-* For `readData(Heat-Flux)`, use `type fixedGradient` for the `interface` in `0/T`.
+- For `readData(Heat-Flux)`, use `type fixedGradient` for the `interface` in `0/T`.
 OpenFOAM requires that you also give a (redundant) `gradient`, but the adapter will overwrite it.
 
 ```c++
@@ -162,7 +169,7 @@ interface
 }
 ```
 
-* For `readData(Sink-Temperature)` or `Heat-Transfer-Coefficient`, use
+- For `readData(Sink-Temperature)` or `Heat-Transfer-Coefficient`, use
 `type mixed` for the `interface` in `0/T`. OpenFOAM requires that you also give (redundant) values for
 `refValue`, `refGradient`, and `valueFraction`, but the adapter will overwrite them.
 
@@ -178,10 +185,10 @@ interface
 
 #### FSI
 
-* For `readData(Displacement)` or `DisplacementDelta`, you need the following:
-  * `type movingWallVelocity` for the interface (e.g. `flap`) in `0/U`,
-  * `type fixedValue` for the interface (e.g. `flap`) in the `0/pointDisplacement`, and
-  * `solver displacementLaplacian` in the `constant/dynamicMeshDict`. The solver [`RBFMeshMotionSolver` from solids4foam is also known to work](https://github.com/precice/openfoam-adapter/pull/241), currently (August 2022) with the develop branch of the OpenFOAM adapter and the nextRelease branch of solids4foam.
+- For `readData(Displacement)` or `DisplacementDelta`, you need the following:
+  - `type movingWallVelocity` for the interface (e.g., `flap`) in `0/U`,
+  - `type fixedValue` for the interface (e.g., `flap`) in the `0/pointDisplacement`, and
+  - `solver displacementLaplacian` in the `constant/dynamicMeshDict`. The solver [`RBFMeshMotionSolver` from solids4foam is also known to work](https://github.com/precice/openfoam-adapter/pull/241), since the OpenFOAM adapter v1.2.0 and the solids4foam v2.0.
 
 ```c++
 // File 0/U
@@ -203,6 +210,17 @@ dynamicFvMesh       dynamicMotionSolverFvMesh;
 motionSolverLibs    ("libfvMotionSolvers.so");
 solver              displacementLaplacian;
 ```
+
+#### FF
+
+The fluid-fluid coupling module supports reading and writing `Pressure`, `Velocity`, `PressureGradient`, and `VelocityGradient`.
+
+Similarly to the CHT module, you need a `fixedValue` boundary condition of the respective primary field in order to read and apply values, and a `fixedGradient` boundary condition of the respective gradient field in order to read and apply gradients.
+
+{% experimental %}
+The FF module is still experimental and the boundary conditions presented here have not been rigorously tested.
+We already have reasons to believe that a `fixedGradient` can have [side-effects](https://github.com/precice/openfoam-adapter/issues/93) and may not lead to completely accurate results.
+{% endexperimental %}
 
 ### Load the adapter
 
@@ -230,7 +248,7 @@ If you are using other function objects in your simulation, add the preCICE adap
 
 ## Advanced configuration
 
-These additional parameters may only concern some users is special cases. Keep reading if you want to use nearest-projection mapping, an incompressible or basic (e.g. laplacianFoam) solver, if you are using a solver with different variable names (e.g. a multiphase solver) or if you are trying to debug a simulation.
+These additional parameters may only concern some users in special cases. Keep reading if you want to use the nearest-projection mapping, an incompressible or basic (e.g., laplacianFoam) solver, if you are using a solver with different variable names (e.g., a multiphase solver) or if you are trying to debug a simulation.
 
 ### Nearest-projection mapping
 
@@ -279,7 +297,7 @@ Data is obtained at the face centers, then interpolated to face nodes. Here, we 
 It is important to notice that the target data location is again the face center mesh of the coupling partner. In the standard CHT case, where both data sets are exchanged by a nearest-projection mapping, this leads to two interface meshes (centers and nodes) per participant. Having both the centers and nodes defined, we can skip one interpolation step and read data directly to the centers (cf. picture solver B).
 
 {% note %}
-As already mentioned, the `Fluid` participant does not need to provide the mesh connectivity in case of a standard FSI. Therefore, the `Solid` participant needs to provide it and nothing special needs to be considered compared to other mapping methods. This implementation supports all CHT-related fields, which are mapped with a `consistent` constraint.
+This is implemented for all CHT-related fields mapped with a `consistent` constraint, but it is not implemented for the `FSI` and `FF` modules.
 {% endnote %}
 
 ### Additional properties for some solvers
@@ -352,7 +370,18 @@ FSI
 }
 ```
 
-This will force the adapter use the boundary condition implementations
+Note that the adapter [does not currently adapt the name of the pressure used in the computations for compressible solvers](https://github.com/precice/openfoam-adapter/issues/253).
+
+For an FF simulation, known types are `incompressible` and `compressible`:
+
+```c++
+FF
+{
+    solverType incompressible;
+}
+```
+
+This will force the adapter to use the boundary condition implementations
 for the respective type.
 
 #### Parameters and fields with different names
@@ -388,23 +417,50 @@ FSI
     // Displacement fields
     namePointDisplacement pointD;
     nameCellDisplacement D;
-    // Force field on the solid
-    forceFieldName solidForce;
+    // Force field
+    nameForce Force; // For solids4Foam: solidForce
 }
 ```
 
 Use the option `namePointDisplacement unused;` for solvers that do not create a pointDisplacement field, such as the RBFMeshMotionSolver.
 
-#### Debugging
+For FF simulations:
 
-The adapter also recognizes a few more parameters, which are mainly used in debugging or development.
-These are optional and expect a `true` or a `false` value. Some or all of these options may be removed in the future.
+```c++
+FF
+{
+  // Velocity
+  nameU U;
+  // Pressure
+  nameP p;
+}
+```
+
+Note that the adapter does not automatically adapt the pressure name for solvers that account for [hydrostatic pressure effects](https://www.openfoam.com/documentation/guides/latest/doc/guide-applications-solvers-variable-transform-p-rgh.html). In these cases, you may want to set `nameP p_rgh` to couple `p_rgh`, as `p` is a derived quantity for these solvers.
+
+#### Restarting FSI simulations
+
+Restarting a coupled simulation using the OpenFOAM adapter works in principle in the same way as restarting a standalone OpenFOAM solver. However, the adapter and preCICE define the coupling interface and the interface node locations based on the mesh at the particular time. In case of FSI simulations, the interface deforms over time, which leads to the definition of a deformed interface during the restart. The boolean variable `restartFromDeformed` (`true` by default) allows to account for the previously accumulated interface deformation such that the initial interface configuration (`t = 0`) is completely recovered. The setting here needs to agree with the behavior of the selected solid solver.
+
+```c++
+FSI
+{
+    // Account for previous displacement during a restart
+    restartFromDeformed true;
+}
+```
+
+{% important %}
+The option here defines the way the interface mesh is initialized when restarting an FSI simulation in OpenFOAM. In order to restart a coupled simulation, your solid solver needs to be capable of restarting as well. Furthermore, the two participants need to follow the same assumption for the initialization, which for OpenFOAM you can configure with this option. You can find more information about restarting coupled simulations on [Dsicourse](https://precice.discourse.group/t/how-can-i-restart-a-coupled-simulation/675).
+{% endimportant %}
+
+#### Debugging
 
 The user can toggle debug messages at [build time](https://precice.org/adapter-openfoam-get.html).
 
 ## Coupling OpenFOAM with 2D solvers
 
-The adapter asks preCICE for the dimensions of the coupling data defined in the `precice-config.xml` (2D or 3D). It then automatically operates in either 3D (normal) or 2D (reduced) mode, with z-axis being the out-of-plane dimension. [Read more](https://github.com/precice/openfoam-adapter/pull/96).
+The adapter asks preCICE for the dimensions of the coupling data defined in the `precice-config.xml` (2D or 3D). It then automatically operates in either 3D (normal) or 2D (reduced) mode, with z-axis being the out-of-plane dimension. [Read more](https://github.com/precice/openfoam-adapter/pull/96). In 2D mode, the adapter also supports axisymmetric cases.
 
 ## Porting your older cases to the current configuration format
 

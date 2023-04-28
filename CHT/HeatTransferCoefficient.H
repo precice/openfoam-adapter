@@ -35,15 +35,15 @@ public:
         const std::string nameT);
 
     //- Write the heat transfer coefficient values into the buffer
-    virtual void write(double* buffer, bool meshConnectivity, const unsigned int dim);
+    void write(double* buffer, bool meshConnectivity, const unsigned int dim) final;
 
     //- Read the heat transfer coefficient values from the buffer
-    virtual void read(double* buffer, const unsigned int dim);
+    void read(double* buffer, const unsigned int dim) final;
 
-    bool isLocationTypeSupported(const bool meshConnectivity) const override;
+    bool isLocationTypeSupported(const bool meshConnectivity) const final;
 
     //- Get the name of the current data field
-    std::string getDataName() const override;
+    std::string getDataName() const final;
 
     //- Destructor
     virtual ~HeatTransferCoefficient() {};
@@ -60,10 +60,10 @@ protected:
     KappaEff_Compressible* Kappa_;
 
     //- Wrapper for the extract() method of the corresponding KappaEff class
-    virtual void extractKappaEff(uint patchID, bool meshConnectivity);
+    void extractKappaEff(uint patchID, bool meshConnectivity) final;
 
     //- Wrapper for the getAt() method of the corresponding KappaEff class
-    virtual Foam::scalar getKappaEffAt(int i);
+    Foam::scalar getKappaEffAt(int i) final;
 
 public:
     //- Constructor
@@ -72,7 +72,7 @@ public:
         const std::string nameT);
 
     //- Destructor
-    virtual ~HeatTransferCoefficient_Compressible();
+    ~HeatTransferCoefficient_Compressible() final;
 };
 
 //- Implementation of the HeatTransferCoefficient for incompresible, turbulent flow solvers
@@ -86,10 +86,10 @@ protected:
     KappaEff_Incompressible* Kappa_;
 
     //- Wrapper for the extract() method of the corresponding KappaEff class
-    virtual void extractKappaEff(uint patchID, bool meshConnectivity);
+    void extractKappaEff(uint patchID, bool meshConnectivity) final;
 
     //- Wrapper for the getAt() method of the corresponding KappaEff class
-    virtual Foam::scalar getKappaEffAt(int i);
+    Foam::scalar getKappaEffAt(int i) final;
 
 public:
     //- Constructor
@@ -102,7 +102,7 @@ public:
         const std::string nameAlphat);
 
     //- Destructor
-    virtual ~HeatTransferCoefficient_Incompressible();
+    ~HeatTransferCoefficient_Incompressible() final;
 };
 
 
@@ -117,10 +117,10 @@ protected:
     KappaEff_Basic* Kappa_;
 
     //- Wrapper for the extract() method of the corresponding KappaEff class
-    virtual void extractKappaEff(uint patchID, bool meshConnectivity);
+    void extractKappaEff(uint patchID, bool meshConnectivity) final;
 
     //- Wrapper for the getAt() method of the corresponding KappaEff class
-    virtual Foam::scalar getKappaEffAt(int i);
+    Foam::scalar getKappaEffAt(int i) final;
 
 public:
     //- Constructor
@@ -130,7 +130,7 @@ public:
         const std::string nameKappa);
 
     //- Destructor
-    virtual ~HeatTransferCoefficient_Basic();
+    ~HeatTransferCoefficient_Basic() final;
 };
 
 }

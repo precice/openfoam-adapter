@@ -1,0 +1,37 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+authors:
+- family-names: "Chourdakis"
+  given-names: "Gerasimos"
+  orcid: "https://orcid.org/0000-0002-3977-1385"
+- family-names: "Schneider"
+  given-names: "David"
+  orcid: "https://orcid.org/0000-0002-3487-9688"
+- family-names: "Uekermann"
+  given-names: "Benjamin"
+  orcid: "https://orcid.org/0000-0002-1314-9969"
+title: "OpenFOAM-preCICE: Coupling OpenFOAM with External Solvers for Multi-Physics Simulations"
+version: 1.1.0
+doi: 10.51560/ofj.v3.88
+date-released: 2022-02-08
+url: "https://journal.openfoam.com/index.php/ofj/article/view/88"
+preferred-citation:
+  type: article
+  authors:
+  - family-names: "Chourdakis"
+    given-names: "Gerasimos"
+    orcid: "https://orcid.org/0000-0002-3977-1385"
+  - family-names: "Schneider"
+    given-names: "David"
+    orcid: "https://orcid.org/0000-0002-3487-9688"
+  - family-names: "Uekermann"
+    given-names: "Benjamin"
+    orcid: "https://orcid.org/0000-0002-1314-9969"
+  doi: "10.51560/ofj.v3.88"
+  journal: "OpenFOAM® Journal"
+  month: 2
+  start: 1 # First page number
+  end: 25 # Last page number
+  title: "OpenFOAM-preCICE: Coupling OpenFOAM with External Solvers for Multi-Physics Simulations"
+  volume: 3
+  year: 2023
