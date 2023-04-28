@@ -281,10 +281,6 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh)
     }
     else if (locationType_ == LocationType::volumeCenters)
     {
-        // The volume coupling implementation is based on the coupling with faceCenters
-        // as the volume coupling was tested and developed on a previous development where faceNodes
-        // did not work properly
-        //
         // The volume coupling implementation considers the mesh points in the volume and
         // on the boundary patches in order to take the boundary conditions into account
 
