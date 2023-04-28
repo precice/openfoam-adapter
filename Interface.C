@@ -348,7 +348,7 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh, const std::str
                 // Create a cell set
                 cellSet overlapRegion(mesh, cellSetNames_[j]);
 
-                // Add the cells ID's to the vector and count how many overlap cells does the interface has
+                // Add the cells IDs to the vector and count how many overlap cells the interface has
                 overlapCells.push_back(overlapRegion.toc());
                 numDataLocations_ += overlapCells[j].size();
             }
@@ -446,7 +446,7 @@ void preciceAdapter::Interface::addCouplingDataWriter(
     // Set the patchIDs of the patches that form the interface
     couplingDataWriter->setPatchIDs(patchIDs_);
 
-    // TODO
+    // Set the names of the cell sets to be coupled (for volume coupling)
     couplingDataWriter->setCellSetNames(cellSetNames_);
 
     // Set the location type in the CouplingDataUser class
@@ -476,7 +476,7 @@ void preciceAdapter::Interface::addCouplingDataReader(
     // Set the location type in the CouplingDataUser class
     couplingDataReader->setLocationsType(locationType_);
 
-    // TODO
+    // Set the names of the cell sets to be coupled (for volume coupling)
     couplingDataReader->setCellSetNames(cellSetNames_);
 
     // Check, if the current location type is supported by the data type

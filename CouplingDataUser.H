@@ -33,7 +33,7 @@ protected:
     //- OpenFOAM patches that form the interface
     std::vector<int> patchIDs_;
 
-    //- TODO
+    //- Names of the OpenFOAM cell sets to be coupled (for volume coupling)
     std::vector<std::string> cellSetNames_;
     
     //- data name

@@ -119,7 +119,6 @@ bool preciceAdapter::Adapter::configFileRead()
                         DEBUG(adapterInfo("      - " + patch));
                     }
 
-                    // TODO: check if this works correctly
                     DEBUG(adapterInfo("    cellSets      : "));
                     auto cellSets = interfaceDict.lookupOrDefault<wordList>("cellSets", wordList());
                     
