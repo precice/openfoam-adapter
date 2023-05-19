@@ -48,6 +48,7 @@ void preciceAdapter::FSI::Force::read(double* buffer, const unsigned int dim)
     // Here we assume that a force volVectorField exists, which is used by
     // the OpenFOAM solver
 
+    int bufferIndex = 0;
     // Set boundary forces
     for (unsigned int j = 0; j < patchIDs_.size(); j++)
     {
@@ -63,7 +64,7 @@ void preciceAdapter::FSI::Force::read(double* buffer, const unsigned int dim)
             forAll(force, i)
             {
                 for (unsigned int d = 0; d < dim; ++d)
-                    force[i][d] = buffer[i * dim + d];
+                    force[i][d] = buffer[bufferIndex++];
             }
         }
         else if (this->locationType_ == LocationType::faceNodes)
