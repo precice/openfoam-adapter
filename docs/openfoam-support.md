@@ -35,6 +35,7 @@ We provide version-specific [release archives](https://github.com/precice/openfo
     - Same limitations as for OpenFOAM 9.
   - [OpenFOAM 9](https://github.com/precice/openfoam-adapter/tree/OpenFOAM9)
     - Rename `solver` to `motionSolver` in `constant/dynamicMeshDict`.
+    - Modify also `residualControl` to `outerCorrectorResidualControl` in `system/fvSolution`.
     - Limitations in adjustable time step size ([#261](https://github.com/precice/openfoam-adapter/issues/261)).
   - [OpenFOAM 8](https://github.com/precice/openfoam-adapter/tree/OpenFOAM8)
   - [OpenFOAM 7](https://github.com/precice/openfoam-adapter/tree/OpenFOAM7)
