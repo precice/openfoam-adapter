@@ -36,7 +36,6 @@ Usage
         refValue        | reference Velocity values       | yes         |
         refGradient        | reference Velocity gradient values       | no         | uniform (0 0 0)
         phi        | name of flux field       | no         | "phi"
-        U        | name of velocity field       | no         | "U"
     \endtable
 
     Example of the boundary condition specification:
