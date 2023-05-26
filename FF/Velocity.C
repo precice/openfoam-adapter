@@ -28,7 +28,7 @@ void preciceAdapter::FF::Velocity::write(double* buffer, bool meshConnectivity, 
         int patchID = patchIDs_.at(j);
 
         vectorField UPatch = U_->boundaryField()[patchID];
-        
+
         // Correct the velocity by the boundary face flux
         if (fluxCorrection_)
         {
