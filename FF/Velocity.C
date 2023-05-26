@@ -27,13 +27,14 @@ void preciceAdapter::FF::Velocity::write(double* buffer, bool meshConnectivity, 
     {
         int patchID = patchIDs_.at(j);
 
-        // Correct the velocity by the boundary face flux
-        scalarField phip = phi_->boundaryFieldRef()[patchID];
-        vectorField n = U_->boundaryField()[patchID].patch().nf();
-        const scalarField& magS = U_->boundaryFieldRef()[patchID].patch().magSf();
         vectorField UPatch = U_->boundaryField()[patchID];
+        
+        // Correct the velocity by the boundary face flux
         if (fluxCorrection_)
         {
+            scalarField phip = phi_->boundaryFieldRef()[patchID];
+            vectorField n = U_->boundaryField()[patchID].patch().nf();
+            const scalarField& magS = U_->boundaryFieldRef()[patchID].patch().magSf();
             UPatch = UPatch - n * (n & U_->boundaryField()[patchID]) + n * phip / magS;
         }
 
