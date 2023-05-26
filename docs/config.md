@@ -213,7 +213,7 @@ solver              displacementLaplacian;
 
 #### FF
 
-The fluid-fluid coupling module supports reading and writing `Pressure`, `Velocity`, `PressureGradient`, `VelocityGradient`, `Temperature` and `TemperatureGradient`.
+The fluid-fluid coupling module supports reading and writing `Pressure`, `Velocity`, `PressureGradient`, `VelocityGradient`, `FlowTemperature` and `FlowTemperatureGradient`.
 
 Similarly to the CHT module, you need a `fixedValue` boundary condition of the respective primary field in order to read and apply values, and a `fixedGradient` boundary condition of the respective gradient field in order to read and apply gradients.
 
