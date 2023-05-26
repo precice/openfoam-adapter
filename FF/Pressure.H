@@ -18,8 +18,6 @@ private:
     //- Pressure field
     Foam::volScalarField* p_;
 
-    bool firstRead = true;
-
 public:
     //- Constructor
     Pressure(
