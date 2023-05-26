@@ -213,13 +213,35 @@ solver              displacementLaplacian;
 
 #### FF
 
-The fluid-fluid coupling module supports reading and writing `Pressure`, `Velocity`, `PressureGradient`, and `VelocityGradient`.
+The fluid-fluid coupling module supports reading and writing `Pressure`, `Velocity`, `PressureGradient`, `VelocityGradient`, `Temperature` and `TemperatureGradient`.
 
 Similarly to the CHT module, you need a `fixedValue` boundary condition of the respective primary field in order to read and apply values, and a `fixedGradient` boundary condition of the respective gradient field in order to read and apply gradients.
 
+Alternatively, the adapter also ships custom boundary conditions for pressure (`coupledPressure`) and velocity (`coupledVelocity`). These boundary conditions can be set on both sides of the coupling interface and can handle fluid flow in either direction. An initial `refValue` must be supplied to ensure convergence in the first time step. The adapter will overwrite the value afterwards.
+If the OpenFOAM fields `phi` and `U` are given different names, they should be supplied to the boundary conditions as well.
+The coupled boundary conditions act similar to the [`inletOutlet`](https://www.openfoam.com/documentation/guides/v2112/doc/guide-bcs-outlet-inlet-outlet.html) boundary conditions from OpenFOAM. However, the pressure gradient is calculated by OpenFOAM as for the [`fixedFluxExtrapolatedPressure`](https://www.openfoam.com/documentation/guides/v2112/api/classFoam_1_1fixedFluxExtrapolatedPressureFvPatchScalarField.html) boundary condition and thus no coupling of `PressureGradient` is required when using `coupledPressure`.
+
+```c++
+// File 0/U
+interface
+{
+    type            coupledVelocity;
+    refvalue        uniform (0 0 0);
+    // phi            phiName
+}
+
+// File 0/p
+interface
+{
+    type            coupledPressure;
+    refValue        $internalField;
+    // phi            phiName
+    // U              UName
+}
+```
+
 {% experimental %}
 The FF module is still experimental and the boundary conditions presented here have not been rigorously tested.
-We already have reasons to believe that a `fixedGradient` can have [side-effects](https://github.com/precice/openfoam-adapter/issues/93) and may not lead to completely accurate results.
 {% endexperimental %}
 
 ### Load the adapter
@@ -228,12 +250,12 @@ To load this adapter, you must include the following in
 the `system/controlDict` configuration file of the case:
 
 ```c++
+libs ("libpreciceAdapterFunctionObject.so");
 functions
 {
     preCICE_Adapter
     {
         type preciceAdapterFunctionObject;
-        libs ("libpreciceAdapterFunctionObject.so");
     }
 }
 ```
@@ -342,6 +364,19 @@ rho             rho [1 -3 0 0 0 0 0] 1;
 ```
 
 Notice that here, in contrast to the `CHT` subdict, we need to provide both the keyword (first `nu`) and the word name (second `nu`). We are working on bringing consistency on this.
+
+#### Fluid-fluid coupling
+
+The FF module provides an option to correct the written velocity values for the face flux values `phi`. This may provide better mass consistency across the coupling interface when the used mesh is skewed. By default, this option is turned off.
+
+```c++
+FF
+{
+  fluxCorrection    true;
+  namePhi           phi;
+}
+
+```
 
 ### Additional parameters in the adapter's configuration file
 
