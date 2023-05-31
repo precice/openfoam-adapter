@@ -5,7 +5,7 @@ Class
 Description
     This boundary condition is a velocity inlet-outlet.
     It acts as a fixedValue boundary patch for inflow faces and as a fixedGradient at outflow faces.
-    It is essentially a non-templated version of the inletOutlet condition.
+    It is essentially a type-specific version of the inletOutlet condition of OpenFOAM.
 
 Usage
     \table
