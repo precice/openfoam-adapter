@@ -262,9 +262,9 @@ functions
 
 This directs the solver to use the `preciceAdapterFunctionObject` function object,
 which is part of the `libpreciceAdapterFunctionObject.so` shared library.
-The name `preCICE_Adapter` can be arbitrary.
+The name `preCICE_Adapter` can be arbitrary. It is important that the library is loaded outside the `functions` dictionary when you want to use the custom boundary conditions that we provide with the FF module.
 
-If you are using other function objects in your simulation, add the preCICE adapter to the end of the list. The adapter will then be executed last, which is important, as the adapter also controls the end of the simulation. When the end of the simulation is detected, the adapter also triggers the `end()` method method of all function objects.
+If you are using other function objects in your simulation, add the preCICE adapter to the end of the list. The adapter will then be executed last, which is important, as the adapter also controls the end of the simulation. When the end of the simulation is detected, the adapter also triggers the `end()` method of all function objects.
 
 ***
 
