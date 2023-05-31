@@ -8,14 +8,6 @@ Read more details in the issue [#52: Releases and versioning](https://github.com
 
 <!-- markdownlint-configure-file {"MD024": { "siblings_only": true } } -->
 
-## [v1.2.3] 2023-05-30
-
-### Added
-
-- Custom inletOutlet boundary conditions for pressure and velocity to the FF module [#281](https://github.com/precice/openfoam-adapter/pull/281).
-- Temperature and temperature gradient as coupled data to the FF module.
-- Option to write velocity that is corrected by the face flux `phi`.
-
 ## [v1.2.2] 2023-01-03
 
 ### Changed
