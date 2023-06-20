@@ -12,5 +12,5 @@ mkdir -p release-archives
 for i in "${branches[@]}"
     do
     archive_name=openefoam-adapter-"${adapter_version}"-"${i}"
-    git archive --format=tar.gz --prefix="${archive_name}"/ "${remote_name}"/"${i}" >"${archive_name}".tar.gz
+    git archive --format=tar.gz --prefix="${archive_name}"/ "${remote_name}"/"${i}" >"release-archives/${archive_name}".tar.gz
 done
