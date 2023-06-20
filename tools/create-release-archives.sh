@@ -1,8 +1,9 @@
 #!/bin/bash
+# Execute this script from the top-level directory (./tools/create-release-archives.sh)
 
 set -u
 
-remote_name=upstream
+remote_name=origin
 adapter_version="v1.2.3"
 
 # Declare branch names for which archives will be created
