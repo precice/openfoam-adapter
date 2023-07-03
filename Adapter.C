@@ -246,7 +246,7 @@ void preciceAdapter::Adapter::configure()
         DEBUG(adapterInfo("Creating the preCICE solver interface..."));
         DEBUG(adapterInfo("  Number of processes: " + std::to_string(Pstream::nProcs())));
         DEBUG(adapterInfo("  MPI rank: " + std::to_string(Pstream::myProcNo())));
-        precice_ = new precice::SolverInterface(participantName_, preciceConfigFilename_, Pstream::myProcNo(), Pstream::nProcs());
+        precice_ = new precice::Participant(participantName_, preciceConfigFilename_, Pstream::myProcNo(), Pstream::nProcs());
         DEBUG(adapterInfo("  preCICE solver interface was created."));
 
         ACCUMULATE_TIMER(timeInPreciceConstruct_);
@@ -346,7 +346,7 @@ void preciceAdapter::Adapter::configure()
         initialize();
 
         // Read the received coupling data
-        readCouplingData();
+        readCouplingData(runTime_.deltaT().value());
 
         // If checkpointing is required, specify the checkpointed fields
         // and write the first checkpoint
@@ -459,7 +459,8 @@ void preciceAdapter::Adapter::execute()
     ACCUMULATE_TIMER(timeInWriteResults_);
 
     // Read the received coupling data from the buffer
-    readCouplingData();
+    // Fits to an implicit Euler
+    readCouplingData(runTime_.deltaT().value());
 
     // If the coupling is not going to continue, tear down everything
     // and stop the simulation.
@@ -495,14 +496,14 @@ void preciceAdapter::Adapter::adjustTimeStep()
     return;
 }
 
-void preciceAdapter::Adapter::readCouplingData()
+void preciceAdapter::Adapter::readCouplingData(double relativeReadTime)
 {
     SETUP_TIMER();
     DEBUG(adapterInfo("Reading coupling data..."));
 
     for (uint i = 0; i < interfaces_.size(); i++)
     {
-        interfaces_.at(i)->readCouplingData();
+        interfaces_.at(i)->readCouplingData(relativeReadTime);
     }
 
     ACCUMULATE_TIMER(timeInRead_);
@@ -534,7 +535,8 @@ void preciceAdapter::Adapter::initialize()
         writeCouplingData();
 
     DEBUG(adapterInfo("Initializing preCICE data..."));
-    timestepPrecice_ = precice_->initialize();
+    precice_->initialize();
+    timestepPrecice_ = precice_->getMaxTimeStepSize();
     preciceInitialized_ = true;
     ACCUMULATE_TIMER(timeInInitialize_);
 
@@ -572,7 +574,8 @@ void preciceAdapter::Adapter::advance()
     DEBUG(adapterInfo("Advancing preCICE..."));
 
     SETUP_TIMER();
-    timestepPrecice_ = precice_->advance(timestepSolver_);
+    precice_->advance(timestepSolver_);
+    timestepPrecice_ = precice_->getMaxTimeStepSize();
     ACCUMULATE_TIMER(timeInAdvance_);
 
     return;
