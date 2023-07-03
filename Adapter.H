@@ -22,7 +22,7 @@
 #include "fvMesh.H"
 
 // preCICE Solver Interface
-#include "precice/SolverInterface.hpp"
+#include <precice/precice.hpp>
 
 namespace preciceAdapter
 {
@@ -105,7 +105,7 @@ private:
     std::vector<Interface*> interfaces_;
 
     //- preCICE solver interface
-    precice::SolverInterface* precice_ = NULL;
+    precice::Participant* precice_ = NULL;
 
     //- preCICE solver interface initialized
     bool preciceInitialized_ = false;
@@ -264,7 +264,7 @@ private:
     void advance();
 
     //- Read the coupling data at each interface
-    void readCouplingData();
+    void readCouplingData(double relativeReadTime);
 
     //- Write the coupling data at each interface
     void writeCouplingData();
