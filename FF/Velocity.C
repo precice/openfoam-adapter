@@ -18,18 +18,18 @@ void preciceAdapter::FF::Velocity::write(double* buffer, bool meshConnectivity, 
 
     if (this->locationType_ == LocationType::volumeCenters)
     {
-        forAll(U_->ref(), i)
+        forAll(U_->internalField(), i)
         {
             // x-dimension
-            buffer[bufferIndex++] = U_->ref()[i].x();
+            buffer[bufferIndex++] = U_->internalField()[i].x();
 
             // y-dimension
-            buffer[bufferIndex++] = U_->ref()[i].y();
+            buffer[bufferIndex++] = U_->internalField()[i].y();
 
             if (dim == 3)
             {
                 // z-dimension
-                buffer[bufferIndex++] = U_->ref()[i].z();
+                buffer[bufferIndex++] = U_->internalField()[i].z();
             }
         }
     }

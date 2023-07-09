@@ -18,9 +18,9 @@ void preciceAdapter::FF::Pressure::write(double* buffer, bool meshConnectivity, 
 
     if (this->locationType_ == LocationType::volumeCenters)
     {
-        forAll(p_->ref(), i)
+        forAll(p_->internalField(), i)
         {
-            buffer[bufferIndex++] = p_->ref()[i];
+            buffer[bufferIndex++] = p_->internalField()[i];
         }
     }
 

@@ -21,9 +21,9 @@ void preciceAdapter::CHT::Temperature::write(double* buffer, bool meshConnectivi
 
     if (this->locationType_ == LocationType::volumeCenters)
     {
-        forAll(T_->ref(), i)
+        forAll(T_->internalField(), i)
         {
-            buffer[bufferIndex++] = T_->ref()[i];
+            buffer[bufferIndex++] = T_->internalField()[i];
         }
     }
 
