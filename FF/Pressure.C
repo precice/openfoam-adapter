@@ -59,13 +59,8 @@ void preciceAdapter::FF::Pressure::write(double* buffer, bool meshConnectivity, 
 void preciceAdapter::FF::Pressure::read(double* buffer, const unsigned int dim)
 {
     int bufferIndex = 0;
-<<<<<<< HEAD
     
     if (this->locationType_ == LocationType::volumeCenters)
-=======
-
-    if (this->locationType_ == LocationType::volume)
->>>>>>> 16aab8a (foreach loops with references)
     {
         if (cellSetNames_.empty())
         {
