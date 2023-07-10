@@ -101,9 +101,9 @@ bool preciceAdapter::Adapter::configFileRead()
                     // By default, assume that no mesh connectivity is required (i.e. no nearest-projection mapping)
                     interfaceConfig.meshConnectivity = interfaceDict.lookupOrDefault<bool>("connectivity", false);
                     // Mesh connectivity only makes sense in case of faceNodes, check and raise a warning otherwise
-                    if (interfaceConfig.meshConnectivity && (interfaceConfig.locationsType == "faceCenters" || interfaceConfig.locationsType == "volume"))
+                    if (interfaceConfig.meshConnectivity && (interfaceConfig.locationsType == "faceCenters" || interfaceConfig.locationsType == "volumeCenters" || interfaceConfig.locationsType == "volumeCentres"))
                     {
-                        DEBUG(adapterInfo("Mesh connectivity is not supported for faceCenters or volume. \n"
+                        DEBUG(adapterInfo("Mesh connectivity is not supported for faceCenters or volumeCenters. \n"
                                           "Please configure the desired interface with the locationsType faceNodes. \n"
                                           "Have a look in the adapter documentation for detailed information.",
                                           "warning"));
@@ -128,12 +128,12 @@ bool preciceAdapter::Adapter::configFileRead()
                         DEBUG(adapterInfo("      - " + cellSet));
                     }
 
-                    if (!interfaceConfig.cellSetNames.empty() && interfaceConfig.locationsType != "volume")
+                    if (!interfaceConfig.cellSetNames.empty() && !(interfaceConfig.locationsType == "volumeCenters" || interfaceConfig.locationsType == "volumeCentres"))
                     {
-                        DEBUG(adapterInfo("Cell sets are not supported for locationType != volume. \n"
-                                          "Please configure the desired interface with the locationsType volume. \n"
-                                          "Have a look in the adapter documentation for detailed information.",
-                                          "warning"));
+                        adapterInfo("Cell sets are not supported for locationType != volumeCenters. \n"
+                                    "Please configure the desired interface with the locationsType volumeCenters. \n"
+                                    "Have a look in the adapter documentation for detailed information.",
+                                    "warning");
                         return false;
                     }
 
