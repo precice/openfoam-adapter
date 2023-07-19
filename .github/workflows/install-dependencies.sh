@@ -2,9 +2,7 @@
 
 # Install OpenFOAM v2306
 wget -q -O - https://dl.openfoam.com/add-debian-repo.sh | sudo bash
-deb [arch=amd64] https://dl.openfoam.com/repos/deb jammy main
-sudo apt-get update
-sudo apt-get install openfoam2306-dev
+sudo apt-get install openfoam2212-dev
 
 # Install preCICE v2.5.0
 wget https://github.com/precice/precice/releases/download/v2.5.0/libprecice2_2.5.0_jammy.deb
