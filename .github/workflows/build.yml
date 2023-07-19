@@ -34,7 +34,8 @@ jobs:
       uses: airvzxf/cache-anything-new-action@v1.0.1
       with:
         script: 'install-dependencies.sh'
-        is_cached: ${{ steps.cache-id.outputs.cache-hit }}
+        # is_cached: ${{ steps.cache-id.outputs.cache-hit }}
+        is_cached: false
         cache: ${{ runner.temp }}/cache-directory
         snapshot: '/'
         exclude: '/boot /data /dev /mnt /proc /run /sys'
