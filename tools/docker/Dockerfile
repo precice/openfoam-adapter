@@ -12,6 +12,6 @@ ARG OPENFOAM_ADAPTER_REF=develop
 # Build the OpenFOAM adapter
 RUN git clone --depth 1 --branch ${OPENFOAM_ADAPTER_REF} https://github.com/precice/openfoam-adapter.git
 WORKDIR /openfoam-adapter
-RUN /usr/bin/$OPENFOAM_EXECUTABLE ./Allwmake &&\
+RUN /usr/bin/${OPENFOAM_EXECUTABLE} ./Allwmake &&\
     ln -s $(which ${OPENFOAM_EXECUTABLE} ) /usr/bin/openfoam
 
