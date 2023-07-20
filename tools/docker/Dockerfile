@@ -4,6 +4,8 @@ FROM $from
 
 ARG OPENFOAM_EXECUTABLE=openfoam2112
 # Install OpenFOAM
+# Update the package lists prior to adding the openfoam rep. This is needed because the script installs some packages without updating the package lists. 
+# So sometimes a mirror moved and we get timeouts. 
 RUN apt-get update &&\
     wget -q -O - https://dl.openfoam.com/add-debian-repo.sh | bash &&\
     apt-get -qq install ${OPENFOAM_EXECUTABLE}-dev git
