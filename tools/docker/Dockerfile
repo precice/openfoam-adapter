@@ -6,7 +6,7 @@ ARG OPENFOAM_EXECUTABLE=openfoam2112
 # Install OpenFOAM
 RUN apt-get update &&\
     wget -q -O - https://dl.openfoam.com/add-debian-repo.sh | bash &&\
-    apt-get -qq install $OPENFOAM_EXECUTABLE-dev git
+    apt-get -qq install ${OPENFOAM_EXECUTABLE}-dev git
 
 ARG OPENFOAM_ADAPTER_REF=develop
 # Build the OpenFOAM adapter
