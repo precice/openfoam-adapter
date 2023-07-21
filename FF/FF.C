@@ -182,13 +182,6 @@ bool preciceAdapter::FF::FluidFluid::addReaders(std::string dataName, Interface*
             new Pressure(mesh_, nameP_));
         DEBUG(adapterInfo("Added reader: Pressure."));
     }
-    else if (dataName.find("p_rgh") == 0)
-    {
-        interface->addCouplingDataReader(
-            dataName,
-            new Pressure(mesh_, "p_rgh"));
-        DEBUG(adapterInfo("Added reader: Pressure."));
-    }
     else
     {
         found = false;

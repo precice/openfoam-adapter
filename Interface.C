@@ -332,9 +332,6 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh, const std::str
     }
     else if (locationType_ == LocationType::volumeCenters)
     {
-
-        // TODO is volume option added everywhere it's supposed to
-
         // The volume coupling implementation considers the mesh points in the volume and
         // on the boundary patches in order to take the boundary conditions into account
 
