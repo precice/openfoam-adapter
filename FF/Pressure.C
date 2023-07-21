@@ -35,7 +35,7 @@ void preciceAdapter::FF::Pressure::write(double* buffer, bool meshConnectivity, 
                 for (const auto& currentCell : cells)
                 {
                     // Copy the pressure into the buffer
-                    buffer[bufferIndex++] = p_->ref()[currentCell];
+                    buffer[bufferIndex++] = p_->internalField()[currentCell];
                 }
             }
         }

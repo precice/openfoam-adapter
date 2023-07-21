@@ -38,7 +38,7 @@ void preciceAdapter::CHT::Temperature::write(double* buffer, bool meshConnectivi
                 for (const auto& currentCell : cells)
                 {
                     // Copy temperature into the buffer
-                    buffer[bufferIndex++] = T_->ref()[currentCell];
+                    buffer[bufferIndex++] = T_->internalField()[currentCell];
                 }
             }
         }

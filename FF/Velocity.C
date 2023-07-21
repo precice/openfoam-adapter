@@ -45,15 +45,15 @@ void preciceAdapter::FF::Velocity::write(double* buffer, bool meshConnectivity, 
                 for (const auto& currentCell : cells)
                 {
                     // x-dimension
-                    buffer[bufferIndex++] = U_->ref()[currentCell].x();
+                    buffer[bufferIndex++] = U_->internalField()[currentCell].x();
 
                     // y-dimension
-                    buffer[bufferIndex++] = U_->ref()[currentCell].y();
+                    buffer[bufferIndex++] = U_->internalField()[currentCell].y();
 
                     if (dim == 3)
                     {
                         // z-dimension
-                        buffer[bufferIndex++] = U_->ref()[currentCell].z();
+                        buffer[bufferIndex++] = U_->internalField()[currentCell].z();
                     }
                 }
             }
