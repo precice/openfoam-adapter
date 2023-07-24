@@ -5,10 +5,24 @@ using namespace Foam;
 preciceAdapter::FF::Velocity::Velocity(
     const Foam::fvMesh& mesh,
     const std::string nameU)
-: U_(
-    const_cast<volVectorField*>(
-        &mesh.lookupObject<volVectorField>(nameU)))
 {
+    if (nameU.compare("U_vol") == 0) {
+        U_ = new volVectorField(
+            IOobject
+            (
+                "U_vol",
+                mesh.time().timeName(),
+                mesh,
+                IOobject::MUST_READ,
+                IOobject::AUTO_WRITE
+            ),
+            mesh
+        );
+    }
+    else {
+        U_ = const_cast<volVectorField*>(
+        &mesh.lookupObject<volVectorField>(nameU));
+    }
     dataType_ = vector;
 }
 
