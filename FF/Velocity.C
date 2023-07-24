@@ -6,22 +6,21 @@ preciceAdapter::FF::Velocity::Velocity(
     const Foam::fvMesh& mesh,
     const std::string nameU)
 {
-    if (nameU.compare("U_vol") == 0) {
+    if (mesh.foundObject<volVectorField>(nameU))
+    {
+        U_ = const_cast<volVectorField*>(
+            &mesh.lookupObject<volVectorField>(nameU));
+    }
+    else
+    {
         U_ = new volVectorField(
-            IOobject
-            (
-                "U_vol",
+            IOobject(
+                nameU,
                 mesh.time().timeName(),
                 mesh,
                 IOobject::MUST_READ,
-                IOobject::AUTO_WRITE
-            ),
-            mesh
-        );
-    }
-    else {
-        U_ = const_cast<volVectorField*>(
-        &mesh.lookupObject<volVectorField>(nameU));
+                IOobject::AUTO_WRITE),
+            mesh);
     }
     dataType_ = vector;
 }
