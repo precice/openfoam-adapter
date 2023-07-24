@@ -301,7 +301,7 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh, const std::str
 
                 //Array to store the IDs we get from preCICE
                 int triVertIDs[faceField.size() * (triaPerQuad * nodesPerTria)];
-
+                /*
                 //Get preCICE IDs
                 precice_.getMeshVertexIDsFromPositions(meshID_, faceField.size() * (triaPerQuad * nodesPerTria), triCoords, triVertIDs);
 
@@ -311,7 +311,7 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh, const std::str
                 for (int facei = 0; facei < faceField.size() * triaPerQuad; facei++)
                 {
                     precice_.setMeshTriangleWithEdges(meshID_, triVertIDs[facei * nodesPerTria], triVertIDs[facei * nodesPerTria + 1], triVertIDs[facei * nodesPerTria + 2]);
-                }
+                }*/
             }
         }
     }
