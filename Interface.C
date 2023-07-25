@@ -254,11 +254,6 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh, const std::str
         for (auto & key : verticesMap)
         {
             key.second = vertexIDs_[verticesIndex++];
-            adapterInfo("Map element: "
-                        + std::to_string(std::get<0>(key.first)) + ","
-                        + std::to_string(std::get<1>(key.first)) + ","
-                        + std::to_string(std::get<2>(key.first)) + "  -  "
-                        + std::to_string(key.second));
         }
 
         // meshConnectivity for prototype neglected
@@ -315,8 +310,7 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh, const std::str
                     }
                 }
 
-                DEBUG(adapterInfo("Number of faces * triaPerQuad: " + std::to_string(faceField.size() * triaPerQuad)));
-                DEBUG(adapterInfo("Number of triangles: " + std::to_string(triVertIDs.size())));
+                DEBUG(adapterInfo("Number of triangles: " + std::to_string(faceField.size() * triaPerQuad)));
 
                 //Set Triangles
                 precice_.setMeshTriangles(meshName_, triVertIDs);
