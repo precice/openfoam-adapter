@@ -8,7 +8,7 @@ summary: "Get the code from GitHub and run ./Allwmake. If this fails, look into 
 To build the adapter, you need to install a few dependencies and then execute the `Allwmake` script.
 
 1. Install [a compatible OpenFOAM distribution](https://precice.org/adapter-openfoam-support.html).
-2. Install [preCICE](https://precice.org/installation-overview.html).
+2. Install [preCICE v3](https://precice.org/installation-overview.html). In case you need preCICE v2, please install an older version of the adapter (v1.2.3 is the latest release to support preCICE v2).
 3. [Download the latest release](https://github.com/precice/openfoam-adapter/releases/latest) for your OpenFOAM version.
 4. Execute the build script: `./Allwmake`.
     * See and adjust the configuration in the beginning of the script first, if needed.
