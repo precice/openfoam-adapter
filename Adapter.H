@@ -105,7 +105,7 @@ private:
     std::vector<Interface*> interfaces_;
 
     //- preCICE solver interface
-    precice::Participant* precice_ = NULL;
+    precice::Participant* precice_ = nullptr;
 
     //- preCICE solver interface initialized
     bool preciceInitialized_ = false;
