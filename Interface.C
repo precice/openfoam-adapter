@@ -296,15 +296,19 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh, const std::str
                 std::vector<int> triVertIDs;
                 triVertIDs.reserve(faceField.size() * triaPerQuad * nodesPerTria);
 
-                // Iterate over faces
+                // Triangulate all faces and collect set of nodes that form triangles,
+                // which are used to set mesh triangles in preCICE.
                 forAll(faceField, facei)
                 {
                     const face& faceQuad = faceField[facei];
 
+                    // Triangulate the face
                     faceTriangulation faceTri(pointCoords, faceQuad, false);
 
+                    // Iterate over all triangles generated out of each (quad) face
                     for (uint triIndex = 0; triIndex < triaPerQuad; triIndex++)
                     {
+                        // Get the vertex that corresponds to the x,y,z coordinates of each node of a triangle
                         for (uint nodeIndex = 0; nodeIndex < nodesPerTria; nodeIndex++)
                         {
                             triVertIDs.push_back(verticesMap.at(std::make_tuple(pointCoords[faceTri[triIndex][nodeIndex]][0], pointCoords[faceTri[triIndex][nodeIndex]][1], pointCoords[faceTri[triIndex][nodeIndex]][2])));
