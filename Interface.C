@@ -208,7 +208,7 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh, const std::str
         int verticesIndex = 0;
 
         // Map between OpenFOAM vertices and preCICE vertex IDs
-        std::map<std::tuple<double, double, double>,int> verticesMap;
+        std::map<std::tuple<double, double, double>, int> verticesMap;
 
         // Get the locations of the mesh vertices (here: face nodes)
         // for all the patches
@@ -256,7 +256,7 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh, const std::str
         {
             // Build the map between OpenFOAM vertices and preCICE vertex IDs
             verticesIndex = 0;
-            for (auto & key : verticesMap)
+            for (auto& key : verticesMap)
             {
                 key.second = vertexIDs_[verticesIndex++];
             }
