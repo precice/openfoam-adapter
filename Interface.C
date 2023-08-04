@@ -293,6 +293,7 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh, const std::str
 
                 //Array to store the IDs we get from preCICE
                 std::vector<int> triVertIDs;
+                triVertIDs.reserve(faceField.size() * triaPerQuad * nodesPerTria);
 
                 // Iterate over faces
                 forAll(faceField, facei)
