@@ -242,24 +242,25 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh, const std::str
                 {
                     vertices[verticesIndex++] = faceNodes[i][d];
                 }
-                verticesMap.emplace(std::make_tuple(faceNodes[i][0], faceNodes[i][1], faceNodes[i][2]), -1);
+                if (meshConnectivity_)
+                {
+                    verticesMap.emplace(std::make_tuple(faceNodes[i][0], faceNodes[i][1], faceNodes[i][2]), -1);
+                }
             }
         }
 
         // Pass the mesh vertices information to preCICE
         precice_.setMeshVertices(meshName_, vertices, vertexIDs_);
 
-        // Build the map between OpenFOAM vertices and preCICE vertex IDs
-        verticesIndex = 0;
-        for (auto & key : verticesMap)
-        {
-            key.second = vertexIDs_[verticesIndex++];
-        }
-
-        // meshConnectivity for prototype neglected
-        // Only set the triangles, if necessary
         if (meshConnectivity_)
         {
+            // Build the map between OpenFOAM vertices and preCICE vertex IDs
+            verticesIndex = 0;
+            for (auto & key : verticesMap)
+            {
+                key.second = vertexIDs_[verticesIndex++];
+            }
+
             for (uint j = 0; j < patchIDs_.size(); j++)
             {
                 // Define triangles
