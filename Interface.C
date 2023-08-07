@@ -207,6 +207,9 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh, const std::str
         // Initialize the index of the vertices array
         int verticesIndex = 0;
 
+        // Map between OpenFOAM vertices and preCICE vertex IDs
+        std::map<std::tuple<double, double, double>, int> verticesMap;
+
         // Get the locations of the mesh vertices (here: face nodes)
         // for all the patches
         for (uint j = 0; j < patchIDs_.size(); j++)
@@ -234,17 +237,30 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh, const std::str
             // Assign the (x,y,z) locations to the vertices
             // TODO: Ensure consistent order when writing/reading
             for (int i = 0; i < faceNodes.size(); i++)
+            {
                 for (unsigned int d = 0; d < dim_; ++d)
+                {
                     vertices[verticesIndex++] = faceNodes[i][d];
+                }
+                if (meshConnectivity_)
+                {
+                    verticesMap.emplace(std::make_tuple(faceNodes[i][0], faceNodes[i][1], faceNodes[i][2]), -1);
+                }
+            }
         }
 
         // Pass the mesh vertices information to preCICE
         precice_.setMeshVertices(meshName_, vertices, vertexIDs_);
 
-        // meshConnectivity for prototype neglected
-        // Only set the triangles, if necessary
         if (meshConnectivity_)
         {
+            // Build the map between OpenFOAM vertices and preCICE vertex IDs
+            verticesIndex = 0;
+            for (auto& key : verticesMap)
+            {
+                key.second = vertexIDs_[verticesIndex++];
+            }
+
             for (uint j = 0; j < patchIDs_.size(); j++)
             {
                 // Define triangles
@@ -263,7 +279,6 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh, const std::str
                 // Define constants
                 const int triaPerQuad = 2;
                 const int nodesPerTria = 3;
-                const int componentsPerNode = 3;
 
                 // Get the list of faces and coordinates at the interface patch
                 const List<face> faceField = mesh.boundaryMesh()[patchIDs_.at(j)].localFaces();
@@ -277,41 +292,34 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh, const std::str
                     pointCoords -= resetField;
                 }
 
-                // Array to store coordinates in preCICE format
-                double triCoords[faceField.size() * triaPerQuad * nodesPerTria * componentsPerNode];
+                //Array to store the IDs we get from preCICE
+                std::vector<int> triVertIDs;
+                triVertIDs.reserve(faceField.size() * triaPerQuad * nodesPerTria);
 
-                unsigned int coordIndex = 0;
-
-                // Iterate over faces
+                // Triangulate all faces and collect set of nodes that form triangles,
+                // which are used to set mesh triangles in preCICE.
                 forAll(faceField, facei)
                 {
                     const face& faceQuad = faceField[facei];
 
+                    // Triangulate the face
                     faceTriangulation faceTri(pointCoords, faceQuad, false);
 
+                    // Iterate over all triangles generated out of each (quad) face
                     for (uint triIndex = 0; triIndex < triaPerQuad; triIndex++)
                     {
+                        // Get the vertex that corresponds to the x,y,z coordinates of each node of a triangle
                         for (uint nodeIndex = 0; nodeIndex < nodesPerTria; nodeIndex++)
                         {
-                            for (uint xyz = 0; xyz < componentsPerNode; xyz++)
-                                triCoords[coordIndex++] = pointCoords[faceTri[triIndex][nodeIndex]][xyz];
+                            triVertIDs.push_back(verticesMap.at(std::make_tuple(pointCoords[faceTri[triIndex][nodeIndex]][0], pointCoords[faceTri[triIndex][nodeIndex]][1], pointCoords[faceTri[triIndex][nodeIndex]][2])));
                         }
                     }
                 }
 
-                //Array to store the IDs we get from preCICE
-                int triVertIDs[faceField.size() * (triaPerQuad * nodesPerTria)];
-
-                //Get preCICE IDs
-                precice_.getMeshVertexIDsFromPositions(meshID_, faceField.size() * (triaPerQuad * nodesPerTria), triCoords, triVertIDs);
-
                 DEBUG(adapterInfo("Number of triangles: " + std::to_string(faceField.size() * triaPerQuad)));
 
                 //Set Triangles
-                for (int facei = 0; facei < faceField.size() * triaPerQuad; facei++)
-                {
-                    precice_.setMeshTriangleWithEdges(meshID_, triVertIDs[facei * nodesPerTria], triVertIDs[facei * nodesPerTria + 1], triVertIDs[facei * nodesPerTria + 2]);
-                }
+                precice_.setMeshTriangles(meshName_, triVertIDs);
             }
         }
     }
