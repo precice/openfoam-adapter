@@ -1,4 +1,4 @@
-name: Build with OpenFOAM v2212
+name: Build with OpenFOAM v2306
 on:
   push:
     branches-ignore:
@@ -20,7 +20,7 @@ on:
       - 'README.md'
 jobs:
   build:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
     - name: Check out repository
       uses: actions/checkout@v2
@@ -39,4 +39,4 @@ jobs:
         snapshot: '/'
         exclude: '/boot /data /dev /mnt /proc /run /sys'
     - name: Build OpenFOAM-preCICE adapter
-      run: /usr/bin/openfoam2212 ./Allwmake
+      run: /usr/bin/openfoam2306 ./Allwmake
