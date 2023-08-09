@@ -5,6 +5,9 @@ wget -q -O - https://dl.openfoam.com/add-debian-repo.sh | sudo bash
 sudo apt-get update
 sudo apt-get install openfoam2306-dev
 
+# Install preCICE dependencies
+sudo apt-get install build-essential cmake libeigen3-dev libxml2-dev libboost-all-dev petsc-dev python3-dev python3-numpy
+
 # Install preCICE from develop
 git clone --depth=1 --branch develop https://github.com/precice/precice.git
 cd precice
