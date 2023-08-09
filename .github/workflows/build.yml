@@ -38,5 +38,10 @@ jobs:
         cache: ${{ runner.temp }}/cache-directory
         snapshot: '/'
         exclude: '/boot /data /dev /mnt /proc /run /sys'
+    - name: Install preCICE
+      uses: precice/setup-precice-action@main
+      with:
+        precice-version: develop
+        install-prefix: /usr
     - name: Build OpenFOAM-preCICE adapter
       run: /usr/bin/openfoam2306 ./Allwmake
