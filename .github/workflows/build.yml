@@ -23,9 +23,9 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
     - name: Check out repository
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
     - name: Setup caches
-      uses: actions/cache@v2
+      uses: actions/cache@v3
       id: cache-id
       with:
         path: ${{ runner.temp }}/cache-directory
@@ -42,6 +42,6 @@ jobs:
       uses: precice/setup-precice-action@main
       with:
         precice-version: develop
-        install-prefix: /usr
+        install-prefix: /usr/local
     - name: Build OpenFOAM-preCICE adapter
       run: /usr/bin/openfoam2306 ./Allwmake
