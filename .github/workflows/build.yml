@@ -30,10 +30,10 @@ jobs:
       with:
         path: ${{ runner.temp }}/cache-directory
         key: ${{ runner.os }}-cache-dependencies-v1.0
-    - name: Install dependencies (considering cache)
+    - name: Install OpenFOAM (considering cache)
       uses: airvzxf/cache-anything-new-action@v1.0.1
       with:
-        script: 'install-dependencies.sh'
+        script: 'install-openfoam.sh'
         is_cached: ${{ steps.cache-id.outputs.cache-hit }}
         cache: ${{ runner.temp }}/cache-directory
         snapshot: '/'
