@@ -5,6 +5,14 @@ wget -q -O - https://dl.openfoam.com/add-debian-repo.sh | sudo bash
 sudo apt-get update
 sudo apt-get install openfoam2306-dev
 
-# Install preCICE v2.5.0
-wget https://github.com/precice/precice/releases/download/v2.5.0/libprecice2_2.5.0_jammy.deb
-sudo apt install ./libprecice2_2.5.0_jammy.deb
+# Install preCICE from develop
+git clone --depth=1 --branch develop https://github.com/precice/precice.git
+cd precice
+mkdir -p build && cd build/
+cmake -DCMAKE_INSTALL_PREFIX=/usr -DBUILD_SHARED_LIBS=ON -DCMAKE_BUILD_TYPE=Debug -DBUILD_TESTING=OFF -Wno-dev ..
+make -j "$(nproc)"
+rm -fv ./*.deb && make package
+sudo apt-get install -y ./libprecice3_*.deb
+
+# Remove generated packages to save space (approx. 70MB)
+rm -rfv ./*.deb ./*.tar.gz _CPack_Packages
