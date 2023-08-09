@@ -1,6 +1,8 @@
 ARG PRECICE_TAG=latest
 ARG from=precice/precice:${PRECICE_TAG}
 FROM $from
+RUN useradd -ms /bin/bash precice
+ENV DEBIAN_FRONTEND=noninteractive
 
 ARG OPENFOAM_EXECUTABLE=openfoam2112
 # Install OpenFOAM
@@ -8,12 +10,14 @@ ARG OPENFOAM_EXECUTABLE=openfoam2112
 # So sometimes a mirror moved and we get timeouts. 
 RUN apt-get update &&\
     wget -q -O - https://dl.openfoam.com/add-debian-repo.sh | bash &&\
-    apt-get -qq install ${OPENFOAM_EXECUTABLE}-dev git
+    apt-get -qq install ${OPENFOAM_EXECUTABLE}-dev git &&\
+    ln -s $(which ${OPENFOAM_EXECUTABLE} ) /usr/bin/openfoam
 
 ARG OPENFOAM_ADAPTER_REF=develop
 # Build the OpenFOAM adapter
+
+USER precice
 RUN git clone --depth 1 --branch ${OPENFOAM_ADAPTER_REF} https://github.com/precice/openfoam-adapter.git
 WORKDIR /openfoam-adapter
-RUN /usr/bin/${OPENFOAM_EXECUTABLE} ./Allwmake &&\
-    ln -s $(which ${OPENFOAM_EXECUTABLE} ) /usr/bin/openfoam
+RUN /usr/bin/${OPENFOAM_EXECUTABLE} ./Allwmake 
 
