@@ -42,6 +42,5 @@ jobs:
       uses: precice/setup-precice-action@main
       with:
         precice-version: develop
-        install-prefix: /usr/local
     - name: Build OpenFOAM-preCICE adapter
       run: /usr/bin/openfoam2306 ./Allwmake
