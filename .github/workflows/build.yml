@@ -23,20 +23,24 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
     - name: Check out repository
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
     - name: Setup caches
-      uses: actions/cache@v2
+      uses: actions/cache@v3
       id: cache-id
       with:
         path: ${{ runner.temp }}/cache-directory
         key: ${{ runner.os }}-cache-dependencies-v1.0
-    - name: Install dependencies (considering cache)
+    - name: Install OpenFOAM (considering cache)
       uses: airvzxf/cache-anything-new-action@v1.0.1
       with:
-        script: 'install-dependencies.sh'
+        script: 'install-openfoam.sh'
         is_cached: ${{ steps.cache-id.outputs.cache-hit }}
         cache: ${{ runner.temp }}/cache-directory
         snapshot: '/'
         exclude: '/boot /data /dev /mnt /proc /run /sys'
+    - name: Install preCICE
+      uses: precice/setup-precice-action@main
+      with:
+        precice-version: develop
     - name: Build OpenFOAM-preCICE adapter
       run: /usr/bin/openfoam2306 ./Allwmake
