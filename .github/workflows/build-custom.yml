@@ -8,6 +8,7 @@ on:
         required: true
         type: choice
         options:
+          - ubuntu-22.04
           - ubuntu-20.04
           - ubuntu-18.04
       refAdapter:
@@ -19,11 +20,15 @@ on:
         required: true
         type: choice
         options:
+          - OpenFOAMv2306
+          - OpenFOAMv2212
+          - OpenFOAMv2206
           - OpenFOAMv2112
           - OpenFOAMv2106
           - OpenFOAMv2012
           - OpenFOAMv2006
           - OpenFOAMv1912
+          - OpenFOAM10
           - OpenFOAM9
           - OpenFOAM8
           - OpenFOAM7
@@ -31,7 +36,7 @@ on:
           - OpenFOAM5
       versionpreCICE:
         description: 'Version of preCICE to build with'
-        default: '2.3.0'
+        default: '2.5.0'
         required: true
       runTutorialHeatedPlate:
         description: Run tutorial flow-over-heated-plate
@@ -76,65 +81,87 @@ jobs:
       id: installOpenFOAM
       run: |
         case "${{ github.event.inputs.versionOpenFOAM }}" in
+          OpenFOAMv2306)
+            wget -q -O - https://dl.openfoam.com/add-debian-repo.sh | sudo bash
+            sudo apt-get install openfoam2306-dev
+            echo "{openfoam_exec}={/usr/bin/openfoam2306}" >> $GITHUB_OUTPUT;;
+          OpenFOAMv2212)
+            wget -q -O - https://dl.openfoam.com/add-debian-repo.sh | sudo bash
+            sudo apt-get install openfoam2212-dev
+            echo "{openfoam_exec}={/usr/bin/openfoam2212}" >> $GITHUB_OUTPUT;;
+          OpenFOAMv2206)
+            wget -q -O - https://dl.openfoam.com/add-debian-repo.sh | sudo bash
+            sudo apt-get install openfoam2206-dev
+            echo "{openfoam_exec}={/usr/bin/openfoam2206}" >> $GITHUB_OUTPUT;;
           OpenFOAMv2112)
             wget -q -O - https://dl.openfoam.com/add-debian-repo.sh | sudo bash
             sudo apt-get install openfoam2112-dev
-            echo "::set-output name=openfoam_exec::/usr/bin/openfoam2112";;
+            echo "{openfoam_exec}={/usr/bin/openfoam2112}" >> $GITHUB_OUTPUT;;
           OpenFOAMv2106)
             wget -q -O - https://dl.openfoam.com/add-debian-repo.sh | sudo bash
             sudo apt-get install openfoam2106-dev
-            echo "::set-output name=openfoam_exec::/usr/bin/openfoam2106";;
+            echo "{openfoam_exec}={/usr/bin/openfoam2106}" >> $GITHUB_OUTPUT;;
           OpenFOAMv2012)
             wget -q -O - https://dl.openfoam.com/add-debian-repo.sh | sudo bash
             sudo apt-get install openfoam2012-dev
-            echo "::set-output name=openfoam_exec::/usr/bin/openfoam2012";;
+            echo "{openfoam_exec}={/usr/bin/openfoam2012}" >> $GITHUB_OUTPUT;;
           OpenFOAMv2006)
             wget -q -O - https://dl.openfoam.com/add-debian-repo.sh | sudo bash
             sudo apt-get install openfoam2006-dev
-            echo "::set-output name=openfoam_exec::/usr/bin/openfoam2006";;
+            echo "{openfoam_exec}={/usr/bin/openfoam2006}" >> $GITHUB_OUTPUT;;
           OpenFOAMv1912)
             wget -q -O - https://dl.openfoam.com/add-debian-repo.sh | sudo bash
             sudo apt-get install openfoam1912-dev
-            echo "::set-output name=openfoam_exec::/usr/bin/openfoam1912";;
+            echo "{openfoam_exec}={/usr/bin/openfoam1912}" >> $GITHUB_OUTPUT;;
+          OpenFOAM10)
+            sudo sh -c "wget -O - https://dl.openfoam.org/gpg.key | apt-key add -"
+            sudo add-apt-repository http://dl.openfoam.org/ubuntu
+            sudo apt-get update
+            sudo apt-get -y install openfoam10
+            echo "{openfoam_exec}={. /opt/openfoam10/etc/bashrc &&}" >> $GITHUB_OUTPUT;;
           OpenFOAM9)
             sudo sh -c "wget -O - https://dl.openfoam.org/gpg.key | apt-key add -"
             sudo add-apt-repository http://dl.openfoam.org/ubuntu
             sudo apt-get update
             sudo apt-get -y install openfoam9
-            echo "::set-output name=openfoam_exec::. /opt/openfoam9/etc/bashrc &&";;
+            echo "{openfoam_exec}={. /opt/openfoam9/etc/bashrc &&}" >> $GITHUB_OUTPUT;;
           OpenFOAM8)
             sudo sh -c "wget -O - https://dl.openfoam.org/gpg.key | apt-key add -"
             sudo add-apt-repository http://dl.openfoam.org/ubuntu
             sudo apt-get update
             sudo apt-get -y install openfoam8
-            echo "::set-output name=openfoam_exec::. /opt/openfoam8/etc/bashrc &&";;
+            echo "{openfoam_exec}={. /opt/openfoam8/etc/bashrc &&}" >> $GITHUB_OUTPUT;;
           OpenFOAM7)
             sudo sh -c "wget -O - https://dl.openfoam.org/gpg.key | apt-key add -"
             sudo add-apt-repository http://dl.openfoam.org/ubuntu
             sudo apt-get update
             sudo apt-get -y install openfoam7
-            echo "::set-output name=openfoam_exec::. /opt/openfoam7/etc/bashrc &&";;
+            echo "{openfoam_exec}={. /opt/openfoam7/etc/bashrc &&}" >> $GITHUB_OUTPUT;;
           OpenFOAM6)
             echo "OpenFOAM 6 is only available on Ubuntu 18.04 or older."
             sudo sh -c "wget -O - https://dl.openfoam.org/gpg.key | apt-key add -"
             sudo add-apt-repository http://dl.openfoam.org/ubuntu
             sudo apt-get update
             sudo apt-get -y install openfoam6
-            echo "::set-output name=openfoam_exec::. /opt/openfoam6/etc/bashrc &&";;
+            echo "{openfoam_exec}={. /opt/openfoam6/etc/bashrc &&}" >> $GITHUB_OUTPUT;;
           OpenFOAM5)
             echo "OpenFOAM 5 is only available on Ubuntu 18.04 or older."
             sudo sh -c "wget -O - https://dl.openfoam.org/gpg.key | apt-key add -"
             sudo add-apt-repository http://dl.openfoam.org/ubuntu
             sudo apt-get update
             sudo apt-get -y install openfoam5
-            echo "::set-output name=openfoam_exec::. /opt/openfoam5/etc/bashrc &&";;
+            echo "{openfoam_exec}={. /opt/openfoam5/etc/bashrc &&}" >> $GITHUB_OUTPUT;;
           *)
             echo "I cannot find ${{ github.event.inputs.refAdapter }} in my known options."
             exit 1;;
         esac
     - name: Install preCICE (no cache)
       run: |
-          if [ "${{ github.event.inputs.virtualEnvironment }}" == "ubuntu-20.04" ]
+          if [ "${{ github.event.inputs.virtualEnvironment }}" == "ubuntu-22.04" ]
+          then
+            wget "https://github.com/precice/precice/releases/download/v${{ github.event.inputs.versionpreCICE }}/libprecice2_${{ github.event.inputs.versionpreCICE }}_jammy.deb"
+            sudo apt install "./libprecice2_${{ github.event.inputs.versionpreCICE }}_jammy.deb"
+          elif [ "${{ github.event.inputs.virtualEnvironment }}" == "ubuntu-20.04" ]
           then
             wget "https://github.com/precice/precice/releases/download/v${{ github.event.inputs.versionpreCICE }}/libprecice2_${{ github.event.inputs.versionpreCICE }}_focal.deb"
             sudo apt install "./libprecice2_${{ github.event.inputs.versionpreCICE }}_focal.deb"
@@ -169,6 +196,11 @@ jobs:
           then
             echo "Manually changing from pimpleFoam to pimpleDyMFoam for compatibility with OpenFOAM 5."
             sed -i 's/pimpleFoam/pimpleDyMFoam/g' system/controlDict
+          fi
+          if [ "${{ github.event.inputs.versionOpenFOAM }}" == "OpenFOAM9" ]
+          then
+            echo "Manually changing from solver to motionSolver in dynamicMeshDict for compatibility with OpenFOAM 9."
+            sed -i 's/solver/motionSolver/g' constant/dynamicMeshDict
           fi
           ${{steps.installOpenFOAM.outputs.openfoam_exec}} ./run.sh | tee fluid-openfoam.log 2>&1 &
           PIDfluid=$!

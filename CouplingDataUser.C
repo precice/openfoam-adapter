@@ -14,16 +14,14 @@ bool preciceAdapter::CouplingDataUser::hasVectorData()
     return dataType_ == vector;
 }
 
-void preciceAdapter::CouplingDataUser::setDataID(int dataID)
+void preciceAdapter::CouplingDataUser::setDataName(std::string dataName)
 {
-    dataID_ = dataID;
-
-    return;
+    dataName_ = std::move(dataName);
 }
 
-int preciceAdapter::CouplingDataUser::dataID()
+const std::string& preciceAdapter::CouplingDataUser::dataName()
 {
-    return dataID_;
+    return dataName_;
 }
 
 void preciceAdapter::CouplingDataUser::setPatchIDs(std::vector<int> patchIDs)

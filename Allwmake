@@ -3,14 +3,17 @@ set -e -u
 
 ########## CONFIGURATION - You may want to change these ########################
 
-# Optional: Preprocessor flags ("-DADAPTER_DEBUG_MODE" enables debug messages)
-ADAPTER_PREP_FLAGS=""
+# Optional: Preprocessor flags
+# "-DADAPTER_DEBUG_MODE" enables debug messages
+# "-DADAPTER_ENABLE_TIMINGS" enables time measurements
+ADAPTER_PREP_FLAGS="${ADAPTER_PREP_FLAGS:-}"
 
 # Build command and options
-# In order to compile with multiple threads, add e.g. "-j 4".
+# In order to compile with multiple threads, set the environment variable WM_NCOMPPROCS,
+# e.g., add "export WM_NCOMPPROCS=4" to your ~/.bashrc
 # Make sure that these options are supported by your OpenFOAM version.
 adapter_build_command(){
-    wmake -j 4 libso
+    wmake libso
 }
 
 # Where should the adapter be built? Default: "${FOAM_USER_LIBBIN}"
@@ -20,9 +23,14 @@ ADAPTER_TARGET_DIR="${FOAM_USER_LIBBIN:-}"
 DOC_COMPATIBILITY="https://www.precice.org/adapter-openfoam-support.html"
 
 ################################################################################
-# Funtion to print to screen and copy to a logfile
+# Function to print to screen and copy to a logfile
 log() {
     echo "$@" | tee -a "Allwmake.log"
+}
+# Function to print warnings
+warning() {
+    log "WARNING: $*"
+    export ADAPTER_WARNINGS="true"
 }
 ################################################################################
 
@@ -33,28 +41,33 @@ log "Building the OpenFOAM-preCICE adapter..."
 export ADAPTER_PREP_FLAGS
 export ADAPTER_TARGET_DIR
 
-if pkg-config libprecice; then
-  ADAPTER_PKG_CONFIG_CFLAGS="$(pkg-config --silence-errors --cflags libprecice)"
-  ADAPTER_PKG_CONFIG_LIBS="$(pkg-config --silence-errors --libs libprecice)"
+# Check if pkg-config is available and get the config for preCICE
+ADAPTER_PKG_CONFIG_CFLAGS=""
+ADAPTER_PKG_CONFIG_LIBS=""
+if command -v pkg-config >/dev/null 2>&1; then
+    if pkg-config libprecice; then
+        ADAPTER_PKG_CONFIG_CFLAGS="$(pkg-config --silence-errors --cflags libprecice)"
+        ADAPTER_PKG_CONFIG_LIBS="$(pkg-config --silence-errors --libs libprecice)"
+        log ""
+        log "If not already known by the system, preCICE may be located using:"
+        log "  pkg-config --cflags libprecice  = ${ADAPTER_PKG_CONFIG_CFLAGS}"
+        log "  pkg-config --libs libprecice    = ${ADAPTER_PKG_CONFIG_LIBS}"
+    else
+        warning "pkg-config configuration file 'libprecice.pc' was not found in the PKG_CONFIG_PATH.
+        Check the preCICE documentation page 'Linking to preCICE' for more details, or proceed if you know what you are doing."
+    fi
 else
-  log "WARNING: No configuration file 'libprecice.pc' was found in the PKG_CONFIG_PATH."
-  log "Check the preCICE documentation page 'Linking to preCICE' for more details, or proceed if you know what you are doing."
-  ADAPTER_PKG_CONFIG_CFLAGS=""
-  ADAPTER_PKG_CONFIG_LIBS=""
+    warning "pkg-config is not installed and cannot be used to detect the preCICE installation. If building succeeds, ignore this warning."
 fi
 export ADAPTER_PKG_CONFIG_CFLAGS
 export ADAPTER_PKG_CONFIG_LIBS
-
-log ""
-log "If not already known by the system, preCICE may be located using:"
-log "  pkg-config --cflags libprecice  = ${ADAPTER_PKG_CONFIG_CFLAGS}"
-log "  pkg-config --libs libprecice    = ${ADAPTER_PKG_CONFIG_LIBS}"
 
 # Check if an OpenFOAM environment is available
 log ""
 log "Current OpenFOAM environment:"
 log "  WM_PROJECT = ${WM_PROJECT:-}"
 log "  WM_PROJECT_VERSION = ${WM_PROJECT_VERSION:-}"
+log "  WM_NCOMPPROCS = ${WM_NCOMPPROCS:=1} (number of threads for parallel builds)"
 
 if [ -z "${WM_PROJECT:-}" ]; then
     log ""
@@ -89,6 +102,7 @@ if ! adapter_build_command 2>&1 | tee wmake.log ||
     log "- Make sure you are using a compatible version of the adapter for your OpenFOAM version:"
     log "  ${DOC_COMPATIBILITY}"
     log "- Is preCICE discoverable at compile time? Check the content of ADAPTER_PKG_CONFIG_CFLAGS above."
+    log "Attach your Allwmake.log and wmake.log when asking for help."
     exit 1
 else
     ADAPTER_WMAKE_UNDEFINED_SYMBOLS=$(grep -c -E "undefined|not defined" wmake.log) || echo "Everything looks fine in wmake.log."
@@ -97,9 +111,16 @@ else
     if [ "${ADAPTER_WMAKE_UNDEFINED_SYMBOLS}" -gt 0 ] || [ "${ADAPTER_LD_UNDEFINED_SYMBOLS}" -gt 0 ]; then
         log "=== ERROR: Building completed with linking problems: there were undefined symbols. ==="
         log "Possible causes:"
-        log "- Is preCICE discoverable at runtime? Check the content of ADAPTER_PKG_CONFIG_LIBS above."
+        log "- Is preCICE discoverable at runtime? Check the content of pkg-config output above."
+        log "- Did anything go wrong while installing preCICE? Can you run any other preCICE tutorials?"
+        log "- Did anything go wrong while installing OpenFOAM? Can you run any other OpenFOAM tutorials?"
         log "See wmake.log and ldd.log for more details."
+        log "Attach your Allwmake.log, wmake.log, and ldd.log when asking for help."
     else
         log "=== OK: Building completed successfully! ==="
     fi
+fi
+
+if [ "${ADAPTER_WARNINGS:-}" = "true" ]; then
+    echo "There have been warnings. Check the log above."
 fi

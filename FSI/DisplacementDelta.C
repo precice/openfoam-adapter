@@ -37,10 +37,10 @@ void preciceAdapter::FSI::DisplacementDelta::initialize()
 void preciceAdapter::FSI::DisplacementDelta::write(double* buffer, bool meshConnectivity, const unsigned int dim)
 {
     /* TODO: Implement
-    * We need two nested for-loops for each patch,
-    * the outer for the locations and the inner for the dimensions.
-    * See the preCICE writeBlockVectorData() implementation.
-    */
+     * We need two nested for-loops for each patch,
+     * the outer for the locations and the inner for the dimensions.
+     * See the preCICE writeBlockVectorData() implementation.
+     */
     FatalErrorInFunction
         << "Writing displacementDeltas is not supported."
         << exit(FatalError);
@@ -49,6 +49,7 @@ void preciceAdapter::FSI::DisplacementDelta::write(double* buffer, bool meshConn
 // return the displacement to use later in the velocity?
 void preciceAdapter::FSI::DisplacementDelta::read(double* buffer, const unsigned int dim)
 {
+    int bufferIndex = 0;
     for (unsigned int j = 0; j < patchIDs_.size(); j++)
     {
         // Get the ID of the current patch
@@ -65,7 +66,7 @@ void preciceAdapter::FSI::DisplacementDelta::read(double* buffer, const unsigned
             forAll(cellDisplacement_->boundaryField()[patchID], i)
             {
                 for (unsigned int d = 0; d < dim; ++d)
-                    cellDisplacement_->boundaryFieldRef()[patchID][i][d] = buffer[i * dim + d];
+                    cellDisplacement_->boundaryFieldRef()[patchID][i][d] = buffer[bufferIndex++];
             }
             // Get a reference to the displacement on the point patch in order to overwrite it
             vectorField& pointDisplacementFluidPatch(
@@ -88,7 +89,7 @@ void preciceAdapter::FSI::DisplacementDelta::read(double* buffer, const unsigned
             forAll(pointDisplacement_->boundaryFieldRef()[patchID], i)
             {
                 for (unsigned int d = 0; d < dim; ++d)
-                    pointDisplacementFluidPatch[i][d] += buffer[i * dim + d];
+                    pointDisplacementFluidPatch[i][d] += buffer[bufferIndex++];
             }
         }
     }

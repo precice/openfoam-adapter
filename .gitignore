@@ -37,6 +37,7 @@
 # OpenFOAM / WMake
 lnInclude/
 Make/linux64GccDPInt32Opt/
+Make/darwin64ClangDPInt32Opt/
 
 # Editors
 .cproject

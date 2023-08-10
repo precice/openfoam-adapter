@@ -5,8 +5,9 @@
 #include <vector>
 #include "fvCFD.H"
 #include "CouplingDataUser.H"
-#include "precice/SolverInterface.hpp"
+#include <precice/precice.hpp>
 
+#include "pointPatchField.H"
 
 namespace preciceAdapter
 {
@@ -15,7 +16,7 @@ class Interface
 {
 protected:
     //- preCICE solver interface
-    precice::SolverInterface& precice_;
+    precice::Participant& precice_;
 
     //- Mesh name used in the preCICE configuration
     std::string meshName_;
@@ -36,10 +37,10 @@ protected:
     int numDataLocations_ = 0;
 
     //- Vertex IDs assigned by preCICE
-    int* vertexIDs_;
+    std::vector<int> vertexIDs_;
 
     //- Buffer for the coupling data
-    double* dataBuffer_;
+    std::vector<double> dataBuffer_;
 
     //- Vector of CouplingDataReaders
     std::vector<CouplingDataUser*> couplingDataReaders_;
@@ -50,22 +51,30 @@ protected:
     //Switch for faceTriangulation (nearest projection)
     bool meshConnectivity_;
 
+    //- Reset the displacement during interface definition
+    bool restartFromDeformed_;
+
     // Simulation dimension
     unsigned int dim_;
 
     //- Extracts the locations of the face centers or face nodes
     //  and exposes them to preCICE with setMeshVertices
-    void configureMesh(const Foam::fvMesh& mesh);
+    void configureMesh(const Foam::fvMesh& mesh,
+                       const std::string& namePointDisplacement,
+                       const std::string& nameCellDisplacement);
 
 public:
     //- Constructor
     Interface(
-        precice::SolverInterface& precice,
+        precice::Participant& precice,
         const Foam::fvMesh& mesh,
         std::string meshName,
         std::string locationsType,
         std::vector<std::string> patchNames,
-        bool meshConnectivity);
+        bool meshConnectivity,
+        bool restartFromDeformed,
+        const std::string& namePointDisplacement,
+        const std::string& nameCellDisplacement);
 
     //- Add a CouplingDataUser to read data from the interface
     void addCouplingDataReader(
@@ -85,7 +94,7 @@ public:
 
     //- Call read() on each registered couplingDataReader to read the coupling
     //  data from the buffer and apply the boundary conditions
-    void readCouplingData();
+    void readCouplingData(double relativeReadTime);
 
     //- Call write() on each registered couplingDataWriter to extract the boundary
     //  data and write them into the buffer

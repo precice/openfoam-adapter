@@ -50,7 +50,8 @@ Foam::functionObjects::preciceAdapterFunctionObject::preciceAdapterFunctionObjec
 : fvMeshFunctionObject(name, runTime, dict),
   adapter_(runTime, mesh_)
 {
-#if (defined OPENFOAM_PLUS && (OPENFOAM_PLUS >= 1712)) || (defined OPENFOAM && (OPENFOAM >= 1806))
+
+#if (defined OPENFOAM && (OPENFOAM >= 1712)) || (defined OPENFOAM_PLUS && (OPENFOAM_PLUS >= 1712))
     // Patch for issue #27: warning "MPI was already finalized" while
     // running in serial. This only affects openfoam.com, while initNull()
     // does not exist in openfoam.org.
@@ -65,6 +66,12 @@ Foam::functionObjects::preciceAdapterFunctionObject::preciceAdapterFunctionObjec
 
 Foam::functionObjects::preciceAdapterFunctionObject::~preciceAdapterFunctionObject()
 {
+#ifdef ADAPTER_ENABLE_TIMINGS
+    Info << "-------------------- preCICE adapter timers (primary rank) --------------------------" << nl;
+    Info << "Total time in adapter + preCICE: " << timeInAll_.str() << " (format: day-hh:mm:ss.ms)" << nl;
+    Info << "  For setting up (S):            " << timeInSetup_.str() << " (read() function)" << nl;
+    Info << "  For all iterations (I):        " << timeInExecute_.str() << " (execute() and adjustTimeStep() functions)" << nl << nl;
+#endif
 }
 
 
@@ -72,7 +79,20 @@ Foam::functionObjects::preciceAdapterFunctionObject::~preciceAdapterFunctionObje
 
 bool Foam::functionObjects::preciceAdapterFunctionObject::read(const dictionary& dict)
 {
+#ifdef ADAPTER_ENABLE_TIMINGS
+    // Save the current wall clock time stamp to the clock
+    clockValue clock;
+    clock.update();
+#endif
+
     adapter_.configure();
+
+#ifdef ADAPTER_ENABLE_TIMINGS
+    // Accumulate the time in this section into a global timer.
+    // Same in all function object methods.
+    timeInAll_ += clock.elapsed();
+    timeInSetup_ = clock.elapsed();
+#endif
 
     return true;
 }
@@ -80,7 +100,17 @@ bool Foam::functionObjects::preciceAdapterFunctionObject::read(const dictionary&
 
 bool Foam::functionObjects::preciceAdapterFunctionObject::execute()
 {
+#ifdef ADAPTER_ENABLE_TIMINGS
+    clockValue clock;
+    clock.update();
+#endif
+
     adapter_.execute();
+
+#ifdef ADAPTER_ENABLE_TIMINGS
+    timeInAll_ += clock.elapsed();
+    timeInExecute_ += clock.elapsed();
+#endif
 
     return true;
 }
@@ -88,7 +118,17 @@ bool Foam::functionObjects::preciceAdapterFunctionObject::execute()
 
 bool Foam::functionObjects::preciceAdapterFunctionObject::end()
 {
+#ifdef ADAPTER_ENABLE_TIMINGS
+    clockValue clock;
+    clock.update();
+#endif
+
     adapter_.end();
+
+#ifdef ADAPTER_ENABLE_TIMINGS
+    timeInAll_ += clock.elapsed();
+    timeInExecute_ += clock.elapsed();
+#endif
 
     return true;
 }
@@ -101,7 +141,17 @@ bool Foam::functionObjects::preciceAdapterFunctionObject::write()
 
 bool Foam::functionObjects::preciceAdapterFunctionObject::adjustTimeStep()
 {
+#ifdef ADAPTER_ENABLE_TIMINGS
+    clockValue clock;
+    clock.update();
+#endif
+
     adapter_.adjustTimeStep();
+
+#ifdef ADAPTER_ENABLE_TIMINGS
+    timeInAll_ += clock.elapsed();
+    timeInExecute_ += clock.elapsed();
+#endif
 
     return true;
 }

@@ -22,7 +22,7 @@
 #include "fvMesh.H"
 
 // preCICE Solver Interface
-#include "precice/SolverInterface.hpp"
+#include <precice/precice.hpp>
 
 namespace preciceAdapter
 {
@@ -47,6 +47,22 @@ private:
 
     //- Configuration interfaces
     std::vector<struct InterfaceConfig> interfacesConfig_;
+
+#ifdef ADAPTER_ENABLE_TIMINGS
+    //- Timers
+    clockValue timeInConfigRead_;
+    clockValue timeInPreciceConstruct_;
+    clockValue timeInMeshSetup_;
+    clockValue timeInInitialize_;
+    clockValue timeInCheckpointingSetup_;
+    clockValue timeInWrite_;
+    clockValue timeInAdvance_;
+    clockValue timeInRead_;
+    clockValue timeInCheckpointingRead_;
+    clockValue timeInCheckpointingWrite_;
+    clockValue timeInWriteResults_;
+    clockValue timeInFinalize_;
+#endif
 
     //- OpenFOAM runTime object
     const Foam::Time& runTime_;
@@ -89,7 +105,7 @@ private:
     std::vector<Interface*> interfaces_;
 
     //- preCICE solver interface
-    precice::SolverInterface* precice_ = NULL;
+    precice::Participant* precice_ = nullptr;
 
     //- preCICE solver interface initialized
     bool preciceInitialized_ = false;
@@ -248,7 +264,7 @@ private:
     void advance();
 
     //- Read the coupling data at each interface
-    void readCouplingData();
+    void readCouplingData(double relativeReadTime);
 
     //- Write the coupling data at each interface
     void writeCouplingData();
@@ -263,16 +279,10 @@ private:
     bool isCouplingTimeWindowComplete();
 
     //- Determine if a checkpoint must be read
-    bool isReadCheckpointRequired();
+    bool requiresReadingCheckpoint();
 
     //- Determine if a checkpoint must be written
-    bool isWriteCheckpointRequired();
-
-    //- Tell preCICE that the checkpoint has been read
-    void fulfilledReadCheckpoint();
-
-    //- Tell preCICE that the checkpoint has been written
-    void fulfilledWriteCheckpoint();
+    bool requiresWritingCheckpoint();
 
     // Methods for checkpointing
 

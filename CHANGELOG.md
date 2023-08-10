@@ -8,25 +8,67 @@ Read more details in the issue [#52: Releases and versioning](https://github.com
 
 <!-- markdownlint-configure-file {"MD024": { "siblings_only": true } } -->
 
-## [Unreleased]
+## [v1.2.3] 2023-06-14
 
-## [v1.1.0] 2022-02-07
+### Fixed
+
+- Fixed incorrect reading and writing of the FSI-related data buffers, if multiple patches are combined in an interface mesh [commit 846affd](https://github.com/precice/openfoam-adapter/commit/846affdd00ea8024cee98f34d8ad4205fdc83c5f).
+
+## [v1.2.2] 2022-01-03
+
+### Changed
+
+- Updated the default OpenFOAM version in documentation and CI to v2212 [commit 9b2b2](https://github.com/precice/openfoam-adapter/commit/9b2b27fb6d0c9506c109e5a714d64607d4f73565).
+
+### Fixed
+
+- Fixed compatibility with OpenFOAM v2212, removing an unneeded `refCast` [commit e40fe](https://github.com/precice/openfoam-adapter/commit/e40fec1681a85d5147faa3100d21d28c2e205004).
+
+## [v1.2.1] 2022-12-15
+
+### Fixed
+
+- Replaced a `std::make_unique` by `new` in order to remain C++11 compatible and support older compilers [#264](https://github.com/precice/openfoam-adapter/pull/264).
+
+## [v1.2.0] 2022-11-14
+
+### Added
+
+- Added support for a restart from the initial undeformed interface mesh for Fluid solvers in FSI simulations [#224](https://github.com/precice/openfoam-adapter/pull/224).
+- Added functionality to allow use of solids4foam with the OpenFOAM adapter (new solver type "solid"). This includes reading forces and writing displacements.
+- Enabled mesh motion solvers that do not register a pointDisplacement field (such as the RBFMeshMotionSolver from solids4foam) to work with the adapter [#241](https://github.com/precice/openfoam-adapter/pull/241)
+- Added timers for tracking the time spent in the adapter and preCICE (disabled by default) [#256](https://github.com/precice/openfoam-adapter/pull/256).
+- Added a warning for trying to build without pkg-config being available and more suggestions for possible problems [#220](https://github.com/precice/openfoam-adapter/pull/220).
+- Added more documentation, specifically for configuring the FF module. [#254](https://github.com/precice/openfoam-adapter/pull/254)
+
+### Changed
+
+- Removed the default `-j 4` option from the wmake command. Instead, documented the `WM_NCOMPPROCS` option of OpenFOAM. [#244](https://github.com/precice/openfoam-adapter/pull/244)
+- Changed virtual function declarations to explicitly define one (only) of virtual/override/final. If you need to extend a method marked as `final`, please report. [#245](https://github.com/precice/openfoam-adapter/pull/245)
+- Changed the xy-plane error to a warning, to support 2D axisymmetric cases. [#246](https://github.com/precice/openfoam-adapter/pull/246)
+- OpenFOAM version bumped to v2206 in GitHub Actions (including preCICE v2.3.0 --> v2.5.0) and documentation [#230](https://github.com/precice/openfoam-adapter/pull/230).
+
+### Removed
+
+- Removed the (deprecated since preCICE v2.5.0) call to isReadDataAvailable. [#247](https://github.com/precice/openfoam-adapter/pull/247)
+
+## [v1.1.0] 2022-02-08
 
 ### Added
 
 - Added a check for data fields and supported location types of the coupling interface [#206](https://github.com/precice/openfoam-adapter/pull/206).
 - Extended the adapter's DEBUG output to print the rank in addition to the message in parallel runs
 [#201](https://github.com/precice/openfoam-adapter/pull/201).
-- Added a custom build workflow to check building the adapter with any supported OpenFOAM version [#214](https://github.com/precice/openfoam-adapter/pull/214).
+- Added a custom build GitHub workflow to check building the adapter with any supported OpenFOAM version [#214](https://github.com/precice/openfoam-adapter/pull/214).
 - Added a release pull request template and documented the versioning strategy and release artifact names. [#216](https://github.com/precice/openfoam-adapter/pull/216)
 - Added a hint to also cite the adapter, at the end of the coupling. [#218](https://github.com/precice/openfoam-adapter/pull/218)
 
 ### Changed
 
 - Removed explicit casting of boundary conditions in the adapter's write function in order to allow more boundary conditions to be compatible with the adapter (e.g. groovyBC) [#195](https://github.com/precice/openfoam-adapter/pull/195).
-- OpenFOAM version bumped to v2112 in GitHub Actions (including preCICE v2.2.1 --> v2.3.0) and documentation. GitHub Action clang-format-action switched to main branch. [#211](https://github.com/precice/openfoam-adapter/pull/211).
 - Cleaned-up the handling of adding checkpoint fields and replaced various unnecessary copies by references [#209](https://github.com/precice/openfoam-adapter/pull/209).
-- Disabled automatic checking of links. This is now a manual workflow [#215](https://github.com/precice/openfoam-adapter/pull/215).
+- OpenFOAM version bumped to v2112 in GitHub Actions (including preCICE v2.2.1 --> v2.3.0) and documentation. GitHub Action clang-format-action switched to its main branch. [#211](https://github.com/precice/openfoam-adapter/pull/211).
+- Disabled automatic checking of links in GitHub Actions. This is now a manual workflow [#215](https://github.com/precice/openfoam-adapter/pull/215).
 
 ### Fixed
 
