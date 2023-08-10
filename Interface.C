@@ -346,11 +346,11 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh, const std::str
 
         // Array of the mesh vertices.
         // One mesh is used for all the patches and each vertex has 3D coordinates.
-        double vertices[dim_ * numDataLocations_];
+        std::vector<double> vertices(dim_ * numDataLocations_);
 
         // Array of the indices of the mesh vertices.
         // Each vertex has one index, but three coordinates.
-        vertexIDs_ = new int[numDataLocations_];
+        vertexIDs_.resize(numDataLocations_);
 
         // Initialize the index of the vertices array
         int verticesIndex = 0;
@@ -389,7 +389,7 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh, const std::str
         }
 
         // Pass the mesh vertices information to preCICE
-        precice_.setMeshVertices(meshID_, numDataLocations_, vertices, vertexIDs_);
+        precice_.setMeshVertices(meshName_, vertices, vertexIDs_);
     }
 }
 
