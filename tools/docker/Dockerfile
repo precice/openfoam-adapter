@@ -4,7 +4,7 @@ FROM $from
 RUN useradd -ms /bin/bash precice
 ENV DEBIAN_FRONTEND=noninteractive
 
-ARG OPENFOAM_EXECUTABLE=openfoam2112
+ARG OPENFOAM_EXECUTABLE=openfoam2306
 # Install OpenFOAM
 # Update the package lists prior to adding the openfoam rep. This is needed because the script installs some packages without updating the package lists. 
 # So sometimes a mirror moved and we get timeouts. 
