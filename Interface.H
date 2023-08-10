@@ -5,7 +5,7 @@
 #include <vector>
 #include "fvCFD.H"
 #include "CouplingDataUser.H"
-#include "precice/SolverInterface.hpp"
+#include <precice/precice.hpp>
 
 #include "pointPatchField.H"
 
@@ -16,7 +16,7 @@ class Interface
 {
 protected:
     //- preCICE solver interface
-    precice::SolverInterface& precice_;
+    precice::Participant& precice_;
 
     //- Mesh name used in the preCICE configuration
     std::string meshName_;
@@ -37,10 +37,10 @@ protected:
     int numDataLocations_ = 0;
 
     //- Vertex IDs assigned by preCICE
-    int* vertexIDs_;
+    std::vector<int> vertexIDs_;
 
     //- Buffer for the coupling data
-    double* dataBuffer_;
+    std::vector<double> dataBuffer_;
 
     //- Vector of CouplingDataReaders
     std::vector<CouplingDataUser*> couplingDataReaders_;
@@ -66,7 +66,7 @@ protected:
 public:
     //- Constructor
     Interface(
-        precice::SolverInterface& precice,
+        precice::Participant& precice,
         const Foam::fvMesh& mesh,
         std::string meshName,
         std::string locationsType,
@@ -94,7 +94,7 @@ public:
 
     //- Call read() on each registered couplingDataReader to read the coupling
     //  data from the buffer and apply the boundary conditions
-    void readCouplingData();
+    void readCouplingData(double relativeReadTime);
 
     //- Call write() on each registered couplingDataWriter to extract the boundary
     //  data and write them into the buffer
