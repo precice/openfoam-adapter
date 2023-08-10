@@ -71,7 +71,7 @@ included in the `0/` directory. The names of the interfaces (e.g., `Interface1`)
 
 The `locations` field is optional and its default value is `faceCenters` (with `faceCentres` also accepted), signifying that the interface mesh is defined on the cell face centers. An alternative option is `faceNodes`, which defines the mesh on the face nodes and is needed, e.g., for reading displacements in an FSI scenario.
 The final type is `volumeCenters` (alternatively `volumeCentres`), which allows the user to couple over a volume using the cell centers of the domain. The user can also specify patches, which will be coupled additionally to the cells using the `faceCenters` mesh.
-The `volumeCenters` location is currently compatible with fluid-fluid coupling (`Pressure` and `Velocity`) and conjugate heat transfer (`Temperature`).
+The `volumeCenters` location is currently implemented for fluid-fluid coupling (`Pressure` and `Velocity`) and conjugate heat transfer (`Temperature`).
 
 The values for `readData` and `writeData`
 for conjugate heat transfer
