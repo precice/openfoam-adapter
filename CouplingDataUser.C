@@ -29,6 +29,11 @@ void preciceAdapter::CouplingDataUser::setPatchIDs(std::vector<int> patchIDs)
     patchIDs_ = patchIDs;
 }
 
+void preciceAdapter::CouplingDataUser::setCellSetNames(std::vector<std::string> cellSetNames)
+{
+    cellSetNames_ = cellSetNames;
+}
+
 void preciceAdapter::CouplingDataUser::setLocationsType(LocationType locationsType)
 {
     locationType_ = locationsType;

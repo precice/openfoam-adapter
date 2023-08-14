@@ -33,6 +33,9 @@ protected:
     //- OpenFOAM patches that form the interface
     std::vector<int> patchIDs_;
 
+    //- Names of the OpenFOAM cell sets to be coupled (for volume coupling)
+    std::vector<std::string> cellSetNames_;
+
     //- Number of data points (cell centers) on the interface
     int numDataLocations_ = 0;
 
@@ -71,6 +74,7 @@ public:
         std::string meshName,
         std::string locationsType,
         std::vector<std::string> patchNames,
+        std::vector<std::string> cellSetNames,
         bool meshConnectivity,
         bool restartFromDeformed,
         const std::string& namePointDisplacement,

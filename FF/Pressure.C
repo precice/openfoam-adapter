@@ -18,9 +18,26 @@ void preciceAdapter::FF::Pressure::write(double* buffer, bool meshConnectivity, 
 
     if (this->locationType_ == LocationType::volumeCenters)
     {
-        forAll(p_->internalField(), i)
+        if (cellSetNames_.empty())
         {
-            buffer[bufferIndex++] = p_->internalField()[i];
+            for (const auto& cell : p_->internalField())
+            {
+                buffer[bufferIndex++] = cell;
+            }
+        }
+        else
+        {
+            for (const auto& cellSetName : cellSetNames_)
+            {
+                cellSet overlapRegion(p_->mesh(), cellSetName);
+                const labelList& cells = overlapRegion.toc();
+
+                for (const auto& currentCell : cells)
+                {
+                    // Copy the pressure into the buffer
+                    buffer[bufferIndex++] = p_->internalField()[currentCell];
+                }
+            }
         }
     }
 
@@ -45,9 +62,26 @@ void preciceAdapter::FF::Pressure::read(double* buffer, const unsigned int dim)
 
     if (this->locationType_ == LocationType::volumeCenters)
     {
-        forAll(p_->ref(), i)
+        if (cellSetNames_.empty())
         {
-            p_->ref()[i] = buffer[bufferIndex++];
+            for (auto& cell : p_->ref())
+            {
+                cell = buffer[bufferIndex++];
+            }
+        }
+        else
+        {
+            for (const auto& cellSetName : cellSetNames_)
+            {
+                cellSet overlapRegion(p_->mesh(), cellSetName);
+                const labelList& cells = overlapRegion.toc();
+
+                for (const auto& currentCell : cells)
+                {
+                    // Copy the pressure into the buffer
+                    p_->ref()[currentCell] = buffer[bufferIndex++];
+                }
+            }
         }
     }
 
