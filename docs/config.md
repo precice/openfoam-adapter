@@ -73,6 +73,8 @@ The `locations` field is optional and its default value is `faceCenters` (with `
 The final type is `volumeCenters` (alternatively `volumeCentres`), which allows the user to couple over a volume using the cell centers of the domain. The user can also specify patches, which will be coupled additionally to the cells using the `faceCenters` mesh.
 The `volumeCenters` location is currently implemented for fluid-fluid coupling (`Pressure` and `Velocity`) and conjugate heat transfer (`Temperature`).
 
+The `cellSets` field can be used to specify one or multiple coupling regions (defined by OpenFOAM `cellSets`) for volume coupling. The field can only be used with the `volumeCenters` location and it is optional. If no `cellSets` are specified, the full domain will be coupled.
+
 The values for `readData` and `writeData`
 for conjugate heat transfer
 can be `Temperature`, `Heat-Flux`, `Sink-Temperature`,
@@ -223,6 +225,54 @@ Similarly to the CHT module, you need a `fixedValue` boundary condition of the r
 The FF module is still experimental and the boundary conditions presented here have not been rigorously tested.
 We already have reasons to believe that a `fixedGradient` can have [side-effects](https://github.com/precice/openfoam-adapter/issues/93) and may not lead to completely accurate results.
 {% endexperimental %}
+
+### Volume coupling
+
+In order to use volume coupling with OpenFOAM as a solely writing participant, it is enough to specify `volumeCenters` for the `locations` field. This will couple the whole internal field of the domain. Patches can be specified additionally, or the list of patch names can be left empty.
+
+If you want to use OpenFOAM as a reading participant in a volume coupling scenario and enforce a source term, it is necessary to use OpenFOAM's [finite volume options](https://www.openfoam.com/documentation/guides/latest/doc/guide-fvoptions.html) `fvOptions`. Otherwise, the value read in OpenFOAM would most likely be overwritten by the end of OpenFOAM's iteration due to the nature of OpenFOAM's workflow.
+The `fvOptions` construct provides many different options for sources, but we have benefitted specifically from [coded sources]{https://www.openfoam.com/documentation/guides/latest/doc/guide-fvoptions-sources-coded.html}.
+
+Using a `codedSource` for reading fields and enforcing source terms in OpenFOAM would currently only work for `Velocity`. It is necessary for the user to specify an alternative name for `U` in `preciceDict`:
+
+```C++
+FF
+{
+  nameU       U_vol;
+};
+```
+
+This essentially means two velocity variables are used: `U_vol` is the coupled velocity the adapter uses to carry over the desired value to OpenFOAM, and `U` is the variable OpenFOAM uses for its own velocity. In the `codedSource` you can explicitly set `U` to be equal to `U_vol`. For more information, see our Volume-coupled flow tutorial.
+
+{% experimental %}
+Reading volume-coupled variables in OpenFOAM is still experimental. This section simply contains suggestions about issues we have encountered and what has been found to work.
+{% endexperimental %}
+
+#### Volume coupling over a domain region
+We use OpenFOAM's `cellSets` to define one or multiple volume coupling regions. You can create one or multiple `cellSets` using `topoSetDict`, for example:
+
+```C++
+actions
+(
+    {
+        name    box1;
+        type    cellSet;
+        action  new;
+        source  boxToCell;
+        box     (3.0 1.0 0.0) (3.5 1.5 1.0);
+    }
+);
+```
+
+The `cellSets` you want to couple have to be listed by name in `preciceDict`'s `cellSets` field lie this:
+```C++
+Interface1
+{
+  ...
+  cellSets          (box1);
+  locations         volumeCenters;
+}
+```
 
 ### Load the adapter
 
