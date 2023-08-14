@@ -35,7 +35,7 @@ protected:
 
     //- Names of the OpenFOAM cell sets to be coupled (for volume coupling)
     std::vector<std::string> cellSetNames_;
-    
+
     //- data name
     std::string dataName_;
 

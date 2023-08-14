@@ -249,6 +249,7 @@ Reading volume-coupled variables in OpenFOAM is still experimental. This section
 {% endexperimental %}
 
 #### Volume coupling over a domain region
+
 We use OpenFOAM's `cellSets` to define one or multiple volume coupling regions. You can create one or multiple `cellSets` using `topoSetDict`, for example:
 
 ```C++
@@ -265,6 +266,7 @@ actions
 ```
 
 The `cellSets` you want to couple have to be listed by name in `preciceDict`'s `cellSets` field lie this:
+
 ```C++
 Interface1
 {
