@@ -14,9 +14,12 @@ EXE_INC = \
     $(ADAPTER_PREP_FLAGS)
 
 LIB_LIBS = \
+    -lfoam \
     -lfiniteVolume \
     -lmeshTools \
     -lcompressibleTurbulenceModel \
     -lincompressibleTurbulenceModel \
+    -lincompressibleTransportModels \
+    -lbasicThermophysicalModels \
     $(ADAPTER_PKG_CONFIG_LIBS) \
     -lprecice
