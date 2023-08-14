@@ -224,28 +224,6 @@ The FF module is still experimental and the boundary conditions presented here h
 We already have reasons to believe that a `fixedGradient` can have [side-effects](https://github.com/precice/openfoam-adapter/issues/93) and may not lead to completely accurate results.
 {% endexperimental %}
 
-### Volume coupling
-
-In order to use volume coupling with OpenFOAM as a solely writing participant, it is enough to specify `volumeCenters` for the `locations` field. This will couple the whole internal field of the domain. Patches can be specified additionally, or the list of patch names can be left empty.
-
-If you want to use OpenFOAM as a reading participant in a volume coupling scenario and enforce a source term, it is necessary to use OpenFOAM's [finite volume options](https://www.openfoam.com/documentation/guides/latest/doc/guide-fvoptions.html) `fvOptions`. Otherwise, the value read in OpenFOAM would most likely be overwritten by the end of OpenFOAM's iteration due to the nature of OpenFOAM's workflow.
-The `fvOptions` construct provides many different options for sources, but we have benefitted specifically from [coded sources]{https://www.openfoam.com/documentation/guides/latest/doc/guide-fvoptions-sources-coded.html}.
-
-Using a `codedSource` for reading fields and enforcing source terms in OpenFOAM would currently only work for `Velocity`. It is necessary for the user to specify an alternative name for `U` in `preciceDict`:
-
-```C++
-FF
-{
-  nameU       U_vol;
-};
-```
-
-This essentially means two velocity variables are used: `U_vol` is the coupled velocity the adapter uses to carry over the desired value to OpenFOAM, and `U` is the variable OpenFOAM uses for its own velocity. In the `codedSource` the user can explicitly set `U` to be equal to `U_vol`. For more information, see our Volume-coupled flow tutorial.
-
-{% experimental %}
-Reading volume-coupled variables in OpenFOAM is still experimental. This section simply contains suggestions about issues we have encountered and what has been found to work.
-{% endexperimental %}
-
 ### Load the adapter
 
 To load this adapter, you must include the following in
