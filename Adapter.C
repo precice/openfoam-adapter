@@ -846,7 +846,7 @@ void preciceAdapter::Adapter::setupMeshVolCheckpointing()
     // Add the V0 and the V00 to the list of checkpointed fields.
     // For V0
     addVolCheckpointField(
-        const_cast<Foam::volScalarField::DimensionedInternalField&>(
+        const_cast<volScalarField::DimensionedInternalField&>(
             mesh_.V0()));
 #ifdef ADAPTER_DEBUG_MODE
     adapterInfo(
@@ -854,7 +854,7 @@ void preciceAdapter::Adapter::setupMeshVolCheckpointing()
 #endif
     // For V00
     addVolCheckpointField(
-        const_cast<Foam::volScalarField::DimensionedInternalField&>(
+        const_cast<volScalarField::DimensionedInternalField&>(
             mesh_.V00()));
 #ifdef ADAPTER_DEBUG_MODE
     adapterInfo(
@@ -899,7 +899,7 @@ void preciceAdapter::Adapter::setupCheckpointing()
 #undef doLocalCode
 #define doLocalCode(GeomField)                                           \
     /* Checkpoint registered GeomField objects */                        \
-    for (const Foam::word& obj : mesh_.sortedNames("GeomField"))               \
+    for (const word& obj : mesh_.sortedNames("GeomField"))               \
     {                                                                    \
         addCheckpointField(mesh_.thisDb().lookupObject<GeomField>(obj)); \
         DEBUG(adapterInfo("Checkpoint " + obj + " : " #GeomField));      \
@@ -928,130 +928,130 @@ void preciceAdapter::Adapter::setupCheckpointing()
 
 // All mesh checkpointed fields
 
-void preciceAdapter::Adapter::addMeshCheckpointField(Foam::surfaceScalarField& field)
+void preciceAdapter::Adapter::addMeshCheckpointField(surfaceScalarField& field)
 {
     {
         meshSurfaceScalarFields_.push_back(&field);
-        meshSurfaceScalarFieldCopies_.push_back(new Foam::surfaceScalarField(field));
+        meshSurfaceScalarFieldCopies_.push_back(new surfaceScalarField(field));
     }
 }
 
-void preciceAdapter::Adapter::addMeshCheckpointField(Foam::surfaceVectorField& field)
+void preciceAdapter::Adapter::addMeshCheckpointField(surfaceVectorField& field)
 {
     {
         meshSurfaceVectorFields_.push_back(&field);
-        meshSurfaceVectorFieldCopies_.push_back(new Foam::surfaceVectorField(field));
+        meshSurfaceVectorFieldCopies_.push_back(new surfaceVectorField(field));
     }
 }
 
-void preciceAdapter::Adapter::addMeshCheckpointField(Foam::volVectorField& field)
+void preciceAdapter::Adapter::addMeshCheckpointField(volVectorField& field)
 {
     {
         meshVolVectorFields_.push_back(&field);
-        meshVolVectorFieldCopies_.push_back(new Foam::volVectorField(field));
+        meshVolVectorFieldCopies_.push_back(new volVectorField(field));
     }
 }
 
 // TODO Internal field for the V0 (volume old) and V00 (volume old-old) fields
-void preciceAdapter::Adapter::addVolCheckpointField(Foam::volScalarField::DimensionedInternalField& field)
+void preciceAdapter::Adapter::addVolCheckpointField(volScalarField::DimensionedInternalField& field)
 {
     {
         volScalarInternalFields_.push_back(&field);
-        volScalarInternalFieldCopies_.push_back(new Foam::volScalarField::DimensionedInternalField(field));
+        volScalarInternalFieldCopies_.push_back(new volScalarField::DimensionedInternalField(field));
     }
 }
 
 
-void preciceAdapter::Adapter::addCheckpointField(Foam::volScalarField field)
+void preciceAdapter::Adapter::addCheckpointField(volScalarField field)
 {
-    if (Foam::notNull<Foam::volScalarField>(field))
+    if (notNull<volScalarField>(field))
     {
         volScalarFields_.push_back(&field);
-        volScalarFieldCopies_.push_back(new Foam::volScalarField(field));
+        volScalarFieldCopies_.push_back(new volScalarField(field));
     }
 }
 
-void preciceAdapter::Adapter::addCheckpointField(Foam::volVectorField field)
+void preciceAdapter::Adapter::addCheckpointField(volVectorField field)
 {
-    if (Foam::notNull<Foam::volVectorField>(field))
+    if (notNull<volVectorField>(field))
     {
         volVectorFields_.push_back(&field);
-        volVectorFieldCopies_.push_back(new Foam::volVectorField(field));
+        volVectorFieldCopies_.push_back(new volVectorField(field));
     }
 }
 
-void preciceAdapter::Adapter::addCheckpointField(Foam::surfaceScalarField field)
+void preciceAdapter::Adapter::addCheckpointField(surfaceScalarField field)
 {
-    if (Foam::notNull<Foam::surfaceScalarField>(field))
+    if (notNull<surfaceScalarField>(field))
     {
         surfaceScalarFields_.push_back(&field);
-        surfaceScalarFieldCopies_.push_back(new Foam::surfaceScalarField(field));
+        surfaceScalarFieldCopies_.push_back(new surfaceScalarField(field));
     }
 }
 
-void preciceAdapter::Adapter::addCheckpointField(Foam::surfaceVectorField field)
+void preciceAdapter::Adapter::addCheckpointField(surfaceVectorField field)
 {
-    if (Foam::notNull<Foam::surfaceVectorField>(field))
+    if (notNull<surfaceVectorField>(field))
     {
         surfaceVectorFields_.push_back(&field);
-        surfaceVectorFieldCopies_.push_back(new Foam::surfaceVectorField(field));
+        surfaceVectorFieldCopies_.push_back(new surfaceVectorField(field));
     }
 }
 
-void preciceAdapter::Adapter::addCheckpointField(Foam::pointScalarField field)
+void preciceAdapter::Adapter::addCheckpointField(pointScalarField field)
 {
-    if (Foam::notNull<Foam::pointScalarField>(field))
+    if (notNull<pointScalarField>(field))
     {
         pointScalarFields_.push_back(&field);
-        pointScalarFieldCopies_.push_back(new Foam::pointScalarField(field));
+        pointScalarFieldCopies_.push_back(new pointScalarField(field));
     }
 }
 
-void preciceAdapter::Adapter::addCheckpointField(Foam::pointVectorField field)
+void preciceAdapter::Adapter::addCheckpointField(pointVectorField field)
 {
-    if (Foam::notNull<Foam::pointVectorField>(field))
+    if (notNull<pointVectorField>(field))
     {
         pointVectorFields_.push_back(&field);
-        pointVectorFieldCopies_.push_back(new Foam::pointVectorField(field));
+        pointVectorFieldCopies_.push_back(new pointVectorField(field));
         // TODO: Old time
         // pointVectorFieldsOld_.push_back(const_cast<pointVectorField&>(field->oldTime())));
         // pointVectorFieldCopiesOld_.push_back(new pointVectorField(field->oldTime()));
     }
 }
 
-void preciceAdapter::Adapter::addCheckpointField(Foam::volTensorField field)
+void preciceAdapter::Adapter::addCheckpointField(volTensorField field)
 {
-    if (Foam::notNull<Foam::volTensorField>(field))
+    if (notNull<volTensorField>(field))
     {
         volTensorFields_.push_back(&field);
-        volTensorFieldCopies_.push_back(new Foam::volTensorField(field));
+        volTensorFieldCopies_.push_back(new volTensorField(field));
     }
 }
 
-void preciceAdapter::Adapter::addCheckpointField(Foam::surfaceTensorField field)
+void preciceAdapter::Adapter::addCheckpointField(surfaceTensorField field)
 {
-    if (Foam::notNull<Foam::surfaceTensorField>(field))
+    if (notNull<surfaceTensorField>(field))
     {
         surfaceTensorFields_.push_back(&field);
-        surfaceTensorFieldCopies_.push_back(new Foam::surfaceTensorField(field));
+        surfaceTensorFieldCopies_.push_back(new surfaceTensorField(field));
     }
 }
 
-void preciceAdapter::Adapter::addCheckpointField(Foam::pointTensorField field)
+void preciceAdapter::Adapter::addCheckpointField(pointTensorField field)
 {
-    if (Foam::notNull<Foam::pointTensorField>(field))
+    if (notNull<pointTensorField>(field))
     {
         pointTensorFields_.push_back(&field);
-        pointTensorFieldCopies_.push_back(new Foam::pointTensorField(field));
+        pointTensorFieldCopies_.push_back(new pointTensorField(field));
     }
 }
 
-void preciceAdapter::Adapter::addCheckpointField(Foam::volSymmTensorField field)
+void preciceAdapter::Adapter::addCheckpointField(volSymmTensorField field)
 {
-    if (Foam::notNull<Foam::volSymmTensorField>(field))
+    if (notNull<volSymmTensorField>(field))
     {
         volSymmTensorFields_.push_back(&field);
-        volSymmTensorFieldCopies_.push_back(new Foam::volSymmTensorField(field));
+        volSymmTensorFieldCopies_.push_back(new volSymmTensorField(field));
     }
 }
 
