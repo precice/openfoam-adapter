@@ -907,16 +907,16 @@ void preciceAdapter::Adapter::setupCheckpointing()
 
     doLocalCode(volScalarField);
     doLocalCode(volVectorField);
-    doLocalCode(Foam::volTensorField);
-    doLocalCode(Foam::volSymmTensorField);
+    doLocalCode(volTensorField);
+    doLocalCode(volSymmTensorField);
 
-    doLocalCode(Foam::surfaceScalarField);
-    doLocalCode(Foam::surfaceVectorField);
-    doLocalCode(Foam::surfaceTensorField);
+    doLocalCode(surfaceScalarField);
+    doLocalCode(surfaceVectorField);
+    doLocalCode(surfaceTensorField);
 
-    doLocalCode(Foam::pointScalarField);
-    doLocalCode(Foam::pointVectorField);
-    doLocalCode(Foam::pointTensorField);
+    doLocalCode(pointScalarField);
+    doLocalCode(pointVectorField);
+    doLocalCode(pointTensorField);
 
     // NOTE: Add here other object types to checkpoint, if needed.
 
