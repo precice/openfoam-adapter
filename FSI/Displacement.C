@@ -107,7 +107,7 @@ void preciceAdapter::FSI::Displacement::read(double* buffer, const unsigned int 
             forAll(cellDisplacement_->boundaryField()[patchID], i)
             {
                 for (unsigned int d = 0; d < dim; ++d)
-                    cellDisplacement_->boundaryFieldRef()[patchID][i][d] = buffer[bufferIndex++];
+                    cellDisplacement_->boundaryField()[patchID][i][d] = buffer[bufferIndex++];
             }
 
             if (pointDisplacement_ != nullptr)
@@ -115,7 +115,7 @@ void preciceAdapter::FSI::Displacement::read(double* buffer, const unsigned int 
                 // Get a reference to the displacement on the point patch in order to overwrite it
                 vectorField& pointDisplacementFluidPatch(
                     refCast<vectorField>(
-                        pointDisplacement_->boundaryFieldRef()[patchID]));
+                        pointDisplacement_->boundaryField()[patchID]));
 
                 // Overwrite the node based patch using the interpolation objects and the cell based vector field
                 // Afterwards, continue as usual
@@ -128,10 +128,10 @@ void preciceAdapter::FSI::Displacement::read(double* buffer, const unsigned int 
             // Get the displacement on the patch
             fixedValuePointPatchVectorField& pointDisplacementFluidPatch(
                 refCast<fixedValuePointPatchVectorField>(
-                    pointDisplacement_->boundaryFieldRef()[patchID]));
+                    pointDisplacement_->boundaryField()[patchID]));
 
             // Overwrite the nodes on the interface directly
-            forAll(pointDisplacement_->boundaryFieldRef()[patchID], i)
+            forAll(pointDisplacement_->boundaryField()[patchID], i)
             {
                 for (unsigned int d = 0; d < dim; ++d)
                     pointDisplacementFluidPatch[i][d] = buffer[bufferIndex++];

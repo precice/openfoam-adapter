@@ -38,16 +38,16 @@ bool preciceAdapter::Adapter::configFileRead()
                 IOobject::NO_WRITE));
 
         // Read and display the preCICE configuration file name
-        preciceConfigFilename_ = preciceDict.get<fileName>("preciceConfig");
+        preciceConfigFilename_ = word(preciceDict.lookup("preciceConfig"));
         DEBUG(adapterInfo("  precice-config-file : " + preciceConfigFilename_));
 
         // Read and display the participant name
-        participantName_ = preciceDict.get<word>("participant");
+        participantName_ = word(preciceDict.lookup("participant"));
         DEBUG(adapterInfo("  participant name    : " + participantName_));
 
         // Read and display the list of modules
         DEBUG(adapterInfo("  modules requested   : "));
-        auto modules_ = preciceDict.get<wordList>("modules");
+        auto modules_ = wordList(preciceDict.lookup("modules"));
         for (const auto& module : modules_)
         {
             DEBUG(adapterInfo("  - " + module + "\n"));
@@ -72,7 +72,7 @@ bool preciceAdapter::Adapter::configFileRead()
         // Every interface is a subdictionary of "interfaces",
         // each with an arbitrary name. Read all of them and create
         // a list (here: pointer) of dictionaries.
-        const auto* interfaceDictPtr = preciceDict.findDict("interfaces");
+        const auto* interfaceDictPtr = preciceDict.subDictPtr("interfaces");
         DEBUG(adapterInfo("  interfaces : "));
 
         // Check if we found any interfaces
@@ -83,15 +83,17 @@ bool preciceAdapter::Adapter::configFileRead()
             return false;
         }
         else
-        {
-            for (const entry& interfaceDictEntry : *interfaceDictPtr)
+        {   
+	    wordList entries = interfaceDictPtr->toc();
+
+            forAll  (entries, i)
             {
-                if (interfaceDictEntry.isDict())
+                if (interfaceDictPtr->lookupEntryPtr(entries[i],false,false)->isDict())
                 {
-                    const dictionary& interfaceDict = interfaceDictEntry.dict();
+                    const dictionary& interfaceDict = interfaceDictPtr->lookupEntryPtr(entries[i],false,false)->dict();
                     struct InterfaceConfig interfaceConfig;
 
-                    interfaceConfig.meshName = interfaceDict.get<word>("mesh");
+                    interfaceConfig.meshName = word(interfaceDict.lookup("mesh"));
                     DEBUG(adapterInfo("  - mesh         : " + interfaceConfig.meshName));
 
                     // By default, assume "faceCenters" as locationsType
@@ -112,7 +114,7 @@ bool preciceAdapter::Adapter::configFileRead()
                     DEBUG(adapterInfo("    connectivity : " + std::to_string(interfaceConfig.meshConnectivity)));
 
                     DEBUG(adapterInfo("    patches      : "));
-                    auto patches = interfaceDict.get<wordList>("patches");
+                    auto patches = wordList(interfaceDict.lookup("patches"));
                     for (auto patch : patches)
                     {
                         interfaceConfig.patchNames.push_back(patch);
@@ -120,7 +122,7 @@ bool preciceAdapter::Adapter::configFileRead()
                     }
 
                     DEBUG(adapterInfo("    writeData    : "));
-                    auto writeData = interfaceDict.get<wordList>("writeData");
+                    auto writeData = wordList(interfaceDict.lookup("writeData"));
                     for (auto writeDatum : writeData)
                     {
                         interfaceConfig.writeData.push_back(writeDatum);
@@ -128,7 +130,7 @@ bool preciceAdapter::Adapter::configFileRead()
                     }
 
                     DEBUG(adapterInfo("    readData     : "));
-                    auto readData = interfaceDict.get<wordList>("readData");
+                    auto readData = wordList(interfaceDict.lookup("readData"));
                     for (auto readDatum : readData)
                     {
                         interfaceConfig.readData.push_back(readDatum);
@@ -844,7 +846,7 @@ void preciceAdapter::Adapter::setupMeshVolCheckpointing()
     // Add the V0 and the V00 to the list of checkpointed fields.
     // For V0
     addVolCheckpointField(
-        const_cast<volScalarField::Internal&>(
+        const_cast<Foam::volScalarField::DimensionedInternalField&>(
             mesh_.V0()));
 #ifdef ADAPTER_DEBUG_MODE
     adapterInfo(
@@ -852,7 +854,7 @@ void preciceAdapter::Adapter::setupMeshVolCheckpointing()
 #endif
     // For V00
     addVolCheckpointField(
-        const_cast<volScalarField::Internal&>(
+        const_cast<Foam::volScalarField::DimensionedInternalField&>(
             mesh_.V00()));
 #ifdef ADAPTER_DEBUG_MODE
     adapterInfo(
@@ -897,24 +899,24 @@ void preciceAdapter::Adapter::setupCheckpointing()
 #undef doLocalCode
 #define doLocalCode(GeomField)                                           \
     /* Checkpoint registered GeomField objects */                        \
-    for (const word& obj : mesh_.sortedNames<GeomField>())               \
+    for (const Foam::word& obj : mesh_.sortedNames("GeomField"))               \
     {                                                                    \
-        addCheckpointField(mesh_.thisDb().getObjectPtr<GeomField>(obj)); \
+        addCheckpointField(mesh_.thisDb().lookupObject<GeomField>(obj)); \
         DEBUG(adapterInfo("Checkpoint " + obj + " : " #GeomField));      \
     }
 
     doLocalCode(volScalarField);
     doLocalCode(volVectorField);
-    doLocalCode(volTensorField);
-    doLocalCode(volSymmTensorField);
+    doLocalCode(Foam::volTensorField);
+    doLocalCode(Foam::volSymmTensorField);
 
-    doLocalCode(surfaceScalarField);
-    doLocalCode(surfaceVectorField);
-    doLocalCode(surfaceTensorField);
+    doLocalCode(Foam::surfaceScalarField);
+    doLocalCode(Foam::surfaceVectorField);
+    doLocalCode(Foam::surfaceTensorField);
 
-    doLocalCode(pointScalarField);
-    doLocalCode(pointVectorField);
-    doLocalCode(pointTensorField);
+    doLocalCode(Foam::pointScalarField);
+    doLocalCode(Foam::pointVectorField);
+    doLocalCode(Foam::pointTensorField);
 
     // NOTE: Add here other object types to checkpoint, if needed.
 
@@ -926,130 +928,130 @@ void preciceAdapter::Adapter::setupCheckpointing()
 
 // All mesh checkpointed fields
 
-void preciceAdapter::Adapter::addMeshCheckpointField(surfaceScalarField& field)
+void preciceAdapter::Adapter::addMeshCheckpointField(Foam::surfaceScalarField& field)
 {
     {
         meshSurfaceScalarFields_.push_back(&field);
-        meshSurfaceScalarFieldCopies_.push_back(new surfaceScalarField(field));
+        meshSurfaceScalarFieldCopies_.push_back(new Foam::surfaceScalarField(field));
     }
 }
 
-void preciceAdapter::Adapter::addMeshCheckpointField(surfaceVectorField& field)
+void preciceAdapter::Adapter::addMeshCheckpointField(Foam::surfaceVectorField& field)
 {
     {
         meshSurfaceVectorFields_.push_back(&field);
-        meshSurfaceVectorFieldCopies_.push_back(new surfaceVectorField(field));
+        meshSurfaceVectorFieldCopies_.push_back(new Foam::surfaceVectorField(field));
     }
 }
 
-void preciceAdapter::Adapter::addMeshCheckpointField(volVectorField& field)
+void preciceAdapter::Adapter::addMeshCheckpointField(Foam::volVectorField& field)
 {
     {
         meshVolVectorFields_.push_back(&field);
-        meshVolVectorFieldCopies_.push_back(new volVectorField(field));
+        meshVolVectorFieldCopies_.push_back(new Foam::volVectorField(field));
     }
 }
 
 // TODO Internal field for the V0 (volume old) and V00 (volume old-old) fields
-void preciceAdapter::Adapter::addVolCheckpointField(volScalarField::Internal& field)
+void preciceAdapter::Adapter::addVolCheckpointField(Foam::volScalarField::DimensionedInternalField& field)
 {
     {
         volScalarInternalFields_.push_back(&field);
-        volScalarInternalFieldCopies_.push_back(new volScalarField::Internal(field));
+        volScalarInternalFieldCopies_.push_back(new Foam::volScalarField::DimensionedInternalField(field));
     }
 }
 
 
-void preciceAdapter::Adapter::addCheckpointField(volScalarField* field)
+void preciceAdapter::Adapter::addCheckpointField(Foam::volScalarField field)
 {
-    if (field)
+    if (Foam::notNull<Foam::volScalarField>(field))
     {
-        volScalarFields_.push_back(field);
-        volScalarFieldCopies_.push_back(new volScalarField(*field));
+        volScalarFields_.push_back(&field);
+        volScalarFieldCopies_.push_back(new Foam::volScalarField(field));
     }
 }
 
-void preciceAdapter::Adapter::addCheckpointField(volVectorField* field)
+void preciceAdapter::Adapter::addCheckpointField(Foam::volVectorField field)
 {
-    if (field)
+    if (Foam::notNull<Foam::volVectorField>(field))
     {
-        volVectorFields_.push_back(field);
-        volVectorFieldCopies_.push_back(new volVectorField(*field));
+        volVectorFields_.push_back(&field);
+        volVectorFieldCopies_.push_back(new Foam::volVectorField(field));
     }
 }
 
-void preciceAdapter::Adapter::addCheckpointField(surfaceScalarField* field)
+void preciceAdapter::Adapter::addCheckpointField(Foam::surfaceScalarField field)
 {
-    if (field)
+    if (Foam::notNull<Foam::surfaceScalarField>(field))
     {
-        surfaceScalarFields_.push_back(field);
-        surfaceScalarFieldCopies_.push_back(new surfaceScalarField(*field));
+        surfaceScalarFields_.push_back(&field);
+        surfaceScalarFieldCopies_.push_back(new Foam::surfaceScalarField(field));
     }
 }
 
-void preciceAdapter::Adapter::addCheckpointField(surfaceVectorField* field)
+void preciceAdapter::Adapter::addCheckpointField(Foam::surfaceVectorField field)
 {
-    if (field)
+    if (Foam::notNull<Foam::surfaceVectorField>(field))
     {
-        surfaceVectorFields_.push_back(field);
-        surfaceVectorFieldCopies_.push_back(new surfaceVectorField(*field));
+        surfaceVectorFields_.push_back(&field);
+        surfaceVectorFieldCopies_.push_back(new Foam::surfaceVectorField(field));
     }
 }
 
-void preciceAdapter::Adapter::addCheckpointField(pointScalarField* field)
+void preciceAdapter::Adapter::addCheckpointField(Foam::pointScalarField field)
 {
-    if (field)
+    if (Foam::notNull<Foam::pointScalarField>(field))
     {
-        pointScalarFields_.push_back(field);
-        pointScalarFieldCopies_.push_back(new pointScalarField(*field));
+        pointScalarFields_.push_back(&field);
+        pointScalarFieldCopies_.push_back(new Foam::pointScalarField(field));
     }
 }
 
-void preciceAdapter::Adapter::addCheckpointField(pointVectorField* field)
+void preciceAdapter::Adapter::addCheckpointField(Foam::pointVectorField field)
 {
-    if (field)
+    if (Foam::notNull<Foam::pointVectorField>(field))
     {
-        pointVectorFields_.push_back(field);
-        pointVectorFieldCopies_.push_back(new pointVectorField(*field));
+        pointVectorFields_.push_back(&field);
+        pointVectorFieldCopies_.push_back(new Foam::pointVectorField(field));
         // TODO: Old time
         // pointVectorFieldsOld_.push_back(const_cast<pointVectorField&>(field->oldTime())));
         // pointVectorFieldCopiesOld_.push_back(new pointVectorField(field->oldTime()));
     }
 }
 
-void preciceAdapter::Adapter::addCheckpointField(volTensorField* field)
+void preciceAdapter::Adapter::addCheckpointField(Foam::volTensorField field)
 {
-    if (field)
+    if (Foam::notNull<Foam::volTensorField>(field))
     {
-        volTensorFields_.push_back(field);
-        volTensorFieldCopies_.push_back(new volTensorField(*field));
+        volTensorFields_.push_back(&field);
+        volTensorFieldCopies_.push_back(new Foam::volTensorField(field));
     }
 }
 
-void preciceAdapter::Adapter::addCheckpointField(surfaceTensorField* field)
+void preciceAdapter::Adapter::addCheckpointField(Foam::surfaceTensorField field)
 {
-    if (field)
+    if (Foam::notNull<Foam::surfaceTensorField>(field))
     {
-        surfaceTensorFields_.push_back(field);
-        surfaceTensorFieldCopies_.push_back(new surfaceTensorField(*field));
+        surfaceTensorFields_.push_back(&field);
+        surfaceTensorFieldCopies_.push_back(new Foam::surfaceTensorField(field));
     }
 }
 
-void preciceAdapter::Adapter::addCheckpointField(pointTensorField* field)
+void preciceAdapter::Adapter::addCheckpointField(Foam::pointTensorField field)
 {
-    if (field)
+    if (Foam::notNull<Foam::pointTensorField>(field))
     {
-        pointTensorFields_.push_back(field);
-        pointTensorFieldCopies_.push_back(new pointTensorField(*field));
+        pointTensorFields_.push_back(&field);
+        pointTensorFieldCopies_.push_back(new Foam::pointTensorField(field));
     }
 }
 
-void preciceAdapter::Adapter::addCheckpointField(volSymmTensorField* field)
+void preciceAdapter::Adapter::addCheckpointField(Foam::volSymmTensorField field)
 {
-    if (field)
+    if (Foam::notNull<Foam::volSymmTensorField>(field))
     {
-        volSymmTensorFields_.push_back(field);
-        volSymmTensorFieldCopies_.push_back(new volSymmTensorField(*field));
+        volSymmTensorFields_.push_back(&field);
+        volSymmTensorFieldCopies_.push_back(new Foam::volSymmTensorField(field));
     }
 }
 

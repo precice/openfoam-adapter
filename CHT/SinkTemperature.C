@@ -77,7 +77,7 @@ void preciceAdapter::CHT::SinkTemperature::read(double* buffer, const unsigned i
         // Get the boundary field of the temperature on the patch
         mixedFvPatchScalarField& TPatch(
             refCast<mixedFvPatchScalarField>(
-                T_->boundaryFieldRef()[patchID]));
+                T_->boundaryField()[patchID]));
 
         // Get a reference to the reference value on the patch
         scalarField& Tref = TPatch.refValue();

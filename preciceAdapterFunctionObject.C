@@ -25,7 +25,7 @@ License
 #include "preciceAdapterFunctionObject.H"
 
 // OpenFOAM header files
-#include "Time.H"
+#include "foamTime.H"
 #include "fvMesh.H"
 #include "addToRunTimeSelectionTable.H"
 
@@ -47,8 +47,8 @@ Foam::functionObjects::preciceAdapterFunctionObject::preciceAdapterFunctionObjec
     const word& name,
     const Time& runTime,
     const dictionary& dict)
-: fvMeshFunctionObject(name, runTime, dict),
-  adapter_(runTime, mesh_)
+: functionObject(name),
+  adapter_(runTime, runTime.lookupObject<fvMesh>(polyMesh::defaultRegion))
 {
 
 #if (defined OPENFOAM_PLUS && (OPENFOAM_PLUS >= 1712)) || (defined OPENFOAM && (OPENFOAM >= 1806))
@@ -66,12 +66,6 @@ Foam::functionObjects::preciceAdapterFunctionObject::preciceAdapterFunctionObjec
 
 Foam::functionObjects::preciceAdapterFunctionObject::~preciceAdapterFunctionObject()
 {
-#ifdef ADAPTER_ENABLE_TIMINGS
-    Info << "-------------------- preCICE adapter timers (primary rank) --------------------------" << nl;
-    Info << "Total time in adapter + preCICE: " << timeInAll_.str() << " (format: day-hh:mm:ss.ms)" << nl;
-    Info << "  For setting up (S):            " << timeInSetup_.str() << " (read() function)" << nl;
-    Info << "  For all iterations (I):        " << timeInExecute_.str() << " (execute() and adjustTimeStep() functions)" << nl << nl;
-#endif
 }
 
 
@@ -79,56 +73,38 @@ Foam::functionObjects::preciceAdapterFunctionObject::~preciceAdapterFunctionObje
 
 bool Foam::functionObjects::preciceAdapterFunctionObject::read(const dictionary& dict)
 {
-#ifdef ADAPTER_ENABLE_TIMINGS
-    // Save the current wall clock time stamp to the clock
-    clockValue clock;
-    clock.update();
-#endif
 
     adapter_.configure();
 
-#ifdef ADAPTER_ENABLE_TIMINGS
-    // Accumulate the time in this section into a global timer.
-    // Same in all function object methods.
-    timeInAll_ += clock.elapsed();
-    timeInSetup_ = clock.elapsed();
-#endif
-
     return true;
 }
+
+bool Foam::functionObjects::preciceAdapterFunctionObject::start()
+{
+    return true;
+}
+
 
 
 bool Foam::functionObjects::preciceAdapterFunctionObject::execute()
 {
-#ifdef ADAPTER_ENABLE_TIMINGS
-    clockValue clock;
-    clock.update();
-#endif
-
     adapter_.execute();
-
-#ifdef ADAPTER_ENABLE_TIMINGS
-    timeInAll_ += clock.elapsed();
-    timeInExecute_ += clock.elapsed();
-#endif
 
     return true;
 }
 
+bool Foam::functionObjects::preciceAdapterFunctionObject::execute(const bool forceWrite)
+{
+    adapter_.execute();
+
+    return true;
+}
 
 bool Foam::functionObjects::preciceAdapterFunctionObject::end()
 {
-#ifdef ADAPTER_ENABLE_TIMINGS
-    clockValue clock;
-    clock.update();
-#endif
 
     adapter_.end();
 
-#ifdef ADAPTER_ENABLE_TIMINGS
-    timeInAll_ += clock.elapsed();
-    timeInExecute_ += clock.elapsed();
-#endif
 
     return true;
 }
@@ -141,19 +117,20 @@ bool Foam::functionObjects::preciceAdapterFunctionObject::write()
 
 bool Foam::functionObjects::preciceAdapterFunctionObject::adjustTimeStep()
 {
-#ifdef ADAPTER_ENABLE_TIMINGS
-    clockValue clock;
-    clock.update();
-#endif
 
     adapter_.adjustTimeStep();
 
-#ifdef ADAPTER_ENABLE_TIMINGS
-    timeInAll_ += clock.elapsed();
-    timeInExecute_ += clock.elapsed();
-#endif
-
     return true;
+}
+
+void Foam::functionObjects::preciceAdapterFunctionObject::updateMesh(const mapPolyMesh& mpm)
+{
+
+}
+
+void Foam::functionObjects::preciceAdapterFunctionObject::movePoints(const pointField& mesh)
+{
+
 }
 
 // ************************************************************************* //

@@ -115,7 +115,7 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh, const std::str
         {
             // Get the face centers of the current patch
             vectorField faceCenters =
-                mesh.boundaryMesh()[patchIDs_.at(j)].faceCentres();
+                (vectorField) mesh.boundaryMesh()[patchIDs_.at(j)].faceCentres();
 
             // Move the interface according to the current values of the cellDisplacement field,
             // to account for any displacements accumulated before restarting the simulation.

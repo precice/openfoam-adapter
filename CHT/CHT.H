@@ -4,9 +4,11 @@
 #include "Interface.H"
 
 #include "CHT/Temperature.H"
-#include "CHT/HeatFlux.H"
+#include "CHT/HeatFlux_incompressible.H"
+#include "CHT/HeatFlux_compressible.H"
 #include "CHT/SinkTemperature.H"
-#include "CHT/HeatTransferCoefficient.H"
+#include "CHT/HeatTransferCoefficient_incompressible.H"
+#include "CHT/HeatTransferCoefficient_compressible.H"
 
 #include "fvCFD.H"
 

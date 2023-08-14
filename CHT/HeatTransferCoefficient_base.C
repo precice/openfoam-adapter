@@ -1,4 +1,4 @@
-#include "HeatTransferCoefficient.H"
+#include "HeatTransferCoefficient_base.H"
 
 #include "fvCFD.H"
 #include "mixedFvPatchFields.H"
@@ -92,7 +92,7 @@ void preciceAdapter::CHT::HeatTransferCoefficient::read(double* buffer, const un
         // Get a reference to the temperature on the patch
         mixedFvPatchScalarField& TPatch(
             refCast<mixedFvPatchScalarField>(
-                T_->boundaryFieldRef()[patchID]));
+                T_->boundaryField()[patchID]));
 
         // For every cell on the patch
         forAll(TPatch, i)
@@ -135,69 +135,6 @@ bool preciceAdapter::CHT::HeatTransferCoefficient::isLocationTypeSupported(const
 std::string preciceAdapter::CHT::HeatTransferCoefficient::getDataName() const
 {
     return "HeatTransferCoefficient";
-}
-
-
-//----- preciceAdapter::CHT::HeatTransferCoefficient_Compressible -------------
-
-preciceAdapter::CHT::
-    HeatTransferCoefficient_Compressible::HeatTransferCoefficient_Compressible(
-        const Foam::fvMesh& mesh,
-        const std::string nameT)
-: HeatTransferCoefficient(mesh, nameT),
-  Kappa_(new KappaEff_Compressible(mesh))
-{
-}
-
-preciceAdapter::CHT::HeatTransferCoefficient_Compressible::
-    ~HeatTransferCoefficient_Compressible()
-{
-    delete Kappa_;
-}
-
-void preciceAdapter::CHT::HeatTransferCoefficient_Compressible::
-    extractKappaEff(uint patchID, bool meshConnectivity)
-{
-    Kappa_->extract(patchID, meshConnectivity);
-}
-
-scalar preciceAdapter::CHT::HeatTransferCoefficient_Compressible::
-    getKappaEffAt(int i)
-{
-    return Kappa_->getAt(i);
-}
-
-//----- preciceAdapter::CHT::HeatTransferCoefficient_Incompressible -----------
-
-preciceAdapter::CHT::HeatTransferCoefficient_Incompressible::
-    HeatTransferCoefficient_Incompressible(
-        const Foam::fvMesh& mesh,
-        const std::string nameT,
-        const std::string nameRho,
-        const std::string nameCp,
-        const std::string namePr,
-        const std::string nameAlphat)
-: HeatTransferCoefficient(mesh, nameT),
-  Kappa_(new KappaEff_Incompressible(mesh, nameRho, nameCp, namePr, nameAlphat))
-{
-}
-
-preciceAdapter::CHT::HeatTransferCoefficient_Incompressible::
-    ~HeatTransferCoefficient_Incompressible()
-{
-    delete Kappa_;
-}
-
-void preciceAdapter::CHT::HeatTransferCoefficient_Incompressible::
-    extractKappaEff(uint patchID, bool meshConnectivity)
-{
-    Kappa_->extract(patchID, meshConnectivity);
-}
-
-scalar preciceAdapter::CHT::HeatTransferCoefficient_Incompressible::
-    getKappaEffAt(int i)
-{
-    return Kappa_->getAt(i);
 }
 
 //----- preciceAdapter::CHT::HeatTransferCoefficient_Basic -----------------------------------

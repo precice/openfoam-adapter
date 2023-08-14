@@ -22,22 +22,22 @@ void preciceAdapter::FF::Velocity::write(double* buffer, bool meshConnectivity, 
         int patchID = patchIDs_.at(j);
 
         // For every cell of the patch
-        forAll(U_->boundaryFieldRef()[patchID], i)
+        forAll(U_->boundaryField()[patchID], i)
         {
             // Copy the velocity into the buffer
             // x-dimension
             buffer[bufferIndex++] =
-                U_->boundaryFieldRef()[patchID][i].x();
+                U_->boundaryField()[patchID][i].x();
 
             // y-dimension
             buffer[bufferIndex++] =
-                U_->boundaryFieldRef()[patchID][i].y();
+                U_->boundaryField()[patchID][i].y();
 
             if (dim == 3)
             {
                 // z-dimension
                 buffer[bufferIndex++] =
-                    U_->boundaryFieldRef()[patchID][i].z();
+                    U_->boundaryField()[patchID][i].z();
             }
         }
     }
@@ -53,21 +53,21 @@ void preciceAdapter::FF::Velocity::read(double* buffer, const unsigned int dim)
         int patchID = patchIDs_.at(j);
 
         // For every cell of the patch
-        forAll(U_->boundaryFieldRef()[patchID], i)
+        forAll(U_->boundaryField()[patchID], i)
         {
             // Set the velocity as the buffer value
             // x-dimension
-            U_->boundaryFieldRef()[patchID][i].x() =
+            U_->boundaryField()[patchID][i].x() =
                 buffer[bufferIndex++];
 
             // y-dimension
-            U_->boundaryFieldRef()[patchID][i].y() =
+            U_->boundaryField()[patchID][i].y() =
                 buffer[bufferIndex++];
 
             if (dim == 3)
             {
                 // z-dimension
-                U_->boundaryFieldRef()[patchID][i].z() =
+                U_->boundaryField()[patchID][i].z() =
                     buffer[bufferIndex++];
             }
         }

@@ -3,7 +3,7 @@
 
 #include <string>
 #include <vector>
-#include "fvCFD.H"
+#include <fvCFD.H>
 #include "CouplingDataUser.H"
 #include "precice/SolverInterface.hpp"
 

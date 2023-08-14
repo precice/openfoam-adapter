@@ -80,13 +80,13 @@ if [ -z "${WM_PROJECT:-}" ]; then
 fi
 # Check if this is a compatible OpenFOAM environment
 # For now, only check if it is not foam-extend, the main incompatible variant.
-if [ "${WM_PROJECT:-}" = "foam" ]; then
-    log ""
-    log "=== ERROR: foam-extend is not compatible with the adapter."
-    log "Make sure you are using a compatible OpenFOAM version:"
-    log "  ${DOC_COMPATIBILITY}"
-    exit 1
-fi
+#if [ "${WM_PROJECT:-}" = "foam" ]; then
+#    log ""
+#    log "=== ERROR: foam-extend is not compatible with the adapter."
+#    log "Make sure you are using a compatible OpenFOAM version:"
+#    log "  ${DOC_COMPATIBILITY}"
+#    exit 1
+#fi
 
 log ""
 log "The adapter will be built into ${ADAPTER_TARGET_DIR}"

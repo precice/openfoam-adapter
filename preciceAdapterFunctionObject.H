@@ -58,8 +58,7 @@ SourceFiles
 #define PRECICEADAPTERFUNCTIONOBJECT_H
 
 // OpenFOAM header files
-#include "fvMeshFunctionObject.H"
-#include "clockValue.H"
+#include "functionObject.H"
 
 // Main adapter header file
 #include "Adapter.H"
@@ -76,7 +75,7 @@ namespace functionObjects
 \*---------------------------------------------------------------------------*/
 
 class preciceAdapterFunctionObject
-: public fvMeshFunctionObject
+: public functionObject
 {
     // Private data
 
@@ -120,31 +119,37 @@ public:
     // Member Functions
 
     //- Read the preciceAdapterFunctionObject data
-    bool read(const dictionary&) final;
+    virtual bool read(const dictionary&) final;
 
     //- Execute in the beginning of each time-loop, after the first one
-    bool execute() final;
+    virtual bool start() final;
+
+    //- Execute in the beginning of each time-loop, after the first one
+    virtual bool execute() final;
+    
+    //- Execute in the beginning of each time-loop, after the first one
+    virtual bool execute(const bool forceWrite) final;
 
     //- Execute at the final time-loop, after execute()
-    bool end() final;
+    virtual bool end() final;
 
     //- Write the preciceAdapterFunctionObject
-    bool write() final;
+    virtual bool write() final;
 
     //- Called at the end of Time::adjustDeltaT() if adjustTime is true
-    bool adjustTimeStep() final;
+    virtual bool adjustTimeStep() final;
 
-    /*
-        // NOTE: If you add a new module that needs to execute methods
-        // whenever the mesh is updated or its points moved,
-        // you may put your calls inside the following methods.
+    
+    // NOTE: If you add a new module that needs to execute methods
+    // whenever the mesh is updated or its points moved,
+    // you may put your calls inside the following methods.
 
-        // Update for changes of mesh
-        void updateMesh(const mapPolyMesh& mpm) final;
+    // Update for changes of mesh
+    void updateMesh(const mapPolyMesh& mpm) final;
 
-        // Update for changes of mesh
-        void movePoints(const polyMesh& mesh) final;
-    */
+    // Update for changes of mesh
+    void movePoints(const pointField& mesh) final;
+    
 };
 
 

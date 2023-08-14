@@ -5,12 +5,12 @@
 #include "CouplingDataUser.H"
 
 #include "fvCFD.H"
-
+#include "compressible/turbulenceModel/turbulenceModel.H"
+#include "incompressible/turbulenceModel/turbulenceModel.H"
+#include "volFieldsFwd.H"
 #include "pointFields.H"
 #include "vectorField.H"
-#include "immiscibleIncompressibleTwoPhaseMixture.H"
-#include "turbulentFluidThermoModel.H"
-#include "turbulentTransportModel.H"
+#include "twoPhaseMixture.H"
 
 namespace preciceAdapter
 {

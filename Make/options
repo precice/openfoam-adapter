@@ -6,11 +6,8 @@ EXE_INC = \
     -I$(LIB_SRC)/transportModels/compressible/lnInclude \
     -I$(LIB_SRC)/transportModels/twoPhaseMixture/lnInclude \
     -I$(LIB_SRC)/transportModels/interfaceProperties/lnInclude \
-    -I$(LIB_SRC)/transportModels/immiscibleIncompressibleTwoPhaseMixture/lnInclude \
     -I$(LIB_SRC)/thermophysicalModels/basic/lnInclude \
-    -I$(LIB_SRC)/TurbulenceModels/turbulenceModels/lnInclude \
-    -I$(LIB_SRC)/TurbulenceModels/compressible/lnInclude \
-    -I$(LIB_SRC)/TurbulenceModels/incompressible/lnInclude \
+    -I$(LIB_SRC)/turbulenceModels/ \
     -I$(LIB_SRC)/triSurface/lnInclude \
     $(ADAPTER_PKG_CONFIG_CFLAGS) \
     -I../ \
@@ -19,8 +16,7 @@ EXE_INC = \
 LIB_LIBS = \
     -lfiniteVolume \
     -lmeshTools \
-    -lcompressibleTurbulenceModels \
-    -lincompressibleTurbulenceModels \
-    -limmiscibleIncompressibleTwoPhaseMixture \
+    -lcompressibleTurbulenceModel \
+    -lincompressibleTurbulenceModel \
     $(ADAPTER_PKG_CONFIG_LIBS) \
     -lprecice
