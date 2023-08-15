@@ -1,6 +1,7 @@
 #include "Interface.H"
 #include "Utilities.H"
 #include "faceTriangulation.H"
+#include "cellSet.H"
 
 
 using namespace Foam;
@@ -11,6 +12,7 @@ preciceAdapter::Interface::Interface(
     std::string meshName,
     std::string locationsType,
     std::vector<std::string> patchNames,
+    std::vector<std::string> cellSetNames,
     bool meshConnectivity,
     bool restartFromDeformed,
     const std::string& namePointDisplacement,
@@ -18,6 +20,7 @@ preciceAdapter::Interface::Interface(
 : precice_(precice),
   meshName_(meshName),
   patchNames_(patchNames),
+  cellSetNames_(cellSetNames),
   meshConnectivity_(meshConnectivity),
   restartFromDeformed_(restartFromDeformed)
 {
@@ -38,6 +41,10 @@ preciceAdapter::Interface::Interface(
     else if (locationsType == "faceNodes")
     {
         locationType_ = LocationType::faceNodes;
+    }
+    else if (locationsType == "volumeCenters" || locationsType == "volumeCentres")
+    {
+        locationType_ = LocationType::volumeCenters;
     }
     else
     {
@@ -323,6 +330,110 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh, const std::str
             }
         }
     }
+    else if (locationType_ == LocationType::volumeCenters)
+    {
+        // The volume coupling implementation considers the mesh points in the volume and
+        // on the boundary patches in order to take the boundary conditions into account
+
+        // Get the cell labels of the overlapping region
+        std::vector<labelList> overlapCells;
+
+        if (!cellSetNames_.empty())
+        {
+            // For every cellSet that participates in the coupling
+            for (uint j = 0; j < cellSetNames_.size(); j++)
+            {
+                // Create a cell set
+                cellSet overlapRegion(mesh, cellSetNames_[j]);
+
+                // Add the cells IDs to the vector and count how many overlap cells the interface has
+                overlapCells.push_back(overlapRegion.toc());
+                numDataLocations_ += overlapCells[j].size();
+            }
+        }
+        else
+        {
+            numDataLocations_ = mesh.C().size();
+        }
+
+        // Count the data locations for all the patches
+        // and add those to the previously determined number of mesh points in the volume
+        for (uint j = 0; j < patchIDs_.size(); j++)
+        {
+            numDataLocations_ +=
+                mesh.boundaryMesh()[patchIDs_.at(j)].faceCentres().size();
+        }
+        DEBUG(adapterInfo("Number of coupling volumes: " + std::to_string(numDataLocations_)));
+
+        // Array of the mesh vertices.
+        // One mesh is used for all the patches and each vertex has 3D coordinates.
+        std::vector<double> vertices(dim_ * numDataLocations_);
+
+        // Array of the indices of the mesh vertices.
+        // Each vertex has one index, but three coordinates.
+        vertexIDs_.resize(numDataLocations_);
+
+        // Initialize the index of the vertices array
+        int verticesIndex = 0;
+
+        if (!cellSetNames_.empty())
+        {
+            // for all the overlapping cells (cellSets)
+            for (uint j = 0; j < cellSetNames_.size(); j++)
+            {
+                // Get the cell centres of the current cellSet.
+                const labelList& cells = overlapCells.at(j);
+
+                // Get the coordinates of the cells of the current cellSet.
+                for (int i = 0; i < cells.size(); i++)
+                {
+                    vertices[verticesIndex++] = mesh.C().internalField()[cells[i]].x();
+                    vertices[verticesIndex++] = mesh.C().internalField()[cells[i]].y();
+                    if (dim_ == 3)
+                    {
+                        vertices[verticesIndex++] = mesh.C().internalField()[cells[i]].z();
+                    }
+                }
+            }
+        }
+        else
+        {
+            const vectorField& CellCenters = mesh.C();
+
+            for (int i = 0; i < CellCenters.size(); i++)
+            {
+                vertices[verticesIndex++] = CellCenters[i].x();
+                vertices[verticesIndex++] = CellCenters[i].y();
+                if (dim_ == 3)
+                {
+                    vertices[verticesIndex++] = CellCenters[i].z();
+                }
+            }
+        }
+
+        // Get the locations of the mesh vertices (here: face centers)
+        // for all the patches
+        for (uint j = 0; j < patchIDs_.size(); j++)
+        {
+            // Get the face centers of the current patch
+            const vectorField faceCenters =
+                mesh.boundaryMesh()[patchIDs_.at(j)].faceCentres();
+
+            // Assign the (x,y,z) locations to the vertices
+            for (int i = 0; i < faceCenters.size(); i++)
+            {
+                vertices[verticesIndex++] = faceCenters[i].x();
+                vertices[verticesIndex++] = faceCenters[i].y();
+                if (dim_ == 3)
+                {
+                    vertices[verticesIndex++] = faceCenters[i].z();
+                }
+            }
+        }
+
+        // Pass the mesh vertices information to preCICE
+        precice_.setMeshVertices(meshName_, vertices, vertexIDs_);
+    }
 }
 
 
@@ -335,6 +446,9 @@ void preciceAdapter::Interface::addCouplingDataWriter(
 
     // Set the patchIDs of the patches that form the interface
     couplingDataWriter->setPatchIDs(patchIDs_);
+
+    // Set the names of the cell sets to be coupled (for volume coupling)
+    couplingDataWriter->setCellSetNames(cellSetNames_);
 
     // Set the location type in the CouplingDataUser class
     couplingDataWriter->setLocationsType(locationType_);
@@ -362,6 +476,9 @@ void preciceAdapter::Interface::addCouplingDataReader(
 
     // Set the location type in the CouplingDataUser class
     couplingDataReader->setLocationsType(locationType_);
+
+    // Set the names of the cell sets to be coupled (for volume coupling)
+    couplingDataReader->setCellSetNames(cellSetNames_);
 
     // Check, if the current location type is supported by the data type
     couplingDataReader->checkDataLocation(meshConnectivity_);

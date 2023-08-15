@@ -101,9 +101,9 @@ bool preciceAdapter::Adapter::configFileRead()
                     // By default, assume that no mesh connectivity is required (i.e. no nearest-projection mapping)
                     interfaceConfig.meshConnectivity = interfaceDict.lookupOrDefault<bool>("connectivity", false);
                     // Mesh connectivity only makes sense in case of faceNodes, check and raise a warning otherwise
-                    if (interfaceConfig.meshConnectivity && interfaceConfig.locationsType == "faceCenters")
+                    if (interfaceConfig.meshConnectivity && (interfaceConfig.locationsType == "faceCenters" || interfaceConfig.locationsType == "volumeCenters" || interfaceConfig.locationsType == "volumeCentres"))
                     {
-                        DEBUG(adapterInfo("Mesh connectivity is not supported for faceCenters. \n"
+                        DEBUG(adapterInfo("Mesh connectivity is not supported for faceCenters or volumeCenters. \n"
                                           "Please configure the desired interface with the locationsType faceNodes. \n"
                                           "Have a look in the adapter documentation for detailed information.",
                                           "warning"));
@@ -117,6 +117,24 @@ bool preciceAdapter::Adapter::configFileRead()
                     {
                         interfaceConfig.patchNames.push_back(patch);
                         DEBUG(adapterInfo("      - " + patch));
+                    }
+
+                    DEBUG(adapterInfo("    cellSets      : "));
+                    auto cellSets = interfaceDict.lookupOrDefault<wordList>("cellSets", wordList());
+
+                    for (auto cellSet : cellSets)
+                    {
+                        interfaceConfig.cellSetNames.push_back(cellSet);
+                        DEBUG(adapterInfo("      - " + cellSet));
+                    }
+
+                    if (!interfaceConfig.cellSetNames.empty() && !(interfaceConfig.locationsType == "volumeCenters" || interfaceConfig.locationsType == "volumeCentres"))
+                    {
+                        adapterInfo("Cell sets are not supported for locationType != volumeCenters. \n"
+                                    "Please configure the desired interface with the locationsType volumeCenters. \n"
+                                    "Have a look in the adapter documentation for detailed information.",
+                                    "warning");
+                        return false;
                     }
 
                     DEBUG(adapterInfo("    writeData    : "));
@@ -260,7 +278,7 @@ void preciceAdapter::Adapter::configure()
             std::string nameCellDisplacement = FSIenabled_ ? FSI_->getCellDisplacementFieldName() : "default";
             bool restartFromDeformed = FSIenabled_ ? FSI_->isRestartingFromDeformed() : false;
 
-            Interface* interface = new Interface(*precice_, mesh_, interfacesConfig_.at(i).meshName, interfacesConfig_.at(i).locationsType, interfacesConfig_.at(i).patchNames, interfacesConfig_.at(i).meshConnectivity, restartFromDeformed, namePointDisplacement, nameCellDisplacement);
+            Interface* interface = new Interface(*precice_, mesh_, interfacesConfig_.at(i).meshName, interfacesConfig_.at(i).locationsType, interfacesConfig_.at(i).patchNames, interfacesConfig_.at(i).cellSetNames, interfacesConfig_.at(i).meshConnectivity, restartFromDeformed, namePointDisplacement, nameCellDisplacement);
             interfaces_.push_back(interface);
             DEBUG(adapterInfo("Interface created on mesh " + interfacesConfig_.at(i).meshName));
 

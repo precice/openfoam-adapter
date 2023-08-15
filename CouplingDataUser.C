@@ -29,6 +29,11 @@ void preciceAdapter::CouplingDataUser::setPatchIDs(std::vector<int> patchIDs)
     patchIDs_ = patchIDs;
 }
 
+void preciceAdapter::CouplingDataUser::setCellSetNames(std::vector<std::string> cellSetNames)
+{
+    cellSetNames_ = cellSetNames;
+}
+
 void preciceAdapter::CouplingDataUser::setLocationsType(LocationType locationsType)
 {
     locationType_ = locationsType;
@@ -43,6 +48,8 @@ void preciceAdapter::CouplingDataUser::checkDataLocation(const bool meshConnecti
             location = "faceCenters";
         else if (locationType_ == LocationType::faceNodes)
             location = "faceNodes";
+        else if (locationType_ == LocationType::volumeCenters)
+            location = "volumeCenters";
 
         adapterInfo("\"locations = " + location + "\" is not supported for the data \""
                         + getDataName() + "\". Please select a different "

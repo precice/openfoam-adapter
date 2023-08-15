@@ -4,6 +4,7 @@
 #include "CouplingDataUser.H"
 
 #include "fvCFD.H"
+#include "cellSet.H"
 
 namespace preciceAdapter
 {

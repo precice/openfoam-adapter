@@ -8,11 +8,11 @@ summary: An OpenFOAM function object for CHT, FSI, and fluid-fluid coupled simul
 
 ## What is this?
 
-This preCICE adapter is a plug-in (function object) for OpenFOAM, which can work with any recent version of OpenFOAM (.com / .org, see [supported OpenFOAM versions](https://precice.org/adapter-openfoam-support.html)). It supports fluid-structure interaction (fluid part), conjugate heat transfer (fluid and solid parts), and fluid-fluid simulations, while it is also easily extensible.
+This preCICE adapter is a plug-in (function object) for OpenFOAM, which can work with any recent version of OpenFOAM (.com / .org, see [supported OpenFOAM versions](https://precice.org/adapter-openfoam-support.html)). It supports fluid-structure interaction (fluid part), conjugate heat transfer (fluid and solid parts), and fluid-fluid simulations, while it is also easily extensible. Besides surface coupling, the adapter also supports volume coupling (overlapping domains).
 
 ## What can it do?
 
-This adapter can read/write the following fields:
+This adapter can read/write the following fields in a surface coupling setup:
 
 - Temperature (read + write)
 - Heat flux (read + write)
@@ -26,6 +26,14 @@ This adapter can read/write the following fields:
 - Pressure gradient (read + write)
 - Velocity (read + write)
 - Velocity gradient (read + write)
+
+In addition, the adapter supports the following fields in a volume coupling setup:
+
+- Temperature (read* + write)
+- Pressure (read* + write)
+- Velocity (read + write)
+
+(*) Technical foundation available, the user needs to provide additional, application-specific code for enforcing the source terms.
 
 All features of preCICE are supported, including implicit coupling and nearest-projection mapping. Even though OpenFOAM is 3D, this adapter can also work in the 2D mode of preCICE, defining only one layer of interface nodes (automatically).
 
