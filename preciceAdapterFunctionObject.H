@@ -59,6 +59,8 @@ SourceFiles
 
 // OpenFOAM header files
 #include "functionObject.H"
+#include "clockValue.H"
+#include "foamTime.H"
 
 // Main adapter header file
 #include "Adapter.H"

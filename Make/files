@@ -32,7 +32,7 @@ FF/Pressure.C
 FF/PressureGradient.C
 
 Adapter.C
-
+clockValue.C
 preciceAdapterFunctionObject.C
 
 LIB = $(ADAPTER_TARGET_DIR)/libpreciceAdapterFunctionObject
