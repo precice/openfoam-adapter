@@ -3,6 +3,7 @@
 
 #include "CouplingDataUser.H"
 
+#include "fixedGradientFvPatchFields.H"
 #include "fvCFD.H"
 
 namespace preciceAdapter

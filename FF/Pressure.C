@@ -22,11 +22,11 @@ void preciceAdapter::FF::Pressure::write(double* buffer, bool meshConnectivity, 
         int patchID = patchIDs_.at(j);
 
         // For every cell of the patch
-        forAll(p_->boundaryFieldRef()[patchID], i)
+        forAll(p_->boundaryField()[patchID], i)
         {
             // Copy the pressure into the buffer
             buffer[bufferIndex++] =
-                p_->boundaryFieldRef()[patchID][i];
+                p_->boundaryField()[patchID][i];
         }
     }
 }
@@ -41,10 +41,10 @@ void preciceAdapter::FF::Pressure::read(double* buffer, const unsigned int dim)
         int patchID = patchIDs_.at(j);
 
         // For every cell of the patch
-        forAll(p_->boundaryFieldRef()[patchID], i)
+        forAll(p_->boundaryField()[patchID], i)
         {
             // Set the pressure as the buffer value
-            p_->boundaryFieldRef()[patchID][i] =
+            p_->boundaryField()[patchID][i] =
                 buffer[bufferIndex++];
         }
     }

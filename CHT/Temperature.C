@@ -69,7 +69,7 @@ void preciceAdapter::CHT::Temperature::read(double* buffer, const unsigned int d
         forAll(T_->boundaryField()[patchID], i)
         {
             // Set the temperature as the buffer value
-            T_->boundaryFieldRef()[patchID][i] =
+            T_->boundaryField()[patchID][i] =
                 buffer[bufferIndex++];
         }
     }

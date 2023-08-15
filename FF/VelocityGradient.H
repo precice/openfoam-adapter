@@ -2,6 +2,7 @@
 #define FF_VELOCITY_GRADIENT_H
 
 #include "CouplingDataUser.H"
+#include "fixedGradientFvPatchFields.H"
 
 #include "fvCFD.H"
 

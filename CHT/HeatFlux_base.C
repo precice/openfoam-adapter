@@ -1,6 +1,6 @@
-#include "HeatFlux.H"
+#include "HeatFlux_base.H"
 #include "primitivePatchInterpolation.H"
-
+#include "fixedGradientFvPatchField.H"
 #include "fvCFD.H"
 
 using namespace Foam;
@@ -85,9 +85,9 @@ void preciceAdapter::CHT::HeatFlux::read(double* buffer, const unsigned int dim)
 
         // Get the temperature gradient boundary patch
         scalarField& gradientPatch(
-            refCast<fixedGradientFvPatchScalarField>(
-                T_->boundaryFieldRef()[patchID])
-                .gradient());
+            refCast<fixedGradientFvPatchField<Foam::scalar>>(
+                T_->boundaryField()[patchID])
+                );
 
         // For every cell of the patch
         forAll(gradientPatch, i)
@@ -122,60 +122,6 @@ bool preciceAdapter::CHT::HeatFlux::isLocationTypeSupported(const bool meshConne
 std::string preciceAdapter::CHT::HeatFlux::getDataName() const
 {
     return "HeatFlux";
-}
-
-//----- preciceAdapter::CHT::HeatFlux_Compressible ----------------------------
-
-preciceAdapter::CHT::HeatFlux_Compressible::HeatFlux_Compressible(
-    const Foam::fvMesh& mesh,
-    const std::string nameT)
-: HeatFlux(mesh, nameT),
-  Kappa_(new KappaEff_Compressible(mesh))
-{
-}
-
-preciceAdapter::CHT::HeatFlux_Compressible::~HeatFlux_Compressible()
-{
-    delete Kappa_;
-}
-
-void preciceAdapter::CHT::HeatFlux_Compressible::extractKappaEff(uint patchID, bool meshConnectivity)
-{
-    Kappa_->extract(patchID, meshConnectivity);
-}
-
-scalar preciceAdapter::CHT::HeatFlux_Compressible::getKappaEffAt(int i)
-{
-    return Kappa_->getAt(i);
-}
-
-//----- preciceAdapter::CHT::HeatFlux_Incompressible --------------------------
-
-preciceAdapter::CHT::HeatFlux_Incompressible::HeatFlux_Incompressible(
-    const Foam::fvMesh& mesh,
-    const std::string nameT,
-    const std::string nameRho,
-    const std::string nameCp,
-    const std::string namePr,
-    const std::string nameAlphat)
-: HeatFlux(mesh, nameT),
-  Kappa_(new KappaEff_Incompressible(mesh, nameRho, nameCp, namePr, nameAlphat))
-{
-}
-
-preciceAdapter::CHT::HeatFlux_Incompressible::~HeatFlux_Incompressible()
-{
-    delete Kappa_;
-}
-
-void preciceAdapter::CHT::HeatFlux_Incompressible::extractKappaEff(uint patchID, bool meshConnectivity)
-{
-    Kappa_->extract(patchID, meshConnectivity);
-}
-
-scalar preciceAdapter::CHT::HeatFlux_Incompressible::getKappaEffAt(int i)
-{
-    return Kappa_->getAt(i);
 }
 
 //----- preciceAdapter::CHT::HeatFlux_Basic -----------------------------------

@@ -58,7 +58,7 @@ void preciceAdapter::FSI::Force::read(double* buffer, const unsigned int dim)
         if (this->locationType_ == LocationType::faceCenters)
         {
             // Make a force field
-            vectorField& force = Force_->boundaryFieldRef()[patchID];
+            vectorField& force = Force_->boundaryField()[patchID];
 
             // Copy the forces from the buffer into the force field
             forAll(force, i)

@@ -25,7 +25,6 @@ License
 #include "preciceAdapterFunctionObject.H"
 
 // OpenFOAM header files
-#include "Time.H"
 #include "fvMesh.H"
 #include "addToRunTimeSelectionTable.H"
 
@@ -47,8 +46,8 @@ Foam::functionObjects::preciceAdapterFunctionObject::preciceAdapterFunctionObjec
     const word& name,
     const Time& runTime,
     const dictionary& dict)
-: fvMeshFunctionObject(name, runTime, dict),
-  adapter_(runTime, mesh_)
+: functionObject(name),
+  adapter_(runTime, runTime.lookupObject<fvMesh>(polyMesh::defaultRegion))
 {
 
 #if (defined OPENFOAM && (OPENFOAM >= 1712)) || (defined OPENFOAM_PLUS && (OPENFOAM_PLUS >= 1712))
@@ -93,13 +92,19 @@ bool Foam::functionObjects::preciceAdapterFunctionObject::read(const dictionary&
     timeInAll_ += clock.elapsed();
     timeInSetup_ = clock.elapsed();
 #endif
+    return true;
+}
 
+bool Foam::functionObjects::preciceAdapterFunctionObject::start()
+{
     return true;
 }
 
 
+
 bool Foam::functionObjects::preciceAdapterFunctionObject::execute()
 {
+
 #ifdef ADAPTER_ENABLE_TIMINGS
     clockValue clock;
     clock.update();
@@ -115,6 +120,12 @@ bool Foam::functionObjects::preciceAdapterFunctionObject::execute()
     return true;
 }
 
+bool Foam::functionObjects::preciceAdapterFunctionObject::execute(const bool forceWrite)
+{
+    adapter_.execute();
+
+    return true;
+}
 
 bool Foam::functionObjects::preciceAdapterFunctionObject::end()
 {
@@ -154,6 +165,16 @@ bool Foam::functionObjects::preciceAdapterFunctionObject::adjustTimeStep()
 #endif
 
     return true;
+}
+
+void Foam::functionObjects::preciceAdapterFunctionObject::updateMesh(const mapPolyMesh& mpm)
+{
+
+}
+
+void Foam::functionObjects::preciceAdapterFunctionObject::movePoints(const pointField& mesh)
+{
+
 }
 
 // ************************************************************************* //
