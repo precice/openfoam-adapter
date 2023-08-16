@@ -14,7 +14,7 @@ Read more details in the issue [#52: Releases and versioning](https://github.com
 
 - Fixed incorrect reading and writing of the FSI-related data buffers, if multiple patches are combined in an interface mesh [commit 846affd](https://github.com/precice/openfoam-adapter/commit/846affdd00ea8024cee98f34d8ad4205fdc83c5f).
 
-## [v1.2.2] 2022-01-03
+## [v1.2.2] 2023-01-03
 
 ### Changed
 

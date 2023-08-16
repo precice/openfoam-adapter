@@ -59,6 +59,18 @@ bool preciceAdapter::FF::FluidFluid::readConfig(const IOdictionary& adapterConfi
     nameP_ = FFdict.lookupOrDefault<word>("nameP", "p");
     DEBUG(adapterInfo("    pressure field name : " + nameP_));
 
+    // Read the name of the temperature field (if different)
+    nameT_ = FFdict.lookupOrDefault<word>("nameT", "T");
+    DEBUG(adapterInfo("    temperature field name : " + nameT_));
+
+    // Read the name of the face flux field (if different)
+    namePhi_ = FFdict.lookupOrDefault<word>("namePhi", "phi");
+    DEBUG(adapterInfo("    face flux field name : " + namePhi_));
+
+    // Check whether to enable flux correction for velocity
+    fluxCorrection_ = FFdict.lookupOrDefault<bool>("fluxCorrection", false);
+    DEBUG(adapterInfo("    flux correction of velocity is set to : " + std::string(fluxCorrection_)));
+
     return true;
 }
 
@@ -112,7 +124,7 @@ bool preciceAdapter::FF::FluidFluid::addWriters(std::string dataName, Interface*
     {
         interface->addCouplingDataWriter(
             dataName,
-            new Velocity(mesh_, nameU_));
+            new Velocity(mesh_, nameU_, namePhi_, fluxCorrection_));
         DEBUG(adapterInfo("Added writer: Velocity."));
     }
     else if (dataName.find("PressureGradient") == 0)
@@ -128,6 +140,20 @@ bool preciceAdapter::FF::FluidFluid::addWriters(std::string dataName, Interface*
             dataName,
             new Pressure(mesh_, nameP_));
         DEBUG(adapterInfo("Added writer: Pressure."));
+    }
+    else if (dataName.find("FlowTemperatureGradient") == 0)
+    {
+        interface->addCouplingDataWriter(
+            dataName,
+            new TemperatureGradient(mesh_, nameT_));
+        DEBUG(adapterInfo("Added writer: Flow Temperature Gradient."));
+    }
+    else if (dataName.find("FlowTemperature") == 0)
+    {
+        interface->addCouplingDataWriter(
+            dataName,
+            new Temperature(mesh_, nameT_));
+        DEBUG(adapterInfo("Added writer: Flow Temperature."));
     }
     else
     {
@@ -158,7 +184,7 @@ bool preciceAdapter::FF::FluidFluid::addReaders(std::string dataName, Interface*
     {
         interface->addCouplingDataReader(
             dataName,
-            new Velocity(mesh_, nameU_));
+            new Velocity(mesh_, nameU_, namePhi_));
         DEBUG(adapterInfo("Added reader: Velocity."));
     }
     else if (dataName.find("PressureGradient") == 0)
@@ -174,6 +200,20 @@ bool preciceAdapter::FF::FluidFluid::addReaders(std::string dataName, Interface*
             dataName,
             new Pressure(mesh_, nameP_));
         DEBUG(adapterInfo("Added reader: Pressure."));
+    }
+    else if (dataName.find("FlowTemperatureGradient") == 0)
+    {
+        interface->addCouplingDataReader(
+            dataName,
+            new TemperatureGradient(mesh_, nameT_));
+        DEBUG(adapterInfo("Added reader: Flow Temperature Gradient."));
+    }
+    else if (dataName.find("FlowTemperature") == 0)
+    {
+        interface->addCouplingDataReader(
+            dataName,
+            new Temperature(mesh_, nameT_));
+        DEBUG(adapterInfo("Added reader: Flow Temperature."));
     }
     else
     {

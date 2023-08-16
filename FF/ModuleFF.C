@@ -4,3 +4,7 @@
 #include "VelocityGradient.C"
 #include "Pressure.C"
 #include "PressureGradient.C"
+#include "Temperature.C"
+#include "TemperatureGradient.C"
+#include "BoundaryConditions/coupledPressure/coupledPressureFvPatchField.C"
+#include "BoundaryConditions/coupledVelocity/coupledVelocityFvPatchField.C"

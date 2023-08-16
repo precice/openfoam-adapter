@@ -1,4 +1,5 @@
 #include "VelocityGradient.H"
+#include "coupledVelocityFvPatchField.H"
 
 using namespace Foam;
 
@@ -57,10 +58,21 @@ void preciceAdapter::FF::VelocityGradient::read(double* buffer, const unsigned i
         int patchID = patchIDs_.at(j);
 
         // Get the velocity gradient boundary patch
-        vectorField& gradientPatch =
-            refCast<fixedGradientFvPatchVectorField>(
-                U_->boundaryFieldRef()[patchID])
-                .gradient();
+        vectorField* gradientPatchPtr;
+        if (isA<coupledVelocityFvPatchField>(U_->boundaryFieldRef()[patchID]))
+        {
+            gradientPatchPtr = &refCast<coupledVelocityFvPatchField>(
+                                    U_->boundaryFieldRef()[patchID])
+                                    .refGrad();
+        }
+        else
+        {
+            gradientPatchPtr = &refCast<fixedGradientFvPatchVectorField>(
+                                    U_->boundaryFieldRef()[patchID])
+                                    .gradient();
+        }
+        vectorField& gradientPatch = *gradientPatchPtr;
+
 
         // For every cell of the patch
         forAll(gradientPatch, i)
