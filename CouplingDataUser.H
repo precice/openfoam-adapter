@@ -13,7 +13,8 @@ enum class LocationType
 {
     none,
     faceCenters,
-    faceNodes
+    faceNodes,
+    volumeCenters
 };
 
 class CouplingDataUser
@@ -31,6 +32,9 @@ protected:
 
     //- OpenFOAM patches that form the interface
     std::vector<int> patchIDs_;
+
+    //- Names of the OpenFOAM cell sets to be coupled (for volume coupling)
+    std::vector<std::string> cellSetNames_;
 
     //- data name
     std::string dataName_;
@@ -56,6 +60,9 @@ public:
 
     //- Set the patch IDs that form the interface
     void setPatchIDs(std::vector<int> patchIDs);
+
+    //- Set the cellSetNames that form the overlapping cells of the interface
+    void setCellSetNames(std::vector<std::string> cellSetNames);
 
     //- Set the locations type of the interface
     void setLocationsType(LocationType locationsType);
