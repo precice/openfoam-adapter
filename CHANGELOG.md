@@ -8,6 +8,12 @@ Read more details in the issue [#52: Releases and versioning](https://github.com
 
 <!-- markdownlint-configure-file {"MD024": { "siblings_only": true } } -->
 
+## [v1.2.3] 2023-06-14
+
+### Fixed
+
+- Fixed incorrect reading and writing of the FSI-related data buffers, if multiple patches are combined in an interface mesh [commit 846affd](https://github.com/precice/openfoam-adapter/commit/846affdd00ea8024cee98f34d8ad4205fdc83c5f).
+
 ## [v1.2.2] 2023-01-03
 
 ### Changed

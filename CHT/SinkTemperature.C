@@ -101,7 +101,7 @@ bool preciceAdapter::CHT::SinkTemperature::isLocationTypeSupported(const bool me
     // always return true and offload the handling to the user.
     if (meshConnectivity)
     {
-        return true;
+        return (this->locationType_ == LocationType::faceCenters || this->locationType_ == LocationType::faceNodes); // we currently do not support meshConnectivity for volumeCenters
     }
     else
     {
