@@ -29,11 +29,9 @@ This adapter can read/write the following fields in a surface coupling setup:
 
 In addition, the adapter supports the following fields in a volume coupling setup:
 
-- Temperature (read* + write)
-- Pressure (read* + write)
+- Temperature (write)
+- Pressure (write)
 - Velocity (read + write)
-
-(*) Technical foundation available, the user needs to provide additional, application-specific code for enforcing the source terms.
 
 All features of preCICE are supported, including implicit coupling and nearest-projection mapping. Even though OpenFOAM is 3D, this adapter can also work in the 2D mode of preCICE, defining only one layer of interface nodes (automatically).
 
