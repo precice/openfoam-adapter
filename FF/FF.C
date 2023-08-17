@@ -69,7 +69,7 @@ bool preciceAdapter::FF::FluidFluid::readConfig(const IOdictionary& adapterConfi
 
     // Check whether to enable flux correction for velocity
     fluxCorrection_ = FFdict.lookupOrDefault<bool>("fluxCorrection", false);
-    DEBUG(adapterInfo("    flux correction of velocity is set to : " + std::string(fluxCorrection_)));
+    DEBUG(adapterInfo("    flux correction of velocity is set to : " + std::to_string(fluxCorrection_)));
 
     return true;
 }
