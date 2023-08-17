@@ -34,7 +34,7 @@ preciceAdapter::FF::Velocity::Velocity(
     dataType_ = vector;
 }
 
-void preciceAdapter::FF::Velocity::write(double* buffer, bool meshConnectivity, const unsigned int dim)
+std::size_t preciceAdapter::FF::Velocity::write(double* buffer, bool meshConnectivity, const unsigned int dim)
 {
     int bufferIndex = 0;
 
@@ -118,6 +118,7 @@ void preciceAdapter::FF::Velocity::write(double* buffer, bool meshConnectivity, 
             }
         }
     }
+    return bufferIndex;
 }
 
 void preciceAdapter::FF::Velocity::read(double* buffer, const unsigned int dim)
