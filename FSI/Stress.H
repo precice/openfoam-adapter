@@ -27,7 +27,7 @@ public:
         const std::string solverType);
 
     //- Write the stress values into the buffer
-    void write(double* buffer, bool meshConnectivity, const unsigned int dim) final;
+    std::size_t write(double* buffer, bool meshConnectivity, const unsigned int dim) final;
 
     //- Read the stress values from the buffer
     void read(double* buffer, const unsigned int dim) final;

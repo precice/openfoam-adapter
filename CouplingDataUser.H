@@ -74,7 +74,8 @@ public:
     virtual void initialize();
 
     //- Write the coupling data to the buffer
-    virtual void write(double* dataBuffer, bool meshConnectivity, const unsigned int dim) = 0;
+    // Returns the number of entries that were filles in the buffer (nComp * vertices)
+    virtual std::size_t write(double* dataBuffer, bool meshConnectivity, const unsigned int dim) = 0;
 
     //- Read the coupling data from the buffer
     virtual void read(double* dataBuffer, const unsigned int dim) = 0;

@@ -25,7 +25,7 @@ public:
         const std::string nameP);
 
     //- Write the pressure gradient values into the buffer
-    void write(double* buffer, bool meshConnectivity, const unsigned int dim);
+    std::size_t write(double* buffer, bool meshConnectivity, const unsigned int dim);
 
     //- Read the pressure gradient values from the buffer
     void read(double* buffer, const unsigned int dim);

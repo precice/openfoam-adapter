@@ -39,7 +39,7 @@ public:
         const Foam::fvMesh& mesh,
         const std::string solverType);
 
-    void writeToBuffer(double* buffer,
+    std::size_t writeToBuffer(double* buffer,
                        Foam::volVectorField& forceField,
                        const unsigned int dim) const;
 

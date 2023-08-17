@@ -35,7 +35,7 @@ public:
         const std::string nameT);
 
     //- Write the heat transfer coefficient values into the buffer
-    void write(double* buffer, bool meshConnectivity, const unsigned int dim) final;
+    std::size_t write(double* buffer, bool meshConnectivity, const unsigned int dim) final;
 
     //- Read the heat transfer coefficient values from the buffer
     void read(double* buffer, const unsigned int dim) final;

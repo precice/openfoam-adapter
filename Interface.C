@@ -571,14 +571,14 @@ void preciceAdapter::Interface::writeCouplingData()
             couplingDataWriter = couplingDataWriters_.at(i);
 
         // Write the data into the adapter's buffer
-        couplingDataWriter->write(dataBuffer_.data(), meshConnectivity_, dim_);
+        auto nWrittenData = couplingDataWriter->write(dataBuffer_.data(), meshConnectivity_, dim_);
 
         // Make preCICE write vector or scalar data
         precice_.writeData(
             meshName_,
             couplingDataWriter->dataName(),
             vertexIDs_,
-            dataBuffer_);
+            {dataBuffer_.data(), nWrittenData});
     }
     // }
 }
