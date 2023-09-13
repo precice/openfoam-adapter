@@ -40,8 +40,8 @@ public:
         const std::string solverType);
 
     std::size_t writeToBuffer(double* buffer,
-                       Foam::volVectorField& forceField,
-                       const unsigned int dim) const;
+                              Foam::volVectorField& forceField,
+                              const unsigned int dim) const;
 
     void readFromBuffer(double* buffer) const;
 

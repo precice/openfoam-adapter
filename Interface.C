@@ -545,7 +545,7 @@ void preciceAdapter::Interface::readCouplingData(double relativeReadTime)
 
         // Make preCICE read vector or scalar data
         // and fill the adapter's buffer
-        std::size_t nReadData = vertexIDs_.size() * precice_.getDataDimensions(meshName_,couplingDataReader->dataName());
+        std::size_t nReadData = vertexIDs_.size() * precice_.getDataDimensions(meshName_, couplingDataReader->dataName());
         // We could add a sanity check here
         // nReadData == vertexIDs_.size() * (1 + (dim_ - 1) * static_cast<int>(couplingDataReader->hasVectorData()));
 
