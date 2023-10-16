@@ -12,7 +12,7 @@ preciceAdapter::FF::Temperature::Temperature(
     dataType_ = scalar;
 }
 
-void preciceAdapter::FF::Temperature::write(double* buffer, bool meshConnectivity, const unsigned int dim)
+std::size_t preciceAdapter::FF::Temperature::write(double* buffer, bool meshConnectivity, const unsigned int dim)
 {
     int bufferIndex = 0;
 
@@ -31,6 +31,7 @@ void preciceAdapter::FF::Temperature::write(double* buffer, bool meshConnectivit
                 T_->boundaryFieldRef()[patchID][i];
         }
     }
+    return bufferIndex;
 }
 
 void preciceAdapter::FF::Temperature::read(double* buffer, const unsigned int dim)

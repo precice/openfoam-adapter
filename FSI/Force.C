@@ -36,9 +36,9 @@ preciceAdapter::FSI::Force::Force(
     }
 }
 
-void preciceAdapter::FSI::Force::write(double* buffer, bool meshConnectivity, const unsigned int dim)
+std::size_t preciceAdapter::FSI::Force::write(double* buffer, bool meshConnectivity, const unsigned int dim)
 {
-    this->writeToBuffer(buffer, *Force_, dim);
+    return this->writeToBuffer(buffer, *Force_, dim);
 }
 
 void preciceAdapter::FSI::Force::read(double* buffer, const unsigned int dim)

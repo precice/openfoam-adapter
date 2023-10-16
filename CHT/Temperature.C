@@ -15,7 +15,7 @@ preciceAdapter::CHT::Temperature::Temperature(
     dataType_ = scalar;
 }
 
-void preciceAdapter::CHT::Temperature::write(double* buffer, bool meshConnectivity, const unsigned int dim)
+std::size_t preciceAdapter::CHT::Temperature::write(double* buffer, bool meshConnectivity, const unsigned int dim)
 {
     int bufferIndex = 0;
 
@@ -79,6 +79,7 @@ void preciceAdapter::CHT::Temperature::write(double* buffer, bool meshConnectivi
             }
         }
     }
+    return bufferIndex;
 }
 
 void preciceAdapter::CHT::Temperature::read(double* buffer, const unsigned int dim)

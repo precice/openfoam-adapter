@@ -12,7 +12,7 @@ preciceAdapter::FF::PressureGradient::PressureGradient(
     dataType_ = scalar;
 }
 
-void preciceAdapter::FF::PressureGradient::write(double* buffer, bool meshConnectivity, const unsigned int dim)
+std::size_t preciceAdapter::FF::PressureGradient::write(double* buffer, bool meshConnectivity, const unsigned int dim)
 {
     int bufferIndex = 0;
 
@@ -33,6 +33,7 @@ void preciceAdapter::FF::PressureGradient::write(double* buffer, bool meshConnec
                 -gradientPatch[i];
         }
     }
+    return bufferIndex;
 }
 
 void preciceAdapter::FF::PressureGradient::read(double* buffer, const unsigned int dim)

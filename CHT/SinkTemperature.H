@@ -26,7 +26,7 @@ public:
         const std::string nameT);
 
     //- Write the sink temperature values into the buffer
-    void write(double* buffer, bool meshConnectivity, const unsigned int dim);
+    std::size_t write(double* buffer, bool meshConnectivity, const unsigned int dim);
 
     //- Read the sink temperature values from the buffer
     void read(double* buffer, const unsigned int dim);
