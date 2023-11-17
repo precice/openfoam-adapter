@@ -42,7 +42,7 @@ protected:
 
     //- Name of the phase variable (alpha) field
     std::string nameAlpha_ = "alpha";
-    
+
     //- Name of the face flux field
     std::string namePhi_ = "phi";
 

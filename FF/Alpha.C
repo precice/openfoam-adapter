@@ -107,7 +107,8 @@ bool preciceAdapter::FF::Alpha::isLocationTypeSupported(const bool meshConnectiv
     else
     {
         return (this->locationType_ == LocationType::faceCenters || this->locationType_ == LocationType::volumeCenters);
-    }}
+    }
+}
 
 std::string preciceAdapter::FF::Alpha::getDataName() const
 {
