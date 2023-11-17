@@ -217,7 +217,7 @@ solver              displacementLaplacian;
 
 #### FF
 
-The fluid-fluid coupling module supports reading and writing `Pressure`, `Velocity`, `PressureGradient`, `VelocityGradient`, `FlowTemperature` and `FlowTemperatureGradient`.
+The fluid-fluid coupling module supports reading and writing `Pressure`, `Velocity`, `PressureGradient`, `VelocityGradient`, `FlowTemperature`, `FlowTemperatureGradient`, `Alpha` and `AlphaGradient`.
 
 Similarly to the CHT module, you need a `fixedValue` boundary condition of the respective primary field in order to read and apply values, and a `fixedGradient` boundary condition of the respective gradient field in order to read and apply gradients.
 
@@ -247,6 +247,17 @@ interface
 {% experimental %}
 The FF module is still experimental and the boundary conditions presented here have not been rigorously tested.
 {% endexperimental %}
+
+`Alpha` refers to the phase variable used in e.g. the volume of fluid multiphase solver `interFoam`. When coupling multiphase flows the correct names for pressure and alpha need to be specified in the `preciceDict`.
+
+```c++
+// File preciceDict (example for interFoam)
+FF
+{
+  nameP       p_rgh;
+  nameAlpha   alpha.water;
+}
+```
 
 ### Volume coupling
 
