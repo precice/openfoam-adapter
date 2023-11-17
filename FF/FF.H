@@ -6,9 +6,11 @@
 #include "FF/Velocity.H"
 #include "FF/Pressure.H"
 #include "FF/Temperature.H"
+#include "FF/Alpha.H"
 #include "FF/PressureGradient.H"
 #include "FF/VelocityGradient.H"
 #include "FF/TemperatureGradient.H"
+#include "FF/AlphaGradient.H"
 
 #include "fvCFD.H"
 
@@ -38,6 +40,9 @@ protected:
     //- Name of the temperature field
     std::string nameT_ = "T";
 
+    //- Name of the phase variable (alpha) field
+    std::string nameAlpha_ = "alpha";
+    
     //- Name of the face flux field
     std::string namePhi_ = "phi";
 

@@ -63,6 +63,10 @@ bool preciceAdapter::FF::FluidFluid::readConfig(const IOdictionary& adapterConfi
     nameT_ = FFdict.lookupOrDefault<word>("nameT", "T");
     DEBUG(adapterInfo("    temperature field name : " + nameT_));
 
+    // Read the name of the phase variable field (if different)
+    nameAlpha_ = FFdict.lookupOrDefault<word>("nameAlpha", "alpha");
+    DEBUG(adapterInfo("    phase variable (alpha) field name : " + nameAlpha_));
+
     // Read the name of the face flux field (if different)
     namePhi_ = FFdict.lookupOrDefault<word>("namePhi", "phi");
     DEBUG(adapterInfo("    face flux field name : " + namePhi_));
@@ -155,6 +159,20 @@ bool preciceAdapter::FF::FluidFluid::addWriters(std::string dataName, Interface*
             new Temperature(mesh_, nameT_));
         DEBUG(adapterInfo("Added writer: Flow Temperature."));
     }
+    else if (dataName.find("AlphaGradient") == 0)
+    {
+        interface->addCouplingDataWriter(
+            dataName,
+            new AlphaGradient(mesh_, nameAlpha_));
+        DEBUG(adapterInfo("Added writer: Alpha Gradient."));
+    }
+    else if (dataName.find("Alpha") == 0)
+    {
+        interface->addCouplingDataWriter(
+            dataName,
+            new Alpha(mesh_, nameAlpha_));
+        DEBUG(adapterInfo("Added writer: Alpha."));
+    }
     else
     {
         found = false;
@@ -214,6 +232,20 @@ bool preciceAdapter::FF::FluidFluid::addReaders(std::string dataName, Interface*
             dataName,
             new Temperature(mesh_, nameT_));
         DEBUG(adapterInfo("Added reader: Flow Temperature."));
+    }
+    else if (dataName.find("AlphaGradient") == 0)
+    {
+        interface->addCouplingDataReader(
+            dataName,
+            new AlphaGradient(mesh_, nameAlpha_));
+        DEBUG(adapterInfo("Added reader: Alpha Gradient."));
+    }
+    else if (dataName.find("Alpha") == 0)
+    {
+        interface->addCouplingDataReader(
+            dataName,
+            new Alpha(mesh_, nameAlpha_));
+        DEBUG(adapterInfo("Added reader: Alpha."));
     }
     else
     {

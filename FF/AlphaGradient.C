@@ -34,6 +34,7 @@ std::size_t preciceAdapter::FF::AlphaGradient::write(double* buffer, bool meshCo
                 -gradientPatch[i];
         }
     }
+    return bufferIndex;
 }
 
 void preciceAdapter::FF::AlphaGradient::read(double* buffer, const unsigned int dim)
@@ -59,7 +60,6 @@ void preciceAdapter::FF::AlphaGradient::read(double* buffer, const unsigned int 
                 buffer[bufferIndex++];
         }
     }
-    return bufferIndex;
 }
 
 bool preciceAdapter::FF::AlphaGradient::isLocationTypeSupported(const bool meshConnectivity) const

@@ -6,5 +6,7 @@
 #include "PressureGradient.C"
 #include "Temperature.C"
 #include "TemperatureGradient.C"
+#include "Alpha.C"
+#include "AlphaGradient.C"
 #include "BoundaryConditions/coupledPressure/coupledPressureFvPatchField.C"
 #include "BoundaryConditions/coupledVelocity/coupledVelocityFvPatchField.C"
