@@ -173,6 +173,13 @@ bool preciceAdapter::FF::FluidFluid::addWriters(std::string dataName, Interface*
             new Alpha(mesh_, nameAlpha_));
         DEBUG(adapterInfo("Added writer: Alpha."));
     }
+    else if (dataName.find("Phi") == 0)
+    {
+        interface->addCouplingDataWriter(
+            dataName,
+            new Phi(mesh_, namePhi_));
+        DEBUG(adapterInfo("Added writer: Phi."));
+    }
     else
     {
         found = false;
@@ -246,6 +253,13 @@ bool preciceAdapter::FF::FluidFluid::addReaders(std::string dataName, Interface*
             dataName,
             new Alpha(mesh_, nameAlpha_));
         DEBUG(adapterInfo("Added reader: Alpha."));
+    }
+    else if (dataName.find("Phi") == 0)
+    {
+        interface->addCouplingDataReader(
+            dataName,
+            new Phi(mesh_, namePhi_));
+        DEBUG(adapterInfo("Added reader: Phi."));
     }
     else
     {
