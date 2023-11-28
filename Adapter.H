@@ -271,7 +271,8 @@ private:
     void writeCouplingData();
 
     //- Adjust the timestep of the solver according to preCICE
-    void adjustSolverTimeStep();
+    // and read data associated to the calculated time step length
+    void adjustSolverTimeStepAndReadData();
 
     //- Determine if the coupling is still happening
     bool isCouplingOngoing();
