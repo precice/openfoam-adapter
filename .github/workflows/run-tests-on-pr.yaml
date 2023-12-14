@@ -1,0 +1,13 @@
+on:
+  pull_request_review:
+    types: [submitted]
+
+jobs:
+  testing-approved-pr:
+    if: github.event.review.state == 'APPROVED'
+    uses: precice/tutorials/.github/workflows/run_testsuite_workflow.yml@develop
+    with:
+      suites: openfoam_adapter_pr
+      build_args: TUTORIALS_REF:develop,PRECICE_REF:develop,OPENFOAM_EXECUTABLE:openfoam2306,OPENFOAM_ADAPTER_REF:${{ github.event.pull_request.head.sha }}
+      systests_branch: develop
+      loglevel: "DEBUG"
