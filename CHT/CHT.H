@@ -48,14 +48,14 @@ protected:
     std::string determineSolverType();
 
     //- Read the CHT-related options from the adapter's configuration file
-    bool readConfig(const IOdictionary& adapterConfig);
+    bool readConfig(const Foam::IOdictionary& adapterConfig);
 
 public:
     //- Constructor
     ConjugateHeatTransfer(const Foam::fvMesh& mesh);
 
     //- Configure
-    bool configure(const IOdictionary& adapterConfig);
+    bool configure(const Foam::IOdictionary& adapterConfig);
 
     //- Add coupling data writers
     bool addWriters(std::string dataName, Interface* interface);
