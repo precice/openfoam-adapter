@@ -8,8 +8,6 @@
 #include "CHT/SinkTemperature.H"
 #include "CHT/HeatTransferCoefficient.H"
 
-#include "fvCFD.H"
-
 namespace preciceAdapter
 {
 namespace CHT

@@ -8,8 +8,6 @@
 #include "FF/PressureGradient.H"
 #include "FF/VelocityGradient.H"
 
-#include "fvCFD.H"
-
 namespace preciceAdapter
 {
 namespace FF

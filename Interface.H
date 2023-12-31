@@ -3,7 +3,10 @@
 
 #include <string>
 #include <vector>
-#include "fvCFD.H"
+#include <array>
+#include "argList.H"
+#include "timeSelector.H"
+#include "findRefCell.H"
 #include "CouplingDataUser.H"
 #include "precice/SolverInterface.hpp"
 

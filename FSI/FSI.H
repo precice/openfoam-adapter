@@ -8,8 +8,6 @@
 #include "FSI/Force.H"
 #include "FSI/Stress.H"
 
-#include "fvCFD.H"
-
 namespace preciceAdapter
 {
 namespace FSI
