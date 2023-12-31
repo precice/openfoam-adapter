@@ -140,13 +140,6 @@ public:
         return wordList::null();
     }
 
-    //- Return the list of fields required
-    //  (pure virtual since OpenFOAM 10)
-    virtual wordList fields() const
-    {
-        return wordList::null();
-    }
-
     /*
         // NOTE: If you add a new module that needs to execute methods
         // whenever the mesh is updated or its points moved,
