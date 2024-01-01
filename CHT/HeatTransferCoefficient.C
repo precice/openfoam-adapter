@@ -1,6 +1,5 @@
 #include "HeatTransferCoefficient.H"
 
-#include "fvCFD.H"
 #include "mixedFvPatchFields.H"
 #include "primitivePatchInterpolation.H"
 

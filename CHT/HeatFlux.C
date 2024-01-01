@@ -1,7 +1,7 @@
 #include "HeatFlux.H"
 #include "primitivePatchInterpolation.H"
 
-#include "fvCFD.H"
+#include "constrainPressure.H"
 
 using namespace Foam;
 

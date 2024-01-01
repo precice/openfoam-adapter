@@ -316,53 +316,53 @@ private:
 
     // Add mesh checkpoint fields, depending on the type
     //- Add a surfaceScalarField mesh field
-    void addMeshCheckpointField(surfaceScalarField& field);
+    void addMeshCheckpointField(Foam::surfaceScalarField& field);
 
     //- Add a surfaceVectorField mesh field
-    void addMeshCheckpointField(surfaceVectorField& field);
+    void addMeshCheckpointField(Foam::surfaceVectorField& field);
 
     //- Add a volVectorField mesh field
-    void addMeshCheckpointField(volVectorField& field);
+    void addMeshCheckpointField(Foam::volVectorField& field);
 
     // TODO V0 and V00 checkpointed field.
     //- Add the V0 and V00 checkpoint fields
-    void addVolCheckpointField(volScalarField::Internal& field);
+    void addVolCheckpointField(Foam::volScalarField::Internal& field);
     // void addVolCheckpointFieldBuffer(volScalarField::Internal & field);
 
     // Add checkpoint fields, depending on the type
 
     //- Add a volScalarField to checkpoint
-    void addCheckpointField(volScalarField* field);
+    void addCheckpointField(Foam::volScalarField* field);
 
     //- Add a volVectorField to checkpoint
-    void addCheckpointField(volVectorField* field);
+    void addCheckpointField(Foam::volVectorField* field);
 
     //- Add a surfaceScalarField to checkpoint
-    void addCheckpointField(surfaceScalarField* field);
+    void addCheckpointField(Foam::surfaceScalarField* field);
 
     //- Add a surfaceVectorField to checkpoint
-    void addCheckpointField(surfaceVectorField* field);
+    void addCheckpointField(Foam::surfaceVectorField* field);
 
     //- Add a pointScalarField to checkpoint
-    void addCheckpointField(pointScalarField* field);
+    void addCheckpointField(Foam::pointScalarField* field);
 
     //- Add a pointVectorField to checkpoint
-    void addCheckpointField(pointVectorField* field);
+    void addCheckpointField(Foam::pointVectorField* field);
 
     // NOTE: Add here methods to add other object types to checkpoint,
     // if needed.
 
     //- Add a volTensorField to checkpoint
-    void addCheckpointField(volTensorField* field);
+    void addCheckpointField(Foam::volTensorField* field);
 
     //- Add a surfaceTensorField to checkpoint
-    void addCheckpointField(surfaceTensorField* field);
+    void addCheckpointField(Foam::surfaceTensorField* field);
 
     //- Add a pointTensorField to checkpoint
-    void addCheckpointField(pointTensorField* field);
+    void addCheckpointField(Foam::pointTensorField* field);
 
     //- Add a volSymmTensorField to checkpoint
-    void addCheckpointField(volSymmTensorField* field);
+    void addCheckpointField(Foam::volSymmTensorField* field);
 
     //- Read the checkpoint - restore the mesh fields and time
     void readMeshCheckpoint();

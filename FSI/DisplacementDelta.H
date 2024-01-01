@@ -3,7 +3,7 @@
 
 #include "CouplingDataUser.H"
 
-#include "fvCFD.H"
+#include "findRefCell.H"
 #include "fixedValuePointPatchFields.H"
 #include "primitivePatchInterpolation.H"
 

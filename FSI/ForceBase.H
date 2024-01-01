@@ -4,7 +4,7 @@
 
 #include "CouplingDataUser.H"
 
-#include "fvCFD.H"
+#include "fvcGrad.H"
 
 #include "pointFields.H"
 #include "vectorField.H"

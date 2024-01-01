@@ -3,7 +3,9 @@
 
 #include "CouplingDataUser.H"
 
-#include "fvCFD.H"
+#include "findRefCell.H"
+#include "constrainPressure.H"
+#include "constrainHbyA.H"
 
 namespace preciceAdapter
 {
