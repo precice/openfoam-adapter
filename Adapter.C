@@ -651,8 +651,8 @@ void preciceAdapter::Adapter::adjustSolverTimeStepAndReadData()
        If the solver tries to use a bigger timestep, then it needs to use
        the same timestep as the one determined by preCICE.
     */
-
-    if (timestepSolverDetermined < timestepPrecice_)
+    double tolerance = 1e-12;
+    if (timestepPrecice_ - timestepSolverDetermined > tolerance)
     {
         // Add a bool 'subCycling = true' which is checked in the storeMeshPoints() function.
         adapterInfo(
@@ -668,13 +668,17 @@ void preciceAdapter::Adapter::adjustSolverTimeStepAndReadData()
                 "warning");
         }
     }
-    else if (timestepSolverDetermined > timestepPrecice_)
+    else if (timestepSolverDetermined - timestepPrecice_ > tolerance)
     {
-        adapterInfo(
-            "The solver's timestep cannot be larger than the coupling timestep."
-            " Adjusting from "
-                + std::to_string(timestepSolverDetermined) + " to " + std::to_string(timestepPrecice_),
-            "warning");
+        // In the last time-step, we adjust to dt = 0, but we don't need to trigger the warning here
+        if (precice_->isCouplingOngoing())
+        {
+            adapterInfo(
+                "The solver's timestep cannot be larger than the coupling timestep."
+                " Adjusting from "
+                    + std::to_string(timestepSolverDetermined) + " to " + std::to_string(timestepPrecice_),
+                "warning");
+        }
         timestepSolver_ = timestepPrecice_;
     }
     else
