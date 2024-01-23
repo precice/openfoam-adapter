@@ -363,9 +363,6 @@ void preciceAdapter::Adapter::configure()
         // Initialize preCICE and exchange the first coupling data
         initialize();
 
-        // Read the received coupling data
-        readCouplingData(runTime_.deltaT().value());
-
         // If checkpointing is required, specify the checkpointed fields
         // and write the first checkpoint
         if (requiresWritingCheckpoint())
@@ -382,7 +379,7 @@ void preciceAdapter::Adapter::configure()
         // Adjust the timestep for the first iteration, if it is fixed
         if (!adjustableTimestep_)
         {
-            adjustSolverTimeStep();
+            adjustSolverTimeStepAndReadData();
         }
 
         // If the solver tries to end before the coupling is complete,
@@ -443,12 +440,6 @@ void preciceAdapter::Adapter::execute()
         readCheckpoint();
     }
 
-    // Adjust the timestep, if it is fixed
-    if (!adjustableTimestep_)
-    {
-        adjustSolverTimeStep();
-    }
-
     // Write checkpoint if required
     if (requiresWritingCheckpoint())
     {
@@ -476,9 +467,11 @@ void preciceAdapter::Adapter::execute()
     }
     ACCUMULATE_TIMER(timeInWriteResults_);
 
-    // Read the received coupling data from the buffer
-    // Fits to an implicit Euler
-    readCouplingData(runTime_.deltaT().value());
+    // Adjust the timestep, if it is fixed
+    if (!adjustableTimestep_)
+    {
+        adjustSolverTimeStepAndReadData();
+    }
 
     // If the coupling is not going to continue, tear down everything
     // and stop the simulation.
@@ -507,9 +500,10 @@ void preciceAdapter::Adapter::execute()
     return;
 }
 
+
 void preciceAdapter::Adapter::adjustTimeStep()
 {
-    adjustSolverTimeStep();
+    adjustSolverTimeStepAndReadData();
 
     return;
 }
@@ -599,7 +593,7 @@ void preciceAdapter::Adapter::advance()
     return;
 }
 
-void preciceAdapter::Adapter::adjustSolverTimeStep()
+void preciceAdapter::Adapter::adjustSolverTimeStepAndReadData()
 {
     DEBUG(adapterInfo("Adjusting the solver's timestep..."));
 
@@ -694,6 +688,12 @@ void preciceAdapter::Adapter::adjustSolverTimeStep()
     // which also triggers the functionObject's adjustTimeStep())
     // TODO: Keep this in mind if any relevant problem appears.
     const_cast<Time&>(runTime_).setDeltaT(timestepSolver_, false);
+
+    DEBUG(adapterInfo("Reading coupling data associated to the calculated time-step size..."));
+
+    // Read the received coupling data from the buffer
+    // Fits to an implicit Euler
+    readCouplingData(runTime_.deltaT().value());
 
     return;
 }
@@ -1663,7 +1663,7 @@ preciceAdapter::Adapter::~Adapter()
         Info << "  (I) advance():                 " << timeInAdvance_.str() << nl;
         Info << "  (I) finalize():                " << timeInFinalize_.str() << nl;
         Info << "  These times include time waiting for other participants." << nl;
-        Info << "  See also precice-<participant>-events-summary.log." << nl;
+        Info << "  See also precice-profiling on the website https://precice.org/tooling-performance-analysis.html." << nl;
         Info << "-------------------------------------------------------------------------------------" << nl;)
 
     return;
