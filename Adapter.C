@@ -1663,7 +1663,7 @@ preciceAdapter::Adapter::~Adapter()
         Info << "  (I) advance():                 " << timeInAdvance_.str() << nl;
         Info << "  (I) finalize():                " << timeInFinalize_.str() << nl;
         Info << "  These times include time waiting for other participants." << nl;
-        Info << "  See also precice-<participant>-events-summary.log." << nl;
+        Info << "  See also precice-profiling on the website https://precice.org/tooling-performance-analysis.html." << nl;
         Info << "-------------------------------------------------------------------------------------" << nl;)
 
     return;
