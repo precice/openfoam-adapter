@@ -651,7 +651,7 @@ void preciceAdapter::Adapter::adjustSolverTimeStepAndReadData()
        If the solver tries to use a bigger timestep, then it needs to use
        the same timestep as the one determined by preCICE.
     */
-    double tolerance = 1e-12;
+    double tolerance = 1e-14;
     if (timestepPrecice_ - timestepSolverDetermined > tolerance)
     {
         // Add a bool 'subCycling = true' which is checked in the storeMeshPoints() function.
