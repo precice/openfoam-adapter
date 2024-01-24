@@ -217,7 +217,7 @@ solver              displacementLaplacian;
 
 #### FF
 
-The fluid-fluid coupling module supports reading and writing `Pressure`, `Velocity`, `PressureGradient`, `VelocityGradient`, `FlowTemperature` and `FlowTemperatureGradient`.
+The fluid-fluid coupling module supports reading and writing `Pressure`, `Velocity`, `PressureGradient`, `VelocityGradient`, `FlowTemperature`, `FlowTemperatureGradient`, `Alpha`, `AlphaGradient` and the face flux `Phi`.
 
 Similarly to the CHT module, you need a `fixedValue` boundary condition of the respective primary field in order to read and apply values, and a `fixedGradient` boundary condition of the respective gradient field in order to read and apply gradients.
 
@@ -247,6 +247,10 @@ interface
 {% experimental %}
 The FF module is still experimental and the boundary conditions presented here have not been rigorously tested.
 {% endexperimental %}
+
+`Alpha` refers to the phase variable used in e.g. the volume of fluid multiphase solver `interFoam`.
+
+When coupling face flux `Phi`, usually no specific boundary condition needs to be set. The coupled boundary values are therefore not persistent and may change within a timestep.
 
 ### Volume coupling
 
@@ -565,6 +569,12 @@ FF
   nameU U;
   // Pressure
   nameP p;
+  // Face flux (phi for most sovlers)
+  namePhi phi;
+  // Temperature
+  nameT T;
+  // Multiphase variable
+  nameAlpha alpha
 }
 ```
 
