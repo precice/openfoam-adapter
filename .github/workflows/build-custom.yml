@@ -220,7 +220,7 @@ jobs:
           wait $PIDfluid
         fi
     - name: Archive logs
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4
       with:
         name: logs
         path: |
@@ -234,7 +234,7 @@ jobs:
           tutorials/partitioned-pipe/fluid1-openfoam-pimplefoam/fluid1-openfoam-pimplefoam.log
           tutorials/partitioned-pipe/fluid2-openfoam-pimplefoam/fluid2-openfoam-pimplefoam.log
     - name: Archive case files
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4
       with:
         name: case-files
         path: |
