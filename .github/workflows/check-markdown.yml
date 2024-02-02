@@ -5,7 +5,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
       - name: Lint markdown files (markdownlint)
         uses: articulate/actions-markdownlint@v1
         with:

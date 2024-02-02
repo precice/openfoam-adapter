@@ -5,7 +5,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
       - name: Check links in markdown files (markdown-link-check)
         uses: gaurav-nelson/github-action-markdown-link-check@v1
         with:
