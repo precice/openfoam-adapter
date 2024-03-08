@@ -12,7 +12,10 @@ merge conflicts and we will merge these files at the time we release a new versi
 
 ## Code formatting
 
-You can format all files with clang-format 11 by running `./tools/format-code.sh`.
+We use `pre-commit` to ensure consistent formatting.
+Please install `pre-commit` and then install the hook in the repo `pre-commit install`.
+This ensures correct formatting for future commits.
+Run `pre-commit run -va` to apply formatting retrospectively.
 
 ## Automatic checks
 
