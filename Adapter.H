@@ -124,9 +124,6 @@ private:
 
     // Timesteps
 
-    //- Timestep dictated by preCICE
-    double timestepPrecice_;
-
     //- Timestep used by the solver
     double timestepSolver_;
 
