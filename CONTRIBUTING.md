@@ -12,8 +12,8 @@ merge conflicts and we will merge these files at the time we release a new versi
 
 ## Code formatting
 
-We use `pre-commit` to ensure consistent formatting.
-Please install `pre-commit` and then install the hook in the repo `pre-commit install`.
+We use [pre-commit](https://pre-commit.com/) to ensure consistent formatting.
+Please install `pre-commit` and then install the hook in this repository with `pre-commit install`.
 This ensures correct formatting for future commits.
 Run `pre-commit run -va` to apply formatting retrospectively.
 
