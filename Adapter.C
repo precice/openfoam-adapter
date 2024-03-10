@@ -548,7 +548,6 @@ void preciceAdapter::Adapter::initialize()
 
     DEBUG(adapterInfo("Initializing preCICE data..."));
     precice_->initialize();
-    timestepPrecice_ = precice_->getMaxTimeStepSize();
     preciceInitialized_ = true;
     ACCUMULATE_TIMER(timeInInitialize_);
 
@@ -587,7 +586,6 @@ void preciceAdapter::Adapter::advance()
 
     SETUP_TIMER();
     precice_->advance(timestepSolver_);
-    timestepPrecice_ = precice_->getMaxTimeStepSize();
     ACCUMULATE_TIMER(timeInAdvance_);
 
     return;
@@ -652,7 +650,7 @@ void preciceAdapter::Adapter::adjustSolverTimeStepAndReadData()
        the same timestep as the one determined by preCICE.
     */
     double tolerance = 1e-14;
-    if (timestepPrecice_ - timestepSolverDetermined > tolerance)
+    if (precice_->getMaxTimeStepSize() - timestepSolverDetermined > tolerance)
     {
         // Add a bool 'subCycling = true' which is checked in the storeMeshPoints() function.
         adapterInfo(
@@ -668,7 +666,7 @@ void preciceAdapter::Adapter::adjustSolverTimeStepAndReadData()
                 "warning");
         }
     }
-    else if (timestepSolverDetermined - timestepPrecice_ > tolerance)
+    else if (timestepSolverDetermined - precice_->getMaxTimeStepSize() > tolerance)
     {
         // In the last time-step, we adjust to dt = 0, but we don't need to trigger the warning here
         if (precice_->isCouplingOngoing())
@@ -676,16 +674,16 @@ void preciceAdapter::Adapter::adjustSolverTimeStepAndReadData()
             adapterInfo(
                 "The solver's timestep cannot be larger than the coupling timestep."
                 " Adjusting from "
-                    + std::to_string(timestepSolverDetermined) + " to " + std::to_string(timestepPrecice_),
+                    + std::to_string(timestepSolverDetermined) + " to " + std::to_string(precice_->getMaxTimeStepSize()),
                 "warning");
         }
-        timestepSolver_ = timestepPrecice_;
+        timestepSolver_ = precice_->getMaxTimeStepSize();
     }
     else
     {
         DEBUG(adapterInfo("The solver's timestep is the same as the "
                           "coupling timestep."));
-        timestepSolver_ = timestepPrecice_;
+        timestepSolver_ = precice_->getMaxTimeStepSize();
     }
 
     // Update the solver's timestep (but don't trigger the adjustDeltaT(),
