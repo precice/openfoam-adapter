@@ -1,0 +1,15 @@
+repos:
+# Official repo for default hooks
+- repo: https://github.com/precice/precice-pre-commit-hooks
+  rev: 'v3.3'
+  hooks:
+  - id: format-precice-config
+  - id: check-image-prefix
+    args: [ --prefix=docs-adapter-openfoam- ]
+- repo: https://github.com/igorshubovych/markdownlint-cli
+  rev: v0.30.0
+  hooks:
+    - id: markdownlint
+      files: "^docs/.*.md"
+    - id: markdownlint-fix
+      files: "^docs/.*.md"
