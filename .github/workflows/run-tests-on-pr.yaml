@@ -1,10 +1,10 @@
 on:
   pull_request_review:
-    types: [submitted]
+    types: [labeled]
 
 jobs:
   testing-approved-pr:
-    if: github.event.review.state == 'APPROVED'
+    if: ${{ github.event.label.name == 'trigger-system-tests' }}
     uses: precice/tutorials/.github/workflows/run_testsuite_workflow.yml@develop
     with:
       suites: openfoam_adapter_pr
