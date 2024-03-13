@@ -3,7 +3,7 @@ on:
     types: [labeled]
 
 jobs:
-  testing-approved-pr:
+  system-tests:
     if: ${{ github.event.label.name == 'trigger-system-tests' }}
     uses: precice/tutorials/.github/workflows/run_testsuite_workflow.yml@develop
     with:
