@@ -249,10 +249,6 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh, const std::str
                 {
                     vertices[verticesIndex++] = faceNodes[i][d];
                 }
-                if (meshConnectivity_)
-                {
-                    verticesMap.emplace(std::make_tuple(faceNodes[i][0], faceNodes[i][1], faceNodes[i][2]), -1);
-                }
             }
         }
 
@@ -261,11 +257,9 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh, const std::str
 
         if (meshConnectivity_)
         {
-            // Build the map between OpenFOAM vertices and preCICE vertex IDs
-            verticesIndex = 0;
-            for (auto& key : verticesMap)
+            for (std::size_t i = 0; i < vertexIDs_.size(); ++i)
             {
-                key.second = vertexIDs_[verticesIndex++];
+                verticesMap.emplace(std::make_tuple(vertices[3 * i], vertices[3 * i + 1], vertices[3 * i + 2]), vertexIDs_[i]);
             }
 
             for (uint j = 0; j < patchIDs_.size(); j++)

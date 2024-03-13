@@ -15,6 +15,7 @@ This preCICE adapter is a plug-in (function object) for OpenFOAM, which can work
 This adapter can read/write the following fields in a surface coupling setup:
 
 - Temperature (read + write)
+- Temperature gradient (read + write)
 - Heat flux (read + write)
 - Sink temperature (read + write)
 - Heat transfer coefficient (read + write)
@@ -26,6 +27,9 @@ This adapter can read/write the following fields in a surface coupling setup:
 - Pressure gradient (read + write)
 - Velocity (read + write)
 - Velocity gradient (read + write)
+- Phase fraction (alpha) (read + write)
+- Phase fraction (alpha) gradient (read + write)
+- Phase flux (phi) (read + write)
 
 In addition, the adapter supports the following fields in a volume coupling setup:
 

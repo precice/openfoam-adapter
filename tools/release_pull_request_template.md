@@ -86,5 +86,6 @@ master <-- OpenFOAM4 <-- OpenFOAM5 <-- OpenFOAM6 <-- OpenFOAM7 <-- ... <-- OpenF
 - [ ] Update external documentation (tutorials, website), e.g., regarding the adapter or OpenFOAM version.
   - [ ] Quickstart
 - [ ] Update the VM provisioning scripts, if needed (e.g., OpenFOAM version)
+- [ ] Update the [Spack package](https://github.com/kjrstory/spack/blob/develop/var/spack/repos/builtin/packages/of-precice/package.py)
 - [ ] Update this release checklist (`tools/release_pull_request_template.md`)
 - [ ] Advertise and celebrate! :tada: :beers:
