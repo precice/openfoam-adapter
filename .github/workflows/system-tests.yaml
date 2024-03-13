@@ -9,7 +9,7 @@ jobs:
     if: ${{ github.event.label.name == 'trigger-system-tests' }}
     runs-on: ubuntu-latest
     outputs:
-      output_refprecice: ${{ steps.refprecice.outputs.shorthash }}
+      refprecice: ${{ steps.refprecice.outputs.shorthash }}
     steps:
       - id: refprecice
         uses: nmbgeek/github-action-get-latest-commit@main
@@ -25,7 +25,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - run: |
-          echo "${{ needs.gather-refs.output_refprecice }}" >> $GITHUB_OUTPUT
+          echo "${{ needs.gather-refs.outputs.refprecice }}" >> $GITHUB_OUTPUT
 
   trigger-system-tests:
     if: ${{ github.event.label.name == 'trigger-system-tests' }}
@@ -33,6 +33,6 @@ jobs:
     uses: precice/tutorials/.github/workflows/run_testsuite_workflow.yml@develop
     with:
       suites: openfoam_adapter_pr
-      build_args: TUTORIALS_REF:develop,PRECICE_REF:${{ needs.gather-refs.output_refprecice }},OPENFOAM_EXECUTABLE:openfoam2306,OPENFOAM_ADAPTER_REF:${{ github.event.pull_request.head.sha }}
+      build_args: TUTORIALS_REF:develop,PRECICE_REF:${{ needs.gather-refs.outputs.refprecice }},OPENFOAM_EXECUTABLE:openfoam2306,OPENFOAM_ADAPTER_REF:${{ github.event.pull_request.head.sha }}
       systests_branch: develop
       loglevel: "DEBUG"
