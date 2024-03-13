@@ -18,7 +18,7 @@ jobs:
           repo: tutorials
           branch: develop
 
-  trigger-system-tests:
+  run-system-tests:
     if: ${{ github.event.label.name == 'trigger-system-tests' }}
     needs: gather-refs
     uses: precice/tutorials/.github/workflows/run_testsuite_workflow.yml@develop
