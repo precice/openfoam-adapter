@@ -1,5 +1,5 @@
 on:
-  pull_request_review:
+  pull_request:
     types: [labeled]
 
 jobs:
