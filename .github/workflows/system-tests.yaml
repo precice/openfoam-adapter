@@ -1,3 +1,5 @@
+name: System tests
+
 on:
   pull_request:
     types: [labeled]
