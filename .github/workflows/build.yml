@@ -28,7 +28,7 @@ jobs:
     - name: Install action dependencies
       run: |
         apt-get update -qq
-        apt-get install -qq sudo
+        apt-get install -qq sudo wget
     - name: Setup caches
       uses: actions/cache@v4
       id: cache-id
