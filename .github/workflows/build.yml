@@ -1,4 +1,4 @@
-name: Build with OpenFOAM v2306
+name: Build with OpenFOAM v2312
 on:
   push:
     branches-ignore:
@@ -43,4 +43,4 @@ jobs:
       with:
         precice-version: develop
     - name: Build OpenFOAM-preCICE adapter
-      run: /usr/bin/openfoam2306 ./Allwmake
+      run: /usr/bin/openfoam2312 ./Allwmake
