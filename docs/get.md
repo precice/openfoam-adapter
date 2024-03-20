@@ -8,13 +8,17 @@ summary: "Get the code from GitHub and run ./Allwmake. If this fails, look into 
 To build the adapter, you need to install a few dependencies and then execute the `Allwmake` script.
 
 1. Install [a compatible OpenFOAM distribution](https://precice.org/adapter-openfoam-support.html).
-2. Install [preCICE](https://precice.org/installation-overview.html).
+2. Install [preCICE v3](https://precice.org/installation-overview.html).
+    * In case you need preCICE v2, please install an older version of the adapter ([v1.2.3](https://github.com/precice/openfoam-adapter/releases/tag/v1.2.3) was the last release to support preCICE v2).
 3. [Download the latest release](https://github.com/precice/openfoam-adapter/releases/latest) for your OpenFOAM version.
 4. Execute the build script: `./Allwmake`.
     * See and adjust the configuration in the beginning of the script first, if needed.
     * Check for any error messages and suggestions at the end.
 
 The adapter also requires [pkg-config](https://linux.die.net/man/1/pkg-config) to [link to preCICE](https://precice.org/installation-linking.html). This is a very common dependency on Linux and is usually already installed.
+
+You can set compile flags by either changing the `ADAPTER_PREP_FLAGS` variable in the `Allwmake` script, or directly setting the value of `ADAPTER_PREP_FLAGS`  as an environment variable.
+To do so, `export ADAPTER_PREP_FLAGS="-D<desired> -D<options>"` before compiling the adapter.
 
 Adding the `-DADAPTER_DEBUG_MODE` flag to the `ADAPTER_PREP_FLAGS` activates additional debug messages. You may also change the target directory or specify the number of threads to use for the compilation. See the comments in `Allwmake` for more.
 
@@ -96,3 +100,14 @@ This is a common problem e.g. when installing dependencies in non-system directo
 ### Rellocation-related errors
 
 Make sure to build both preCICE as a shared library (i.e. `.so`, not `.a`).
+
+### Undefined symbols from FFTW
+
+When building the adapter, it may fail to at the very end, reporting the following in the `ldd.log`:
+
+```text
+undefined symbol: fftw_taint    (/lib/x86_64-linux-gnu/libfftw3_mpi.so.3)
+undefined symbol: fftw_join_taint    (/lib/x86_64-linux-gnu/libfftw3_mpi.so.3)
+```
+
+This seems to always be related to building OpenFOAM from source, while also already having FFTW (an OpenFOAM dependency) installed. Removing FFTW from the `ThirdParty` directory of the OpenFOAM source code, and running `Allwmake` in OpenFOAM (and then also in the adapter) should help. This should also be very fast, as it will only relink, not rebuild.

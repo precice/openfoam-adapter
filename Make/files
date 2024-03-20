@@ -4,26 +4,9 @@ Interface.C
 
 CouplingDataUser.C
 
-CHT/Temperature.C
-CHT/KappaEffective.C
-CHT/HeatFlux.C
-CHT/HeatTransferCoefficient.C
-CHT/SinkTemperature.C
-
-CHT/CHT.C
-
-FSI/FSI.C
-FSI/ForceBase.C
-FSI/Force.C
-FSI/Stress.C
-FSI/Displacement.C
-FSI/DisplacementDelta.C
-
-FF/FF.C
-FF/Velocity.C
-FF/VelocityGradient.C
-FF/Pressure.C
-FF/PressureGradient.C
+CHT/ModuleCHT.C
+FSI/ModuleFSI.C
+FF/ModuleFF.C
 
 Adapter.C
 

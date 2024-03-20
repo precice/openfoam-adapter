@@ -12,7 +12,10 @@ merge conflicts and we will merge these files at the time we release a new versi
 
 ## Code formatting
 
-You can format all files with clang-format 11 by running `./tools/format-code.sh`.
+We use [pre-commit](https://pre-commit.com/) to ensure consistent formatting.
+Please install `pre-commit` and then install the hook in this repository with `pre-commit install`.
+This ensures correct formatting for future commits.
+Run `pre-commit run -va` to apply formatting retrospectively.
 
 ## Automatic checks
 
@@ -24,3 +27,13 @@ There are also a few additional workflows that can be triggered manually:
 - `Check links`: checks the links in all markdown files to verify if they are still reachable.
 
 Members of the repository can trigger these workflows in the "Actions" tab.
+
+## System tests
+
+For non-trivial pull requests, we also need to execute [system regression tests](https://precice.org/dev-docs-system-tests.html),
+to ensure that complete simulations still run and give the same results.
+Because these take long, run on an external system, and consume significant resources,
+we are only triggering these on demand. Add (or ask a maintainer to add) the
+`trigger-system-tests` label to the pull request to trigger them.
+The tests will only run once, so that further commits don't consume additional
+resources: In case you want to re-trigger them, remove and add the label again.

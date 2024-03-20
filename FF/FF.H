@@ -5,8 +5,13 @@
 
 #include "FF/Velocity.H"
 #include "FF/Pressure.H"
+#include "FF/Temperature.H"
+#include "FF/Alpha.H"
 #include "FF/PressureGradient.H"
 #include "FF/VelocityGradient.H"
+#include "FF/TemperatureGradient.H"
+#include "FF/AlphaGradient.H"
+#include "FF/Phi.H"
 
 #include "fvCFD.H"
 
@@ -32,6 +37,18 @@ protected:
 
     //- Name of the pressure field
     std::string nameP_ = "p";
+
+    //- Name of the temperature field
+    std::string nameT_ = "T";
+
+    //- Name of the phase variable (alpha) field
+    std::string nameAlpha_ = "alpha";
+
+    //- Name of the face flux field
+    std::string namePhi_ = "phi";
+
+    //- Flux correction of velocity
+    bool fluxCorrection_ = false;
 
     //- Determine the solver type
     std::string determineSolverType();

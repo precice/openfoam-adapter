@@ -13,7 +13,8 @@ enum class LocationType
 {
     none,
     faceCenters,
-    faceNodes
+    faceNodes,
+    volumeCenters
 };
 
 class CouplingDataUser
@@ -32,8 +33,11 @@ protected:
     //- OpenFOAM patches that form the interface
     std::vector<int> patchIDs_;
 
-    //- preCICE data ID
-    int dataID_;
+    //- Names of the OpenFOAM cell sets to be coupled (for volume coupling)
+    std::vector<std::string> cellSetNames_;
+
+    //- data name
+    std::string dataName_;
 
     //- location type of the interface
     LocationType locationType_ = LocationType::none;
@@ -48,14 +52,17 @@ public:
     //- Returns true if the data are vector
     bool hasVectorData();
 
-    //- Set the preCICE data ID
-    void setDataID(int dataID);
+    //- Set the data name
+    void setDataName(std::string dataName);
 
-    //- Get the preCICE data ID
-    int dataID();
+    //- Get the data name
+    const std::string& dataName();
 
     //- Set the patch IDs that form the interface
     void setPatchIDs(std::vector<int> patchIDs);
+
+    //- Set the cellSetNames that form the overlapping cells of the interface
+    void setCellSetNames(std::vector<std::string> cellSetNames);
 
     //- Set the locations type of the interface
     void setLocationsType(LocationType locationsType);
@@ -67,7 +74,8 @@ public:
     virtual void initialize();
 
     //- Write the coupling data to the buffer
-    virtual void write(double* dataBuffer, bool meshConnectivity, const unsigned int dim) = 0;
+    // Returns the number of entries that were filles in the buffer (nComp * vertices)
+    virtual std::size_t write(double* dataBuffer, bool meshConnectivity, const unsigned int dim) = 0;
 
     //- Read the coupling data from the buffer
     virtual void read(double* dataBuffer, const unsigned int dim) = 0;

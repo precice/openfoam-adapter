@@ -14,7 +14,7 @@ preciceAdapter::CHT::SinkTemperature::SinkTemperature(
     dataType_ = scalar;
 }
 
-void preciceAdapter::CHT::SinkTemperature::write(double* buffer, bool meshConnectivity, const unsigned int dim)
+std::size_t preciceAdapter::CHT::SinkTemperature::write(double* buffer, bool meshConnectivity, const unsigned int dim)
 {
     int bufferIndex = 0;
 
@@ -63,6 +63,7 @@ void preciceAdapter::CHT::SinkTemperature::write(double* buffer, bool meshConnec
         // Clear the temporary internal field object
         patchInternalFieldTmp.clear();
     }
+    return bufferIndex;
 }
 
 void preciceAdapter::CHT::SinkTemperature::read(double* buffer, const unsigned int dim)
@@ -101,7 +102,7 @@ bool preciceAdapter::CHT::SinkTemperature::isLocationTypeSupported(const bool me
     // always return true and offload the handling to the user.
     if (meshConnectivity)
     {
-        return true;
+        return (this->locationType_ == LocationType::faceCenters || this->locationType_ == LocationType::faceNodes); // we currently do not support meshConnectivity for volumeCenters
     }
     else
     {

@@ -69,7 +69,11 @@ The `patches` specifies a list of the names of the OpenFOAM boundary patches tha
 participating in the coupled simulation. These need to be defined in the files
 included in the `0/` directory. The names of the interfaces (e.g., `Interface1`) are arbitrary and are not used.
 
-The `locations` field is optional and its default value is `faceCenters` (with `faceCentres` also accepted), signifying that the interface mesh is defined on the cell face centers. The alternative option is `faceNodes`, which defines the mesh on the face nodes and is needed, e.g., for reading displacements in an FSI scenario.
+The `locations` field is optional and its default value is `faceCenters` (with `faceCentres` also accepted), signifying that the interface mesh is defined on the cell face centers. An alternative option is `faceNodes`, which defines the mesh on the face nodes and is needed, e.g., for reading displacements in an FSI scenario.
+The final type is `volumeCenters` (alternatively `volumeCentres`), which allows the user to couple over a volume using the cell centers of the domain. The user can also specify patches, which will be coupled additionally to the cells using the `faceCenters` mesh.
+The `volumeCenters` location is currently implemented for fluid-fluid coupling (`Pressure` and `Velocity`) and conjugate heat transfer (`Temperature`).
+
+The `cellSets` field can be used to specify one or multiple coupling regions (defined by OpenFOAM `cellSets`) for volume coupling. The field can only be used with the `volumeCenters` location and it is optional. If no `cellSets` are specified, the full domain will be coupled.
 
 The values for `readData` and `writeData`
 for conjugate heat transfer
@@ -213,14 +217,133 @@ solver              displacementLaplacian;
 
 #### FF
 
-The fluid-fluid coupling module supports reading and writing `Pressure`, `Velocity`, `PressureGradient`, and `VelocityGradient`.
+The fluid-fluid coupling module supports reading and writing `Pressure`, `Velocity`, `PressureGradient`, `VelocityGradient`, `FlowTemperature`, `FlowTemperatureGradient`, `Alpha`, `AlphaGradient` and the face flux `Phi`.
 
 Similarly to the CHT module, you need a `fixedValue` boundary condition of the respective primary field in order to read and apply values, and a `fixedGradient` boundary condition of the respective gradient field in order to read and apply gradients.
 
+Alternatively, the adapter also ships custom boundary conditions for pressure (`coupledPressure`) and velocity (`coupledVelocity`). These boundary conditions can be set on both sides of the coupling interface and can handle fluid flow in either direction. An initial `refValue` must be supplied to ensure convergence in the first time step. The adapter will overwrite the value afterwards.
+If the OpenFOAM fields `phi` and `U` are given different names, they should be supplied to the boundary conditions as well.
+The coupled boundary conditions act similar to the [`inletOutlet`](https://www.openfoam.com/documentation/guides/v2112/doc/guide-bcs-outlet-inlet-outlet.html) boundary conditions from OpenFOAM. However, the pressure gradient is calculated by OpenFOAM as for the [`fixedFluxExtrapolatedPressure`](https://www.openfoam.com/documentation/guides/v2112/api/classFoam_1_1fixedFluxExtrapolatedPressureFvPatchScalarField.html) boundary condition and thus no coupling of `PressureGradient` is required when using `coupledPressure`.
+
+```c++
+// File 0/U
+interface
+{
+    type            coupledVelocity;
+    refvalue        uniform (0 0 0);
+    // phi            phiName
+}
+
+// File 0/p
+interface
+{
+    type            coupledPressure;
+    refValue        $internalField;
+    // phi            phiName
+    // U              UName
+}
+```
+
 {% experimental %}
 The FF module is still experimental and the boundary conditions presented here have not been rigorously tested.
-We already have reasons to believe that a `fixedGradient` can have [side-effects](https://github.com/precice/openfoam-adapter/issues/93) and may not lead to completely accurate results.
 {% endexperimental %}
+
+`Alpha` refers to the phase variable used in e.g. the volume of fluid multiphase solver `interFoam`.
+
+When coupling face flux `Phi`, usually no specific boundary condition needs to be set. The coupled boundary values are therefore not persistent and may change within a timestep.
+
+### Volume coupling
+
+Besides surface coupling on the domain boundaries, the OpenFOAM adapter also supports coupling overlapping domains, which can be the complete domain, or regions of it. In contrast to surface coupling, though, reading volume data (source terms) requires a few additional configuration steps compared to writing data.
+
+In order to write volume data, it is enough to specify `volumeCenters` for the `locations` field. This will couple the whole internal field of the domain. Patches can be specified additionally, for surface coupling, or the list of patch names can be left empty.
+
+In order to read volume data (enforce source terms), it is necessary to use the [finite volume options](https://www.openfoam.com/documentation/guides/latest/doc/guide-fvoptions.html) (`fvOptions`) feature of OpenFOAM. Without this additional configuration, the values read in OpenFOAM in each time step would later be overwritten by OpenFOAM.
+The `fvOptions` construct provides many different options for sources, but the [coded sources](https://www.openfoam.com/documentation/guides/latest/doc/guide-fvoptions-sources-coded.html) is a convenient way to describe source terms in configuration.
+
+Using a `codedSource` for reading fields and enforcing source terms in OpenFOAM would currently only work for `Velocity`. The adapter internally stores the received data in a separate velocity field, which the source term defined in OpenFOAM uses to update its own velocity field. For this reason, it is necessary to specify an alternative name for `U` in `preciceDict` when reading velocity in a volume-coupled scenario:
+
+```c++
+FF
+{
+  nameU       U_vol;
+};
+```
+
+This essentially means two velocity variables are used: `U_vol` is the coupled velocity the adapter uses to carry over the desired value to OpenFOAM, and `U` is the variable OpenFOAM uses for its own velocity. In the `codedSource` you can explicitly set `U` to be equal to `U_vol`. Example from the [volume-coupled flow](https://precice.org/tutorials-volume-coupled-flow.html) tutorial:
+
+```c++
+// File constant/fvOptions
+
+codedSource
+{
+    type            vectorCodedSource;
+    selectionMode   cellSet;
+    cellSet         box1;
+
+    fields          (U);
+    name            sourceTime;
+
+    codeConstrain //constrain
+    #{
+        return;
+    #};
+
+    codeCorrect //correct
+    #{
+        const labelList& cells = this->cells();
+        const volVectorField& U_vol = mesh_.lookupObject<volVectorField>("U_vol");
+        for(auto cell : cells)
+        {
+            fld[cell].x() = U_vol[cell].x();
+        }
+    #};
+
+    codeAddSup // source term
+    #{
+        return;
+    #};
+
+    codeAddSupRho
+    #{
+        return;
+    #};
+}
+```
+
+{% experimental %}
+Reading volume-coupled variables in OpenFOAM is still experimental. This section simply contains suggestions about issues we have encountered and what has been found to work.
+{% endexperimental %}
+
+#### Volume coupling over a domain region
+
+For reading values only over a region of the domain, we use the OpenFOAM [`cellSet` class](https://www.openfoam.com/documentation/guides/latest/api/classFoam_1_1cellSet.html) to define one or multiple volume coupling regions. You can define one or multiple `cellSets` in the `system/topoSetDict`:
+
+```C++
+actions
+(
+    {
+        name    box1;
+        type    cellSet;
+        action  new;
+        source  boxToCell;
+        box     (3.0 1.0 0.0) (3.5 1.5 1.0);
+    }
+);
+```
+
+Additionally, list the `cellSets` you want to couple in the `preciceDict`:
+
+```C++
+Interface1
+{
+  ...
+  cellSets          (box1);
+  locations         volumeCenters;
+}
+```
+
+Before running the solver, and after preparing the mesh, execute [topoSet](https://www.openfoam.com/documentation/guides/latest/man/topoSet.html) to construct the overlapping region.
 
 ### Load the adapter
 
@@ -228,21 +351,21 @@ To load this adapter, you must include the following in
 the `system/controlDict` configuration file of the case:
 
 ```c++
+libs ("libpreciceAdapterFunctionObject.so");
 functions
 {
     preCICE_Adapter
     {
         type preciceAdapterFunctionObject;
-        libs ("libpreciceAdapterFunctionObject.so");
     }
 }
 ```
 
 This directs the solver to use the `preciceAdapterFunctionObject` function object,
 which is part of the `libpreciceAdapterFunctionObject.so` shared library.
-The name `preCICE_Adapter` can be arbitrary.
+The name `preCICE_Adapter` can be arbitrary. It is important that the library is loaded outside the `functions` dictionary when you want to use the custom boundary conditions that we provide with the FF module.
 
-If you are using other function objects in your simulation, add the preCICE adapter to the end of the list. The adapter will then be executed last, which is important, as the adapter also controls the end of the simulation. When the end of the simulation is detected, the adapter also triggers the `end()` method method of all function objects.
+If you are using other function objects in your simulation, add the preCICE adapter to the end of the list. The adapter will then be executed last, which is important, as the adapter also controls the end of the simulation. When the end of the simulation is detected, the adapter also triggers the `end()` method of all function objects.
 
 ***
 
@@ -343,6 +466,19 @@ rho             rho [1 -3 0 0 0 0 0] 1;
 
 Notice that here, in contrast to the `CHT` subdict, we need to provide both the keyword (first `nu`) and the word name (second `nu`). We are working on bringing consistency on this.
 
+#### Fluid-fluid coupling
+
+The FF module provides an option to correct the written velocity values for the face flux values `phi`. This may provide better mass consistency across the coupling interface when the used mesh is skewed. By default, this option is turned off.
+
+```c++
+FF
+{
+  fluxCorrection    true;
+  namePhi           phi;
+}
+
+```
+
 ### Additional parameters in the adapter's configuration file
 
 Some optional parameters can allow the adapter to work with more solvers, whose type is not determined automatically, their fields have different names, or they do not work well with some features of the adapter.
@@ -433,6 +569,12 @@ FF
   nameU U;
   // Pressure
   nameP p;
+  // Face flux (phi for most sovlers)
+  namePhi phi;
+  // Temperature
+  nameT T;
+  // Multiphase variable
+  nameAlpha alpha
 }
 ```
 

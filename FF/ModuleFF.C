@@ -1,0 +1,13 @@
+// Central inlude file to reduce the number of build targets and build time
+#include "FF.C"
+#include "Velocity.C"
+#include "VelocityGradient.C"
+#include "Pressure.C"
+#include "PressureGradient.C"
+#include "Temperature.C"
+#include "TemperatureGradient.C"
+#include "Alpha.C"
+#include "AlphaGradient.C"
+#include "Phi.C"
+#include "BoundaryConditions/coupledPressure/coupledPressureFvPatchField.C"
+#include "BoundaryConditions/coupledVelocity/coupledVelocityFvPatchField.C"

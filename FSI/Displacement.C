@@ -36,7 +36,7 @@ void preciceAdapter::FSI::Displacement::initialize()
 }
 
 
-void preciceAdapter::FSI::Displacement::write(double* buffer, bool meshConnectivity, const unsigned int dim)
+std::size_t preciceAdapter::FSI::Displacement::write(double* buffer, bool meshConnectivity, const unsigned int dim)
 {
     /* TODO: Implement
      * We need two nested for-loops for each patch,
@@ -46,9 +46,9 @@ void preciceAdapter::FSI::Displacement::write(double* buffer, bool meshConnectiv
 
     // Copy the displacement field from OpenFOAM to the buffer
 
+    int bufferIndex = 0;
     if (this->locationType_ == LocationType::faceCenters)
     {
-        int bufferIndex = 0;
         // For every boundary patch of the interface
         for (const label patchID : patchIDs_)
         {
@@ -70,7 +70,6 @@ void preciceAdapter::FSI::Displacement::write(double* buffer, bool meshConnectiv
             "See https://github.com/precice/openfoam-adapter/issues/153.",
             "warning"));
 
-        int bufferIndex = 0;
         // For every boundary patch of the interface
         for (const label patchID : patchIDs_)
         {
@@ -87,6 +86,7 @@ void preciceAdapter::FSI::Displacement::write(double* buffer, bool meshConnectiv
             }
         }
     }
+    return bufferIndex;
 }
 
 

@@ -6,11 +6,11 @@ set -e -u
 # Optional: Preprocessor flags
 # "-DADAPTER_DEBUG_MODE" enables debug messages
 # "-DADAPTER_ENABLE_TIMINGS" enables time measurements
-ADAPTER_PREP_FLAGS=""
+ADAPTER_PREP_FLAGS="${ADAPTER_PREP_FLAGS:-}"
 
 # Build command and options
 # In order to compile with multiple threads, set the environment variable WM_NCOMPPROCS,
-# e.g., add "export WM_NCOMP_PROCS=4" to your ~/.bashrc
+# e.g., add "export WM_NCOMPPROCS=4" to your ~/.bashrc
 # Make sure that these options are supported by your OpenFOAM version.
 adapter_build_command(){
     wmake libso

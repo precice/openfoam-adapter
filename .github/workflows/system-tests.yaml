@@ -1,0 +1,29 @@
+name: System tests
+
+on:
+  pull_request:
+    types: [labeled]
+
+jobs:
+  gather-refs:
+    if: ${{ github.event.label.name == 'trigger-system-tests' }}
+    runs-on: ubuntu-latest
+    outputs:
+      reftutorials: ${{ steps.reftutorials.outputs.shorthash }}
+    steps:
+      - id: reftutorials
+        uses: nmbgeek/github-action-get-latest-commit@main
+        with:
+          owner: precice
+          repo: tutorials
+          branch: develop
+
+  run-system-tests:
+    if: ${{ github.event.label.name == 'trigger-system-tests' }}
+    needs: gather-refs
+    uses: precice/tutorials/.github/workflows/run_testsuite_workflow.yml@develop
+    with:
+      suites: openfoam_adapter_pr
+      build_args: TUTORIALS_REF:${{ needs.gather-refs.outputs.reftutorials }},PRECICE_REF:v3.0.0,OPENFOAM_EXECUTABLE:openfoam2312,OPENFOAM_ADAPTER_REF:${{ github.event.pull_request.head.sha }}
+      systests_branch: develop
+      loglevel: "DEBUG"
