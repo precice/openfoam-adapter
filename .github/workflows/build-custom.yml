@@ -37,7 +37,7 @@ on:
           - OpenFOAM5
       versionpreCICE:
         description: 'Version of preCICE to build with'
-        default: '2.5.0'
+        default: '3.0.0'
         required: true
       runTutorialHeatedPlate:
         description: Run tutorial flow-over-heated-plate
@@ -161,20 +161,9 @@ jobs:
             exit 1;;
         esac
     - name: Install preCICE (no cache)
-      run: |
-          if [ "${{ github.event.inputs.virtualEnvironment }}" == "ubuntu-22.04" ]
-          then
-            wget "https://github.com/precice/precice/releases/download/v${{ github.event.inputs.versionpreCICE }}/libprecice2_${{ github.event.inputs.versionpreCICE }}_jammy.deb"
-            sudo apt install "./libprecice2_${{ github.event.inputs.versionpreCICE }}_jammy.deb"
-          elif [ "${{ github.event.inputs.virtualEnvironment }}" == "ubuntu-20.04" ]
-          then
-            wget "https://github.com/precice/precice/releases/download/v${{ github.event.inputs.versionpreCICE }}/libprecice2_${{ github.event.inputs.versionpreCICE }}_focal.deb"
-            sudo apt install "./libprecice2_${{ github.event.inputs.versionpreCICE }}_focal.deb"
-          elif [ "${{ github.event.inputs.virtualEnvironment }}" == "ubuntu-18.04" ]
-          then
-            wget "https://github.com/precice/precice/releases/download/v${{ github.event.inputs.versionpreCICE }}/libprecice2_${{ github.event.inputs.versionpreCICE }}_bionic.deb"
-            sudo apt install "./libprecice2_${{ github.event.inputs.versionpreCICE }}_bionic.deb"
-          fi
+      uses: precice/setup-precice-action@main
+      with:
+        precice-version: ${{ github.event.inputs.versionpreCICE }}
     - name: Build OpenFOAM-preCICE adapter
       run: |
           ${{steps.installOpenFOAM.outputs.openfoam_exec}} ./Allwmake
