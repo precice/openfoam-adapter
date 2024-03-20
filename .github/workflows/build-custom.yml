@@ -165,11 +165,9 @@ jobs:
             exit 1;;
         esac
     - name: Build OpenFOAM-preCICE adapter
-      env:
-        OPENFOAM_EXEC: ${{steps.installOpenFOAM.outputs.openfoam_exec}}
       run: |
-          echo "OpenFOAM environment: $OPENFOAM_EXEC"
-          $OPENFOAM_EXEC ./Allwmake
+          echo "OpenFOAM environment: ${{steps.installOpenFOAM.outputs.openfoam_exec}}"
+          ${{steps.installOpenFOAM.outputs.openfoam_exec}} ./Allwmake
     - name: Get tutorials
       run: |
         git clone https://github.com/precice/tutorials.git --branch ${{ github.event.inputs.branchTutorials }} --depth 1
