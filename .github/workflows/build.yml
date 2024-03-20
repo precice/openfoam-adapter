@@ -1,4 +1,4 @@
-name: Build with OpenFOAM v2306
+name: Build with OpenFOAM v2312
 on:
   push:
     branches-ignore:
@@ -21,9 +21,14 @@ on:
 jobs:
   build:
     runs-on: ubuntu-22.04
+    container: precice/precice:nightly
     steps:
     - name: Check out repository
       uses: actions/checkout@v4
+    - name: Install action dependencies
+      run: |
+        apt-get update -qq
+        apt-get install -qq sudo wget
     - name: Setup caches
       uses: actions/cache@v4
       id: cache-id
@@ -38,9 +43,5 @@ jobs:
         cache: ${{ runner.temp }}/cache-directory
         snapshot: '/'
         exclude: '/boot /data /dev /mnt /proc /run /sys'
-    - name: Install preCICE
-      uses: precice/setup-precice-action@main
-      with:
-        precice-version: develop
     - name: Build OpenFOAM-preCICE adapter
-      run: /usr/bin/openfoam2306 ./Allwmake
+      run: /usr/bin/openfoam2312 ./Allwmake
