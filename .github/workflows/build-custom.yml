@@ -20,6 +20,7 @@ on:
         required: true
         type: choice
         options:
+          - OpenFOAMv2312
           - OpenFOAMv2306
           - OpenFOAMv2212
           - OpenFOAMv2206
@@ -36,7 +37,7 @@ on:
           - OpenFOAM5
       versionpreCICE:
         description: 'Version of preCICE to build with'
-        default: '2.5.0'
+        default: 'v3.0.0'
         required: true
       runTutorialHeatedPlate:
         description: Run tutorial flow-over-heated-plate
@@ -77,10 +78,18 @@ jobs:
       uses: actions/checkout@v4
       with:
         ref: ${{ github.event.inputs.refAdapter }}
+    - name: Install preCICE (no cache)
+      uses: precice/setup-precice-action@main
+      with:
+        precice-version: ${{ github.event.inputs.versionpreCICE }}
     - name: Install OpenFOAM (no cache)
       id: installOpenFOAM
       run: |
         case "${{ github.event.inputs.versionOpenFOAM }}" in
+          OpenFOAMv2312)
+            wget -q -O - https://dl.openfoam.com/add-debian-repo.sh | sudo bash
+            sudo apt-get install openfoam2312-dev
+            echo "{openfoam_exec}={/usr/bin/openfoam2312}" >> $GITHUB_OUTPUT;;
           OpenFOAMv2306)
             wget -q -O - https://dl.openfoam.com/add-debian-repo.sh | sudo bash
             sudo apt-get install openfoam2306-dev
@@ -155,23 +164,15 @@ jobs:
             echo "I cannot find ${{ github.event.inputs.refAdapter }} in my known options."
             exit 1;;
         esac
-    - name: Install preCICE (no cache)
+    - name: Sanity check
       run: |
-          if [ "${{ github.event.inputs.virtualEnvironment }}" == "ubuntu-22.04" ]
-          then
-            wget "https://github.com/precice/precice/releases/download/v${{ github.event.inputs.versionpreCICE }}/libprecice2_${{ github.event.inputs.versionpreCICE }}_jammy.deb"
-            sudo apt install "./libprecice2_${{ github.event.inputs.versionpreCICE }}_jammy.deb"
-          elif [ "${{ github.event.inputs.virtualEnvironment }}" == "ubuntu-20.04" ]
-          then
-            wget "https://github.com/precice/precice/releases/download/v${{ github.event.inputs.versionpreCICE }}/libprecice2_${{ github.event.inputs.versionpreCICE }}_focal.deb"
-            sudo apt install "./libprecice2_${{ github.event.inputs.versionpreCICE }}_focal.deb"
-          elif [ "${{ github.event.inputs.virtualEnvironment }}" == "ubuntu-18.04" ]
-          then
-            wget "https://github.com/precice/precice/releases/download/v${{ github.event.inputs.versionpreCICE }}/libprecice2_${{ github.event.inputs.versionpreCICE }}_bionic.deb"
-            sudo apt install "./libprecice2_${{ github.event.inputs.versionpreCICE }}_bionic.deb"
-          fi
+        ls /usr/bin/openfoam* || echo "No /usr/bin/openfoam* directories."
+        ls /opt/openfoam* || echo "No /opt/openfoam* directories."
+        echo "GitHub Actions step output openfoam_exec:"
+        echo ${{steps.installOpenFOAM.outputs.openfoam_exec}}
     - name: Build OpenFOAM-preCICE adapter
       run: |
+          echo "OpenFOAM environment: ${{steps.installOpenFOAM.outputs.openfoam_exec}}"
           ${{steps.installOpenFOAM.outputs.openfoam_exec}} ./Allwmake
     - name: Get tutorials
       run: |

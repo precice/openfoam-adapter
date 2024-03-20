@@ -1,4 +1,4 @@
-name: Check code style
+name: Pre-commit hook checks
 on:
   push:
     branches:
