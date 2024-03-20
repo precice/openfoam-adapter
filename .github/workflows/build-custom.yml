@@ -37,7 +37,7 @@ on:
           - OpenFOAM5
       versionpreCICE:
         description: 'Version of preCICE to build with'
-        default: '3.0.0'
+        default: 'v3.0.0'
         required: true
       runTutorialHeatedPlate:
         description: Run tutorial flow-over-heated-plate
@@ -81,7 +81,7 @@ jobs:
     - name: Install preCICE (no cache)
       uses: precice/setup-precice-action@main
       with:
-        precice-version: v${{ github.event.inputs.versionpreCICE }}
+        precice-version: ${{ github.event.inputs.versionpreCICE }}
     - name: Install OpenFOAM (no cache)
       id: installOpenFOAM
       run: |
