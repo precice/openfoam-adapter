@@ -8,7 +8,7 @@ Read more details in the issue [#52: Releases and versioning](https://github.com
 
 <!-- markdownlint-configure-file {"MD024": { "siblings_only": true } } -->
 
-## [v1.3.0] 2024-02-09
+## [v1.3.0] 2024-03-20
 
 ### Added
 
@@ -16,19 +16,20 @@ Read more details in the issue [#52: Releases and versioning](https://github.com
 - Added volume coupling over one or multiple domain regions specified by OpenFOAM cellSets (for Pressure and Velocity (FF) and Temperature (FF))[#270](https://github.com/precice/openfoam-adapter/pull/270).
 - Added phase variable and flux coupling for interFOAM in the FF module [#308](https://github.com/precice/openfoam-adapter/pull/308).
 - Added custom inletOutlet boundary conditions for pressure and velocity to the FF module [#281](https://github.com/precice/openfoam-adapter/pull/281).
-- Temperature and temperature gradient as coupling data to the FF module [#281](https://github.com/precice/openfoam-adapter/pull/281).
+- Added temperature and temperature gradient as coupling data to the FF module [#281](https://github.com/precice/openfoam-adapter/pull/281).
 - Added option to write velocity that is corrected by the face flux `phi` [#281](https://github.com/precice/openfoam-adapter/pull/281).
+- Added a pre-commit hook to check formatting and linting of various aspects [#321](https://github.com/precice/openfoam-adapter/pull/321).
+- Added a workflow for triggering system regression tests [#309](https://github.com/precice/openfoam-adapter/pull/309).
 - Added citing guidelines, referring to the [new reference article at the OpenFOAM Journal](https://doi.org/10.51560/ofj.v3.88). [#287](https://github.com/precice/openfoam-adapter/pull/287)
 
 ### Changed
 
-- Ported the adapter to preCICE v3. The adapter is not compatible with v2 anymore. [#285](https://github.com/precice/openfoam-adapter/pull/285).
-- Changed the default OpenFOAM version to v2306 in the documentation and CI
+- Changed the preCICE dependency version to v3. The adapter is not compatible with v2 anymore. [#285](https://github.com/precice/openfoam-adapter/pull/285).
+- Changed the default OpenFOAM version to v2312 in the documentation and CI. [#325](https://github.com/precice/openfoam-adapter/pull/325).
 - Changed the way mesh connectivity (face triangles) are provided to preCICE, adapting to preCICE v3 [#297](https://github.com/precice/openfoam-adapter/pull/297).
-- Merged `initializeData` into `initialize` [#262](https://github.com/precice/openfoam-adapter/pull/262).
 - Renamed the `adjustSolverTimeStep()` method to `adjustSolverTimeStepAndReadData()`, changing the behavior to always read data at the determined time step size [#298](https://github.com/precice/openfoam-adapter/pull/298).
-- The Build CI workflow now relies on the setup-precice-action to install preCICE [#299](https://github.com/precice/openfoam-adapter/pull/299).
-- Reduced building time by grouping together compilation units of each module [#301](https://github.com/precice/openfoam-adapter/pull/301).
+- Changed the build CI workflow to use the setup-precice-action to install preCICE [#299](https://github.com/precice/openfoam-adapter/pull/299).
+- Improved building time by grouping together compilation units of each module [#301](https://github.com/precice/openfoam-adapter/pull/301).
 
 ## [v1.2.3] 2023-06-14
 
