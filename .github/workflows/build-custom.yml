@@ -166,8 +166,9 @@ jobs:
         esac
     - name: Sanity check
       run: |
-        ls /usr/bin/openfoam*
-        ls /opt/openfoam*
+        ls /usr/bin/openfoam* || echo "No /usr/bin/openfoam* directories."
+        ls /opt/openfoam* || echo "No /opt/openfoam* directories."
+        echo "GitHub Actions step output openfoam_exec:"
         echo ${{steps.installOpenFOAM.outputs.openfoam_exec}}
     - name: Build OpenFOAM-preCICE adapter
       run: |
