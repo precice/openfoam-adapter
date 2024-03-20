@@ -164,6 +164,11 @@ jobs:
             echo "I cannot find ${{ github.event.inputs.refAdapter }} in my known options."
             exit 1;;
         esac
+    - name: Sanity check
+      run: |
+        ls /usr/bin/openfoam*
+        ls /opt/openfoam*
+        echo ${{steps.installOpenFOAM.outputs.openfoam_exec}}
     - name: Build OpenFOAM-preCICE adapter
       run: |
           echo "OpenFOAM environment: ${{steps.installOpenFOAM.outputs.openfoam_exec}}"
