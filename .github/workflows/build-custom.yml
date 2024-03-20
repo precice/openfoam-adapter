@@ -78,6 +78,10 @@ jobs:
       uses: actions/checkout@v4
       with:
         ref: ${{ github.event.inputs.refAdapter }}
+    - name: Install preCICE (no cache)
+      uses: precice/setup-precice-action@main
+      with:
+        precice-version: v${{ github.event.inputs.versionpreCICE }}
     - name: Install OpenFOAM (no cache)
       id: installOpenFOAM
       run: |
@@ -160,10 +164,6 @@ jobs:
             echo "I cannot find ${{ github.event.inputs.refAdapter }} in my known options."
             exit 1;;
         esac
-    - name: Install preCICE (no cache)
-      uses: precice/setup-precice-action@main
-      with:
-        precice-version: v${{ github.event.inputs.versionpreCICE }}
     - name: Build OpenFOAM-preCICE adapter
       run: |
           ${{steps.installOpenFOAM.outputs.openfoam_exec}} ./Allwmake
