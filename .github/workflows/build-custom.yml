@@ -163,7 +163,7 @@ jobs:
     - name: Install preCICE (no cache)
       uses: precice/setup-precice-action@main
       with:
-        precice-version: ${{ github.event.inputs.versionpreCICE }}
+        precice-version: v${{ github.event.inputs.versionpreCICE }}
     - name: Build OpenFOAM-preCICE adapter
       run: |
           ${{steps.installOpenFOAM.outputs.openfoam_exec}} ./Allwmake
