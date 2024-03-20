@@ -166,6 +166,7 @@ jobs:
         esac
     - name: Build OpenFOAM-preCICE adapter
       run: |
+          echo "OpenFOAM environment: ${{steps.installOpenFOAM.outputs.openfoam_exec}}"
           ${{steps.installOpenFOAM.outputs.openfoam_exec}} ./Allwmake
     - name: Get tutorials
       run: |
