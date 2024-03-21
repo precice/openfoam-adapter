@@ -160,7 +160,7 @@ std::size_t preciceAdapter::FSI::ForceBase::writeToBuffer(double* buffer,
         if (solverType_.compare("incompressible") == 0)
         {
             forceField.boundaryFieldRef()[patchID] =
-                surface * pb[patchID] * rhob[patchID];
+                0.5 * surface * pb[patchID] * rhob[patchID];
         }
         else if (solverType_.compare("compressible") == 0)
         {
