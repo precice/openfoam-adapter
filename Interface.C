@@ -5,7 +5,7 @@
 #include "Utilities.H"
 #include "polygonTriangulate.H"
 #include "cellSet.H"
-
+#include <map>
 
 using namespace Foam;
 
@@ -219,6 +219,9 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh, const std::str
 
         // Map between OpenFOAM vertices and preCICE vertex IDs
         std::map<std::tuple<double, double, double>, int> verticesMap;
+
+        // Triangulation engine
+        polygonTriangulate triEngine;
 
         // Get the locations of the mesh vertices (here: face nodes)
         // for all the patches

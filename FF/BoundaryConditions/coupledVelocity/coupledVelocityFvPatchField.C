@@ -24,7 +24,7 @@ Foam::coupledVelocityFvPatchField::coupledVelocityFvPatchField(
 : fvPatchField<vector>(p, iF),
   refValue_("refValue", dict, p.size()),
   valueFraction_(p.size(), Zero),
-  phiName_(dict.getOrDefault<word>("phi", "phi"))
+  phiName_(static_cast<word>(dict.lookup("phi")))
 {
     if (dict.found("refGradient"))
     {
@@ -48,32 +48,22 @@ Foam::coupledVelocityFvPatchField::coupledVelocityFvPatchField(
     const fvPatch& p,
     const DimensionedField<vector, volMesh>& iF,
     const fvPatchFieldMapper& mapper)
-: fvPatchField<vector>(ptf, p, iF, mapper),
-  refValue_(ptf.refValue_),
-  refGrad_(ptf.refGrad_),
-  valueFraction_(ptf.valueFraction_)
+: fvPatchField<vector>(ptf, p, iF, mapper)
 {
-}
-
-
-Foam::coupledVelocityFvPatchField::coupledVelocityFvPatchField(
-    const coupledVelocityFvPatchField& ptf)
-: fvPatchField<vector>(ptf),
-  refValue_(ptf.refValue_),
-  refGrad_(ptf.refGrad_),
-  valueFraction_(ptf.valueFraction_)
-{
+    this->refValue() = ptf.refValue_;
+    this->refGrad() = ptf.refGrad_;
+    this->valueFraction() = ptf.valueFraction_;
 }
 
 
 Foam::coupledVelocityFvPatchField::coupledVelocityFvPatchField(
     const coupledVelocityFvPatchField& ptf,
     const DimensionedField<vector, volMesh>& iF)
-: fvPatchField<vector>(ptf, iF),
-  refValue_(ptf.refValue_),
-  refGrad_(ptf.refGrad_),
-  valueFraction_(ptf.valueFraction_)
+: fvPatchField<vector>(ptf, iF)
 {
+    this->refValue() = ptf.refValue_;
+    this->refGrad() = ptf.refGrad_;
+    this->valueFraction() = ptf.valueFraction_;
 }
 
 
@@ -162,9 +152,9 @@ Foam::coupledVelocityFvPatchField::gradientBoundaryCoeffs() const
 void Foam::coupledVelocityFvPatchField::write(Ostream& os) const
 {
     fvPatchField<vector>::write(os);
-    this->writeEntry("value", os);
-    this->valueFraction().writeEntry("valueFraction", os);
-    this->refValue().writeEntry("refValue", os);
+    writeEntry(os, "value", *this);
+    writeEntry(os, "valueFraction", this->valueFraction());
+    writeEntry(os, "refValue", this->refValue());
 }
 
 

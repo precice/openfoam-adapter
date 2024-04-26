@@ -88,7 +88,7 @@ bool Foam::functionObjects::preciceAdapterFunctionObject::read(const dictionary&
 
     // We disable executeAtStart explicitly here and don't read the respective entry from the dictionary(fvMeshFunctionObject::read(dict)). Have a look at issue #179 for the rationale.
     this->executeAtStart_ = false;
-    DEBUG(adapterInfo("Execute at start set to (dictionary input is ignored): " this->executeAtStart()));
+    DEBUG(adapterInfo("Execute at start set to (dictionary input is ignored): " + this->executeAtStart()));
 
     adapter_.configure();
 

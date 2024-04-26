@@ -24,8 +24,8 @@ Foam::coupledPressureFvPatchField::coupledPressureFvPatchField(
 : fixedFluxExtrapolatedPressureFvPatchScalarField(p, iF, dict),
   refValue_("refValue", dict, p.size()),
   valueFraction_(p.size(), Zero),
-  phiName_(dict.getOrDefault<word>("phi", "phi")),
-  uName_(dict.getOrDefault<word>("U", "U"))
+  phiName_(static_cast<word>(dict.lookup("phi"))),
+  uName_(static_cast<word>(dict.lookup("U")))
 {
     if (dict.found("refGradient"))
     {
@@ -59,25 +59,14 @@ Foam::coupledPressureFvPatchField::coupledPressureFvPatchField(
     }
 }
 
-
-Foam::coupledPressureFvPatchField::coupledPressureFvPatchField(
-    const coupledPressureFvPatchField& ptf)
-: fixedFluxExtrapolatedPressureFvPatchScalarField(ptf),
-  refValue_(ptf.refValue_),
-  refGrad_(ptf.refGrad_),
-  valueFraction_(ptf.valueFraction_)
-{
-}
-
-
 Foam::coupledPressureFvPatchField::coupledPressureFvPatchField(
     const coupledPressureFvPatchField& ptf,
     const DimensionedField<Foam::scalar, volMesh>& iF)
-: fixedFluxExtrapolatedPressureFvPatchScalarField(ptf, iF),
-  refValue_(ptf.refValue_),
-  refGrad_(ptf.refGrad_),
-  valueFraction_(ptf.valueFraction_)
+: fixedFluxExtrapolatedPressureFvPatchScalarField(ptf, iF)
 {
+    this->refValue() = ptf.refValue_;
+    this->refGrad() = ptf.refGrad_;
+    this->valueFraction() = ptf.valueFraction_;
 }
 
 
@@ -165,9 +154,9 @@ Foam::coupledPressureFvPatchField::gradientBoundaryCoeffs() const
 void Foam::coupledPressureFvPatchField::write(Ostream& os) const
 {
     fvPatchScalarField::write(os);
-    this->writeEntry("value", os);
-    this->valueFraction().writeEntry("valueFraction", os);
-    this->refValue().writeEntry("refValue", os);
+    writeEntry(os, "value", *this);
+    writeEntry(os, "valueFraction", this->valueFraction());
+    writeEntry(os, "refValue", this->refValue());
 }
 
 
