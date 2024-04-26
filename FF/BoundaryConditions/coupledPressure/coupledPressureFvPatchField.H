@@ -91,16 +91,9 @@ public:
         const DimensionedField<Foam::scalar, volMesh>&,
         const fvPatchFieldMapper&);
 
-    //- Construct as copy
+    //- Disallow copy without setting internal field reference
     coupledPressureFvPatchField(
-        const coupledPressureFvPatchField&);
-
-    //- Construct and return a clone
-    virtual tmp<fvPatchScalarField> clone() const
-    {
-        return tmp<fvPatchScalarField>(
-            new coupledPressureFvPatchField(*this));
-    }
+        const coupledPressureFvPatchField&) = delete;
 
     //- Construct as copy setting internal field reference
     coupledPressureFvPatchField(
