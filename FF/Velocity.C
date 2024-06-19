@@ -8,20 +8,19 @@ preciceAdapter::FF::Velocity::Velocity(
     const std::string nameU,
     const std::string namePhi,
     bool fluxCorrection)
-: U_(
-    const_cast<volVectorField*>(
-        &mesh.lookupObject<volVectorField>(nameU))),
-  phi_(const_cast<surfaceScalarField*>(
+: phi_(const_cast<surfaceScalarField*>(
       &mesh.lookupObject<surfaceScalarField>(namePhi))),
   fluxCorrection_(fluxCorrection)
 {
     if (mesh.foundObject<volVectorField>(nameU))
     {
+        adapterInfo("Using existing velocity object " + nameU, "debug");
         U_ = const_cast<volVectorField*>(
             &mesh.lookupObject<volVectorField>(nameU));
     }
     else
     {
+        adapterInfo("Creating a new velocity object " + nameU, "debug");
         U_ = new volVectorField(
             IOobject(
                 nameU,
