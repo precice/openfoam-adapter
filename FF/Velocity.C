@@ -9,7 +9,7 @@ preciceAdapter::FF::Velocity::Velocity(
     const std::string namePhi,
     bool fluxCorrection)
 : phi_(const_cast<surfaceScalarField*>(
-      &mesh.lookupObject<surfaceScalarField>(namePhi))),
+    &mesh.lookupObject<surfaceScalarField>(namePhi))),
   fluxCorrection_(fluxCorrection)
 {
     if (mesh.foundObject<volVectorField>(nameU))
