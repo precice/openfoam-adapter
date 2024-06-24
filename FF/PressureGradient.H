@@ -15,14 +15,14 @@ class PressureGradient : public CouplingDataUser
 {
 
 private:
-    //- Pressure field
-    Foam::volScalarField* p_;
+    //- Presure gradient field
+    Foam::volVectorField* gradp_;
 
 public:
     //- Constructor
     PressureGradient(
         const Foam::fvMesh& mesh,
-        const std::string nameP);
+        const std::string namePG);
 
     //- Write the pressure gradient values into the buffer
     std::size_t write(double* buffer, bool meshConnectivity, const unsigned int dim);
