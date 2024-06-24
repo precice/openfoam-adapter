@@ -38,6 +38,9 @@ protected:
     //- Name of the pressure field
     std::string nameP_ = "p";
 
+    //- Name of the pressure gradient field
+    std::string namePG_ = "gradp";
+
     //- Name of the temperature field
     std::string nameT_ = "T";
 

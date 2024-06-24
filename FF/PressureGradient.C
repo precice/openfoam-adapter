@@ -1,69 +1,70 @@
-#include "PressureGradient.H"
+#include "PressureGradient.H"   
 
 using namespace Foam;
 
 preciceAdapter::FF::PressureGradient::PressureGradient(
     const Foam::fvMesh& mesh,
-    const std::string nameP)
-: p_(
-    const_cast<volScalarField*>(
-        &mesh.lookupObject<volScalarField>(nameP)))
+    const std::string namePG)
 {
-    dataType_ = scalar;
+    if (mesh.foundObject<volVectorField>(namePG))
+    {
+        adapterInfo("Using existing velocity object " + namePG, "debug");
+        gradp_ = const_cast<volVectorField*>(
+            &mesh.lookupObject<volVectorField>(namePG));
+    }
+    else
+    {
+        adapterInfo("Creating a new velocity object " + namePG, "debug");
+        gradp_ = new volVectorField(
+            IOobject(
+                namePG,
+                mesh.time().timeName(),
+                mesh,
+                IOobject::MUST_READ,
+                IOobject::AUTO_WRITE),
+            mesh);
+    }
+    dataType_ = vector;
+    //dataType_ = scalar;
 }
 
 std::size_t preciceAdapter::FF::PressureGradient::write(double* buffer, bool meshConnectivity, const unsigned int dim)
 {
     int bufferIndex = 0;
 
-    // For every boundary patch of the interface
-    for (uint j = 0; j < patchIDs_.size(); j++)
-    {
-        int patchID = patchIDs_.at(j);
-
-        // Get the pressure gradient boundary patch
-        const scalarField gradientPatch((p_->boundaryFieldRef()[patchID])
-                                            .snGrad());
-
-        // For every cell of the patch
-        forAll(gradientPatch, i)
+     if (this->locationType_ == LocationType::volumeCenters)
         {
-            // Copy the pressure gradient into the buffer
-            buffer[bufferIndex++] =
-                -gradientPatch[i];
+            for (const auto& cellSetName : cellSetNames_)
+            {
+                cellSet overlapRegion(gradp_->mesh(), cellSetName);
+                const labelList& cells = overlapRegion.toc();
+
+                for (const auto& currentCell : cells)
+                {
+                    // x-dimension
+                    buffer[bufferIndex++] = gradp_->internalField()[currentCell].x();
+
+                    // y-dimension
+                    buffer[bufferIndex++] = gradp_->internalField()[currentCell].y();
+
+                    if (dim == 3)
+                    {
+                        // z-dimension
+                        buffer[bufferIndex++] = gradp_->internalField()[currentCell].z();
+                    }
+                }
+            }
         }
-    }
     return bufferIndex;
 }
 
 void preciceAdapter::FF::PressureGradient::read(double* buffer, const unsigned int dim)
 {
-    int bufferIndex = 0;
-
-    // For every boundary patch of the interface
-    for (uint j = 0; j < patchIDs_.size(); j++)
-    {
-        int patchID = patchIDs_.at(j);
-
-        // Get the pressure gradient boundary patch
-        scalarField& gradientPatch =
-            refCast<fixedGradientFvPatchScalarField>(
-                p_->boundaryFieldRef()[patchID])
-                .gradient();
-
-        // For every cell of the patch
-        forAll(gradientPatch, i)
-        {
-            // Set the pressure gradient as the buffer value
-            gradientPatch[i] =
-                buffer[bufferIndex++];
-        }
-    }
 }
 
 bool preciceAdapter::FF::PressureGradient::isLocationTypeSupported(const bool meshConnectivity) const
 {
-    return (this->locationType_ == LocationType::faceCenters);
+    return (this->locationType_ == LocationType::volumeCenters);
 }
 
 std::string preciceAdapter::FF::PressureGradient::getDataName() const
