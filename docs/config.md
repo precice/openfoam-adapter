@@ -7,7 +7,7 @@ summary: "Write a system/preciceDict, set compatible boundary conditions, and ac
 
 In order to run a coupled simulation, you need to:
 
-1. prepare a preCICE configuration file (described in the [preCICE configuration](https://www.precice.org/configuration-overview.html)),
+1. prepare a preCICE configuration file (described in the [preCICE configuration](https://precice.org/configuration-overview.html)),
 2. prepare an adapter's configuration file,
 3. set the coupling boundaries in the OpenFOAM case,
 4. load the adapter, and

@@ -6,6 +6,10 @@ repos:
   - id: format-precice-config
   - id: check-image-prefix
     args: [ --prefix=docs-adapter-openfoam- ]
+- repo: https://github.com/pre-commit/mirrors-clang-format
+  rev: 'v11.1.0'
+  hooks:
+  - id: clang-format
 - repo: https://github.com/igorshubovych/markdownlint-cli
   rev: v0.30.0
   hooks:

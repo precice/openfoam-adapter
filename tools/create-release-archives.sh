@@ -4,7 +4,7 @@
 set -u
 
 remote_name=origin
-adapter_version="v1.3.0"
+adapter_version="v1.3.1"
 
 # Declare branch names for which archives will be created
 declare -a branches=("master" "OpenFOAMv1806" "OpenFOAM10" "OpenFOAM9" "OpenFOAM8" "OpenFOAM7" "OpenFOAM6" "OpenFOAM5")

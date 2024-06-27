@@ -20,7 +20,7 @@ adapter_build_command(){
 ADAPTER_TARGET_DIR="${FOAM_USER_LIBBIN:-}"
 
 # More information for compatibility with OpenFOAM
-DOC_COMPATIBILITY="https://www.precice.org/adapter-openfoam-support.html"
+DOC_COMPATIBILITY="https://precice.org/adapter-openfoam-support.html"
 
 ################################################################################
 # Function to print to screen and copy to a logfile

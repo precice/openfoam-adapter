@@ -20,6 +20,7 @@ on:
         required: true
         type: choice
         options:
+          - OpenFOAMv2406
           - OpenFOAMv2312
           - OpenFOAMv2306
           - OpenFOAMv2212
@@ -86,6 +87,10 @@ jobs:
       id: installOpenFOAM
       run: |
         case "${{ github.event.inputs.versionOpenFOAM }}" in
+          OpenFOAMv2406)
+            wget -q -O - https://dl.openfoam.com/add-debian-repo.sh | sudo bash
+            sudo apt-get install openfoam2406-dev
+            echo "{openfoam_exec}={/usr/bin/openfoam2406}" >> $GITHUB_OUTPUT;;
           OpenFOAMv2312)
             wget -q -O - https://dl.openfoam.com/add-debian-repo.sh | sudo bash
             sudo apt-get install openfoam2312-dev
