@@ -8,6 +8,17 @@ Read more details in the issue [#52: Releases and versioning](https://github.com
 
 <!-- markdownlint-configure-file {"MD024": { "siblings_only": true } } -->
 
+## [v1.3.1] 2024-07-27
+
+### Fixed
+
+- Fixed looking for velocity object that should first be created by the adapter [#330](https://github.com/precice/openfoam-adapter/pull/330).
+
+### Added
+
+- Added clang-format to the pre-commit hook [#331](https://github.com/precice/openfoam-adapter/pull/331).
+- Added OpenFOAM v2406 to the supported versions (earlier versions already support it as well) [#332](https://github.com/precice/openfoam-adapter/pull/332).
+
 ## [v1.3.0] 2024-03-20
 
 ### Added
