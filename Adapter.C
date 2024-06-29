@@ -687,7 +687,7 @@ void preciceAdapter::Adapter::adjustSolverTimeStepAndReadData()
     // which also triggers the functionObject's adjustTimeStep())
     // TODO: Keep this in mind if any relevant problem appears.
     const_cast<Time&>(runTime_).setDeltaTNoAdjust(timestepSolver_);
-
+    readCouplingData(runTime_.deltaT().value());
     return;
 }
 
