@@ -67,6 +67,11 @@ bool preciceAdapter::Adapter::configFileRead()
             {
                 FFenabled_ = true;
             }
+
+            if (module == "GENERAL")
+            {
+                generalModuleEnabled_ = true;
+            }
         }
 
         // Every interface is a subdictionary of "interfaces",
@@ -159,6 +164,15 @@ bool preciceAdapter::Adapter::configFileRead()
 
         // NOTE: set the switch for your new module here
 
+        if (generalModuleEnabled_)
+        {
+            MODULE_ = new MODULE::ConjugateHeatTransfer(mesh_);
+            if (!MODULE_->configure(preciceDict))
+            {
+                return false;
+            }
+        }
+
         // If the CHT module is enabled, create it, read the
         // CHT-specific options and configure it.
         if (CHTenabled_)
@@ -206,7 +220,7 @@ bool preciceAdapter::Adapter::configFileRead()
 
         // NOTE: Create your module and read any options specific to it here
 
-        if (!CHTenabled_ && !FSIenabled_ && !FFenabled_) // NOTE: Add your new switch here
+        if (!CHTenabled_ && !FSIenabled_ && !FFenabled_ && !generalModuleEnabled_) // NOTE: Add your new switch here
         {
             adapterInfo("No module is enabled.", "error-deferred");
             return false;
@@ -290,22 +304,15 @@ void preciceAdapter::Adapter::configure()
                 unsigned int inModules = 0;
 
                 // Add CHT-related coupling data writers
-                if (CHTenabled_ && CHT_->addWriters(dataName, interface))
-                {
-                    inModules++;
-                }
+                if (CHTenabled_ && CHT_->addWriters(dataName, interface)) inModules++;
 
                 // Add FSI-related coupling data writers
-                if (FSIenabled_ && FSI_->addWriters(dataName, interface))
-                {
-                    inModules++;
-                }
+                if (FSIenabled_ && FSI_->addWriters(dataName, interface)) inModules++;
 
                 // Add FF-related coupling data writers
-                if (FFenabled_ && FF_->addWriters(dataName, interface))
-                {
-                    inModules++;
-                }
+                if (FFenabled_ && FF_->addWriters(dataName, interface)) inModules++;
+
+                if (generalModuleEnabled_ && MODULE_->addWriters(dataName, interface)) inModules++;
 
                 if (inModules == 0)
                 {
@@ -338,6 +345,8 @@ void preciceAdapter::Adapter::configure()
 
                 // Add FF-related coupling data readers
                 if (FFenabled_ && FF_->addReaders(dataName, interface)) inModules++;
+
+                if (generalModuleEnabled_ && MODULE_->addReaders(dataName, interface)) inModules++;
 
                 if (inModules == 0)
                 {
@@ -1637,6 +1646,13 @@ void preciceAdapter::Adapter::teardown()
         DEBUG(adapterInfo("Destroying the FF module..."));
         delete FF_;
         FF_ = NULL;
+    }
+
+    if (NULL != MODULE_)
+    {
+        DEBUG(adapterInfo("Destroying the general module..."));
+        delete MODULE_;
+        MODULE_ = NULL;
     }
 
     // NOTE: Delete your new module here

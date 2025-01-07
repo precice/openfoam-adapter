@@ -12,6 +12,8 @@
 // Fluid-Fluid module
 #include "FF/FF.H"
 
+#include "GENERAL/MODULE.H"
+
 // NOTE: If you want to couple a new variable, include your module's header here.
 // You also need to include it in the Make/files file.
 // In case you use additional OpenFOAM symbols, you may also need to specify
@@ -102,6 +104,9 @@ private:
 
     // NOTE: Add a switch for your new module here
 
+    //- Switch to enable General module
+    bool generalModuleEnabled_ = false;
+
     //- Interfaces
     std::vector<Interface*> interfaces_;
 
@@ -121,6 +126,8 @@ private:
     FF::FluidFluid* FF_ = NULL;
 
     // NOTE: Add here a pointer for your new module object
+
+    MODULE::ConjugateHeatTransfer* MODULE_ = NULL;
 
     // Timesteps
 
