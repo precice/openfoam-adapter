@@ -20,6 +20,7 @@ on:
         required: true
         type: choice
         options:
+          - 2412
           - 2406
           - 2312
           - 2306

@@ -7,14 +7,14 @@ summary: Recent OpenFOAM.com versions work out-of-the-box. Recent OpenFOAM.org v
 
 ## How to get OpenFOAM
 
-The easiest way to start is to get binary packages for your Linux distribution. For example, to [get OpenFOAM v2406 on Ubuntu](https://develop.openfoam.com/Development/openfoam/-/wikis/precompiled/debian#precompiled-packages-debianubuntu):
+The easiest way to start is to get binary packages for your Linux distribution. For example, to [get OpenFOAM v2412 on Ubuntu](https://develop.openfoam.com/Development/openfoam/-/wikis/precompiled/debian#precompiled-packages-debianubuntu):
 
 ```bash
 # Add the signing key, add the repository, update:
 wget -q -O - https://dl.openfoam.com/add-debian-repo.sh | sudo bash
 
-# Install OpenFOAM v2406:
-sudo apt-get install openfoam2406-dev
+# Install OpenFOAM v2412:
+sudo apt-get install openfoam2412-dev
 ```
 
 As these steps change your `.profile`, you need to log out and in again to make OpenFOAM fully discoverable.
@@ -23,10 +23,14 @@ As these steps change your `.profile`, you need to log out and in again to make 
 
 OpenFOAM is a project with long history and many forks, of which we try to support as many as possible. Since several HPC systems only provide older versions, we try to also support a wide range of versions.
 
+{% warning %}
+Currently, and since v1.3.0 of the adapter (first one for preCICE v3), only the default variant of the adapter for the OpenCFD / ESI is available. We are working on supporting further versions again.
+{% endwarning %}
+
 We provide version-specific [release archives](https://github.com/precice/openfoam-adapter/releases/latest) and respective Git branches for:
 
 - OpenCFD / ESI (openfoam.com) - main focus:
-  - [OpenFOAM v1812-v2406](https://github.com/precice/openfoam-adapter) or newer
+  - [OpenFOAM v1812-v2412](https://github.com/precice/openfoam-adapter) or newer
     - OpenFOAM v2212 and newer is only supported since v1.2.2 of the adapter.
   - [OpenFOAM v1612-v1806](https://github.com/precice/openfoam-adapter/tree/OpenFOAMv1806) (not tested)
 - OpenFOAM Foundation (openfoam.org) - secondary, consider experimental:

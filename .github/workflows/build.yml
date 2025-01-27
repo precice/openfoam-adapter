@@ -1,4 +1,4 @@
-name: Build with OpenFOAM v2406
+name: Build with OpenFOAM v2412
 on:
   push:
     branches-ignore:
@@ -28,6 +28,6 @@ jobs:
     - name: Set up OpenFOAM
       uses: gerlero/setup-openfoam@v1
       with:
-        openfoam-version: 2406
+        openfoam-version: 2412
     - name: Build OpenFOAM-preCICE adapter
       run: ./Allwmake
