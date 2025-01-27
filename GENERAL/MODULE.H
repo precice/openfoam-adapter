@@ -3,10 +3,7 @@
 
 #include "Interface.H"
 
-#include "GENERAL/Temperature.H"
-#include "GENERAL/HeatFlux.H"
-#include "GENERAL/SinkTemperature.H"
-#include "GENERAL/HeatTransferCoefficient.H"
+#include "GENERAL/HeatTransfer.H"
 
 #include "fvCFD.H"
 
@@ -22,28 +19,8 @@ protected:
     //- OpenFOAM fvMesh object
     const Foam::fvMesh& mesh_;
 
-    // TODO: Create a struct for all the parameter names
-
-    //- Solver type
-    std::string solverType_ = "none";
-
     //- Name of the temperature field
     std::string nameT_ = "T";
-
-    //- Name of the thermal conductivity for a basic solver
-    std::string nameKappa_ = "k";
-
-    //- Name of the density for an incompressible solver
-    std::string nameRho_ = "rho";
-
-    //- Name of the heat capacity for an incompressible solver
-    std::string nameCp_ = "Cp";
-
-    //- Name of the Prandtl number for an incompressible solver
-    std::string namePr_ = "Pr";
-
-    //- Name of the turbulent thermal diffusivity field for an incompressible solver
-    std::string nameAlphat_ = "alphat";
 
 protected:
     //- Determine the solver type
