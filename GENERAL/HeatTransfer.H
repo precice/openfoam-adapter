@@ -11,37 +11,38 @@ namespace preciceAdapter
 namespace MODULE
 {
 
-//- Abstract class that writes and reads heat flux.
-//  Some parts of it are implemented differently for compressible,
-//  incompressible or basic solvers.
-class HeatTransfer : public CouplingDataUser
+class Temperature : public CouplingDataUser
 {
-
 protected:
-    //- Temperature field
     Foam::volScalarField* T_;
-
     const Foam::fvMesh& mesh_;
 
 public:
-    //- Constructor
-    HeatTransfer(const Foam::fvMesh& mesh, const std::string nameT);
+    Temperature(const Foam::fvMesh& mesh, const std::string nameT);
 
-    //- Compute heat flux values from the temperature field
-    //  and write them into the buffer
-    std::size_t write(double* buffer, bool meshConnectivity, const unsigned int dim) final;
+    std::size_t write(double* buffer, bool meshConnectivity, const unsigned int dim);
+    void read(double* buffer, const unsigned int dim);
+    bool isLocationTypeSupported(const bool meshConnectivity) const;
+    std::string getDataName() const;
 
-    //- Read heat flux values from the buffer and assign them to
-    //  the gradient of the temperature field
-    void read(double* buffer, const unsigned int dim) final;
+    virtual ~Temperature() {};
+};
 
-    bool isLocationTypeSupported(const bool meshConnectivity) const final;
+class HeatFlux : public CouplingDataUser
+{
+protected:
+    Foam::volScalarField* T_;
+    const Foam::fvMesh& mesh_;
 
-    //- Get the name of the current data field
-    std::string getDataName() const final;
+public:
+    HeatFlux(const Foam::fvMesh& mesh, const std::string nameT);
 
-    //- Destructor
-    virtual ~HeatTransfer() {};
+    std::size_t write(double* buffer, bool meshConnectivity, const unsigned int dim);
+    void read(double* buffer, const unsigned int dim);
+    bool isLocationTypeSupported(const bool meshConnectivity) const;
+    std::string getDataName() const;
+
+    virtual ~HeatFlux() {};
 };
 
 }

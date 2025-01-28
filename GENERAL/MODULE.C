@@ -36,11 +36,17 @@ bool preciceAdapter::MODULE::ConjugateHeatTransfer::addWriters(std::string dataN
 {
     bool found = true; // Set to false later, if needed.
 
+    // TODO: Init both temperature and heat flux at once? Also if dict contains Heat-Flux, not just Temperature. I.e., one or both.
     if (dataName.find("Temperature") == 0)
     {
         interface->addCouplingDataWriter(
             dataName,
-            new HeatTransfer(mesh_, nameT_));
+            new Temperature(mesh_, nameT_));
+
+        interface->addCouplingDataWriter(
+            dataName,
+            new HeatFlux(mesh_, nameT_));
+
         DEBUG(adapterInfo("Added writer: Temperature."));
     }
     else
@@ -59,7 +65,12 @@ bool preciceAdapter::MODULE::ConjugateHeatTransfer::addReaders(std::string dataN
     {
         interface->addCouplingDataReader(
             dataName,
-            new HeatTransfer(mesh_, nameT_));
+            new Temperature(mesh_, nameT_));
+
+        interface->addCouplingDataReader(
+            dataName,
+            new HeatFlux(mesh_, nameT_));
+
         DEBUG(adapterInfo("Added reader: Temperature."));
     }
     else
