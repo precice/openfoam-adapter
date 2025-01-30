@@ -139,7 +139,7 @@ bool preciceAdapter::Adapter::configFileRead()
                     }
 
                     DEBUG(adapterInfo("    writeData    : "));
-                    auto writeData = interfaceDict.get<wordList>("writeData");
+                    auto writeData = interfaceDict.lookupOrDefault<wordList>("writeData", wordList());
                     for (auto writeDatum : writeData)
                     {
                         interfaceConfig.writeData.push_back(writeDatum);
@@ -147,7 +147,7 @@ bool preciceAdapter::Adapter::configFileRead()
                     }
 
                     DEBUG(adapterInfo("    readData     : "));
-                    auto readData = interfaceDict.get<wordList>("readData");
+                    auto readData = interfaceDict.lookupOrDefault<wordList>("readData", wordList());
                     for (auto readDatum : readData)
                     {
                         interfaceConfig.readData.push_back(readDatum);
