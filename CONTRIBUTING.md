@@ -28,6 +28,23 @@ There are also a few additional workflows that can be triggered manually:
 
 Members of the repository can trigger these workflows in the "Actions" tab.
 
+### Running the CI locally
+
+You can also run GitHub Actions locally with [act](https://github.com/nektos/act).
+
+List the workflows with `act --list`. To simulate a push event, run `act push`. Some workflows might work on GitHub Actions but not on act, in which case you could try running specific workflows with, for example, `act -j 'build'`.
+
+To trigger the custom build workflow:
+
+1. Switch to the directory `.github/workflows/`
+2. Edit the inputs in the `build-custom.input` file.
+3. [Generate a GitHub access token](https://github.com/settings/personal-access-tokens) and add it to a `.secrets` file with content `GITHUB_TOKEN=<your-token>`.
+4. Start the build using:
+
+   ```shell
+   act -W build-custom.yml --input-file build-custom.input --secret-file .secrets --artifact-server-path $PWD/.artifacts
+   ```
+
 ## System tests
 
 For non-trivial pull requests, we also need to execute [system regression tests](https://precice.org/dev-docs-system-tests.html),
