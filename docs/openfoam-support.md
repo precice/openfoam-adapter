@@ -19,6 +19,10 @@ sudo apt-get install openfoam2412-dev
 
 As these steps change your `.profile`, you need to log out and in again to make OpenFOAM fully discoverable.
 
+## Supported OpenFOAM solvers
+
+We support mainstream OpenFOAM solvers such as pimpleFoam and solids4Foam for FSI, buoyantPimpleFoam, buoyantSimpleFoam, and laplacianFoam for CHT, or pimpleFoam and sonicLiquidFoam for FF. Our community has, additionally, tried the adapter with multiple different solvers that support function objects.
+
 ## Supported OpenFOAM versions
 
 OpenFOAM is a project with long history and many forks, of which we try to support as many as possible. Since several HPC systems only provide older versions, we try to also support a wide range of versions.
@@ -50,9 +54,40 @@ We provide version-specific [release archives](https://github.com/precice/openfo
 
 Known not supported versions: OpenFOAM v1606+ or older, OpenFOAM 3 or older, foam-extend (any version).
 
-## Supported OpenFOAM solvers
+## Differences between OpenFOAM versions
 
-We support mainstream OpenFOAM solvers such as pimpleFoam and solids4Foam for FSI, buoyantPimpleFoam, buoyantSimpleFoam, and laplacianFoam for CHT, or pimpleFoam and sonicLiquidFoam for FF. Our community has, additionally, tried the adapter with multiple different solvers that support function objects.
+We take into account the following relevant differences between OpenFOAM versions, compared to the latest OpenCFD version. This list is important for maintainers of version-specific ports of the adapter.
+
+### OpenFOAM v1612-v1806
+
+- **clockValue:** The `clockValue.H` header is not available (used in `preciceAdapterFunctionObject.H`).
+  - Disable the timers feature, controlled by the `ADAPTER_ENABLE_TIMINGS` preprocessor variable (set in `Allwmake`).
+- **dictionary access:** In dictionaries (essentially: in the `preciceDict`), some methods are not available. These are mainly used in the configuration step in `Adapter.C`, but also in `ForceBase.C`.
+  - Replace `preciceDict.get<fileName>("...")` with `static_cast<fileName>(preciceDict.lookup("...")`.
+  - Replace `preciceDict.get<word>("...")` with `static_cast<word>(preciceDict.lookup("..."))`.
+  - Replace `preciceDict.get<wordList>("...")` with `static_cast<wordList>(preciceDict.lookup("..."))`.
+  - Replace `preciceDict.findDict("...")` with `preciceDict.subDictPtr("...")`.
+- **Db access:** In the macro that deals with adding checkpointed fields, some methods are not available.
+  - Replace `mesh_.sortedNames<GeomField>()` with `mesh_.lookupClass<GeomField>().sortedToc()`.
+  - Replace `mesh_.thisDb().getObjectPtr<GeomField>(obj)` with `&(const_cast<GeomField&>(mesh_.thisDb().lookupObject<GeomField>(obj)))`.
+- **Pointers:** `std::unique_ptr` is not available.
+  - Replace `std::unique_ptr<T>` with `Foam::autoPtr<T>`.
+  - Replace calls to pointer `.reset()`, such as `ForceOwning_.reset(new volVectorField(`, with `ForceOwning_ = new volVectorField(`. Adjust the number of closing parentheses.
+  - Replace calls to pointer `.get();`, such as `ForceOwning_.get()`, with `ForceOwning_.ptr()`.
+
+### OpenFOAM 4
+
+### OpenFOAM 5
+
+### OpenFOAM 7
+
+### OpenFOAM 8
+
+### OpenFOAM 9
+
+### OpenFOAM 10
+
+### foam-extend
 
 ## Notes on OpenFOAM features
 
