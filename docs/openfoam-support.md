@@ -75,11 +75,25 @@ We take into account the following relevant differences between OpenFOAM version
   - Replace calls to pointer `.reset()`, such as `ForceOwning_.reset(new volVectorField(`, with `ForceOwning_ = new volVectorField(`. Adjust the number of closing parentheses.
   - Replace calls to pointer `.get();`, such as `ForceOwning_.get()`, with `ForceOwning_.ptr()`.
 
-### OpenFOAM 4
+### OpenFOAM 4 and 5
 
-### OpenFOAM 5
+Same as in OpenFOAM v1612-v1806.
+
+### OpenFOAM 6
+
+Compared to OpenFOAM 5:
+
+- **adjustTimeStep:** In the function objects interface, `adjustTimeStep()` was renamed to `setTimeStep()`.
+  - Replace `adjustTimeStep()` with `setTimeStep()`, both for the function object and the adapter members.
+- **setDeltaT:** The `Time` method `setDeltaT(..., false)` was replaced by `setDeltaTNoAdjust(...)`.
+  - Replace `setDeltaT(timestepSolver_, false)` with `setDeltaTNoAdjust(timestepSolver_)`.
 
 ### OpenFOAM 7
+
+Compared to OpenFOAM 6:
+
+- **fileName:** `fileName::DIRECTORY` was renamed to `fileType::directory`.
+  - Replace this in the `Adapter.C`.
 
 ### OpenFOAM 8
 
