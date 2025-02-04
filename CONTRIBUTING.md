@@ -45,6 +45,8 @@ To trigger the custom build workflow:
    act -W build-custom.yml --input-file build-custom.input --secret-file .secrets --artifact-server-path $PWD/.artifacts
    ```
 
+Find valid combinations of Ubuntu and OpenFOAM versions in the [OpenFOAM support page](https://precice.org/adapter-openfoam-support.html).
+
 ## System tests
 
 For non-trivial pull requests, we also need to execute [system regression tests](https://precice.org/dev-docs-system-tests.html),

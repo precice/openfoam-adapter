@@ -50,6 +50,47 @@ We provide version-specific [release archives](https://github.com/precice/openfo
 
 Known not supported versions: OpenFOAM v1606+ or older, OpenFOAM 3 or older, foam-extend (any version).
 
+## Availability of OpenFOAM packages
+
+We use the Ubuntu repositories of each OpenFOAM vendor for testing. Quick reference for maintainers:
+
+- OpenCFD / ESI (openfoam.com):
+  - [PPA repository](https://dl.openfoam.com/repos/deb/)
+  - More details on the [OpenFOAM documentation](https://develop.openfoam.com/Development/openfoam/-/wikis/precompiled).
+- OpenFOAM Foundation (openfoam.org):
+  - [PPA repository](https://dl.openfoam.org/ubuntu/)
+  - More details on the [OpenFOAM documentation](https://dl.openfoam.org/).
+- foam-extend:
+  - The project distributes pre-built Debian packages as release artifacts on [SourceForge](https://sourceforge.net/projects/foam-extend/files/).
+
+The following table gives an overview, including versions that we do not support, but which might be useful for future or historical reference.
+
+| version     | 24.04 | 22.04 | 20.04 | 18.04 |
+| ---         | ---   | ---   | ---   | ---   |
+| (com) v2412 | x     | x     | x     | x     |
+| (com) v2406 | x     | x     | x     | x     |
+| (com) v2312 | x     | x     | x     | x     |
+| (com) v2306 | x     | x     | x     | x     |
+| (com) v2212 | x     | x     | x     | x     |
+| (com) v2206 | -     | x     | x     | x     |
+| (com) v2112 | -     | x     | x     | x     |
+| (com) v2106 | -     | x     | x     | x     |
+| (com) v2012 | -     | x     | x     | x     |
+| (com) v2006 | -     | x     | x     | x     |
+| (com) v1912 | -     | x     | x     | x     |
+| (com) older | -     | -     | -     | -     |
+| (org) 12    | x     | x     | x     | -     |
+| (org) 11    | x     | x     | x     | -     |
+| (org) 10    | -     | x     | x     | x     |
+| (org) 9     | -     | x     | x     | x     |
+| (org) 8     | -     | -     | x     | x     |
+| (org) 7     | -     | -     | x     | x     |
+| (org) 6     | -     | -     | -     | x     |
+| (org) 5     | -     | -     | -     | -     |
+| (org) 4     | -     | -     | -     | -     |
+| (ext) 5.0   | -     | x     | x     | -     |
+| (ext) 4.1   | -     | -     | -     | x     |
+
 ## Supported OpenFOAM solvers
 
 We support mainstream OpenFOAM solvers such as pimpleFoam and solids4Foam for FSI, buoyantPimpleFoam, buoyantSimpleFoam, and laplacianFoam for CHT, or pimpleFoam and sonicLiquidFoam for FF. Our community has, additionally, tried the adapter with multiple different solvers that support function objects.
