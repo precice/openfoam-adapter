@@ -2,8 +2,8 @@
 #include "primitivePatchInterpolation.H"
 #include "fvCFD.H"
 
-#include "apiCoupledTemperatureFvPatchScalarField.H"
-
+#include "fixedValueFvPatchFields.H"
+#include "mixedFvPatchFields.H"
 
 using namespace Foam;
 
@@ -31,31 +31,13 @@ std::size_t preciceAdapter::MODULE::Temperature::write(double* buffer, bool mesh
 
         const auto& boundaryPatch(T_->boundaryField()[patchID]);
 
-        // // If we use the mesh connectivity, we interpolate from the centres to the nodes
-        // if (meshConnectivity)
-        // {
-        //     //Setup Interpolation object
-        //     primitivePatchInterpolation patchInterpolator(mesh_.boundaryMesh()[patchID]);
-
-        //     //Interpolate
-        //     auto boundaryPatchPoints = patchInterpolator.faceToPointInterpolate(boundaryPatch);
-
-        //     // For every cell of the patch
-        //     forAll(boundaryPatchPoints, i)
-        //     {
-        //         buffer[bufferIndex++] = boundaryPatchPoints[i];
-        //     }
-        // }
-        // else
-        // {
+        // TODO meshconnectivity
 
         // For every cell of the patch
         forAll(boundaryPatch, i)
         {
             buffer[bufferIndex++] = boundaryPatch[i];
         }
-
-        // }
     }
     return bufferIndex;
 }
@@ -71,13 +53,43 @@ void preciceAdapter::MODULE::Temperature::read(double* buffer, const unsigned in
     {
         int patchID = patchIDs_.at(j);
 
-        auto& boundaryPatch(refCast<apiCoupledTemperatureFvPatchScalarField>(T_->boundaryFieldRef()[patchID]));
-        auto& value = boundaryPatch.refValue();
+        auto& bc = T_->boundaryFieldRef()[patchID];
 
-        forAll(value, i)
+        // Why do we need to cast at all? - Because boundaryField() returns fvPatchField instead of the derived boundary condition type
+        // auto& boundaryPatch(refCast<apiCoupledTemperatureFvPatchScalarField>(T_->boundaryFieldRef()[patchID]));
+        // auto& value = boundaryPatch.refValue();
+
+        // Need to look into dynamic_cast
+
+        if (isA<fixedValueFvPatchScalarField>(bc))
         {
-            value[i] = buffer[bufferIndex++];
+            auto& boundaryPatch = refCast<fixedValueFvPatchScalarField>(bc);
+            forAll(boundaryPatch, i)
+            {
+                boundaryPatch[i] = buffer[bufferIndex++];
+            }
         }
+        else if (isA<fixedGradientFvPatchScalarField>(bc))
+        {
+            // do nothing, this is handled in heat flux
+            auto& boundaryPatch = bc;
+        }
+        else if (isA<mixedFvPatchScalarField>(bc))
+        {
+            auto& boundaryPatch = refCast<mixedFvPatchScalarField>(bc).refValue();
+            forAll(boundaryPatch, i)
+            {
+                boundaryPatch[i] = buffer[bufferIndex++];
+            }
+        }
+        else
+        {
+            FatalErrorInFunction << "Unsupported boundary condition type " << bc.type() << exit(FatalError);
+        }
+
+        // evaluate the boundary condition, i.e., do some calculation to obtain the actual value provided refValue
+        // boundaryPatch.updateCoeffs();
+        // boundaryPatch.evaluate();
     }
 }
 
@@ -126,37 +138,32 @@ std::size_t preciceAdapter::MODULE::HeatFlux::write(double* buffer, bool meshCon
     {
         int patchID = patchIDs_.at(j);
 
-        const auto& gradientPatch(refCast<const apiCoupledTemperatureFvPatchScalarField>(T_->boundaryFieldRef()[patchID]));
-        auto gradient(gradientPatch.getWallHeatFlux());
+        const auto& bc = T_->boundaryField()[patchID];
 
-        const scalarField& data(gradient.cref());
-
-
-        // // If we use the mesh connectivity, we interpolate from the centres to the nodes
-        // if (meshConnectivity)
-        // {
-        //     //Setup Interpolation object
-        //     primitivePatchInterpolation patchInterpolator(mesh_.boundaryMesh()[patchID]);
-
-        //     //Interpolate
-        //     auto gradientPoints = patchInterpolator.faceToPointInterpolate(gradient);
-
-        //     // For every cell of the patch
-        //     forAll(gradientPoints, i)
-        //     {
-        //         buffer[bufferIndex++] = - gradientPoints[i];
-        //     }
-        // }
-        // else
-        // {
-
-        // For every cell of the patch
-        forAll(data, i)
+        if (isA<fixedValueFvPatchScalarField>(bc))
         {
-            buffer[bufferIndex++] = -data[i];
+            // do nothing, this is handled in temperature
         }
-
-        // }
+        else if (isA<fixedGradientFvPatchScalarField>(bc))
+        {
+            const auto& gradientPatch = refCast<const fixedGradientFvPatchScalarField>(bc);
+            forAll(gradientPatch, i)
+            {
+                buffer[bufferIndex++] = -gradientPatch[i];
+            }
+        }
+        else if (isA<mixedFvPatchScalarField>(bc))
+        {
+            const auto& gradientPatch = refCast<const mixedFvPatchScalarField>(bc).refGrad();
+            forAll(gradientPatch, i)
+            {
+                buffer[bufferIndex++] = -gradientPatch[i];
+            }
+        }
+        else
+        {
+            FatalErrorInFunction << "Unsupported boundary condition type " << bc.type() << exit(FatalError);
+        }
     }
     return bufferIndex;
 }
@@ -170,15 +177,37 @@ void preciceAdapter::MODULE::HeatFlux::read(double* buffer, const unsigned int d
     {
         int patchID = patchIDs_.at(j);
 
-        // Get the temperature gradient boundary patch
-        auto& gradientPatch(refCast<apiCoupledTemperatureFvPatchScalarField>(T_->boundaryFieldRef()[patchID]));
-        auto& gradient = gradientPatch.heatFlux();
 
-        // For every cell of the patch
-        forAll(gradient, i)
+        auto& bc = T_->boundaryFieldRef()[patchID];
+
+        if (isA<fixedValueFvPatchScalarField>(bc))
         {
-            gradient[i] = buffer[bufferIndex++];
+            // do nothing, this is handled in temperature
+            auto& boundaryPatch = bc;
         }
+        else if (isA<fixedGradientFvPatchScalarField>(bc))
+        {
+            auto& gradientPatch = refCast<fixedGradientFvPatchScalarField>(bc);
+            forAll(gradientPatch, i)
+            {
+                gradientPatch[i] = buffer[bufferIndex++];
+            }
+        }
+        else if (isA<mixedFvPatchScalarField>(bc))
+        {
+            auto& gradientPatch = refCast<mixedFvPatchScalarField>(bc).refGrad();
+            forAll(gradientPatch, i)
+            {
+                gradientPatch[i] = buffer[bufferIndex++];
+            }
+        }
+        else
+        {
+            FatalErrorInFunction << "Unsupported boundary condition type " << bc.type() << exit(FatalError);
+        }
+
+        // boundaryPatch.updateCoeffs();
+        // boundaryPatch.evaluate();
     }
 }
 
