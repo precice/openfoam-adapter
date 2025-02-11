@@ -164,7 +164,23 @@ OpenFOAM 9 was [released](https://openfoam.org/release/9/) in July 2021 ([GitHub
 
 OpenFOAM 10 was [released](https://openfoam.org/release/10/) in July 2022 ([GitHub mirror](https://github.com/OpenFOAM/OpenFOAM-10), [Doxygen](https://cpp.openfoam.org/v10)). Compared to OpenFOAM 9:
 
-TBD
+- **Function objects:** The method `fields()` has been made pure virtual, meaning it needs to be implemented.
+  - In `preciceAdapterFunctionObject.H`, implement it as (more of a workaround to avoid implementation):
+
+    ```c++
+    virtual wordList fields() const
+    {
+        return wordList::null();
+    }
+    ```
+
+- **Physical properties and models:** The `physicalProperties` was replaced by `transportModels`.
+  - In `Make/options`, replace `physicalProperties` with `transportModels` in the included paths and in the linked libraries.
+  - In `FSI/ForceBase.H`, replace `kinematicMomentumTransportModel.H` with `incompressibleMomentumTransportModel.H`.
+  - In `FSI/ForceBase.C`, replace `basicThermo::dictName` with `physicalProperties::typeName`.
+- **Fields `V0` and `V00`:** The fields `V0` and `V00` have been removed or renamed (not sure to what).
+  - In `Adapter.C`, method `preciceAdapter::Adapter::setupMeshVolCheckpointing()`, guard each of these two fields with a `if (mesh_.foundObject<volScalarField::Internal>("V0"))` (and `if (... ("V00"))`, respectively). Alternatively, remove the implementation of this method altogether.
+  - **Impact:** This might lead to stability issues in FSI simulations with implicit coupling. Check your results.
 
 ### OpenFOAM 11
 
