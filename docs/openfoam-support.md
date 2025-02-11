@@ -145,7 +145,20 @@ OpenFOAM 8 was [released](https://openfoam.org/release/8/) in July 2020 ([GitHub
 
 OpenFOAM 9 was [released](https://openfoam.org/release/9/) in July 2021 ([GitHub mirror](https://github.com/OpenFOAM/OpenFOAM-9), [Doxygen](https://cpp.openfoam.org/v9)). Compared to OpenFOAM 8:
 
-TBD
+- **Function objects:** The `setTimeStep()` method was removed.
+  - Remove the method from the `preciceAdapterFunctionObject.H` and `preciceAdapterFunctionObject.C`. Adjust the comments for the equivalent method in `Adapter.H`.
+  - **Impact:** None expected. preCICE can still adjust the time step size of OpenFOAM and the adapter should still read the updated time step size of OpenFOAM inside `execute()`.
+- **Thermophysical models:** Different libraries need to be linked and different headers need to be included:
+  - In `Make/options`, remove the linking of `fluidThermoMomentumTransportModels` and `incompressibleMomentumTransportModels`.
+  - In `Make/options`, link to `transportModels`, `momentumTransportModels`, `incompressibleMomentumTransportModels`, `compressibleMomentumTransportModels`.
+  - In `CHT/KappaEffective.H`, replace the headers `fluidThermoMomentumTransportModel.H` and `kinematicMomentumTransportModel.H` with `momentumTransportModel.H`.
+  - In `FSI/ForceBase.H`, replace the header `fluidThermoMomentumTransportModel.H` with `compressibleMomentumTransportModel.H`.
+  - In `FSI/ForceBase.C`, add the header `fluidThermo.H`.
+  - In `FSI/ForceBase.C`, replace:
+    - `compressible::momentumTransportModel` with `compressibleMomentumTransportModel`
+    - `incompressible::momentumTransportModel` with `incompressibleMomentumTransportModel`. Further down, replace the usage `const incompressible::momentumTransportModel&` with `const icoTurbModel&`.
+- **Triangulation:** In `Adapter.C`:
+  - Replace the header `faceTriangulation.H` with `polygonTriangulate.H`.
 
 ### OpenFOAM 10
 
