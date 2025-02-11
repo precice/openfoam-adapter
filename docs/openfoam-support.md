@@ -92,12 +92,16 @@ OpenFOAM 6 was [released](https://openfoam.org/release/6/) in July 2018 ([GitHub
 - **setDeltaT:** The `Time` method `setDeltaT(..., false)` was replaced by `setDeltaTNoAdjust(...)`.
   - Replace `setDeltaT(timestepSolver_, false)` with `setDeltaTNoAdjust(timestepSolver_)`.
 
+Related work in the adapter: [PR #33](https://github.com/precice/openfoam-adapter/pull/33).
+
 ### OpenFOAM 7
 
 OpenFOAM 7 was [released](https://openfoam.org/release/7/) in July 2019 ([GitHub mirror](https://github.com/OpenFOAM/OpenFOAM-7), [Doxygen](https://cpp.openfoam.org/v7)). Compared to OpenFOAM 6:
 
 - **fileName:** `fileName::DIRECTORY` was renamed to `fileType::directory`.
   - Replace this in the `Adapter.C`.
+
+Related work in the adapter: [PR #91](https://github.com/precice/openfoam-adapter/pull/91).
 
 ### OpenFOAM 8
 
@@ -141,6 +145,8 @@ OpenFOAM 8 was [released](https://openfoam.org/release/8/) in July 2020 ([GitHub
     - Replace the type `iitpMixture` with `fluidThermo` and rename the respective object from `mixture` to `thermo`.
     - Replace `"mixture"` in the lookups with `basicThermo::dictName`.
 
+Related work in the adapter: [PR #130](https://github.com/precice/openfoam-adapter/pull/130).
+
 ### OpenFOAM 9
 
 OpenFOAM 9 was [released](https://openfoam.org/release/9/) in July 2021 ([GitHub mirror](https://github.com/OpenFOAM/OpenFOAM-9), [Doxygen](https://cpp.openfoam.org/v9)). Compared to OpenFOAM 8:
@@ -159,6 +165,8 @@ OpenFOAM 9 was [released](https://openfoam.org/release/9/) in July 2021 ([GitHub
     - `incompressible::momentumTransportModel` with `incompressibleMomentumTransportModel`. Further down, replace the usage `const incompressible::momentumTransportModel&` with `const icoTurbModel&`.
 - **Triangulation:** In `Adapter.C`:
   - Replace the header `faceTriangulation.H` with `polygonTriangulate.H`.
+
+Related work in the adapter: [PR #221](https://github.com/precice/openfoam-adapter/pull/221).
 
 ### OpenFOAM 10
 
@@ -187,6 +195,8 @@ OpenFOAM 10 was [released](https://openfoam.org/release/10/) in July 2022 ([GitH
 OpenFOAM 11 was [released](https://openfoam.org/release/11/) in July 2023 ([GitHub mirror](https://github.com/OpenFOAM/OpenFOAM-11), [Doxygen](https://cpp.openfoam.org/v11)). Compared to OpenFOAM 10:
 
 TBD
+
+Related work in the adapter: [PR #310](https://github.com/precice/openfoam-adapter/pull/310).
 
 ### OpenFOAM 12
 
