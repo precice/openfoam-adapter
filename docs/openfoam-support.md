@@ -192,17 +192,13 @@ OpenFOAM 10 was [released](https://openfoam.org/release/10/) in July 2022 ([GitH
 
 ### OpenFOAM 11
 
-OpenFOAM 11 was [released](https://openfoam.org/release/11/) in July 2023 ([GitHub mirror](https://github.com/OpenFOAM/OpenFOAM-11), [Doxygen](https://cpp.openfoam.org/v11)). Compared to OpenFOAM 10:
-
-TBD
+OpenFOAM 11 was [released](https://openfoam.org/release/11/) in July 2023 ([GitHub mirror](https://github.com/OpenFOAM/OpenFOAM-11), [Doxygen](https://cpp.openfoam.org/v11)). We do not yet know which are relevant changes. Please help us port the adapter to OpenFOAM 11.
 
 Related work in the adapter: [PR #310](https://github.com/precice/openfoam-adapter/pull/310).
 
 ### OpenFOAM 12
 
-OpenFOAM 12 was [released](https://openfoam.org/release/12/) in July 2024 ([GitHub mirror](https://github.com/OpenFOAM/OpenFOAM-12), [Doxygen](https://cpp.openfoam.org/v12)). Compared to OpenFOAM 11:
-
-TBD
+OpenFOAM 12 was [released](https://openfoam.org/release/12/) in July 2024 ([GitHub mirror](https://github.com/OpenFOAM/OpenFOAM-12), [Doxygen](https://cpp.openfoam.org/v12)). We do not yet know which are relevant changes. Please help us port the adapter to OpenFOAM 12.
 
 ### foam-extend
 
