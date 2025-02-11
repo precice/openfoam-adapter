@@ -77,13 +77,15 @@ We take into account the following relevant differences between OpenFOAM version
 
 ### OpenFOAM 4 and 5
 
-OpenFOAM 4 was released in June 2016 and OpenFOAM 5 in July 2017.
+OpenFOAM 4 was [released](https://openfoam.org/release/4/) in June 2016 ([GitHub mirror](https://github.com/OpenFOAM/OpenFOAM-4.x), [Doxygen](https://cpp.openfoam.org/v4)).
+
+OpenFOAM 5 was [released](https://openfoam.org/release/5/) in July 2017 ([GitHub mirror](https://github.com/OpenFOAM/OpenFOAM-5.x), [Doxygen](https://cpp.openfoam.org/v5)).
 
 Same as in OpenFOAM v1612-v1806.
 
 ### OpenFOAM 6
 
-OpenFOAM 6 was released in July 2018. Compared to OpenFOAM 5:
+OpenFOAM 6 was [released](https://openfoam.org/release/6/) in July 2018 ([GitHub mirror](https://github.com/OpenFOAM/OpenFOAM-6), [Doxygen](https://cpp.openfoam.org/v6)). Compared to OpenFOAM 5:
 
 - **adjustTimeStep:** In the function objects interface, `adjustTimeStep()` was renamed to `setTimeStep()`.
   - Replace `adjustTimeStep()` with `setTimeStep()`, both for the function object and the adapter members.
@@ -92,38 +94,38 @@ OpenFOAM 6 was released in July 2018. Compared to OpenFOAM 5:
 
 ### OpenFOAM 7
 
-OpenFOAM 7 was released in July 2019. Compared to OpenFOAM 6:
+OpenFOAM 7 was [released](https://openfoam.org/release/7/) in July 2019 ([GitHub mirror](https://github.com/OpenFOAM/OpenFOAM-7), [Doxygen](https://cpp.openfoam.org/v7)). Compared to OpenFOAM 6:
 
 - **fileName:** `fileName::DIRECTORY` was renamed to `fileType::directory`.
   - Replace this in the `Adapter.C`.
 
 ### OpenFOAM 8
 
-OpenFOAM 8 was released in July 2020. Compared to OpenFOAM 7:
+OpenFOAM 8 was rele[released](https://openfoam.org/release/8/)ased in July 2020 ([GitHub mirror](https://github.com/OpenFOAM/OpenFOAM-8), [Doxygen](https://cpp.openfoam.org/v8)). Compared to OpenFOAM 7:
 
 TBD
 
 ### OpenFOAM 9
 
-OpenFOAM 9 was released in July 2021. Compared to OpenFOAM 8:
+OpenFOAM 9 was [released](https://openfoam.org/release/9/) in July 2021 ([GitHub mirror](https://github.com/OpenFOAM/OpenFOAM-9), [Doxygen](https://cpp.openfoam.org/v9)). Compared to OpenFOAM 8:
 
 TBD
 
 ### OpenFOAM 10
 
-OpenFOAM 10 was released in July 2022. Compared to OpenFOAM 9:
+OpenFOAM 10 was [released](https://openfoam.org/release/10/) in July 2022 ([GitHub mirror](https://github.com/OpenFOAM/OpenFOAM-10), [Doxygen](https://cpp.openfoam.org/v10)). Compared to OpenFOAM 9:
 
 TBD
 
 ### OpenFOAM 11
 
-OpenFOAM 11 was released in July 2023. Compared to OpenFOAM 10:
+OpenFOAM 11 was [released](https://openfoam.org/release/11/) in July 2023 ([GitHub mirror](https://github.com/OpenFOAM/OpenFOAM-11), [Doxygen](https://cpp.openfoam.org/v11)). Compared to OpenFOAM 10:
 
 TBD
 
 ### OpenFOAM 12
 
-OpenFOAM 12 was released in July 2024. Compared to OpenFOAM 11:
+OpenFOAM 12 was [released](https://openfoam.org/release/12/) in July 2024 ([GitHub mirror](https://github.com/OpenFOAM/OpenFOAM-12), [Doxygen](https://cpp.openfoam.org/v12)). Compared to OpenFOAM 11:
 
 TBD
 
