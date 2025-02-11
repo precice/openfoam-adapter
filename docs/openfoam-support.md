@@ -202,6 +202,10 @@ OpenFOAM 12 was [released](https://openfoam.org/release/12/) in July 2024 ([GitH
 
 ### foam-extend
 
+We have not yet documented all related changes that would make the adapter work for foam-extend. See the repository [`precice/foam-extend-adapter`](https://github.com/precice/foam-extend-adapter) for the latest state and please contribute to this page.
+
+Related work in the adapter: [PR #302](https://github.com/precice/openfoam-adapter/pull/302).
+
 ## Notes on OpenFOAM features
 
 ### End of the simulation
