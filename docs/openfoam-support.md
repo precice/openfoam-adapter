@@ -77,11 +77,13 @@ We take into account the following relevant differences between OpenFOAM version
 
 ### OpenFOAM 4 and 5
 
+OpenFOAM 4 was released in June 2016 and OpenFOAM 5 in July 2017.
+
 Same as in OpenFOAM v1612-v1806.
 
 ### OpenFOAM 6
 
-Compared to OpenFOAM 5:
+OpenFOAM 6 was released in July 2018. Compared to OpenFOAM 5:
 
 - **adjustTimeStep:** In the function objects interface, `adjustTimeStep()` was renamed to `setTimeStep()`.
   - Replace `adjustTimeStep()` with `setTimeStep()`, both for the function object and the adapter members.
@@ -90,16 +92,40 @@ Compared to OpenFOAM 5:
 
 ### OpenFOAM 7
 
-Compared to OpenFOAM 6:
+OpenFOAM 7 was released in July 2019. Compared to OpenFOAM 6:
 
 - **fileName:** `fileName::DIRECTORY` was renamed to `fileType::directory`.
   - Replace this in the `Adapter.C`.
 
 ### OpenFOAM 8
 
+OpenFOAM 8 was released in July 2020. Compared to OpenFOAM 7:
+
+TBD
+
 ### OpenFOAM 9
 
+OpenFOAM 9 was released in July 2021. Compared to OpenFOAM 8:
+
+TBD
+
 ### OpenFOAM 10
+
+OpenFOAM 10 was released in July 2022. Compared to OpenFOAM 9:
+
+TBD
+
+### OpenFOAM 11
+
+OpenFOAM 11 was released in July 2023. Compared to OpenFOAM 10:
+
+TBD
+
+### OpenFOAM 12
+
+OpenFOAM 12 was released in July 2024. Compared to OpenFOAM 11:
+
+TBD
 
 ### foam-extend
 
