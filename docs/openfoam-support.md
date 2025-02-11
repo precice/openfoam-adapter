@@ -35,20 +35,13 @@ We provide version-specific [release archives](https://github.com/precice/openfo
 
 - OpenCFD / ESI (openfoam.com) - main focus:
   - [OpenFOAM v1812-v2412](https://github.com/precice/openfoam-adapter) or newer
-    - OpenFOAM v2212 and newer is only supported since v1.2.2 of the adapter.
   - [OpenFOAM v1612-v1806](https://github.com/precice/openfoam-adapter/tree/OpenFOAMv1806) (not tested)
 - OpenFOAM Foundation (openfoam.org) - secondary, consider experimental:
   - [OpenFOAM 10](https://github.com/precice/openfoam-adapter/tree/OpenFOAM10)
-    - Several [changes to the tutorials](https://github.com/precice/tutorials/tree/OpenFOAM10) are also needed, read the [discussion](https://github.com/precice/tutorials/pull/283).
-    - Same limitations as for OpenFOAM 9.
   - [OpenFOAM 9](https://github.com/precice/openfoam-adapter/tree/OpenFOAM9)
-    - Rename `solver` to `motionSolver` in `constant/dynamicMeshDict`.
-    - Modify also `residualControl` to `outerCorrectorResidualControl` in `system/fvSolution`.
-    - Limitations in adjustable time step size ([#261](https://github.com/precice/openfoam-adapter/issues/261)).
   - [OpenFOAM 8](https://github.com/precice/openfoam-adapter/tree/OpenFOAM8)
   - [OpenFOAM 7](https://github.com/precice/openfoam-adapter/tree/OpenFOAM7)
   - [OpenFOAM 6](https://github.com/precice/openfoam-adapter/tree/OpenFOAM6)
-    - Modify also `residualControl` to `outerResidualControl` in `system/fvSolution`.
   - [OpenFOAM 5.x](https://github.com/precice/openfoam-adapter/tree/OpenFOAM5)
   - [OpenFOAM 4.0/4.1](https://github.com/precice/openfoam-adapter/tree/OpenFOAM4) (not tested)
 
@@ -91,6 +84,8 @@ OpenFOAM 6 was [released](https://openfoam.org/release/6/) in July 2018 ([GitHub
   - Replace `adjustTimeStep()` with `setTimeStep()`, both for the function object and the adapter members.
 - **setDeltaT:** The `Time` method `setDeltaT(..., false)` was replaced by `setDeltaTNoAdjust(...)`.
   - Replace `setDeltaT(timestepSolver_, false)` with `setDeltaTNoAdjust(timestepSolver_)`.
+- **Case files:**
+  - In `system/fvSolution`, replace `residualControl` with `outerResidualControl`.
 
 Related work in the adapter: [PR #33](https://github.com/precice/openfoam-adapter/pull/33).
 
@@ -153,7 +148,7 @@ OpenFOAM 9 was [released](https://openfoam.org/release/9/) in July 2021 ([GitHub
 
 - **Function objects:** The `setTimeStep()` method was removed.
   - Remove the method from the `preciceAdapterFunctionObject.H` and `preciceAdapterFunctionObject.C`. Adjust the comments for the equivalent method in `Adapter.H`.
-  - **Impact:** None expected. preCICE can still adjust the time step size of OpenFOAM and the adapter should still read the updated time step size of OpenFOAM inside `execute()`.
+  - **Impact:** See limitations in adjustable time step size ([#261](https://github.com/precice/openfoam-adapter/issues/261)).
 - **Thermophysical models:** Different libraries need to be linked and different headers need to be included:
   - In `Make/options`, remove the linking of `fluidThermoMomentumTransportModels` and `incompressibleMomentumTransportModels`.
   - In `Make/options`, link to `transportModels`, `momentumTransportModels`, `incompressibleMomentumTransportModels`, `compressibleMomentumTransportModels`.
@@ -165,6 +160,9 @@ OpenFOAM 9 was [released](https://openfoam.org/release/9/) in July 2021 ([GitHub
     - `incompressible::momentumTransportModel` with `incompressibleMomentumTransportModel`. Further down, replace the usage `const incompressible::momentumTransportModel&` with `const icoTurbModel&`.
 - **Triangulation:** In `Adapter.C`:
   - Replace the header `faceTriangulation.H` with `polygonTriangulate.H`.
+- **Case files:**
+  - In `constant/dynamicMeshDict`, replace `solver` with `motionSolver`.
+  - In `system/fvSolution`, replace `residualControl` with `outerCorrectorResidualControl`. This was already renamed to `outerResidualControl` in OpenFOAM 6.
 
 Related work in the adapter: [PR #221](https://github.com/precice/openfoam-adapter/pull/221).
 
@@ -189,6 +187,7 @@ OpenFOAM 10 was [released](https://openfoam.org/release/10/) in July 2022 ([GitH
 - **Fields `V0` and `V00`:** The fields `V0` and `V00` have been removed or renamed (not sure to what).
   - In `Adapter.C`, method `preciceAdapter::Adapter::setupMeshVolCheckpointing()`, guard each of these two fields with a `if (mesh_.foundObject<volScalarField::Internal>("V0"))` (and `if (... ("V00"))`, respectively). Alternatively, remove the implementation of this method altogether.
   - **Impact:** This might lead to stability issues in FSI simulations with implicit coupling. Check your results.
+- **Case files:** Several [changes to the tutorials](https://github.com/precice/tutorials/tree/OpenFOAM10) are needed, read the [discussion](https://github.com/precice/tutorials/pull/283).
 
 ### OpenFOAM 11
 
