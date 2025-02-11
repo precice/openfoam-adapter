@@ -101,9 +101,45 @@ OpenFOAM 7 was [released](https://openfoam.org/release/7/) in July 2019 ([GitHub
 
 ### OpenFOAM 8
 
-OpenFOAM 8 was rele[released](https://openfoam.org/release/8/)ased in July 2020 ([GitHub mirror](https://github.com/OpenFOAM/OpenFOAM-8), [Doxygen](https://cpp.openfoam.org/v8)). Compared to OpenFOAM 7:
+OpenFOAM 8 was [released](https://openfoam.org/release/8/) in July 2020 ([GitHub mirror](https://github.com/OpenFOAM/OpenFOAM-8), [Doxygen](https://cpp.openfoam.org/v8)). Compared to OpenFOAM 7:
 
-TBD
+- **Function objects:** Function objects changed behavior, and the `execute()` method is now also executed at start. See the [adapter issue #179](https://github.com/precice/openfoam-adapter/issues/179) and [PR #180](https://github.com/precice/openfoam-adapter/pull/180).
+  - In the beginning of `preciceAdapterFunctionObject::read()`, add `this->executeAtStart_ = false;`.
+- **Thermophysical models:** Some properties were moved from the previous `TurbulenceModels` and `transportModels` to the new `ThermophysicalTransportModels` and `MomentumTransportModels`.
+  - In `Make/options`, replace the following include paths:
+    - Remove the include paths to `transportModels/incompressible`, `transportModels/compressible`, `transportModels/twoPhaseMixture`, `transportModels/interfaceProperties`, `transportModels/immiscibleIncompressibleTwoPhaseMixture`, `TurbulenceModels/turbulenceModels`, `TurbulenceModels/compressible`, `TurbulenceModels/incompressible`.
+    - Add include paths to `ThermophysicalTransportModels`, `MomentumTransportModels/momentumTransportModels`, `MomentumTransportModels/compressible`, `MomentumTransportModels/incompressible`, `transportModels`.
+    - Remove the linking paths to `compressibleTurbulenceModels`, `incompressibleTurbulenceModels`.
+    - Add linking paths to `thermophysicalTransportModels`, `fluidThermoMomentumTransportModels`, `incompressibleMomentumTransportModels`.
+  - In `CHT/KappaEffective.H`:
+    - Remove the header inclusions `turbulentFluidThermoModel.H`, `turbulentTransportModel.H`.
+    - Include the headers `fluidThermoMomentumTransportModel.H`, `kinematicMomentumTransportModel.H`, `thermophysicalTransportModel.H`.
+    - Remove the variable declarations for `turbulence_` (2x), `nameRho_`, `nameCp_`, `namePr_`, `nameAlphat_`, `rho_`, `Cp_`, `Pr_` from the compressible and incompressible variants.
+    - In the incompressible variant's constructor signature, remove the `nameRho`, `nameCp`, `namePr`, `nameAlphat`.
+    - Add a new declaration: `const Foam::thermophysicalTransportModel& thermophysicalTransportModel_;` for each one of the `turbulence_` removed.
+  - In `CHT/KappaEffective.C`:
+    - Replace all instances of `turbulence_` with `thermophysicalTransportModel_` and update the respective comments.
+    - Replace `compressible::turbulenceModel` and `incompressible::turbulenceModel` with `thermophysicalTransportModel`.
+    - Replace `turbulenceModel::propertiesName` with `thermophysicalTransportModel::typeName`.
+    - In the incompressible variant, remove all lines of code working with `nameRho_`, `nameCp_`, `namePr_`, `nameAlphat_` from the constructor (which ends up with an empty body) and the `extract()` method. Replace the usage of `kappaEff_temp` with `thermophysicalTransportModel_.kappaEff()().boundaryField()[patchID]`.
+    - Replace the `const dictionary& CHTDict` with `const dictionary CHTDict`.
+  - In `CHT/HeatFlux.C` and in `CHT/HeatTransferCoefficient.C`:
+    - Replace `KappaEff_Incompressible(mesh, nameRho, nameCp, namePr, nameAlphat)` with `KappaEff_Incompressible(mesh)`.
+  - In `FSI/ForceBase.H`:
+    - Remove the header inclusions `immiscibleIncompressibleTwoPhaseMixture.H`, `turbulentFluidThermoModel.H`, `turbulentTransportModel.H`.
+    - Include the headers `fluidThermoMomentumTransportModel.H`, `kinematicMomentumTransportModel.H`.
+  - In `FSI/ForceBase.C`, in the `ForceBase::devRhoReff()`:
+    - Replace `compressible::turbulenceModel` with `compressible::momentumTransportModel`.
+    - Replace `incompressible::turbulenceModel` with `incompressible::momentumTransportModel`.
+    - Replace `cmpTurbModel::propertiesName` with `cmpTurbModel::typeName`.
+    - Replace `turb(mesh_.lookupObject<>())` with `turb = mesh_.lookupObject<>()` (where `const cmpTurbModel& turb`).
+    - Replace `turb.devRhoReff()` with `turb.devTau()`.
+    - Replace `turb.devReff()` with `turb.devSigma()`.
+    - Replace `U(mesh_.lookupObject<>())` with `U = mesh_.lookupObject<>()` (where `const volVectorField& U`).
+  - In `FSI/ForceBase.C`, in the `ForceBase::mu()`:
+    - Remove the line `typedef immiscibleIncompressibleTwoPhaseMixture iitpMixture;`.
+    - Replace the type `iitpMixture` with `fluidThermo` and rename the respective object from `mixture` to `thermo`.
+    - Replace `"mixture"` in the lookups with `basicThermo::dictName`.
 
 ### OpenFOAM 9
 
