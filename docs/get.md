@@ -17,6 +17,8 @@ To build the adapter, you need to install a few dependencies and then execute th
 
 The adapter also requires [pkg-config](https://linux.die.net/man/1/pkg-config) to [link to preCICE](https://precice.org/installation-linking.html). This is a very common dependency on Linux and is usually already installed.
 
+By default, the adapter will be installed under `FOAM_USER_LIBBIN`. If you want to use a different location please set `ADAPTER_TARGET_DIR` before running `./Allwmake`. You can, for example, use `export ADAPTER_TARGET_DIR=$FOAM_LIBBIN` to install the adapter system-wide (requires `sudo`).
+
 You can set compile flags by either changing the `ADAPTER_PREP_FLAGS` variable in the `Allwmake` script, or directly setting the value of `ADAPTER_PREP_FLAGS`  as an environment variable.
 To do so, `export ADAPTER_PREP_FLAGS="-D<desired> -D<options>"` before compiling the adapter.
 
