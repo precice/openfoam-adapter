@@ -127,7 +127,7 @@ private:
 
     // NOTE: Add here a pointer for your new module object
 
-    MODULE::ConjugateHeatTransfer* MODULE_ = NULL;
+    MODULE::GeneralInterface* MODULE_ = NULL;
 
     // Timesteps
 

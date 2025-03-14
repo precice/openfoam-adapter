@@ -3,7 +3,7 @@
 
 #include "Interface.H"
 
-#include "GENERAL/HeatTransfer.H"
+#include "GENERAL/ReadWrite.H"
 
 #include "fvCFD.H"
 
@@ -12,26 +12,28 @@ namespace preciceAdapter
 namespace MODULE
 {
 
-class ConjugateHeatTransfer
+class GeneralInterface
 {
-
 protected:
     //- OpenFOAM fvMesh object
     const Foam::fvMesh& mesh_;
 
-    //- Name of the temperature field
-    std::string nameT_ = "T";
-
-protected:
-    //- Determine the solver type
-    std::string determineSolverType();
-
     //- Read the Module related options from the adapter's configuration file
     bool readConfig(const IOdictionary& adapterConfig);
 
+    //- Struct to store interfaces configuration (modified from Adapter.C)
+    struct InterfaceConfig
+    {
+        std::vector<struct fieldConfig> writeData;
+        std::vector<struct fieldConfig> readData;
+    };
+
+    //- Configuration interfaces
+    std::vector<struct InterfaceConfig> interfacesConfig_;
+
 public:
     //- Constructor
-    ConjugateHeatTransfer(const Foam::fvMesh& mesh);
+    GeneralInterface(const Foam::fvMesh& mesh);
 
     //- Configure
     bool configure(const IOdictionary& adapterConfig);

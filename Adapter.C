@@ -143,17 +143,20 @@ bool preciceAdapter::Adapter::configFileRead()
                     }
 
                     DEBUG(adapterInfo("    writeData    : "));
-                    auto writeData = interfaceDict.get<wordList>("writeData");
-                    for (auto writeDatum : writeData)
+                    // Get writeData as a dictionary
+                    const dictionary& writeDataDict = interfaceDict.subDict("writeData");
+                    for (const entry& writeDatumEntry : writeDataDict)
                     {
+                        word writeDatum = writeDatumEntry.keyword();
                         interfaceConfig.writeData.push_back(writeDatum);
                         DEBUG(adapterInfo("      - " + writeDatum));
                     }
 
                     DEBUG(adapterInfo("    readData     : "));
-                    auto readData = interfaceDict.get<wordList>("readData");
-                    for (auto readDatum : readData)
+                    const dictionary& readDataDict = interfaceDict.subDict("readData");
+                    for (const entry& readDatumEntry : readDataDict)
                     {
+                        word readDatum = readDatumEntry.keyword();
                         interfaceConfig.readData.push_back(readDatum);
                         DEBUG(adapterInfo("      - " + readDatum));
                     }
@@ -166,7 +169,7 @@ bool preciceAdapter::Adapter::configFileRead()
 
         if (generalModuleEnabled_)
         {
-            MODULE_ = new MODULE::ConjugateHeatTransfer(mesh_);
+            MODULE_ = new MODULE::GeneralInterface(mesh_);
             if (!MODULE_->configure(preciceDict))
             {
                 return false;
