@@ -39,6 +39,7 @@ To trigger the custom build workflow:
 1. Switch to the directory `.github/workflows/`
 2. Edit the inputs in the `build-custom.input` file.
 3. [Generate a GitHub access token](https://github.com/settings/personal-access-tokens) and add it to a `.secrets` file with content `GITHUB_TOKEN=<your-token>`.
+   This, as well as setting an `--artifact-server-path` to a local directory are needed for the `upload-artifact` action, even though build artifacts are only stored locally (see updates in a [related issue](https://github.com/nektos/act/issues/329)).
 4. Start the build using:
 
    ```shell
