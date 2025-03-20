@@ -121,6 +121,7 @@ jobs:
           ./run.sh | tee fluid-openfoam.log 2>&1 &
           PIDfluid=$!
           cd ../solid-cpp
+          apt-get update && apt-get -y install cmake
           cmake . && make && ./run.sh | tee solid-cpp.log 2>&1
           wait $PIDfluid
         fi
