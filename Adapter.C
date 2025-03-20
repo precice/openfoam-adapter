@@ -139,21 +139,102 @@ bool preciceAdapter::Adapter::configFileRead()
                     }
 
                     DEBUG(adapterInfo("    writeData    : "));
-                    auto writeData = interfaceDict.lookupOrDefault<wordList>("writeData", wordList());
-                    for (auto writeDatum : writeData)
+
+                    // Check if writeData is a dictionary or list
+                    ITstream& writeDataStream = interfaceDict.lookup("writeData");
+                    token firstToken = writeDataStream.peek();
+
+                    if (firstToken == token::BEGIN_BLOCK)
                     {
-                        interfaceConfig.writeData.push_back(writeDatum);
-                        DEBUG(adapterInfo("      - " + writeDatum));
+                        const dictionary& writeDataDict = interfaceDict.subDict("writeData");
+                        for (const entry& writeDatumEntry : writeDataDict)
+                        {
+                            const dictionary& writeDatumDict = writeDatumEntry.dict();
+                            word dataName = writeDatumEntry.keyword();
+
+                            struct fieldConfig fieldConfig;
+                            fieldConfig.name = dataName;
+                            fieldConfig.solver_name = writeDatumDict.lookupOrDefault<word>("solver_name", dataName); // default solver_name is the same
+                            fieldConfig.operation = writeDatumDict.lookupOrDefault<word>("operation", "value");      // default operation is "value"
+
+                            interfaceConfig.writeData.push_back(fieldConfig);
+
+                            DEBUG(adapterInfo("      - " + dataName));
+                            DEBUG(adapterInfo("        solver_name: " + fieldConfig.solver_name));
+                            DEBUG(adapterInfo("        operation  : " + fieldConfig.operation));
+                        }
+                    }
+                    else if (firstToken == token::BEGIN_LIST)
+                    {
+
+                        wordList writeDataList = interfaceDict.get<wordList>("writeData");
+                        for (const auto& dataName : writeDataList)
+                        {
+                            struct fieldConfig fieldConfig;
+                            fieldConfig.name = dataName;
+                            fieldConfig.solver_name = dataName;
+                            fieldConfig.operation = "none";
+
+                            interfaceConfig.writeData.push_back(fieldConfig);
+
+                            DEBUG(adapterInfo("      - " + dataName));
+                        }
+                    }
+                    else
+                    {
+                        adapterInfo("writeData should be a dictionary or a list", "error");
                     }
 
                     DEBUG(adapterInfo("    readData     : "));
-                    auto readData = interfaceDict.lookupOrDefault<wordList>("readData", wordList());
-                    for (auto readDatum : readData)
+
+                    // Check if readData is a dictionary or list
+                    ITstream& readDataStream = interfaceDict.lookup("readData");
+                    firstToken = readDataStream.peek();
+
+                    if (firstToken == token::BEGIN_BLOCK)
                     {
-                        interfaceConfig.readData.push_back(readDatum);
-                        DEBUG(adapterInfo("      - " + readDatum));
+                        const dictionary& readDataDict = interfaceDict.subDict("readData");
+                        for (const entry& readDatumEntry : readDataDict)
+                        {
+                            const dictionary& readDatumDict = readDatumEntry.dict();
+                            word dataName = readDatumEntry.keyword();
+
+                            struct fieldConfig fieldConfig;
+                            fieldConfig.name = dataName;
+                            fieldConfig.solver_name = readDatumDict.lookupOrDefault<word>("solver_name", dataName); // default solver_name is the same
+                            fieldConfig.operation = readDatumDict.lookupOrDefault<word>("operation", "value");      // default operation is "value"
+
+                            interfaceConfig.readData.push_back(fieldConfig);
+
+                            DEBUG(adapterInfo("      - " + dataName));
+                            DEBUG(adapterInfo("        solver_name: " + fieldConfig.solver_name));
+                            DEBUG(adapterInfo("        operation  : " + fieldConfig.operation));
+                        }
+
+                        interfacesConfig_.push_back(interfaceConfig);
                     }
-                    interfacesConfig_.push_back(interfaceConfig);
+                    else if (firstToken == token::BEGIN_LIST)
+                    {
+
+                        wordList readDataList = interfaceDict.get<wordList>("readData");
+                        for (const auto& dataName : readDataList)
+                        {
+                            struct fieldConfig fieldConfig;
+                            fieldConfig.name = dataName;
+                            fieldConfig.solver_name = dataName;
+                            fieldConfig.operation = "none";
+
+                            interfaceConfig.readData.push_back(fieldConfig);
+
+                            DEBUG(adapterInfo("      - " + dataName));
+                        }
+
+                        interfacesConfig_.push_back(interfaceConfig);
+                    }
+                    else
+                    {
+                        adapterInfo("readData should be a dictionary or a list", "error");
+                    }
                 }
             }
         }
@@ -286,7 +367,7 @@ void preciceAdapter::Adapter::configure()
             DEBUG(adapterInfo("Adding coupling data writers..."));
             for (uint j = 0; j < interfacesConfig_.at(i).writeData.size(); j++)
             {
-                std::string dataName = interfacesConfig_.at(i).writeData.at(j);
+                std::string dataName = interfacesConfig_.at(i).writeData.at(j).name;
 
                 unsigned int inModules = 0;
 
@@ -327,7 +408,7 @@ void preciceAdapter::Adapter::configure()
             DEBUG(adapterInfo("Adding coupling data readers..."));
             for (uint j = 0; j < interfacesConfig_.at(i).readData.size(); j++)
             {
-                std::string dataName = interfacesConfig_.at(i).readData.at(j);
+                std::string dataName = interfacesConfig_.at(i).readData.at(j).name;
 
                 unsigned int inModules = 0;
 
