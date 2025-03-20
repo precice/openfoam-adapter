@@ -20,7 +20,7 @@ The adapter also requires [pkg-config](https://linux.die.net/man/1/pkg-config) t
 The `Allwmake` script uses two environment variables:
 
 * `PRECICE_OPENFOAM_TARGET_DIR`: Where the `libpreciceAdapterFunctionObject.so` will be installed. Defaults to `FOAM_USER_LIBBIN`.
-* `PRECICE_OPENFOAM_PREP_FLAGS`: Additional flags passed to wmake and used by the preprocessor/compiler. Defaults to an empty string.
+* `PRECICE_OPENFOAM_CFLAGS`: Additional flags passed to wmake and used by the preprocessor/compiler. Defaults to an empty string.
   * Adding `-DADAPTER_DEBUG_MODE` flag activates additional debug messages.
   * Adding the `-DADAPTER_ENABLE_TIMINGS` flag  activates time measurements for several regions of the adapter, printed at the end of the simulation output.
 

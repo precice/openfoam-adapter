@@ -6,7 +6,7 @@ set -e -u
 # Optional: Preprocessor flags
 # "-DADAPTER_DEBUG_MODE" enables debug messages
 # "-DADAPTER_ENABLE_TIMINGS" enables time measurements
-ADAPTER_PREP_FLAGS="${PRECICE_OPENFOAM_PREP_FLAGS:-}"
+ADAPTER_CFLAGS="${PRECICE_OPENFOAM_CFLAGS:-}"
 
 # Build command and options
 # In order to compile with multiple threads, set the environment variable WM_NCOMPPROCS,
@@ -38,7 +38,7 @@ warning() {
 log "Building the OpenFOAM-preCICE adapter..."
 
 # Export the environment variables
-export ADAPTER_PREP_FLAGS
+export ADAPTER_CFLAGS
 export ADAPTER_TARGET_DIR
 
 # Check if pkg-config is available and get the config for preCICE
@@ -90,7 +90,7 @@ fi
 
 log ""
 log "The adapter will be built into ${ADAPTER_TARGET_DIR}"
-log "Additional preprocessor/compiler options: ${ADAPTER_PREP_FLAGS}"
+log "Additional preprocessor/compiler options: ${ADAPTER_CFLAGS}"
 
 # Run wmake (build the adapter) and check the exit code
 log ""
