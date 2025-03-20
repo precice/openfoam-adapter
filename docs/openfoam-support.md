@@ -99,11 +99,12 @@ We take into account the following relevant differences between OpenFOAM version
 - **dictionary access:** In dictionaries (essentially: in the `preciceDict`), some methods are not available. These are mainly used in the configuration step in `Adapter.C`, but also in `ForceBase.C`.
   - Replace `preciceDict.get<fileName>("...")` with `static_cast<fileName>(preciceDict.lookup("...")`.
   - Replace `preciceDict.get<word>("...")` with `static_cast<word>(preciceDict.lookup("..."))`.
+  - Replace `preciceDict.getOrDefault` with `preciceDict.lookupOrDefault`.
   - Replace `preciceDict.get<wordList>("...")` with `static_cast<wordList>(preciceDict.lookup("..."))`.
   - Replace `preciceDict.findDict("...")` with `preciceDict.subDictPtr("...")`.
 - **Db access:** In the macro that deals with adding checkpointed fields, some methods are not available.
-  - Replace `mesh_.sortedNames<GeomField>()` with `mesh_.lookupClass<GeomField>().sortedToc()`.
-  - Replace `mesh_.thisDb().getObjectPtr<GeomField>(obj)` with `&(const_cast<GeomField&>(mesh_.thisDb().lookupObject<GeomField>(obj)))`.
+  - Replace `mesh_.sortedNames<GeomFieldType>()` with `mesh_.lookupClass<GeomFieldType>().sortedToc()`.
+  - Replace `mesh_.thisDb().getObjectPtr<GeomFieldType>(obj)` with `&(const_cast<GeomFieldType&>(mesh_.thisDb().lookupObject<GeomFieldType>(obj)))`.
 - **Pointers:** `std::unique_ptr` is not available.
   - Replace `std::unique_ptr<T>` with `Foam::autoPtr<T>`.
   - Replace calls to pointer `.reset()`, such as `ForceOwning_.reset(new volVectorField(`, with `ForceOwning_ = new volVectorField(`. Adjust the number of closing parentheses.
@@ -134,6 +135,9 @@ Related work in the adapter: [PR #33](https://github.com/precice/openfoam-adapte
 
 OpenFOAM 7 was [released](https://openfoam.org/release/7/) in July 2019 ([GitHub mirror](https://github.com/OpenFOAM/OpenFOAM-7), [Doxygen](https://cpp.openfoam.org/v7)). Compared to OpenFOAM 6:
 
+- **writeEntry:** The interface for `writeEntry` was changed.
+  - Where in the latest adapter (`FF/BoundaryConditions`) you see `this->writeEntry("value", os)`, replace it with `writeEntry(os, "value", *this)`.
+  - Similarly, where `this->valueFraction().writeEntry("valueFraction", os);`, replace it with `writeEntry(os, "valueFraction", this->valueFraction())`. Similarly for `this->refValue().writeEntry("refValue", os)`.
 - **fileName:** `fileName::DIRECTORY` was renamed to `fileType::directory`.
   - Replace this in the `Adapter.C`.
 
