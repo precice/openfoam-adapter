@@ -220,6 +220,7 @@ OpenFOAM 10 was [released](https://openfoam.org/release/10/) in July 2022 ([GitH
         return wordList::null();
     }
     ```
+
 - **Physical properties and models:** The `physicalProperties` was replaced by `transportModels`.
   - In `Make/options`, replace `physicalProperties` with `transportModels` in the included paths and in the linked libraries.
   - In `FSI/ForceBase.H`, replace `kinematicMomentumTransportModel.H` with `incompressibleMomentumTransportModel.H`.
