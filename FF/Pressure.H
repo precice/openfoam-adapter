@@ -26,10 +26,10 @@ public:
         const std::string nameP);
 
     //- Write the pressure values into the buffer
-    std::size_t write(double* buffer, bool meshConnectivity, const unsigned int dim);
+    std::size_t write(double* buffer, bool meshConnectivity, const unsigned int dim) final;
 
     //- Read the pressure values from the buffer
-    void read(double* buffer, const unsigned int dim);
+    void read(double* buffer, const unsigned int dim) final;
 
     bool isLocationTypeSupported(const bool meshConnectivity) const final;
 

@@ -44,7 +44,7 @@ public:
     bool isLocationTypeSupported(const bool meshConnectivity) const final;
 
     //- Get the name of the current data field
-    std::string getDataName() const;
+    std::string getDataName() const final;
 
     //- We need to initialize the cell-based vector and the interpolation object
     // in case we want to use the faceCenter location for the coupling
