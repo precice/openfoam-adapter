@@ -24,6 +24,6 @@ jobs:
     uses: precice/tutorials/.github/workflows/run_testsuite_workflow.yml@develop
     with:
       suites: openfoam_adapter_pr
-      build_args: TUTORIALS_REF:${{ needs.gather-refs.outputs.reftutorials }},PRECICE_REF:v3.1.1,OPENFOAM_EXECUTABLE:openfoam2312,OPENFOAM_ADAPTER_REF:${{ github.event.pull_request.head.sha }}
-      system_tests_branch: develop
+      build_args: TUTORIALS_REF:${{ needs.gather-refs.outputs.reftutorials }},PRECICE_REF:v3.1.1,OPENFOAM_EXECUTABLE:openfoam2312,OPENFOAM_ADAPTER_PR:${{ github.event.number }},OPENFOAM_ADAPTER_REF:${{ github.event.pull_request.head.sha }}
+      system_tests_branch: test-forks
       log_level: "DEBUG"
