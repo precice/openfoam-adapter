@@ -31,7 +31,7 @@ jobs:
           echo "Reference (develop): [\`${{ steps.ref-tutorials.outputs.shorthash }}\`](https://github.com/precice/tutorials/commit/${{ steps.ref-tutorials.outputs.shorthash }})" >> $GITHUB_STEP_SUMMARY
           echo "Description:" >> $GITHUB_STEP_SUMMARY
           echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
-          echo "${{ steps.ref-openfoam-adapter.outputs.description }}" >> $GITHUB_STEP_SUMMARY
+          echo "${{ steps.ref-tutorials.outputs.description }}" >> $GITHUB_STEP_SUMMARY
           echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
 
   run-system-tests:
