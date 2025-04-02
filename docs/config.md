@@ -357,6 +357,7 @@ functions
     preCICE_Adapter
     {
         type preciceAdapterFunctionObject;
+        errors strict; // optional
     }
 }
 ```
@@ -364,6 +365,8 @@ functions
 This directs the solver to use the `preciceAdapterFunctionObject` function object,
 which is part of the `libpreciceAdapterFunctionObject.so` shared library.
 The name `preCICE_Adapter` can be arbitrary. It is important that the library is loaded outside the `functions` dictionary when you want to use the custom boundary conditions that we provide with the FF module.
+
+The `errors strict` option is optional and [available since OpenFOAM v2012](https://www.openfoam.com/news/main-news/openfoam-v20-12/post-processing#post-processing-function-object-error-handling). Since the adapter is necessary to do a coupled simulation, this option instructs OpenFOAM to stop in case it faces issues with loading the adapter. For OpenFOAM versions that don't support this, remove the option.
 
 If you are using other function objects in your simulation, add the preCICE adapter to the end of the list. The adapter will then be executed last, which is important, as the adapter also controls the end of the simulation. When the end of the simulation is detected, the adapter also triggers the `end()` method of all function objects.
 
