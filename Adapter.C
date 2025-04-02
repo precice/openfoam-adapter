@@ -209,7 +209,7 @@ bool preciceAdapter::Adapter::configFileRead()
 
         if (!CHTenabled_ && !FSIenabled_ && !FFenabled_) // NOTE: Add your new switch here
         {
-            adapterInfo("No module is enabled.", "error-deferred");
+            adapterInfo("No module is enabled.", "error");
             return false;
         }
 
@@ -220,7 +220,7 @@ bool preciceAdapter::Adapter::configFileRead()
     }
     catch (const Foam::error& e)
     {
-        adapterInfo(e.message(), "error-deferred");
+        adapterInfo(e.message(), "error");
         return false;
     }
 
@@ -245,183 +245,166 @@ void preciceAdapter::Adapter::configure()
         return;
     }
 
-    try
+    // Check the timestep type (fixed vs adjustable)
+    DEBUG(adapterInfo("Checking the timestep type (fixed vs adjustable)..."));
+    adjustableTimestep_ = runTime_.controlDict().lookupOrDefault("adjustTimeStep", false);
+
+    if (adjustableTimestep_)
     {
-        // Check the timestep type (fixed vs adjustable)
-        DEBUG(adapterInfo("Checking the timestep type (fixed vs adjustable)..."));
-        adjustableTimestep_ = runTime_.controlDict().lookupOrDefault("adjustTimeStep", false);
-
-        if (adjustableTimestep_)
-        {
-            DEBUG(adapterInfo("  Timestep type: adjustable."));
-        }
-        else
-        {
-            DEBUG(adapterInfo("  Timestep type: fixed."));
-        }
-
-        // Construct preCICE
-        SETUP_TIMER();
-        DEBUG(adapterInfo("Creating the preCICE solver interface..."));
-        DEBUG(adapterInfo("  Number of processes: " + std::to_string(Pstream::nProcs())));
-        DEBUG(adapterInfo("  MPI rank: " + std::to_string(Pstream::myProcNo())));
-        precice_ = new precice::Participant(participantName_, preciceConfigFilename_, Pstream::myProcNo(), Pstream::nProcs());
-        DEBUG(adapterInfo("  preCICE solver interface was created."));
-
-        ACCUMULATE_TIMER(timeInPreciceConstruct_);
-
-        // Create interfaces
-        REUSE_TIMER();
-        DEBUG(adapterInfo("Creating interfaces..."));
-        for (uint i = 0; i < interfacesConfig_.size(); i++)
-        {
-            std::string namePointDisplacement = FSIenabled_ ? FSI_->getPointDisplacementFieldName() : "default";
-            std::string nameCellDisplacement = FSIenabled_ ? FSI_->getCellDisplacementFieldName() : "default";
-            bool restartFromDeformed = FSIenabled_ ? FSI_->isRestartingFromDeformed() : false;
-
-            Interface* interface = new Interface(*precice_, mesh_, interfacesConfig_.at(i).meshName, interfacesConfig_.at(i).locationsType, interfacesConfig_.at(i).patchNames, interfacesConfig_.at(i).cellSetNames, interfacesConfig_.at(i).meshConnectivity, restartFromDeformed, namePointDisplacement, nameCellDisplacement);
-            interfaces_.push_back(interface);
-            DEBUG(adapterInfo("Interface created on mesh " + interfacesConfig_.at(i).meshName));
-
-            DEBUG(adapterInfo("Adding coupling data writers..."));
-            for (uint j = 0; j < interfacesConfig_.at(i).writeData.size(); j++)
-            {
-                std::string dataName = interfacesConfig_.at(i).writeData.at(j);
-
-                unsigned int inModules = 0;
-
-                // Add CHT-related coupling data writers
-                if (CHTenabled_ && CHT_->addWriters(dataName, interface))
-                {
-                    inModules++;
-                }
-
-                // Add FSI-related coupling data writers
-                if (FSIenabled_ && FSI_->addWriters(dataName, interface))
-                {
-                    inModules++;
-                }
-
-                // Add FF-related coupling data writers
-                if (FFenabled_ && FF_->addWriters(dataName, interface))
-                {
-                    inModules++;
-                }
-
-                if (inModules == 0)
-                {
-                    adapterInfo("I don't know how to write \"" + dataName
-                                    + "\". Maybe this is a typo or maybe you need to enable some adapter module?",
-                                "error-deferred");
-                }
-                else if (inModules > 1)
-                {
-                    adapterInfo("It looks like more than one modules can write \"" + dataName
-                                    + "\" and I don't know how to choose. Try disabling one of the modules.",
-                                "error-deferred");
-                }
-
-                // NOTE: Add any coupling data writers for your module here.
-            } // end add coupling data writers
-
-            DEBUG(adapterInfo("Adding coupling data readers..."));
-            for (uint j = 0; j < interfacesConfig_.at(i).readData.size(); j++)
-            {
-                std::string dataName = interfacesConfig_.at(i).readData.at(j);
-
-                unsigned int inModules = 0;
-
-                // Add CHT-related coupling data readers
-                if (CHTenabled_ && CHT_->addReaders(dataName, interface)) inModules++;
-
-                // Add FSI-related coupling data readers
-                if (FSIenabled_ && FSI_->addReaders(dataName, interface)) inModules++;
-
-                // Add FF-related coupling data readers
-                if (FFenabled_ && FF_->addReaders(dataName, interface)) inModules++;
-
-                if (inModules == 0)
-                {
-                    adapterInfo("I don't know how to read \"" + dataName
-                                    + "\". Maybe this is a typo or maybe you need to enable some adapter module?",
-                                "error-deferred");
-                }
-                else if (inModules > 1)
-                {
-                    adapterInfo("It looks like more than one modules can read \"" + dataName
-                                    + "\" and I don't know how to choose. Try disabling one of the modules.",
-                                "error-deferred");
-                }
-
-                // NOTE: Add any coupling data readers for your module here.
-            } // end add coupling data readers
-
-            // Create the interface's data buffer
-            interface->createBuffer();
-        }
-        ACCUMULATE_TIMER(timeInMeshSetup_);
-
-        // Initialize preCICE and exchange the first coupling data
-        initialize();
-
-        // If checkpointing is required, specify the checkpointed fields
-        // and write the first checkpoint
-        if (requiresWritingCheckpoint())
-        {
-            checkpointing_ = true;
-
-            // Setup the checkpointing (find and add fields to checkpoint)
-            setupCheckpointing();
-
-            // Write checkpoint (for the first iteration)
-            writeCheckpoint();
-        }
-
-        // Adjust the timestep for the first iteration, if it is fixed
-        if (!adjustableTimestep_)
-        {
-            adjustSolverTimeStepAndReadData();
-        }
-
-        // If the solver tries to end before the coupling is complete,
-        // e.g. because the solver's endTime was smaller or (in implicit
-        // coupling) equal with the max-time specified in preCICE,
-        // problems may occur near the end of the simulation,
-        // as the function object may be called only once near the end.
-        // See the implementation of Foam::Time::run() for more details.
-        // To prevent this, we set the solver's endTime to "infinity"
-        // and let only preCICE control the end of the simulation.
-        // This has the side-effect of not triggering the end() method
-        // in any function object normally. Therefore, we trigger it
-        // when preCICE dictates to stop the coupling.
-        adapterInfo(
-            "Setting the solver's endTime to infinity to prevent early exits. "
-            "Only preCICE will control the simulation's endTime. "
-            "Any functionObject's end() method will be triggered by the adapter. "
-            "You may disable this behavior in the adapter's configuration.",
-            "info");
-        const_cast<Time&>(runTime_).setEndTime(GREAT);
+        DEBUG(adapterInfo("  Timestep type: adjustable."));
     }
-    catch (const Foam::error& e)
+    else
     {
-        adapterInfo(e.message(), "error-deferred");
-        errorsInConfigure = true;
+        DEBUG(adapterInfo("  Timestep type: fixed."));
     }
+
+    // Construct preCICE
+    SETUP_TIMER();
+    DEBUG(adapterInfo("Creating the preCICE solver interface..."));
+    DEBUG(adapterInfo("  Number of processes: " + std::to_string(Pstream::nProcs())));
+    DEBUG(adapterInfo("  MPI rank: " + std::to_string(Pstream::myProcNo())));
+    precice_ = new precice::Participant(participantName_, preciceConfigFilename_, Pstream::myProcNo(), Pstream::nProcs());
+    DEBUG(adapterInfo("  preCICE solver interface was created."));
+
+    ACCUMULATE_TIMER(timeInPreciceConstruct_);
+
+    // Create interfaces
+    REUSE_TIMER();
+    DEBUG(adapterInfo("Creating interfaces..."));
+    for (uint i = 0; i < interfacesConfig_.size(); i++)
+    {
+        std::string namePointDisplacement = FSIenabled_ ? FSI_->getPointDisplacementFieldName() : "default";
+        std::string nameCellDisplacement = FSIenabled_ ? FSI_->getCellDisplacementFieldName() : "default";
+        bool restartFromDeformed = FSIenabled_ ? FSI_->isRestartingFromDeformed() : false;
+
+        Interface* interface = new Interface(*precice_, mesh_, interfacesConfig_.at(i).meshName, interfacesConfig_.at(i).locationsType, interfacesConfig_.at(i).patchNames, interfacesConfig_.at(i).cellSetNames, interfacesConfig_.at(i).meshConnectivity, restartFromDeformed, namePointDisplacement, nameCellDisplacement);
+        interfaces_.push_back(interface);
+        DEBUG(adapterInfo("Interface created on mesh " + interfacesConfig_.at(i).meshName));
+
+        DEBUG(adapterInfo("Adding coupling data writers..."));
+        for (uint j = 0; j < interfacesConfig_.at(i).writeData.size(); j++)
+        {
+            std::string dataName = interfacesConfig_.at(i).writeData.at(j);
+
+            unsigned int inModules = 0;
+
+            // Add CHT-related coupling data writers
+            if (CHTenabled_ && CHT_->addWriters(dataName, interface))
+            {
+                inModules++;
+            }
+
+            // Add FSI-related coupling data writers
+            if (FSIenabled_ && FSI_->addWriters(dataName, interface))
+            {
+                inModules++;
+            }
+
+            // Add FF-related coupling data writers
+            if (FFenabled_ && FF_->addWriters(dataName, interface))
+            {
+                inModules++;
+            }
+
+            if (inModules == 0)
+            {
+                adapterInfo("I don't know how to write \"" + dataName
+                                + "\". Maybe this is a typo or maybe you need to enable some adapter module?",
+                            "error");
+            }
+            else if (inModules > 1)
+            {
+                adapterInfo("It looks like more than one modules can write \"" + dataName
+                                + "\" and I don't know how to choose. Try disabling one of the modules.",
+                            "error");
+            }
+
+            // NOTE: Add any coupling data writers for your module here.
+        } // end add coupling data writers
+
+        DEBUG(adapterInfo("Adding coupling data readers..."));
+        for (uint j = 0; j < interfacesConfig_.at(i).readData.size(); j++)
+        {
+            std::string dataName = interfacesConfig_.at(i).readData.at(j);
+
+            unsigned int inModules = 0;
+
+            // Add CHT-related coupling data readers
+            if (CHTenabled_ && CHT_->addReaders(dataName, interface)) inModules++;
+
+            // Add FSI-related coupling data readers
+            if (FSIenabled_ && FSI_->addReaders(dataName, interface)) inModules++;
+
+            // Add FF-related coupling data readers
+            if (FFenabled_ && FF_->addReaders(dataName, interface)) inModules++;
+
+            if (inModules == 0)
+            {
+                adapterInfo("I don't know how to read \"" + dataName
+                                + "\". Maybe this is a typo or maybe you need to enable some adapter module?",
+                            "error");
+            }
+            else if (inModules > 1)
+            {
+                adapterInfo("It looks like more than one modules can read \"" + dataName
+                                + "\" and I don't know how to choose. Try disabling one of the modules.",
+                            "error");
+            }
+
+            // NOTE: Add any coupling data readers for your module here.
+        } // end add coupling data readers
+
+        // Create the interface's data buffer
+        interface->createBuffer();
+    }
+    ACCUMULATE_TIMER(timeInMeshSetup_);
+
+    // Initialize preCICE and exchange the first coupling data
+    initialize();
+
+    // If checkpointing is required, specify the checkpointed fields
+    // and write the first checkpoint
+    if (requiresWritingCheckpoint())
+    {
+        checkpointing_ = true;
+
+        // Setup the checkpointing (find and add fields to checkpoint)
+        setupCheckpointing();
+
+        // Write checkpoint (for the first iteration)
+        writeCheckpoint();
+    }
+
+    // Adjust the timestep for the first iteration, if it is fixed
+    if (!adjustableTimestep_)
+    {
+        adjustSolverTimeStepAndReadData();
+    }
+
+    // If the solver tries to end before the coupling is complete,
+    // e.g. because the solver's endTime was smaller or (in implicit
+    // coupling) equal with the max-time specified in preCICE,
+    // problems may occur near the end of the simulation,
+    // as the function object may be called only once near the end.
+    // See the implementation of Foam::Time::run() for more details.
+    // To prevent this, we set the solver's endTime to "infinity"
+    // and let only preCICE control the end of the simulation.
+    // This has the side-effect of not triggering the end() method
+    // in any function object normally. Therefore, we trigger it
+    // when preCICE dictates to stop the coupling.
+    adapterInfo(
+        "Setting the solver's endTime to infinity to prevent early exits. "
+        "Only preCICE will control the simulation's endTime. "
+        "Any functionObject's end() method will be triggered by the adapter. "
+        "You may disable this behavior in the adapter's configuration.",
+        "info");
+    const_cast<Time&>(runTime_).setEndTime(GREAT);
 
     return;
 }
 
 void preciceAdapter::Adapter::execute()
 {
-    if (errorsInConfigure)
-    {
-        // Handle any errors during configure().
-        // See the comments in configure() for details.
-        adapterInfo(
-            "There was a problem while configuring the adapter. "
-            "See the log for details.",
-            "error");
-    }
 
     // The solver has already solved the equations for this timestep.
     // Now call the adapter's methods to perform the coupling.
