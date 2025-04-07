@@ -99,7 +99,7 @@ void Foam::coupledPressureFvPatchField::updateCoeffs()
     const scalarField& phip = phi->boundaryField()[this->patch().index()];
     const Foam::volVectorField* U = &db().lookupObject<volVectorField>(uName_);
     const vectorField& Up = U->boundaryField()[this->patch().index()];
-    const vectorField n = this->patch().nf();
+    const vectorField n = this->patch().nf().cref();
 
     int t0 = this->patch().boundaryMesh().mesh().time().startTimeIndex();
     int t = this->patch().boundaryMesh().mesh().time().timeIndex();
