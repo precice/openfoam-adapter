@@ -1,7 +1,7 @@
 virtualEnvironment="ubuntu-22.04"
 refAdapter="develop"
 versionOpenFOAM="2412"
-versionpreCICE="v3.1.2"
+versionpreCICE="v3.2.0"
 runTutorialHeatedPlate="false"
 runTutorialQuickstart="false"
 runTutorialPartitionedPipe="false"

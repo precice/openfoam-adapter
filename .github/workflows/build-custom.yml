@@ -37,7 +37,7 @@ on:
           - 7
       versionpreCICE:
         description: 'Version of preCICE to build with'
-        default: 'v3.1.2'
+        default: 'v3.2.0'
         required: true
       runTutorialHeatedPlate:
         description: Run tutorial flow-over-heated-plate
