@@ -33,9 +33,7 @@ preciceAdapter::Interface::Interface(
     }
     catch (const std::runtime_error& e)
     {
-        adapterInfo(std::string("An exception was raised while calling the preCICE method getMeshDimensions:\n")
-                        + e.what(),
-                    "error");
+        std::exit(1);
     }
 
     if (dim_ == 2 && meshConnectivity_ == true)
@@ -203,9 +201,7 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh, const std::str
         }
         catch (const std::runtime_error& e)
         {
-            adapterInfo(std::string("An exception was raised while calling the preCICE method setMeshVertices:\n")
-                            + e.what(),
-                        "error");
+            std::exit(1);
         }
     }
     else if (locationType_ == LocationType::faceNodes)
@@ -280,9 +276,7 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh, const std::str
         }
         catch (const std::runtime_error& e)
         {
-            adapterInfo(std::string("An exception was raised while calling the preCICE method setMeshVertices:\n")
-                            + e.what(),
-                        "error");
+            std::exit(1);
         }
 
         if (meshConnectivity_)
@@ -356,9 +350,7 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh, const std::str
                 }
                 catch (const std::runtime_error& e)
                 {
-                    adapterInfo(std::string("An exception was raised while calling the preCICE method setMeshTriangles:\n")
-                                    + e.what(),
-                                "error");
+                    std::exit(1);
                 }
             }
         }
@@ -471,9 +463,7 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh, const std::str
         }
         catch (const std::runtime_error& e)
         {
-            adapterInfo(std::string("An exception was raised while calling the preCICE method setMeshVertices:\n")
-                            + e.what(),
-                        "error");
+            std::exit(1);
         }
     }
 }
@@ -594,9 +584,7 @@ void preciceAdapter::Interface::readCouplingData(double relativeReadTime)
         }
         catch (const std::runtime_error& e)
         {
-            adapterInfo(std::string("An exception was raised while calling the preCICE method getDataDimensions:\n")
-                            + e.what(),
-                        "error");
+            std::exit(1);
         }
         // We could add a sanity check here
         // nReadData == vertexIDs_.size() * (1 + (dim_ - 1) * static_cast<int>(couplingDataReader->hasVectorData()));
@@ -612,9 +600,7 @@ void preciceAdapter::Interface::readCouplingData(double relativeReadTime)
         }
         catch (const std::runtime_error& e)
         {
-            adapterInfo(std::string("An exception was raised while calling the preCICE method readData:\n")
-                            + e.what(),
-                        "error");
+            std::exit(1);
         }
 
         // Read the received data from the buffer
@@ -649,9 +635,7 @@ void preciceAdapter::Interface::writeCouplingData()
         }
         catch (const std::runtime_error& e)
         {
-            adapterInfo(std::string("An exception was raised while calling the preCICE method writeData:\n")
-                            + e.what(),
-                        "error");
+            std::exit(1);
         }
     }
     // }

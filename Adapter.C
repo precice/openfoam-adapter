@@ -552,9 +552,7 @@ void preciceAdapter::Adapter::initialize()
     }
     catch (const std::runtime_error& e)
     {
-        adapterInfo(std::string("An exception was raised while calling the preCICE method requiresInitialData:\n")
-                        + e.what(),
-                    "error");
+        std::exit(1);
     }
     if (requiresInitialData)
     {
@@ -568,9 +566,7 @@ void preciceAdapter::Adapter::initialize()
     }
     catch (const std::runtime_error& e)
     {
-        adapterInfo(std::string("An exception was raised while calling the preCICE method initialize:\n")
-                        + e.what(),
-                    "error");
+        std::exit(1);
     }
     preciceInitialized_ = true;
     ACCUMULATE_TIMER(timeInInitialize_);
@@ -594,9 +590,7 @@ void preciceAdapter::Adapter::finalize()
         }
         catch (const std::runtime_error& e)
         {
-            adapterInfo(std::string("An exception was raised while calling the preCICE method finalize:\n")
-                            + e.what(),
-                        "error");
+            std::exit(1);
         }
         ACCUMULATE_TIMER(timeInFinalize_);
 
@@ -624,9 +618,7 @@ void preciceAdapter::Adapter::advance()
     }
     catch (const std::runtime_error& e)
     {
-        adapterInfo(std::string("An exception was raised while calling the preCICE method advance:\n")
-                        + e.what(),
-                    "error");
+        std::exit(1);
     }
     ACCUMULATE_TIMER(timeInAdvance_);
 
@@ -751,9 +743,7 @@ double preciceAdapter::Adapter::getMaxTimeStepSize()
     }
     catch (const std::runtime_error& e)
     {
-        adapterInfo(std::string("An exception was raised while calling the preCICE method getMaxTimeStepSize:\n")
-                        + e.what(),
-                    "error");
+        std::exit(1);
     }
     return maxTimeStepSize;
 }
@@ -774,9 +764,7 @@ bool preciceAdapter::Adapter::isCouplingOngoing()
         }
         catch (const std::runtime_error& e)
         {
-            adapterInfo(std::string("An exception was raised while calling the preCICE method isCouplingOngoing:\n")
-                            + e.what(),
-                        "error");
+            std::exit(1);
         }
     }
 
@@ -792,9 +780,7 @@ bool preciceAdapter::Adapter::isCouplingTimeWindowComplete()
     }
     catch (const std::runtime_error& e)
     {
-        adapterInfo(std::string("An exception was raised while calling the preCICE method isTimeWindowComplete:\n")
-                        + e.what(),
-                    "error");
+        std::exit(1);
     }
     return complete;
 }
@@ -808,9 +794,7 @@ bool preciceAdapter::Adapter::requiresReadingCheckpoint()
     }
     catch (const std::runtime_error& e)
     {
-        adapterInfo(std::string("An exception was raised while calling the preCICE method requiresReadingCheckpoint:\n")
-                        + e.what(),
-                    "error");
+        std::exit(1);
     }
     return requiresReadingCheckpoint;
 }
@@ -824,9 +808,7 @@ bool preciceAdapter::Adapter::requiresWritingCheckpoint()
     }
     catch (const std::runtime_error& e)
     {
-        adapterInfo(std::string("An exception was raised while calling the preCICE method requiresWritingCheckpoint:\n")
-                        + e.what(),
-                    "error");
+        std::exit(1);
     }
     return requiresWritingCheckpoint;
 }
