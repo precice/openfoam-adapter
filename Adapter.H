@@ -271,6 +271,9 @@ private:
     // and read data associated to the calculated time step length
     void adjustSolverTimeStepAndReadData();
 
+    //- Get maximum allowed time step size from preCICE
+    double getMaxTimeStepSize();
+
     //- Determine if the coupling is still happening
     bool isCouplingOngoing();
 
