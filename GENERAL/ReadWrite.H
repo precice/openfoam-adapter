@@ -36,6 +36,24 @@ public:
     virtual ~ScalarFieldCoupler() {};
 };
 
+class VectorFieldCoupler : public CouplingDataUser
+{
+protected:
+    Foam::volVectorField* vectorField_;
+    const Foam::fvMesh& mesh_;
+    const struct fieldConfig& fieldConfig_;
+
+public:
+    VectorFieldCoupler(const Foam::fvMesh& mesh, const struct fieldConfig& fieldConfig);
+
+    std::size_t write(double* buffer, bool meshConnectivity, const unsigned int dim);
+    void read(double* buffer, const unsigned int dim);
+    bool isLocationTypeSupported(const bool meshConnectivity) const;
+    std::string getDataName() const;
+
+    virtual ~VectorFieldCoupler() {};
+};
+
 }
 }
 
