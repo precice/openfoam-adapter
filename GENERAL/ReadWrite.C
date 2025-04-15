@@ -110,7 +110,20 @@ void preciceAdapter::MODULE::ScalarFieldCoupler::read(double* buffer, const unsi
 bool preciceAdapter::MODULE::ScalarFieldCoupler::isLocationTypeSupported(const bool meshConnectivity) const
 {
     // TODO
-    return false;
+
+    // For cases with mesh connectivity, we support:
+    // - face nodes, only for writing
+    // - face centers, only for reading
+    // However, since we do not distinguish between reading and writing in the code, we
+    // always return true and offload the handling to the user.
+    if (meshConnectivity)
+    {
+        return (this->locationType_ == LocationType::faceCenters || this->locationType_ == LocationType::faceNodes); // we currently do not support meshConnectivity for volumeCenters
+    }
+    else
+    {
+        return (this->locationType_ == LocationType::faceCenters || this->locationType_ == LocationType::volumeCenters);
+    }
 }
 
 std::string preciceAdapter::MODULE::ScalarFieldCoupler::getDataName() const
@@ -233,7 +246,7 @@ void preciceAdapter::MODULE::VectorFieldCoupler::read(double* buffer, const unsi
                     if (dim == 3)
                     {
                         // z-dimension
-                        vectorField_ > ref()[currentCell].z() = buffer[bufferIndex++];
+                        vectorField_->ref()[currentCell].z() = buffer[bufferIndex++];
                     }
                 }
             }
@@ -254,7 +267,15 @@ void preciceAdapter::MODULE::VectorFieldCoupler::read(double* buffer, const unsi
 bool preciceAdapter::MODULE::VectorFieldCoupler::isLocationTypeSupported(const bool meshConnectivity) const
 {
     // TODO
-    return false;
+    if (meshConnectivity)
+    {
+        // does not support volume mapping with mesh connectivity
+        return (this->locationType_ == LocationType::faceCenters);
+    }
+    else
+    {
+        return (this->locationType_ == LocationType::faceCenters || this->locationType_ == LocationType::volumeCenters);
+    }
 }
 
 std::string preciceAdapter::MODULE::VectorFieldCoupler::getDataName() const
