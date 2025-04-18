@@ -1377,6 +1377,15 @@ void preciceAdapter::Adapter::readMeshCheckpoint()
     *Points = *meshPoints_;
     *OldPoints = *meshOldPoints_;
 
+
+    // Invalidate on-demand fields
+    // fvMesh::updateGeomNotOldVol()
+    (void)mesh_.V();
+    (void)mesh_.Sf();
+    (void)mesh_.magSf();
+    (void)mesh_.C();
+    (void)mesh_.Cf();
+
     // Reload faces, owner, neighbour
     // for (uint i = 0; i < meshFaceLists_.size(); i++) // faces
     // {
