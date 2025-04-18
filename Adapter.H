@@ -138,44 +138,32 @@ private:
     //- Checkpointed time (index)
     Foam::label couplingIterationTimeIndex_;
 
-    //- Checkpointed mesh points
-    Foam::pointField meshPoints_;
-    Foam::pointField oldMeshPoints_;
     bool meshCheckPointed = false;
-
-    // TODO: Currently unused, see storeMeshPoints().
-    //- Checkpointed mesh volume
-    // bool oldVolsStored = false;
-    // Foam::volScalarField::Internal * oldVols_;
-    // Foam::volScalarField::Internal * oldOldVols_;
-    // int curTimeIndex_ = 0;
 
     // Vectors of pointers to the checkpointed mesh fields and their copies
 
-    //- Checkpointed surfaceScalarField mesh fields
+    //- Checkpointed mesh points, oldPoints
+    // TODO: is oldPoints even needed?
+    Foam::pointField* meshPoints_;
+    Foam::pointField* meshOldPoints_;
+
+    //- Checkpointed volScalarField mesh fields (V, V0, V00)
+    std::vector<volScalarField::Internal*> meshVolFields_;
+    std::vector<volScalarField::Internal*> meshVolFieldCopies_;
+
+    // //- Checkpointed faceCompactIOList mesh fields (faces)
+    // std::vector<Foam::faceList*> meshFaceLists_;
+    // std::vector<Foam::faceList*> meshFaceListCopies_;
+
+    // //- Checkpointed labelIOList mesh fields (owner, neighbour)
+    // std::vector<Foam::labelUList*> meshLabelLists_;
+    // std::vector<Foam::labelUList*> meshLabelListCopies_;
+
+    //- Checkpointed surfaceScalarField mesh fields (phi)
     std::vector<Foam::surfaceScalarField*> meshSurfaceScalarFields_;
 
     //- Checkpointed surfaceScalarField mesh fields (copies)
     std::vector<Foam::surfaceScalarField*> meshSurfaceScalarFieldCopies_;
-
-    //- Checkpointed surfaceVectorField mesh fields
-    std::vector<Foam::surfaceVectorField*> meshSurfaceVectorFields_;
-
-    //- Checkpointed surfaceVectorField mesh fields (copies)
-    std::vector<Foam::surfaceVectorField*> meshSurfaceVectorFieldCopies_;
-
-    //- Checkpointed volVectorField mesh fields
-    std::vector<Foam::volVectorField*> meshVolVectorFields_;
-
-    //- Checkpointed volVectorField mesh fields (copies)
-    std::vector<Foam::volVectorField*> meshVolVectorFieldCopies_;
-
-    // TODO checkpoint for the V0 (Old volume) and V00 (Old-Old volume) fields.
-    //- Checkpointed volScalarField mesh fields
-    std::vector<Foam::volScalarField::Internal*> volScalarInternalFields_;
-
-    //- Checkpointed volScalarField mesh fields (copies)
-    std::vector<Foam::volScalarField::Internal*> volScalarInternalFieldCopies_;
 
     // Vectors of pointers to the checkpointed fields and their copies
 
@@ -311,21 +299,18 @@ private:
     void reloadMeshPoints();
 
     // Add mesh checkpoint fields, depending on the type
-    //- Add a surfaceScalarField mesh field
-    void addMeshCheckpointField(surfaceScalarField& field);
 
-    //- Add a surfaceVectorField mesh field
-    void addMeshCheckpointField(surfaceVectorField& field);
+    //- Add a volScalarField::Internal mesh field (V, V0, V00)
+    void addMeshVolCheckpointField(volScalarField::Internal& field);
 
-    //- Add a volVectorField mesh field
-    void addMeshCheckpointField(volVectorField& field);
+    //- Add a faceList mesh field (faces)
+    void addMeshCheckpointField(Foam::faceList& field);
 
-    // TODO V0 and V00 checkpointed field.
-    //- Add the V0 and V00 checkpoint fields
-    void addVolCheckpointField(volScalarField::Internal& field);
-    // void addVolCheckpointFieldBuffer(volScalarField::Internal & field);
+    //- Add a labelUList mesh field (owner, neighbour)
+    void addMeshCheckpointField(Foam::labelUList& field);
 
-    // Add checkpoint fields, depending on the type
+    //- Add a surfaceScalarField mesh field (phi)
+    void addMeshCheckpointField(Foam::surfaceScalarField& field);
 
     //- Add a volScalarField to checkpoint
     void addCheckpointField(volScalarField* field);
@@ -374,10 +359,10 @@ private:
 
     // TODO Probably these can be included to the mesh checkpoints.
     //- Read the volume checkpoint - restore the mesh volume fields
-    void readVolCheckpoint();
+    void readMeshVolCheckpoint();
 
     //- Write the volume checkpoint to a buffer - restore the mesh volume fields
-    void writeVolCheckpoint();
+    void writeMeshVolCheckpoint();
 
     //- Destroy the preCICE interface and delete the allocated
     //  memory in a proper way. Called by the destructor.
