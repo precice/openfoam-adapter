@@ -764,18 +764,27 @@ void preciceAdapter::Adapter::storeMeshPoints()
     }
     // Update any volume fields from the buffer to the checkpointed values (if already exists.)
     */
+    if (!meshCheckPointed)
+    {
+        // TODO: In foam-extend, we would need "allPoints()". Check if this gives the same data.
+        // Add points and oldPoints
+        meshPoints_ = new Foam::pointField(mesh_.points());
+        meshOldPoints_ = new Foam::pointField(mesh_.oldPoints());
 
+        DEBUG(adapterInfo("Added mesh points and oldPoints to the list of checkpointed fields."));
+        meshCheckPointed = true;
+    }
     if (mesh_.moving())
     {
-        if (!meshCheckPointed)
+        if (!meshStartedMoving)
         {
             // Set up the checkpoint for the mesh flux: meshPhi
             setupMeshCheckpointing();
             setupMeshVolCheckpointing();
-            meshCheckPointed = true;
+            meshStartedMoving = true;
         }
         writeMeshCheckpoint();
-        writeMeshVolCheckpoint();
+        // writeMeshVolCheckpoint();
     }
 }
 
@@ -799,26 +808,12 @@ void preciceAdapter::Adapter::reloadMeshPoints()
     }
     */
 
-    readMeshVolCheckpoint();
+    // readMeshVolCheckpoint();
 }
 
 void preciceAdapter::Adapter::setupMeshCheckpointing()
 {
-    // The other mesh <type>Fields:
-    //      C
-    //      Cf
-    //      Sf
-    //      magSf
-    //      delta
-    // are updated by the function fvMesh::movePoints. Only the meshPhi needs checkpointing.
     DEBUG(adapterInfo("Creating a list of the mesh checkpointed fields..."));
-
-    // TODO: In foam-extend, we would need "allPoints()". Check if this gives the same data.
-    // Add points and oldPoints
-    meshPoints_ = new Foam::pointField(mesh_.points());
-    meshOldPoints_ = new Foam::pointField(mesh_.oldPoints());
-
-    DEBUG(adapterInfo("Added mesh points and oldPoints to the list of checkpointed fields."));
 
     // // TODO: Seperate function for topology
     // // Add faces, owner, neighbour (Topology)
