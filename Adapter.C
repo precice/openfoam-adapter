@@ -754,16 +754,15 @@ void preciceAdapter::Adapter::reloadCheckpointTime()
 
 void preciceAdapter::Adapter::storeMeshPoints()
 {
-    /*
     // TODO  This is only required for subcycling. It should not be called when not subcycling!!
     // Add a bool 'subcycling' which can be evaluated every timestep.
-    if ( !oldVolsStored && mesh_.foundObject<volScalarField::Internal>("V00") ) // For Ddt schemes which use one previous timestep
+    if (!oldVolsStored && mesh_.foundObject<volScalarField::Internal>("V00")) // For Ddt schemes which use one previous timestep
     {
         setupMeshVolCheckpointing();
         oldVolsStored = true;
     }
     // Update any volume fields from the buffer to the checkpointed values (if already exists.)
-    */
+
     if (!meshCheckPointed)
     {
         // TODO: In foam-extend, we would need "allPoints()". Check if this gives the same data.
@@ -780,11 +779,14 @@ void preciceAdapter::Adapter::storeMeshPoints()
         {
             // Set up the checkpoint for the mesh flux: meshPhi
             setupMeshCheckpointing();
-            setupMeshVolCheckpointing();
             meshStartedMoving = true;
         }
         writeMeshCheckpoint();
-        // writeMeshVolCheckpoint();
+
+        if (oldVolsStored)
+        {
+            writeMeshVolCheckpoint();
+        }
     }
 }
 
@@ -800,15 +802,12 @@ void preciceAdapter::Adapter::reloadMeshPoints()
 
     DEBUG(adapterInfo("Moved mesh points to their previous locations."));
 
-    /*  // TODO This part should only be used when sybcycling. See the description in 'storeMeshPoints()'
-        // The if statement can be removed in this case, but it is still included for clarity
-    if ( oldVolsStored )
+    // TODO This part should only be used when sybcycling. See the description in 'storeMeshPoints()'
+    // The if statement can be removed in this case, but it is still included for clarity
+    if (oldVolsStored)
     {
-        readVolCheckpoint();
+        readMeshVolCheckpoint();
     }
-    */
-
-    // readMeshVolCheckpoint();
 }
 
 void preciceAdapter::Adapter::setupMeshCheckpointing()
@@ -1350,6 +1349,23 @@ void preciceAdapter::Adapter::readMeshCheckpoint()
 
     DEBUG(adapterInfo("Reading a mesh checkpoint..."));
 
+    // Invalidate on-demand fields
+    // fvMesh::updateGeomNotOldVol()
+    // (void)mesh_.V();
+    (void)mesh_.Sf();
+    (void)mesh_.magSf();
+    (void)mesh_.C();
+    (void)mesh_.Cf();
+
+    // Reload mesh points
+    Foam::pointField* Points = &const_cast<Foam::pointField&>(mesh_.points());
+    Foam::pointField* OldPoints = &const_cast<Foam::pointField&>(mesh_.oldPoints());
+
+    const_cast<Foam::fvMesh&>(mesh_).movePoints(*Points);
+
+    // fvMesh::movePoints will incorrectly set oldPoints
+    *OldPoints = *meshOldPoints_;
+
     // TODO only the meshPhi field is here, which is a surfaceScalarField. The other fields can be removed. (Done)
     for (uint i = 0; i < meshSurfaceScalarFields_.size(); i++)
     {
@@ -1365,21 +1381,6 @@ void preciceAdapter::Adapter::readMeshCheckpoint()
             meshSurfaceScalarFields_.at(i)->oldTime().oldTime() == meshSurfaceScalarFieldCopies_.at(i)->oldTime().oldTime();
         }
     }
-
-    // Reload mesh points
-    Foam::pointField* Points = &const_cast<Foam::pointField&>(mesh_.points());
-    Foam::pointField* OldPoints = &const_cast<Foam::pointField&>(mesh_.oldPoints());
-    *Points = *meshPoints_;
-    *OldPoints = *meshOldPoints_;
-
-
-    // Invalidate on-demand fields
-    // fvMesh::updateGeomNotOldVol()
-    (void)mesh_.V();
-    (void)mesh_.Sf();
-    (void)mesh_.magSf();
-    (void)mesh_.C();
-    (void)mesh_.Cf();
 
     // Reload faces, owner, neighbour
     // for (uint i = 0; i < meshFaceLists_.size(); i++) // faces

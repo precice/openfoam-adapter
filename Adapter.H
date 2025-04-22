@@ -140,11 +140,11 @@ private:
 
     bool meshCheckPointed = false;
     bool meshStartedMoving = false;
+    bool oldVolsStored = false;
 
     // Vectors of pointers to the checkpointed mesh fields and their copies
 
     //- Checkpointed mesh points, oldPoints
-    // TODO: is oldPoints even needed?
     Foam::pointField* meshPoints_;
     Foam::pointField* meshOldPoints_;
 
