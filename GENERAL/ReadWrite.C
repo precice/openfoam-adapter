@@ -198,9 +198,20 @@ std::size_t preciceAdapter::MODULE::VectorFieldCoupler::write(double* buffer, bo
     {
         int patchID = patchIDs_.at(j);
 
-        // Get the velocity value boundary patch
-
+        // Get the vector field boundary patch
+        auto& boundaryPatch = vectorField_->boundaryField()[patchID];
         // For every cell of the patch
+        forAll(boundaryPatch, i)
+        {
+            buffer[bufferIndex++] = boundaryPatch[i].x();
+
+            buffer[bufferIndex++] = boundaryPatch[i].y();
+
+            if (dim == 3)
+            {
+                buffer[bufferIndex++] = boundaryPatch[i].z();
+            }
+        }
     }
     return bufferIndex;
 }
@@ -258,9 +269,21 @@ void preciceAdapter::MODULE::VectorFieldCoupler::read(double* buffer, const unsi
     {
         int patchID = patchIDs_.at(j);
 
-        // Get the velocity value boundary patch
+        // Get the vector field boundary patch
+        auto& boundaryPatch = vectorField_->boundaryFieldRef()[patchID];
 
         // For every cell of the patch
+        forAll(boundaryPatch, i)
+        {
+            boundaryPatch[i].x() = buffer[bufferIndex++];
+
+            boundaryPatch[i].y() = buffer[bufferIndex++];
+
+            if (dim == 3)
+            {
+                boundaryPatch[i].z() = buffer[bufferIndex++];
+            }
+        }
     }
 }
 
