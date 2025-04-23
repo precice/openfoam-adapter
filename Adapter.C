@@ -768,7 +768,8 @@ void preciceAdapter::Adapter::storeMeshPoints()
         // TODO: In foam-extend, we would need "allPoints()". Check if this gives the same data.
         // Add points and oldPoints
         meshPoints_ = new Foam::pointField(mesh_.points());
-        meshOldPoints_ = new Foam::pointField(mesh_.oldPoints());
+        // At the beginning, oldPoints doesn't exist
+        meshOldPoints_ = new Foam::pointField(mesh_.points());
 
         DEBUG(adapterInfo("Added mesh points and oldPoints to the list of checkpointed fields."));
         meshCheckPointed = true;
@@ -1358,12 +1359,10 @@ void preciceAdapter::Adapter::readMeshCheckpoint()
     (void)mesh_.Cf();
 
     // Reload mesh points
-    Foam::pointField* Points = &const_cast<Foam::pointField&>(mesh_.points());
+    const_cast<Foam::fvMesh&>(mesh_).movePoints(*meshPoints_);
+
+    // fvMesh.movePoints overwrites the pointer to the oldPoints
     Foam::pointField* OldPoints = &const_cast<Foam::pointField&>(mesh_.oldPoints());
-
-    const_cast<Foam::fvMesh&>(mesh_).movePoints(*Points);
-
-    // fvMesh::movePoints will incorrectly set oldPoints
     *OldPoints = *meshOldPoints_;
 
     // TODO only the meshPhi field is here, which is a surfaceScalarField. The other fields can be removed. (Done)
@@ -1408,8 +1407,8 @@ void preciceAdapter::Adapter::writeMeshCheckpoint()
     DEBUG(adapterInfo("Storing mesh points..."));
 
     // Store mesh points
+    *(meshOldPoints_) = *(meshPoints_);
     *(meshPoints_) = mesh_.points();
-    *(meshOldPoints_) = mesh_.oldPoints();
 
     // // Store faces
     // for (uint i = 0; i < meshFaceLists_.size(); i++)
