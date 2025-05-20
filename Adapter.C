@@ -831,16 +831,13 @@ void preciceAdapter::Adapter::setupMeshCheckpointing()
 void preciceAdapter::Adapter::setupMeshVolCheckpointing()
 {
     // Add V, V0, V00
-    const volScalarField::Internal& constRefV = mesh_.V();
-    volScalarField::Internal& nonConstRefV = const_cast<volScalarField::Internal&>(constRefV);
+    volScalarField::Internal& nonConstRefV = const_cast<volScalarField::Internal&>(mesh_.V());
     addMeshVolCheckpointField(nonConstRefV);
 
-    const volScalarField::Internal& constRefV0 = mesh_.V0();
-    volScalarField::Internal& nonConstRefV0 = const_cast<volScalarField::Internal&>(constRefV0);
+    volScalarField::Internal& nonConstRefV0 = const_cast<volScalarField::Internal&>(mesh_.V0());
     addMeshVolCheckpointField(nonConstRefV0);
 
-    const volScalarField::Internal& constRefV00 = mesh_.V00();
-    volScalarField::Internal& nonConstRefV00 = const_cast<volScalarField::Internal&>(constRefV00);
+    volScalarField::Internal& nonConstRefV00 = const_cast<volScalarField::Internal&>(mesh_.V00());
     addMeshVolCheckpointField(nonConstRefV00);
 
     DEBUG(adapterInfo("Checkpoint mesh V, V0, V00"));
@@ -1079,6 +1076,11 @@ void preciceAdapter::Adapter::readCheckpoint()
     // Reload the runTime
     reloadCheckpointTime();
 
+    if (meshStatePtr_)
+    {
+        const_cast<Foam::dictionary&>(meshStatePtr_->solverPerformanceDict()) = solverPerformanceDict_;
+    }
+
     // Reload the meshPoints (if FSI is enabled)
     if (FSIenabled_)
     {
@@ -1270,6 +1272,12 @@ void preciceAdapter::Adapter::writeCheckpoint()
 
     // Store the runTime
     storeCheckpointTime();
+
+    if (!meshStatePtr_)
+    {
+        meshStatePtr_ = mesh_.thisDb().getObjectPtr<Foam::meshState>("data");
+    }
+    solverPerformanceDict_ = meshStatePtr_->solverPerformanceDict();
 
     // Store the meshPoints (if FSI is enabled)
     if (FSIenabled_)

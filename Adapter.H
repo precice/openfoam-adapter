@@ -144,6 +144,9 @@ private:
 
     // Vectors of pointers to the checkpointed mesh fields and their copies
 
+    Foam::meshState* meshStatePtr_;
+    Foam::dictionary solverPerformanceDict_;
+
     //- Checkpointed mesh points, oldPoints
     Foam::pointField* meshPoints_;
     Foam::pointField* meshOldPoints_;
