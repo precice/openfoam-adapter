@@ -71,6 +71,10 @@ bool preciceAdapter::FF::FluidFluid::readConfig(const IOdictionary& adapterConfi
     namePhi_ = FFdict.lookupOrDefault<word>("namePhi", "phi");
     DEBUG(adapterInfo("    face flux field name : " + namePhi_));
 
+    // Read the name of the face flux field (if different)
+    namePhi_ = FFdict.lookupOrDefault<word>("nameFd", "Fd");
+    adapterInfo("    drag force name : " + nameFd_);
+
     // Check whether to enable flux correction for velocity
     fluxCorrection_ = FFdict.lookupOrDefault<bool>("fluxCorrection", false);
     DEBUG(adapterInfo("    flux correction of velocity is set to : " + std::to_string(fluxCorrection_)));

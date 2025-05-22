@@ -4,6 +4,7 @@
 #include "Interface.H"
 
 #include "FF/Velocity.H"
+#include "FF/DragForce.H"
 #include "FF/Pressure.H"
 #include "FF/Temperature.H"
 #include "FF/Alpha.H"
@@ -46,6 +47,9 @@ protected:
 
     //- Name of the face flux field
     std::string namePhi_ = "phi";
+
+    //- Name of the particle drag force
+    std::string nameFd_ = "DragForce";
 
     //- Flux correction of velocity
     bool fluxCorrection_ = false;
