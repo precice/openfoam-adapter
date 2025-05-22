@@ -49,7 +49,7 @@ protected:
     std::string namePhi_ = "phi";
 
     //- Name of the particle drag force
-    std::string nameFd_ = "DragForce";
+    std::string nameDragForce_ = "DragForce";
 
     //- Flux correction of velocity
     bool fluxCorrection_ = false;

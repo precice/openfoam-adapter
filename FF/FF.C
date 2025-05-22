@@ -72,8 +72,8 @@ bool preciceAdapter::FF::FluidFluid::readConfig(const IOdictionary& adapterConfi
     DEBUG(adapterInfo("    face flux field name : " + namePhi_));
 
     // Read the name of the face flux field (if different)
-    namePhi_ = FFdict.lookupOrDefault<word>("nameFd", "Fd");
-    adapterInfo("    drag force name : " + nameFd_);
+    nameDragForce_ = FFdict.lookupOrDefault<word>("nameDragForce", "Fd");
+    adapterInfo("    drag force name : " + nameDragForce_);
 
     // Check whether to enable flux correction for velocity
     fluxCorrection_ = FFdict.lookupOrDefault<bool>("fluxCorrection", false);
@@ -264,6 +264,13 @@ bool preciceAdapter::FF::FluidFluid::addReaders(std::string dataName, Interface*
             dataName,
             new Phi(mesh_, namePhi_));
         DEBUG(adapterInfo("Added reader: Phi."));
+    }
+    else if (dataName.find("DragForce") == 0)
+    {
+        interface->addCouplingDataReader(
+            dataName,
+            new DragForce(mesh_, nameDragForce_));
+        DEBUG(adapterInfo("Added reader: DragForce."));
     }
     else
     {
