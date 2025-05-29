@@ -15,7 +15,15 @@ preciceAdapter::FF::DragForce::DragForce(
     }
     else
     {
-        adapterInfo("Did not find the particle force", "error");
+        adapterInfo("Creating a new drag force object " + nameFd, "debug");
+        F_d_ = new volVectorField(
+            IOobject(
+                nameFd,
+                mesh.time().timeName(),
+                mesh,
+                IOobject::MUST_READ,
+                IOobject::AUTO_WRITE),
+            mesh);
     }
     dataType_ = vector;
 }
