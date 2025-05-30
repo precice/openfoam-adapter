@@ -1355,12 +1355,11 @@ void preciceAdapter::Adapter::readMeshCheckpoint()
     (void)mesh_.C();
     (void)mesh_.Cf();
 
+    // fvMesh.movePoints overwrites the pointer to the oldPoints
+    const_cast<pointField&>(mesh_.points()) = *meshOldPoints_;
+
     // Reload mesh points
     const_cast<Foam::fvMesh&>(mesh_).movePoints(*meshPoints_);
-
-    // fvMesh.movePoints overwrites the pointer to the oldPoints
-    Foam::pointField* OldPoints = &const_cast<Foam::pointField&>(mesh_.oldPoints());
-    *OldPoints = *meshOldPoints_;
 
     // TODO only the meshPhi field is here, which is a surfaceScalarField. The other fields can be removed. (Done)
     for (uint i = 0; i < meshSurfaceScalarFields_.size(); i++)
