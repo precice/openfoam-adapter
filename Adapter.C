@@ -756,7 +756,11 @@ void preciceAdapter::Adapter::storeMeshPoints()
 {
     // TODO  This is only required for subcycling. It should not be called when not subcycling!!
     // Add a bool 'subcycling' which can be evaluated every timestep.
-    if (!oldVolsStored && mesh_.foundObject<volScalarField::Internal>("V00")) // For Ddt schemes which use one previous timestep
+
+    // V00 is not a registered field and thus will never be found !
+    // Implement ddt counter
+    bool ddt_counter = mesh_.foundObject<volScalarField::Internal>("V00");
+    if (!oldVolsStored && ddt_counter) // For Ddt schemes which use one previous timestep
     {
         setupMeshVolCheckpointing();
         oldVolsStored = true;
