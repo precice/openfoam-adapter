@@ -1076,11 +1076,6 @@ void preciceAdapter::Adapter::readCheckpoint()
     // Reload the runTime
     reloadCheckpointTime();
 
-    if (meshStatePtr_)
-    {
-        const_cast<Foam::dictionary&>(meshStatePtr_->solverPerformanceDict()) = solverPerformanceDict_;
-    }
-
     // Reload the meshPoints (if FSI is enabled)
     if (FSIenabled_)
     {
@@ -1272,12 +1267,6 @@ void preciceAdapter::Adapter::writeCheckpoint()
 
     // Store the runTime
     storeCheckpointTime();
-
-    if (!meshStatePtr_)
-    {
-        meshStatePtr_ = mesh_.thisDb().getObjectPtr<Foam::meshState>("data");
-    }
-    solverPerformanceDict_ = meshStatePtr_->solverPerformanceDict();
 
     // Store the meshPoints (if FSI is enabled)
     if (FSIenabled_)
