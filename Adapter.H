@@ -152,14 +152,6 @@ private:
     std::vector<volScalarField::Internal*> meshVolFields_;
     std::vector<volScalarField::Internal*> meshVolFieldCopies_;
 
-    // //- Checkpointed faceCompactIOList mesh fields (faces)
-    // std::vector<Foam::faceList*> meshFaceLists_;
-    // std::vector<Foam::faceList*> meshFaceListCopies_;
-
-    // //- Checkpointed labelIOList mesh fields (owner, neighbour)
-    // std::vector<Foam::labelUList*> meshLabelLists_;
-    // std::vector<Foam::labelUList*> meshLabelListCopies_;
-
     //- Checkpointed surfaceScalarField mesh fields (phi)
     std::vector<Foam::surfaceScalarField*> meshSurfaceScalarFields_;
 

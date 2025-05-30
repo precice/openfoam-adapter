@@ -947,18 +947,6 @@ void preciceAdapter::Adapter::addMeshCheckpointField(surfaceScalarField& field)
     meshSurfaceScalarFieldCopies_.push_back(new surfaceScalarField(field));
 }
 
-// void preciceAdapter::Adapter::addMeshCheckpointField(Foam::faceList& field)
-// {
-//     meshFaceLists_.push_back(&field);
-//     meshFaceListCopies_.push_back(new Foam::faceList(field));
-// }
-
-// void preciceAdapter::Adapter::addMeshCheckpointField(Foam::labelUList& field)
-// {
-//     meshLabelLists_.push_back(&field);
-//     meshLabelListCopies_.push_back(new Foam::labelUList(field));
-// }
-
 void preciceAdapter::Adapter::addMeshVolCheckpointField(volScalarField::Internal& field)
 {
     meshVolFields_.push_back(&field);
@@ -1377,16 +1365,6 @@ void preciceAdapter::Adapter::readMeshCheckpoint()
         }
     }
 
-    // Reload faces, owner, neighbour
-    // for (uint i = 0; i < meshFaceLists_.size(); i++) // faces
-    // {
-    //     *(meshFaceLists_.at(i)) = *(meshFaceListCopies_.at(i));
-    // }
-    // for (uint i = 0; i < meshLabelLists_.size(); i++) // owner and neighbour
-    // {
-    //     *(meshLabelLists_.at(i)) = *(meshLabelListCopies_.at(i));
-    // }
-
     DEBUG(adapterInfo("Mesh checkpoint was read. Time = " + std::to_string(runTime_.value())));
 }
 
@@ -1405,13 +1383,6 @@ void preciceAdapter::Adapter::writeMeshCheckpoint()
     // Store mesh points
     *(meshOldPoints_) = *(meshPoints_);
     *(meshPoints_) = mesh_.points();
-
-    // // Store faces
-    // for (uint i = 0; i < meshFaceLists_.size(); i++)
-    // {
-    //     *(meshFaceListCopies_.at(i)) = *(meshFaceLists_.at(i));
-    // }
-    // Store owner and neighbour
 
     DEBUG(adapterInfo("Mesh checkpoint for time t = " + std::to_string(runTime_.value()) + " was stored."));
 
@@ -1537,19 +1508,6 @@ void preciceAdapter::Adapter::teardown()
 
         delete meshPoints_;
         delete meshOldPoints_;
-
-        // // meshFaceLists
-        // for (uint i = 0; i < meshFaceListCopies_.size(); i++)
-        // {
-        //     delete meshFaceListCopies_.at(i);
-        // }
-        // meshFaceListCopies_.clear();
-        // // meshLabelLists (owner, neighbour)
-        // for (uint i = 0; i < meshLabelListCopies_.size(); i++)
-        // {
-        //     delete meshLabelListCopies_.at(i);
-        // }
-        // meshLabelListCopies_.clear();
 
         // volTensorField
         for (uint i = 0; i < volTensorFieldCopies_.size(); i++)
