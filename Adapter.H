@@ -295,12 +295,6 @@ private:
     //- Add a volScalarField::Internal mesh field (V, V0, V00)
     void addMeshVolCheckpointField(volScalarField::Internal& field);
 
-    //- Add a faceList mesh field (faces)
-    void addMeshCheckpointField(Foam::faceList& field);
-
-    //- Add a labelUList mesh field (owner, neighbour)
-    void addMeshCheckpointField(Foam::labelUList& field);
-
     //- Add a surfaceScalarField mesh field (phi)
     void addMeshCheckpointField(Foam::surfaceScalarField& field);
 
