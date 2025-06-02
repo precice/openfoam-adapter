@@ -763,18 +763,6 @@ void preciceAdapter::Adapter::storeMeshPoints()
         meshOldPoints_ = new Foam::pointField(mesh_.oldPoints());
     }
 
-    // TODO  This is only required for subcycling. It should not be called when not subcycling!!
-    // Add a bool 'subcycling' which can be evaluated every timestep.
-
-    // V00 is not a registered field and thus will never be found !
-    // Implement ddt counter
-    bool ddt_counter = mesh_.foundObject<volScalarField::Internal>("V00");
-    if (!oldVolsStored && ddt_counter) // For Ddt schemes which use one previous timestep
-    {
-        setupMeshVolCheckpointing();
-        oldVolsStored = true;
-    }
-
     if (mesh_.moving())
     {
         if (!meshCheckPointed)
@@ -785,8 +773,17 @@ void preciceAdapter::Adapter::storeMeshPoints()
         }
         writeMeshCheckpoint();
 
-        if (oldVolsStored)
+        // TODO  This is only required for subcycling. It should not be called when not subcycling!!
+        // Add a bool 'subcycling' which can be evaluated every timestep.
+
+        if (subcycling)
         {
+            // For Ddt schemes which use up to two previous timesteps V0, V00
+            if (volumeCheckpointCounter < 3)
+            {
+                setupMeshVolCheckpointing();
+            }
+
             writeMeshVolCheckpoint();
         }
     }
@@ -805,8 +802,7 @@ void preciceAdapter::Adapter::reloadMeshPoints()
     DEBUG(adapterInfo("Moved mesh points to their previous locations."));
 
     // TODO This part should only be used when sybcycling. See the description in 'storeMeshPoints()'
-    // The if statement can be removed in this case, but it is still included for clarity
-    if (oldVolsStored)
+    if (subcycling)
     {
         readMeshVolCheckpoint();
     }
@@ -824,16 +820,27 @@ void preciceAdapter::Adapter::setupMeshCheckpointing()
 void preciceAdapter::Adapter::setupMeshVolCheckpointing()
 {
     // Add V, V0, V00
-    volScalarField::Internal& nonConstRefV = const_cast<volScalarField::Internal&>(mesh_.V());
-    addMeshVolCheckpointField(nonConstRefV);
+    if (volumeCheckpointCounter == 0)
+    {
+        // When V is available, also V0 is available (see fvMesh::movePoints, storeOldVol(V()))
+        // volumeCheckpointCounter will be 2 after this call
 
-    volScalarField::Internal& nonConstRefV0 = const_cast<volScalarField::Internal&>(mesh_.V0());
-    addMeshVolCheckpointField(nonConstRefV0);
+        addMeshVolCheckpointField(const_cast<volScalarField::Internal&>(mesh_.V()));
+        DEBUG(adapterInfo("Checkpoint mesh V"));
 
-    volScalarField::Internal& nonConstRefV00 = const_cast<volScalarField::Internal&>(mesh_.V00());
-    addMeshVolCheckpointField(nonConstRefV00);
+        volumeCheckpointCounter += 1;
 
-    DEBUG(adapterInfo("Checkpoint mesh V, V0, V00"));
+        addMeshVolCheckpointField(const_cast<volScalarField::Internal&>(mesh_.V0()));
+        DEBUG(adapterInfo("Checkpoint mesh V0"));
+    }
+
+    if (volumeCheckpointCounter == 2)
+    {
+        addMeshVolCheckpointField(const_cast<volScalarField::Internal&>(mesh_.V00()));
+        DEBUG(adapterInfo("Checkpoint mesh V00"));
+    }
+
+    volumeCheckpointCounter += 1;
 }
 
 
@@ -942,7 +949,6 @@ void preciceAdapter::Adapter::addMeshCheckpointField(surfaceScalarField& field)
 
 void preciceAdapter::Adapter::addMeshVolCheckpointField(volScalarField::Internal& field)
 {
-    meshVolFields_.push_back(&field);
     meshVolFieldCopies_.push_back(new volScalarField::Internal(field));
 }
 
@@ -1385,9 +1391,18 @@ void preciceAdapter::Adapter::writeMeshCheckpoint()
 void preciceAdapter::Adapter::readMeshVolCheckpoint()
 {
     // Reload V, V0, V00
-    for (uint i = 0; i < meshVolFields_.size(); i++)
+    if (volumeCheckpointCounter == 2)
     {
-        *(meshVolFields_.at(i)) = *(meshVolFieldCopies_.at(i));
+        DEBUG(adapterInfo("Read mesh volume " + meshVolFieldCopies_.at(0)->name()));
+        const_cast<volScalarField::Internal&>(mesh_.V()) = *(meshVolFieldCopies_.at(0));
+
+        DEBUG(adapterInfo("Read mesh volume " + meshVolFieldCopies_.at(1)->name()));
+        const_cast<volScalarField::Internal&>(mesh_.V0()) = *(meshVolFieldCopies_.at(1));
+    }
+    if (volumeCheckpointCounter == 3)
+    {
+        DEBUG(adapterInfo("Read mesh volume " + meshVolFieldCopies_.at(2)->name()));
+        const_cast<volScalarField::Internal&>(mesh_.V00()) = *(meshVolFieldCopies_.at(2));
     }
 
     DEBUG(adapterInfo("Mesh volumes checkpoint for time t = " + std::to_string(runTime_.value()) + " were read."));
@@ -1397,11 +1412,19 @@ void preciceAdapter::Adapter::readMeshVolCheckpoint()
 
 void preciceAdapter::Adapter::writeMeshVolCheckpoint()
 {
-
     // Store V, V0, V00
-    for (uint i = 0; i < meshVolFields_.size(); i++)
+    if (volumeCheckpointCounter == 2)
     {
-        *(meshVolFieldCopies_.at(i)) = *(meshVolFields_.at(i));
+        DEBUG(adapterInfo("Write mesh volume " + meshVolFieldCopies_.at(0)->name()));
+        *(meshVolFieldCopies_.at(0)) = const_cast<volScalarField::Internal&>(mesh_.V());
+
+        DEBUG(adapterInfo("Write mesh volume " + meshVolFieldCopies_.at(1)->name()));
+        *(meshVolFieldCopies_.at(1)) = const_cast<volScalarField::Internal&>(mesh_.V0());
+    }
+    if (volumeCheckpointCounter == 3)
+    {
+        DEBUG(adapterInfo("Write mesh volume " + meshVolFieldCopies_.at(2)->name()));
+        *(meshVolFieldCopies_.at(2)) = const_cast<volScalarField::Internal&>(mesh_.V00());
     }
 
     DEBUG(adapterInfo("Mesh volumes checkpoint for time t = " + std::to_string(runTime_.value()) + " were stored."));

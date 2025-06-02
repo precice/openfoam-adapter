@@ -141,6 +141,10 @@ private:
     bool meshCheckPointed = false;
     bool oldVolsStored = false;
 
+    //- Volume checkpointing counter (max value 3)
+    u_int8_t volumeCheckpointCounter;
+    bool subcycling = true;
+
     // Vectors of pointers to the checkpointed mesh fields and their copies
 
     //- Checkpointed mesh points, oldPoints
@@ -148,7 +152,6 @@ private:
     Foam::pointField* meshOldPoints_;
 
     //- Checkpointed volScalarField mesh fields (V, V0, V00)
-    std::vector<volScalarField::Internal*> meshVolFields_;
     std::vector<volScalarField::Internal*> meshVolFieldCopies_;
 
     //- Checkpointed surfaceScalarField mesh fields (phi)
