@@ -139,7 +139,6 @@ private:
     Foam::label couplingIterationTimeIndex_;
 
     bool meshCheckPointed = false;
-    bool meshStartedMoving = false;
     bool oldVolsStored = false;
 
     // Vectors of pointers to the checkpointed mesh fields and their copies

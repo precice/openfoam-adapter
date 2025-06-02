@@ -754,6 +754,15 @@ void preciceAdapter::Adapter::reloadCheckpointTime()
 
 void preciceAdapter::Adapter::storeMeshPoints()
 {
+    if (!meshPoints_)
+    {
+        DEBUG(adapterInfo("Storing mesh points..."));
+        // Add points and oldPoints
+        meshPoints_ = new Foam::pointField(mesh_.points());
+        // First timestep oldPoints doesn't exist yet
+        meshOldPoints_ = new Foam::pointField(mesh_.oldPoints());
+    }
+
     // TODO  This is only required for subcycling. It should not be called when not subcycling!!
     // Add a bool 'subcycling' which can be evaluated every timestep.
 
@@ -765,26 +774,14 @@ void preciceAdapter::Adapter::storeMeshPoints()
         setupMeshVolCheckpointing();
         oldVolsStored = true;
     }
-    // Update any volume fields from the buffer to the checkpointed values (if already exists.)
 
-    if (!meshCheckPointed)
-    {
-        // TODO: In foam-extend, we would need "allPoints()". Check if this gives the same data.
-        // Add points and oldPoints
-        meshPoints_ = new Foam::pointField(mesh_.points());
-        // At the beginning, oldPoints doesn't exist
-        meshOldPoints_ = new Foam::pointField(mesh_.points());
-
-        DEBUG(adapterInfo("Added mesh points and oldPoints to the list of checkpointed fields."));
-        meshCheckPointed = true;
-    }
     if (mesh_.moving())
     {
-        if (!meshStartedMoving)
+        if (!meshCheckPointed)
         {
             // Set up the checkpoint for the mesh flux: meshPhi
             setupMeshCheckpointing();
-            meshStartedMoving = true;
+            meshCheckPointed = true;
         }
         writeMeshCheckpoint();
 
