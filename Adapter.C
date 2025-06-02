@@ -815,14 +815,6 @@ void preciceAdapter::Adapter::reloadMeshPoints()
 void preciceAdapter::Adapter::setupMeshCheckpointing()
 {
     DEBUG(adapterInfo("Creating a list of the mesh checkpointed fields..."));
-
-    // // TODO: Seperate function for topology
-    // // Add faces, owner, neighbour (Topology)
-    // addMeshCheckpointField(const_cast<Foam::faceList&>(mesh_.faces()));
-    // addMeshCheckpointField(const_cast<Foam::labelUList&>(mesh_.owner()));
-    // addMeshCheckpointField(const_cast<Foam::labelUList&>(mesh_.neighbour()));
-    // DEBUG(adapterInfo("Checkpoint mesh faces, owner, neighbour"));
-
     // Add meshPhi (Face motion flux)
     addMeshCheckpointField(const_cast<surfaceScalarField&>(mesh_.phi()));
 
