@@ -654,13 +654,11 @@ void preciceAdapter::Adapter::adjustSolverTimeStepAndReadData()
     double tolerance = 1e-14;
     if (precice_->getMaxTimeStepSize() - timestepSolverDetermined > tolerance)
     {
-        // Add a bool 'subCycling = true' which is checked in the storeMeshPoints() function.
         adapterInfo(
             "The solver's timestep is smaller than the "
             "coupling timestep. Subcycling...",
             "info");
         timestepSolver_ = timestepSolverDetermined;
-        // TODO subcycling is enabled. For FSI the oldVolumes must be written, which is normally not done.
         if (FSIenabled_)
         {
             adapterInfo(
@@ -773,19 +771,13 @@ void preciceAdapter::Adapter::storeMeshPoints()
         }
         writeMeshCheckpoint();
 
-        // TODO  This is only required for subcycling. It should not be called when not subcycling!!
-        // Add a bool 'subcycling' which can be evaluated every timestep.
-
-        if (subcycling)
+        // For Ddt schemes which use up to two previous timesteps V0, V00
+        if (volumeCheckpointCounter < 3)
         {
-            // For Ddt schemes which use up to two previous timesteps V0, V00
-            if (volumeCheckpointCounter < 3)
-            {
-                setupMeshVolCheckpointing();
-            }
-
-            writeMeshVolCheckpoint();
+            setupMeshVolCheckpointing();
         }
+
+        writeMeshVolCheckpoint();
     }
 }
 
@@ -801,11 +793,7 @@ void preciceAdapter::Adapter::reloadMeshPoints()
 
     DEBUG(adapterInfo("Moved mesh points to their previous locations."));
 
-    // TODO This part should only be used when sybcycling. See the description in 'storeMeshPoints()'
-    if (subcycling)
-    {
-        readMeshVolCheckpoint();
-    }
+    readMeshVolCheckpoint();
 }
 
 void preciceAdapter::Adapter::setupMeshCheckpointing()
@@ -1391,18 +1379,18 @@ void preciceAdapter::Adapter::writeMeshCheckpoint()
 void preciceAdapter::Adapter::readMeshVolCheckpoint()
 {
     // Reload V, V0, V00
-    if (volumeCheckpointCounter == 2)
+    if (volumeCheckpointCounter == 2 || volumeCheckpointCounter == 3)
     {
-        DEBUG(adapterInfo("Read mesh volume " + meshVolFieldCopies_.at(0)->name()));
         const_cast<volScalarField::Internal&>(mesh_.V()) = *(meshVolFieldCopies_.at(0));
+        DEBUG(adapterInfo("Read mesh volume " + meshVolFieldCopies_.at(0)->name()));
 
-        DEBUG(adapterInfo("Read mesh volume " + meshVolFieldCopies_.at(1)->name()));
         const_cast<volScalarField::Internal&>(mesh_.V0()) = *(meshVolFieldCopies_.at(1));
+        DEBUG(adapterInfo("Read mesh volume " + meshVolFieldCopies_.at(1)->name()));
     }
     if (volumeCheckpointCounter == 3)
     {
-        DEBUG(adapterInfo("Read mesh volume " + meshVolFieldCopies_.at(2)->name()));
         const_cast<volScalarField::Internal&>(mesh_.V00()) = *(meshVolFieldCopies_.at(2));
+        DEBUG(adapterInfo("Read mesh volume " + meshVolFieldCopies_.at(2)->name()));
     }
 
     DEBUG(adapterInfo("Mesh volumes checkpoint for time t = " + std::to_string(runTime_.value()) + " were read."));
@@ -1413,18 +1401,18 @@ void preciceAdapter::Adapter::readMeshVolCheckpoint()
 void preciceAdapter::Adapter::writeMeshVolCheckpoint()
 {
     // Store V, V0, V00
-    if (volumeCheckpointCounter == 2)
+    if (volumeCheckpointCounter == 2 || volumeCheckpointCounter == 3)
     {
-        DEBUG(adapterInfo("Write mesh volume " + meshVolFieldCopies_.at(0)->name()));
         *(meshVolFieldCopies_.at(0)) = const_cast<volScalarField::Internal&>(mesh_.V());
+        DEBUG(adapterInfo("Write mesh volume " + meshVolFieldCopies_.at(0)->name()));
 
-        DEBUG(adapterInfo("Write mesh volume " + meshVolFieldCopies_.at(1)->name()));
         *(meshVolFieldCopies_.at(1)) = const_cast<volScalarField::Internal&>(mesh_.V0());
+        DEBUG(adapterInfo("Write mesh volume " + meshVolFieldCopies_.at(1)->name()));
     }
     if (volumeCheckpointCounter == 3)
     {
-        DEBUG(adapterInfo("Write mesh volume " + meshVolFieldCopies_.at(2)->name()));
         *(meshVolFieldCopies_.at(2)) = const_cast<volScalarField::Internal&>(mesh_.V00());
+        DEBUG(adapterInfo("Write mesh volume " + meshVolFieldCopies_.at(2)->name()));
     }
 
     DEBUG(adapterInfo("Mesh volumes checkpoint for time t = " + std::to_string(runTime_.value()) + " were stored."));

@@ -143,7 +143,6 @@ private:
 
     //- Volume checkpointing counter (max value 3)
     u_int8_t volumeCheckpointCounter;
-    bool subcycling = true;
 
     // Vectors of pointers to the checkpointed mesh fields and their copies
 
