@@ -142,7 +142,7 @@ private:
     bool oldVolsStored = false;
 
     //- Volume checkpointing counter (max value 3)
-    u_int8_t volumeCheckpointCounter;
+    u_int8_t volumeCheckpointCounter = 0;
 
     // Vectors of pointers to the checkpointed mesh fields and their copies
 

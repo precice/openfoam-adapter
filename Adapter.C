@@ -1386,14 +1386,14 @@ void preciceAdapter::Adapter::readMeshVolCheckpoint()
 
         const_cast<volScalarField::Internal&>(mesh_.V0()) = *(meshVolFieldCopies_.at(1));
         DEBUG(adapterInfo("Read mesh volume " + meshVolFieldCopies_.at(1)->name()));
+
+        DEBUG(adapterInfo("Mesh volumes checkpoint for time t = " + std::to_string(runTime_.value()) + " were read."));
     }
     if (volumeCheckpointCounter == 3)
     {
         const_cast<volScalarField::Internal&>(mesh_.V00()) = *(meshVolFieldCopies_.at(2));
         DEBUG(adapterInfo("Read mesh volume " + meshVolFieldCopies_.at(2)->name()));
     }
-
-    DEBUG(adapterInfo("Mesh volumes checkpoint for time t = " + std::to_string(runTime_.value()) + " were read."));
 
     return;
 }
@@ -1408,14 +1408,14 @@ void preciceAdapter::Adapter::writeMeshVolCheckpoint()
 
         *(meshVolFieldCopies_.at(1)) = const_cast<volScalarField::Internal&>(mesh_.V0());
         DEBUG(adapterInfo("Write mesh volume " + meshVolFieldCopies_.at(1)->name()));
+
+        DEBUG(adapterInfo("Mesh volumes checkpoint for time t = " + std::to_string(runTime_.value()) + " were stored."));
     }
     if (volumeCheckpointCounter == 3)
     {
         *(meshVolFieldCopies_.at(2)) = const_cast<volScalarField::Internal&>(mesh_.V00());
         DEBUG(adapterInfo("Write mesh volume " + meshVolFieldCopies_.at(2)->name()));
     }
-
-    DEBUG(adapterInfo("Mesh volumes checkpoint for time t = " + std::to_string(runTime_.value()) + " were stored."));
 
     return;
 }
