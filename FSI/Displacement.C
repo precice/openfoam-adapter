@@ -38,13 +38,47 @@ void preciceAdapter::FSI::Displacement::initialize()
 
 std::size_t preciceAdapter::FSI::Displacement::write(double* buffer, bool meshConnectivity, const unsigned int dim)
 {
-    /* TODO: Implement
-     * We need two nested for-loops for each patch,
-     * the outer for the locations and the inner for the dimensions.
-     * See the preCICE writeBlockVectorData() implementation.
-     */
+    Foam::scalar maxDispMag = 0;
+    Foam::scalar sumDispMag = 0;
 
-    // Copy the displacement field from OpenFOAM to the buffer
+    if (this->locationType_ == LocationType::faceCenters)
+    {
+        for (const label patchID : patchIDs_)
+        {
+            const fvPatchVectorField& dispPatch = cellDisplacement_->boundaryField()[patchID];
+            forAll(dispPatch, i)
+            {
+                Foam::scalar magD = mag(dispPatch[i]);
+                sumDispMag += magD;
+                if (magD > maxDispMag)
+                {
+                    maxDispMag = magD;
+                }
+            }
+        }
+    }
+    else if (this->locationType_ == LocationType::faceNodes)
+    {
+        for (const label patchID : patchIDs_)
+        {
+            const labelList& meshPoints = mesh_.boundaryMesh()[patchID].meshPoints();
+            forAll(pointDisplacement_->boundaryField()[patchID], i)
+            {
+                const Foam::vector& disp = pointDisplacement_->internalField()[meshPoints[i]];
+                Foam::scalar magD = mag(disp);
+                sumDispMag += magD;
+                if (magD > maxDispMag)
+                {
+                    maxDispMag = magD;
+                }
+            }
+        }
+    }
+
+    DEBUG(adapterInfo(
+        "PRECICE_DEBUG_DISPLACEMENT_WRITE_MAX_MAG TIME=" + std::to_string(mesh_.time().value()) + " VALUE=" + std::to_string(maxDispMag)));
+    DEBUG(adapterInfo(
+        "PRECICE_DEBUG_DISPLACEMENT_WRITE_SUM_MAG TIME=" + std::to_string(mesh_.time().value()) + " VALUE=" + std::to_string(sumDispMag)));
 
     int bufferIndex = 0;
     if (this->locationType_ == LocationType::faceCenters)
@@ -138,6 +172,49 @@ void preciceAdapter::FSI::Displacement::read(double* buffer, const unsigned int 
             }
         }
     }
+
+    Foam::scalar maxDispMag = 0;
+    Foam::scalar sumDispMag = 0;
+
+    if (this->locationType_ == LocationType::faceCenters)
+    {
+        for (const label patchID : patchIDs_)
+        {
+            const fvPatchVectorField& dispPatch = cellDisplacement_->boundaryField()[patchID];
+            forAll(dispPatch, i)
+            {
+                Foam::scalar magD = mag(dispPatch[i]);
+                sumDispMag += magD;
+                if (magD > maxDispMag)
+                {
+                    maxDispMag = magD;
+                }
+            }
+        }
+    }
+    else if (this->locationType_ == LocationType::faceNodes)
+    {
+        for (const label patchID : patchIDs_)
+        {
+            const fixedValuePointPatchVectorField& dispPatch =
+                refCast<const fixedValuePointPatchVectorField>(
+                    pointDisplacement_->boundaryField()[patchID]);
+            forAll(dispPatch, i)
+            {
+                Foam::scalar magD = mag(dispPatch[i]);
+                sumDispMag += magD;
+                if (magD > maxDispMag)
+                {
+                    maxDispMag = magD;
+                }
+            }
+        }
+    }
+
+    DEBUG(adapterInfo(
+        "PRECICE_DEBUG_DISPLACEMENT_READ_MAX_MAG TIME=" + std::to_string(mesh_.time().value()) + " VALUE=" + std::to_string(maxDispMag)));
+    DEBUG(adapterInfo(
+        "PRECICE_DEBUG_DISPLACEMENT_READ_SUM_MAG TIME=" + std::to_string(mesh_.time().value()) + " VALUE=" + std::to_string(sumDispMag)));
 }
 
 bool preciceAdapter::FSI::Displacement::isLocationTypeSupported(const bool meshConnectivity) const

@@ -75,6 +75,31 @@ void preciceAdapter::FSI::Force::read(double* buffer, const unsigned int dim)
             notImplemented("Read forces not implemented for faceNodes!");
         }
     }
+
+    Foam::scalar maxForceMag = 0;
+    Foam::scalar sumForceMag = 0;
+
+    if (this->locationType_ == LocationType::faceCenters)
+    {
+        for (const label patchID : patchIDs_)
+        {
+            const fvPatchVectorField& forcePatch = Force_->boundaryField()[patchID];
+            forAll(forcePatch, i)
+            {
+                Foam::scalar magF = mag(forcePatch[i]);
+                sumForceMag += magF;
+                if (magF > maxForceMag)
+                {
+                    maxForceMag = magF;
+                }
+            }
+        }
+    }
+
+    DEBUG(adapterInfo(
+        "PRECICE_DEBUG_FORCE_READ_MAX_MAG TIME=" + std::to_string(mesh_.time().value()) + " VALUE=" + std::to_string(maxForceMag)));
+    DEBUG(adapterInfo(
+        "PRECICE_DEBUG_FORCE_READ_SUM_MAG TIME=" + std::to_string(mesh_.time().value()) + " VALUE=" + std::to_string(sumForceMag)));
 }
 
 bool preciceAdapter::FSI::Force::isLocationTypeSupported(const bool meshConnectivity) const
