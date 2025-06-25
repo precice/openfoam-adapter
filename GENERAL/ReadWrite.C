@@ -29,6 +29,31 @@ std::size_t preciceAdapter::MODULE::ScalarFieldCoupler::write(double* buffer, bo
 
     int bufferIndex = 0;
 
+    if (this->locationType_ == LocationType::volumeCenters)
+    {
+        if (cellSetNames_.empty())
+        {
+            for (const auto& cell : scalarField_->internalField())
+            {
+                buffer[bufferIndex++] = cell;
+            }
+        }
+        else
+        {
+            for (const auto& cellSetName : cellSetNames_)
+            {
+                cellSet overlapRegion(scalarField_->mesh(), cellSetName);
+                const labelList& cells = overlapRegion.toc();
+
+                for (const auto& currentCell : cells)
+                {
+                    // Copy the scalar value into the buffer
+                    buffer[bufferIndex++] = scalarField_->internalField()[currentCell];
+                }
+            }
+        }
+    }
+
     // For every boundary patch of the interface
     for (uint j = 0; j < patchIDs_.size(); j++)
     {
@@ -67,6 +92,31 @@ std::size_t preciceAdapter::MODULE::ScalarFieldCoupler::write(double* buffer, bo
 void preciceAdapter::MODULE::ScalarFieldCoupler::read(double* buffer, const unsigned int dim)
 {
     int bufferIndex = 0;
+
+    if (this->locationType_ == LocationType::volumeCenters)
+    {
+        if (cellSetNames_.empty())
+        {
+            for (auto& cell : scalarField_->ref())
+            {
+                cell = buffer[bufferIndex++];
+            }
+        }
+        else
+        {
+            for (const auto& cellSetName : cellSetNames_)
+            {
+                cellSet overlapRegion(scalarField_->mesh(), cellSetName);
+                const labelList& cells = overlapRegion.toc();
+
+                for (const auto& currentCell : cells)
+                {
+                    // Copy the scalar value from the buffer
+                    scalarField_->ref()[currentCell] = buffer[bufferIndex++];
+                }
+            }
+        }
+    }
 
     // For every boundary patch of the interface
     for (uint j = 0; j < patchIDs_.size(); j++)
