@@ -125,10 +125,12 @@ private:
     // Timesteps
 
     //- Timestep used by the solver
-    double timestepSolver_;
+    double timestepSolver_ = 0.0;
 
     //- Stored (fixed) timestep
     double timestepStored_;
+
+    double timeWithinIteration_ = 0.0;
 
     // Checkpointing
 
