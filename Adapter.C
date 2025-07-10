@@ -432,20 +432,29 @@ void preciceAdapter::Adapter::execute()
     // Write the coupling data in the buffer
     writeCouplingData();
 
-    // Advance preCICE
-    advance();
+    timeWithinIteration_ += timestepSolver_;
 
-    // Read checkpoint if required
-    if (requiresReadingCheckpoint())
+    if (timeWithinIteration_ >= precice_->getMaxTimeStepSize())
     {
-        pruneCheckpointedFields();
-        readCheckpoint();
-    }
+        timeWithinIteration_ = precice_->getMaxTimeStepSize();
 
-    // Write checkpoint if required
-    if (requiresWritingCheckpoint())
-    {
-        writeCheckpoint();
+        // Advance preCICE
+        advance();
+
+        // Read checkpoint if required
+        if (requiresReadingCheckpoint())
+        {
+            pruneCheckpointedFields();
+            readCheckpoint();
+            timeWithinIteration_ = timestepSolver_; // Reset the time within iteration
+        }
+
+        // Write checkpoint at end of subcycles
+        // Write checkpoint if required
+        if (requiresWritingCheckpoint())
+        {
+            writeCheckpoint();
+        }
     }
 
     // As soon as OpenFOAM writes the results, it will not try to write again
@@ -587,7 +596,8 @@ void preciceAdapter::Adapter::advance()
     DEBUG(adapterInfo("Advancing preCICE..."));
 
     SETUP_TIMER();
-    precice_->advance(timestepSolver_);
+    precice_->advance(precice_->getMaxTimeStepSize());
+    // precice_->advance(timestepSolver_);
     ACCUMULATE_TIMER(timeInAdvance_);
 
     return;
@@ -695,7 +705,15 @@ void preciceAdapter::Adapter::adjustSolverTimeStepAndReadData()
 
     // Read the received coupling data from the buffer
     // Fits to an implicit Euler
-    readCouplingData(runTime_.deltaT().value());
+
+    double readTime = timestepSolver_ + timeWithinIteration_;
+    if (readTime > precice_->getMaxTimeStepSize())
+    {
+        readTime = precice_->getMaxTimeStepSize();
+    }
+    readCouplingData(readTime);
+    DEBUG(adapterInfo("timeWithinIteration_ = " + std::to_string(timeWithinIteration_)));
+    DEBUG(adapterInfo("readTime = " + std::to_string(readTime)));
 
     return;
 }
