@@ -770,7 +770,14 @@ void preciceAdapter::Adapter::storeMeshPoints()
             meshCheckPointed = true;
         }
         writeMeshCheckpoint();
-        writeVolCheckpoint(); // Does not write anything unless subcycling.
+
+        // For Ddt schemes which use up to two previous timesteps V0, V00
+        if (volumeCheckpointCounter < 3)
+        {
+            setupMeshVolCheckpointing();
+        }
+
+        writeMeshVolCheckpoint();
     }
 }
 
@@ -786,7 +793,7 @@ void preciceAdapter::Adapter::reloadMeshPoints()
 
     DEBUG(adapterInfo("Moved mesh points to their previous locations."));
 
-    // TODO The if statement can be removed in this case, but it is still included for clarity
+    readMeshVolCheckpoint();
 }
 
 void preciceAdapter::Adapter::setupMeshCheckpointing()
@@ -800,28 +807,28 @@ void preciceAdapter::Adapter::setupMeshCheckpointing()
 
 void preciceAdapter::Adapter::setupMeshVolCheckpointing()
 {
-    DEBUG(adapterInfo("Creating a list of the mesh volume checkpointed fields..."));
-    // Add the V0 and the V00 to the list of checkpointed fields.
-    // For V0
-    addVolCheckpointField(
-        const_cast<volScalarField::Internal&>(
-            mesh_.V0()));
-#ifdef ADAPTER_DEBUG_MODE
-    adapterInfo(
-        "Added " + mesh_.V0().name() + " in the list of checkpointed fields.");
-#endif
-    // For V00
-    addVolCheckpointField(
-        const_cast<volScalarField::Internal&>(
-            mesh_.V00()));
-#ifdef ADAPTER_DEBUG_MODE
-    adapterInfo(
-        "Added " + mesh_.V00().name() + " in the list of checkpointed fields.");
-#endif
+    // Add V, V0, V00
+    if (volumeCheckpointCounter == 0)
+    {
+        // When V is available, also V0 is available (see fvMesh::movePoints, storeOldVol(V()))
+        // volumeCheckpointCounter will be 2 after this call
 
-    // Also add the buffer fields.
-    // TODO For V0
-    /* addVolCheckpointFieldBuffer
+        addMeshVolCheckpointField(const_cast<volScalarField::Internal&>(mesh_.V()));
+        DEBUG(adapterInfo("Checkpoint mesh V"));
+
+        volumeCheckpointCounter += 1;
+
+        addMeshVolCheckpointField(const_cast<volScalarField::Internal&>(mesh_.V0()));
+        DEBUG(adapterInfo("Checkpoint mesh V0"));
+    }
+
+    if (volumeCheckpointCounter == 2)
+    {
+        addMeshVolCheckpointField(const_cast<volScalarField::Internal&>(mesh_.V00()));
+        DEBUG(adapterInfo("Checkpoint mesh V00"));
+    }
+
+    volumeCheckpointCounter += 1;
 }
 
 
@@ -928,12 +935,9 @@ void preciceAdapter::Adapter::addMeshCheckpointField(surfaceScalarField& field)
     meshSurfaceScalarFieldCopies_.push_back(new surfaceScalarField(field));
 }
 
-void preciceAdapter::Adapter::addMeshCheckpointField(surfaceVectorField& field)
+void preciceAdapter::Adapter::addMeshVolCheckpointField(volScalarField::Internal& field)
 {
-    {
-        meshSurfaceVectorFields_.push_back(&field);
-        meshSurfaceVectorFieldCopies_.push_back(new surfaceVectorField(field));
-    }
+    meshVolFieldCopies_.push_back(new volScalarField::Internal(field));
 }
 
 
@@ -1371,41 +1375,46 @@ void preciceAdapter::Adapter::writeMeshCheckpoint()
     return;
 }
 
-// TODO for the volumes of the mesh, check this part for subcycling.
-void preciceAdapter::Adapter::readVolCheckpoint()
+void preciceAdapter::Adapter::readMeshVolCheckpoint()
 {
-    DEBUG(adapterInfo("Reading the mesh volumes checkpoint..."));
-
-    // Reload all the fields of type mesh volVectorField::Internal
-    for (uint i = 0; i < volScalarInternalFields_.size(); i++)
+    // Reload V, V0, V00
+    if (volumeCheckpointCounter == 2 || volumeCheckpointCounter == 3)
     {
-        // Load the volume field
-        *(volScalarInternalFields_.at(i)) = *(volScalarInternalFieldCopies_.at(i));
-        // There are no old times for the internal fields.
-    }
+        const_cast<volScalarField::Internal&>(mesh_.V()) = *(meshVolFieldCopies_.at(0));
+        DEBUG(adapterInfo("Read mesh volume " + meshVolFieldCopies_.at(0)->name()));
 
-#ifdef ADAPTER_DEBUG_MODE
-    adapterInfo(
-        "Mesh volumes were read. Time = " + std::to_string(runTime_.value()));
-#endif
+        const_cast<volScalarField::Internal&>(mesh_.V0()) = *(meshVolFieldCopies_.at(1));
+        DEBUG(adapterInfo("Read mesh volume " + meshVolFieldCopies_.at(1)->name()));
+
+        DEBUG(adapterInfo("Mesh volumes checkpoint for time t = " + std::to_string(runTime_.value()) + " were read."));
+    }
+    if (volumeCheckpointCounter == 3)
+    {
+        const_cast<volScalarField::Internal&>(mesh_.V00()) = *(meshVolFieldCopies_.at(2));
+        DEBUG(adapterInfo("Read mesh volume " + meshVolFieldCopies_.at(2)->name()));
+    }
 
     return;
 }
 
-void preciceAdapter::Adapter::writeVolCheckpoint()
+void preciceAdapter::Adapter::writeMeshVolCheckpoint()
 {
-    DEBUG(adapterInfo("Writing a mesh volumes checkpoint..."));
-
-    // Store all the fields of type mesh volScalarField::Internal
-    for (uint i = 0; i < volScalarInternalFields_.size(); i++)
+    // Store V, V0, V00
+    if (volumeCheckpointCounter == 2 || volumeCheckpointCounter == 3)
     {
-        *(volScalarInternalFieldCopies_.at(i)) = *(volScalarInternalFields_.at(i));
-    }
+        *(meshVolFieldCopies_.at(0)) = const_cast<volScalarField::Internal&>(mesh_.V());
+        DEBUG(adapterInfo("Write mesh volume " + meshVolFieldCopies_.at(0)->name()));
 
-#ifdef ADAPTER_DEBUG_MODE
-    adapterInfo(
-        "Mesh volumes checkpoint for time t = " + std::to_string(runTime_.value()) + " was stored.");
-#endif
+        *(meshVolFieldCopies_.at(1)) = const_cast<volScalarField::Internal&>(mesh_.V0());
+        DEBUG(adapterInfo("Write mesh volume " + meshVolFieldCopies_.at(1)->name()));
+
+        DEBUG(adapterInfo("Mesh volumes checkpoint for time t = " + std::to_string(runTime_.value()) + " were stored."));
+    }
+    if (volumeCheckpointCounter == 3)
+    {
+        *(meshVolFieldCopies_.at(2)) = const_cast<volScalarField::Internal&>(mesh_.V00());
+        DEBUG(adapterInfo("Write mesh volume " + meshVolFieldCopies_.at(2)->name()));
+    }
 
     return;
 }
@@ -1494,12 +1503,11 @@ void preciceAdapter::Adapter::teardown()
         }
         meshSurfaceScalarFieldCopies_.clear();
 
-        // meshSurfaceVector
-        for (uint i = 0; i < meshSurfaceVectorFieldCopies_.size(); i++)
+        for (uint i = 0; i < meshVolFieldCopies_.size(); i++)
         {
-            delete meshSurfaceVectorFieldCopies_.at(i);
+            delete meshVolFieldCopies_.at(i);
         }
-        meshSurfaceVectorFieldCopies_.clear();
+        meshVolFieldCopies_.clear();
 
         delete meshPoints_;
         delete meshOldPoints_;
