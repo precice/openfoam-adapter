@@ -188,6 +188,29 @@ std::size_t preciceAdapter::FSI::ForceBase::writeToBuffer(double* buffer,
                     forceField.boundaryField()[patchID][i][d];
         }
     }
+
+    Foam::scalar maxForceMag = 0;
+    Foam::scalar sumForceMag = 0;
+
+    for (const label patchID : patchIDs_)
+    {
+        const fvPatchVectorField& forcePatch = forceField.boundaryField()[patchID];
+        forAll(forcePatch, i)
+        {
+            Foam::scalar magF = mag(forcePatch[i]);
+            sumForceMag += magF;
+            if (magF > maxForceMag)
+            {
+                maxForceMag = magF;
+            }
+        }
+    }
+
+    DEBUG(adapterInfo(
+        "PRECICE_DEBUG_FORCE_WRITE_MAX_MAG TIME=" + std::to_string(mesh_.time().value()) + " VALUE=" + std::to_string(maxForceMag)));
+    DEBUG(adapterInfo(
+        "PRECICE_DEBUG_FORCE_WRITE_SUM_MAG TIME=" + std::to_string(mesh_.time().value()) + " VALUE=" + std::to_string(sumForceMag)));
+
     return bufferIndex;
 }
 
