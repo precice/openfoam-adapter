@@ -814,7 +814,7 @@ void preciceAdapter::Adapter::setupMeshCheckpointing()
 
 void preciceAdapter::Adapter::setupMeshVolCheckpointing()
 {
-    // Add V, V0, V00
+    // Add the mesh volumes for the current and up to two previous time steps (V, V0, V00), if available
     if (volumeCheckpointCounter == 0)
     {
         // When V is available, also V0 is available (see fvMesh::movePoints, storeOldVol(V()))
