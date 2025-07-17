@@ -789,19 +789,12 @@ void preciceAdapter::Adapter::reloadMeshPoints()
         return;
     }
 
-    // Invalidate on-demand fields
-    // fvMesh::updateGeomNotOldVol()
-    // (void)mesh_.V();
-    (void)mesh_.Sf();
-    (void)mesh_.magSf();
-    (void)mesh_.C();
-    (void)mesh_.Cf();
-
-    // fvMesh.movePoints overwrites the pointer to the oldPoints
-    const_cast<pointField&>(mesh_.points()) = *meshOldPoints_;
-
     // Reload mesh points
     const_cast<Foam::fvMesh&>(mesh_).movePoints(*meshPoints_);
+
+    // polyMesh.movePoints will only update oldPoints
+    // if (curMotionTimeIndex_ != time().timeIndex())
+    const_cast<pointField&>(mesh_.oldPoints()) = *meshOldPoints_;
 
     readMeshCheckpoint();
 
