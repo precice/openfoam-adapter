@@ -59,12 +59,8 @@ if command -v pkg-config >/dev/null 2>&1; then
 else
     warning "pkg-config is not installed and cannot be used to detect the preCICE installation. If building succeeds, ignore this warning."
 fi
-#export ADAPTER_PKG_CONFIG_CFLAGS
-#export ADAPTER_PKG_CONFIG_LIBS
-
-export ADAPTER_PKG_CONFIG_CFLAGS="-I/home/hej/opt/precice/include"
-export ADAPTER_PKG_CONFIG_LIBS="-L/home/hej/opt/precice/lib64"
-
+export ADAPTER_PKG_CONFIG_CFLAGS
+export ADAPTER_PKG_CONFIG_LIBS
 
 # Check if an OpenFOAM environment is available
 log ""

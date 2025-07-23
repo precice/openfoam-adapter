@@ -1,3 +1,31 @@
+/*---------------------------------------------------------------------------*\
+    Copyright (C) 2017  Gerasimos Chourdakis
+-------------------------------------------------------------------------------
+-------------------------------------------------------------------------------
+* Copyright (C) 2025 Gesellschaft fuer Anlagen- und Reaktorsicherheit         *
+*                         (GRS) gGmbH                                         *
+-------------------------------------------------------------------------------
+License
+    This file is part of OpenFOAM-preCICE adapter.
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version with terms added by GRS.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License with terms by GRS for more details.
+
+    You should have received a copy of the GNU General Public License
+    with terms by GRS along with this program. If not, please
+    contact your conveyor or GRS gGmbH.
+    For a copy of the unmodified GNU General Public License, see
+    <http://www.gnu.org/licenses/>.
+
+\*---------------------------------------------------------------------------*/
+
 #include "Velocity.H"
 #include "coupledVelocityFvPatchField.H"
 
@@ -24,7 +52,7 @@ preciceAdapter::FF::Velocity::Velocity(
         U_ = new volVectorField(
             IOobject(
                 nameU,
-                mesh.time().timeName(),
+                mesh.time().name(),
                 mesh,
                 IOobject::MUST_READ,
                 IOobject::AUTO_WRITE),
@@ -92,7 +120,7 @@ std::size_t preciceAdapter::FF::Velocity::write(double* buffer, bool meshConnect
         if (fluxCorrection_)
         {
             scalarField phip = phi_->boundaryFieldRef()[patchID];
-            const vectorField n = U_->boundaryField()[patchID].patch().nf().cref();
+            const vectorField n(U_->boundaryField()[patchID].patch().nf());
             const scalarField& magS = U_->boundaryFieldRef()[patchID].patch().magSf();
             UPatch = UPatch - n * (n & U_->boundaryField()[patchID]) + n * phip / magS;
         }
@@ -128,7 +156,7 @@ void preciceAdapter::FF::Velocity::read(double* buffer, const unsigned int dim)
     {
         if (cellSetNames_.empty())
         {
-            for (auto& cell : U_->ref())
+            for (auto& cell : U_->internalFieldRef())
             {
                 // x-dimension
                 cell.x() = buffer[bufferIndex++];
@@ -153,15 +181,15 @@ void preciceAdapter::FF::Velocity::read(double* buffer, const unsigned int dim)
                 for (const auto& currentCell : cells)
                 {
                     // x-dimension
-                    U_->ref()[currentCell].x() = buffer[bufferIndex++];
+                    U_->internalFieldRef()[currentCell].x() = buffer[bufferIndex++];
 
                     // y-dimension
-                    U_->ref()[currentCell].y() = buffer[bufferIndex++];
+                    U_->internalFieldRef()[currentCell].y() = buffer[bufferIndex++];
 
                     if (dim == 3)
                     {
                         // z-dimension
-                        U_->ref()[currentCell].z() = buffer[bufferIndex++];
+                        U_->internalFieldRef()[currentCell].z() = buffer[bufferIndex++];
                     }
                 }
             }

@@ -1,5 +1,34 @@
+/*---------------------------------------------------------------------------*\
+    Copyright (C) 2017  Gerasimos Chourdakis
+-------------------------------------------------------------------------------
+-------------------------------------------------------------------------------
+* Copyright (C) 2025 Gesellschaft fuer Anlagen- und Reaktorsicherheit         *
+*                         (GRS) gGmbH                                         *
+-------------------------------------------------------------------------------
+License
+    This file is part of OpenFOAM-preCICE adapter.
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version with terms added by GRS.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License with terms by GRS for more details.
+
+    You should have received a copy of the GNU General Public License
+    with terms by GRS along with this program. If not, please
+    contact your conveyor or GRS gGmbH.
+    For a copy of the unmodified GNU General Public License, see
+    <http://www.gnu.org/licenses/>.
+
+\*---------------------------------------------------------------------------*/
+
 #include "ForceBase.H"
 #include "fluidThermo.H"
+#include "surfaceInterpolate.H"
 
 using namespace Foam;
 
@@ -25,7 +54,7 @@ preciceAdapter::FSI::ForceBase::ForceBase(
 }
 
 // Calculate viscous force
-Foam::tmp<Foam::volSymmTensorField> preciceAdapter::FSI::ForceBase::devRhoReff() const
+Foam::tmp<Foam::surfaceVectorField> preciceAdapter::FSI::ForceBase::devTau() const
 {
     //For turbulent flows
     typedef compressibleMomentumTransportModel cmpTurbModel;
@@ -43,14 +72,15 @@ Foam::tmp<Foam::volSymmTensorField> preciceAdapter::FSI::ForceBase::devRhoReff()
         const icoTurbModel& turb =
             mesh_.lookupObject<icoTurbModel>(icoTurbModel::typeName);
 
-        return rho() * turb.devSigma();
+        return fvc::interpolate(rho()) * turb.devSigma();
     }
     else
     {
-        // For laminar flows get the velocity
-        const volVectorField& U = mesh_.lookupObject<volVectorField>("U");
+        FatalErrorInFunction
+            << "No valid model for viscous stress calculation"
+            << exit(FatalError);
 
-        return -mu() * dev(twoSymm(fvc::grad(U)));
+        return surfaceVectorField::null();
     }
 }
 
@@ -73,7 +103,7 @@ Foam::tmp<Foam::volScalarField> preciceAdapter::FSI::ForceBase::rho() const
             new volScalarField(
                 IOobject(
                     "rho",
-                    mesh_.time().timeName(),
+                    mesh_.time().name(),
                     mesh_,
                     IOobject::NO_READ,
                     IOobject::NO_WRITE),
@@ -135,9 +165,8 @@ std::size_t preciceAdapter::FSI::ForceBase::writeToBuffer(double* buffer,
 {
     // Compute forces. See the Forces function object.
     // Stress tensor boundary field
-    tmp<volSymmTensorField> tdevRhoReff(devRhoReff());
-    const volSymmTensorField::Boundary& devRhoReffb(
-        tdevRhoReff().boundaryField());
+    tmp<surfaceVectorField> tdevTau = devTau();
+    const surfaceVectorField::Boundary& devTaub = tdevTau().boundaryField();
 
     // Density boundary field
     tmp<volScalarField> trho(rho());
@@ -149,22 +178,25 @@ std::size_t preciceAdapter::FSI::ForceBase::writeToBuffer(double* buffer,
 
     int bufferIndex = 0;
     // For every boundary patch of the interface
+    const surfaceVectorField::Boundary& Sfb =
+        mesh_.Sf().boundaryField();
+
+    const surfaceScalarField::Boundary& magSfb =
+        mesh_.magSf().boundaryField();
+
     for (const label patchID : patchIDs_)
     {
-        tmp<vectorField> tsurface = getFaceVectors(patchID);
-        const auto& surface = tsurface();
-
         // Pressure forces
         // FIXME: We need to subtract the reference pressure for incompressible calculations
         if (solverType_.compare("incompressible") == 0)
         {
             forceField.boundaryFieldRef()[patchID] =
-                surface * pb[patchID] * rhob[patchID];
+                Sfb[patchID] * pb[patchID] * rhob[patchID];
         }
         else if (solverType_.compare("compressible") == 0)
         {
             forceField.boundaryFieldRef()[patchID] =
-                surface * pb[patchID];
+                Sfb[patchID] * pb[patchID];
         }
         else
         {
@@ -176,7 +208,7 @@ std::size_t preciceAdapter::FSI::ForceBase::writeToBuffer(double* buffer,
 
         // Viscous forces
         forceField.boundaryFieldRef()[patchID] +=
-            surface & devRhoReffb[patchID];
+            magSfb[patchID] * devTaub[patchID];
 
         // Write the forces to the preCICE buffer
         // For every cell of the patch

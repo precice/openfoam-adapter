@@ -1,9 +1,39 @@
+/*---------------------------------------------------------------------------*\
+    Copyright (C) 2017  Gerasimos Chourdakis
+-------------------------------------------------------------------------------
+-------------------------------------------------------------------------------
+* Copyright (C) 2025 Gesellschaft fuer Anlagen- und Reaktorsicherheit         *
+*                         (GRS) gGmbH                                         *
+-------------------------------------------------------------------------------
+License
+    This file is part of OpenFOAM-preCICE adapter.
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version with terms added by GRS.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License with terms by GRS for more details.
+
+    You should have received a copy of the GNU General Public License
+    with terms by GRS along with this program. If not, please
+    contact your conveyor or GRS gGmbH.
+    For a copy of the unmodified GNU General Public License, see
+    <http://www.gnu.org/licenses/>.
+
+\*---------------------------------------------------------------------------*/
+
 #include "Adapter.H"
 #include "Interface.H"
 #include "Utilities.H"
 
 #include "IOstreams.H"
 #include <algorithm>
+#include <iostream>
+#include <sstream>
 
 using namespace Foam;
 
@@ -690,6 +720,7 @@ void preciceAdapter::Adapter::adjustSolverTimeStepAndReadData()
     // TODO: Keep this in mind if any relevant problem appears.
     const_cast<Time&>(runTime_).setDeltaTNoAdjust(timestepSolver_);
 
+    readCouplingData(runTime_.deltaT().value());
     return;
 }
 
@@ -896,12 +927,16 @@ void preciceAdapter::Adapter::setupCheckpointing()
     DEBUG(adapterInfo("Adding in checkpointed fields..."));
 
 #undef doLocalCode
-#define doLocalCode(GeomField)                                                                      \
-    /* Checkpoint registered GeomField objects */                                                   \
-    for (const word& obj : mesh_.lookupClass<GeomField>().sortedToc())                              \
-    {                                                                                               \
-        addCheckpointField(&(const_cast<GeomField&>(mesh_.thisDb().lookupObject<GeomField>(obj)))); \
-        DEBUG(adapterInfo("Checkpoint " + obj + " : " #GeomField));                                 \
+#define doLocalCode(GeomField)                                                                          \
+    /* Checkpoint registered GeomField objects */                                                       \
+    for (const word& obj : mesh_.lookupClass<GeomField>().sortedToc())                                  \
+    {                                                                                                   \
+        /* do not checkpoint mesh files here! */                                                        \
+        if ((obj != "Cc") && (obj != "Cf") && (obj != "magSf") && (obj != "Sf"))                        \
+        {                                                                                               \
+            addCheckpointField(&(const_cast<GeomField&>(mesh_.thisDb().lookupObject<GeomField>(obj)))); \
+            DEBUG(adapterInfo("Checkpoint " + obj + " : " #GeomField));                                 \
+        }                                                                                               \
     }
 
     doLocalCode(volScalarField);
@@ -940,7 +975,7 @@ void preciceAdapter::Adapter::pruneCheckpointedFields()
     toRemoveIndices.clear();                                                                                                                  \
     index = 0;                                                                                                                                \
     /* Iterate through fields in OpenFOAM registry */                                                                                         \
-    for (const word& fieldName : mesh_.sortedNames<GeomFieldType>())                                                                          \
+    for (const word& fieldName : mesh_.lookupClass<GeomFieldType>().sortedToc())                                                              \
     {                                                                                                                                         \
         regFields.push_back(fieldName);                                                                                                       \
     }                                                                                                                                         \
@@ -948,9 +983,31 @@ void preciceAdapter::Adapter::pruneCheckpointedFields()
     for (GeomFieldType * fieldObj : GeomFieldCopies_)                                                                                         \
     {                                                                                                                                         \
         fieldName = fieldObj->name();                                                                                                         \
-        if (std::find(regFields.begin(), regFields.end(), fieldName) == regFields.end())                                                      \
+        DEBUG(adapterInfo("Search for " #GeomFieldType ":" + fieldName));                                                                     \
+        {                                                                                                                                     \
+            std::ostringstream oss;                                                                                                           \
+            oss << (mesh_.thisDb().foundObject<GeomFieldType>(fieldName) ? "true" : "false");                                                 \
+            DEBUG(adapterInfo(#GeomFieldType ":" + fieldName + "found: " + oss.str()));                                                       \
+        }                                                                                                                                     \
+        auto regFieldPtr = std::find(regFields.begin(), regFields.end(), fieldName);                                                          \
+        if ((regFieldPtr == regFields.end()) || !(mesh_.thisDb().foundObject<GeomFieldType>(fieldName)))                                      \
         {                                                                                                                                     \
             toRemoveIndices.push_back(index);                                                                                                 \
+            DEBUG(adapterInfo("Remove " + fieldName));                                                                                        \
+        }                                                                                                                                     \
+        else                                                                                                                                  \
+        {                                                                                                                                     \
+            std::ostringstream oss;                                                                                                           \
+            oss << "old address: " << GeomField_.at(index) << "\n";                                                                           \
+            /* update address, because OpenFOAM might have recreated the object */                                                            \
+            auto currentAddr = &(const_cast<GeomFieldType&>(mesh_.thisDb().lookupObject<GeomFieldType>(fieldName)));                          \
+            oss << "current address: " << currentAddr;                                                                                        \
+            if (currentAddr != GeomField_.at(index))                                                                                          \
+            {                                                                                                                                 \
+                DEBUG(adapterInfo("Changed address!"));                                                                                       \
+                DEBUG(adapterInfo(oss.str()));                                                                                                \
+            }                                                                                                                                 \
+            GeomField_.at(index) = currentAddr;                                                                                               \
         }                                                                                                                                     \
         index += 1;                                                                                                                           \
     }                                                                                                                                         \
@@ -1135,6 +1192,10 @@ void preciceAdapter::Adapter::readCheckpoint()
         reloadMeshPoints();
     }
 
+    // Make sure that really all target fields for overwriting with checkpointed data still exists
+    // and use the correct address
+    pruneCheckpointedFields();
+
     // Reload all the fields of type volScalarField
     for (uint i = 0; i < volScalarFields_.size(); i++)
     {
@@ -1146,11 +1207,11 @@ void preciceAdapter::Adapter::readCheckpoint()
         int nOldTimes(volScalarFields_.at(i)->nOldTimes());
         if (nOldTimes >= 1)
         {
-            volScalarFields_.at(i)->oldTime() == volScalarFieldCopies_.at(i)->oldTime();
+            volScalarFields_.at(i)->oldTimeRef() == volScalarFieldCopies_.at(i)->oldTime();
         }
         if (nOldTimes == 2)
         {
-            volScalarFields_.at(i)->oldTime().oldTime() == volScalarFieldCopies_.at(i)->oldTime().oldTime();
+            volScalarFields_.at(i)->oldTimeRef().oldTimeRef() == volScalarFieldCopies_.at(i)->oldTime().oldTime();
         }
     }
 
@@ -1163,11 +1224,11 @@ void preciceAdapter::Adapter::readCheckpoint()
         int nOldTimes(volVectorFields_.at(i)->nOldTimes());
         if (nOldTimes >= 1)
         {
-            volVectorFields_.at(i)->oldTime() == volVectorFieldCopies_.at(i)->oldTime();
+            volVectorFields_.at(i)->oldTimeRef() == volVectorFieldCopies_.at(i)->oldTime();
         }
         if (nOldTimes == 2)
         {
-            volVectorFields_.at(i)->oldTime().oldTime() == volVectorFieldCopies_.at(i)->oldTime().oldTime();
+            volVectorFields_.at(i)->oldTimeRef().oldTimeRef() == volVectorFieldCopies_.at(i)->oldTime().oldTime();
         }
     }
 
@@ -1179,11 +1240,11 @@ void preciceAdapter::Adapter::readCheckpoint()
         int nOldTimes(surfaceScalarFields_.at(i)->nOldTimes());
         if (nOldTimes >= 1)
         {
-            surfaceScalarFields_.at(i)->oldTime() == surfaceScalarFieldCopies_.at(i)->oldTime();
+            surfaceScalarFields_.at(i)->oldTimeRef() == surfaceScalarFieldCopies_.at(i)->oldTime();
         }
         if (nOldTimes == 2)
         {
-            surfaceScalarFields_.at(i)->oldTime().oldTime() == surfaceScalarFieldCopies_.at(i)->oldTime().oldTime();
+            surfaceScalarFields_.at(i)->oldTimeRef().oldTimeRef() == surfaceScalarFieldCopies_.at(i)->oldTime().oldTime();
         }
     }
 
@@ -1195,11 +1256,11 @@ void preciceAdapter::Adapter::readCheckpoint()
         int nOldTimes(surfaceVectorFields_.at(i)->nOldTimes());
         if (nOldTimes >= 1)
         {
-            surfaceVectorFields_.at(i)->oldTime() == surfaceVectorFieldCopies_.at(i)->oldTime();
+            surfaceVectorFields_.at(i)->oldTimeRef() == surfaceVectorFieldCopies_.at(i)->oldTime();
         }
         if (nOldTimes == 2)
         {
-            surfaceVectorFields_.at(i)->oldTime().oldTime() == surfaceVectorFieldCopies_.at(i)->oldTime().oldTime();
+            surfaceVectorFields_.at(i)->oldTimeRef().oldTimeRef() == surfaceVectorFieldCopies_.at(i)->oldTime().oldTime();
         }
     }
 
@@ -1211,11 +1272,11 @@ void preciceAdapter::Adapter::readCheckpoint()
         int nOldTimes(pointScalarFields_.at(i)->nOldTimes());
         if (nOldTimes >= 1)
         {
-            pointScalarFields_.at(i)->oldTime() == pointScalarFieldCopies_.at(i)->oldTime();
+            pointScalarFields_.at(i)->oldTimeRef() == pointScalarFieldCopies_.at(i)->oldTime();
         }
         if (nOldTimes == 2)
         {
-            pointScalarFields_.at(i)->oldTime().oldTime() == pointScalarFieldCopies_.at(i)->oldTime().oldTime();
+            pointScalarFields_.at(i)->oldTimeRef().oldTimeRef() == pointScalarFieldCopies_.at(i)->oldTime().oldTime();
         }
     }
 
@@ -1228,11 +1289,11 @@ void preciceAdapter::Adapter::readCheckpoint()
         int nOldTimes(pointVectorFields_.at(i)->nOldTimes());
         if (nOldTimes >= 1)
         {
-            pointVectorFields_.at(i)->oldTime() == pointVectorFieldCopies_.at(i)->oldTime();
+            pointVectorFields_.at(i)->oldTimeRef() == pointVectorFieldCopies_.at(i)->oldTime();
         }
         if (nOldTimes == 2)
         {
-            pointVectorFields_.at(i)->oldTime().oldTime() == pointVectorFieldCopies_.at(i)->oldTime().oldTime();
+            pointVectorFields_.at(i)->oldTimeRef().oldTimeRef() == pointVectorFieldCopies_.at(i)->oldTime().oldTime();
         }
     }
 
@@ -1245,11 +1306,11 @@ void preciceAdapter::Adapter::readCheckpoint()
         int nOldTimes(volTensorFields_.at(i)->nOldTimes());
         if (nOldTimes >= 1)
         {
-            volTensorFields_.at(i)->oldTime() == volTensorFieldCopies_.at(i)->oldTime();
+            volTensorFields_.at(i)->oldTimeRef() == volTensorFieldCopies_.at(i)->oldTime();
         }
         if (nOldTimes == 2)
         {
-            volTensorFields_.at(i)->oldTime().oldTime() == volTensorFieldCopies_.at(i)->oldTime().oldTime();
+            volTensorFields_.at(i)->oldTimeRef().oldTimeRef() == volTensorFieldCopies_.at(i)->oldTime().oldTime();
         }
     }
 
@@ -1261,11 +1322,11 @@ void preciceAdapter::Adapter::readCheckpoint()
         int nOldTimes(surfaceTensorFields_.at(i)->nOldTimes());
         if (nOldTimes >= 1)
         {
-            surfaceTensorFields_.at(i)->oldTime() == surfaceTensorFieldCopies_.at(i)->oldTime();
+            surfaceTensorFields_.at(i)->oldTimeRef() == surfaceTensorFieldCopies_.at(i)->oldTime();
         }
         if (nOldTimes == 2)
         {
-            surfaceTensorFields_.at(i)->oldTime().oldTime() == surfaceTensorFieldCopies_.at(i)->oldTime().oldTime();
+            surfaceTensorFields_.at(i)->oldTimeRef().oldTimeRef() == surfaceTensorFieldCopies_.at(i)->oldTime().oldTime();
         }
     }
 
@@ -1277,11 +1338,11 @@ void preciceAdapter::Adapter::readCheckpoint()
         int nOldTimes(pointTensorFields_.at(i)->nOldTimes());
         if (nOldTimes >= 1)
         {
-            pointTensorFields_.at(i)->oldTime() == pointTensorFieldCopies_.at(i)->oldTime();
+            pointTensorFields_.at(i)->oldTimeRef() == pointTensorFieldCopies_.at(i)->oldTime();
         }
         if (nOldTimes == 2)
         {
-            pointTensorFields_.at(i)->oldTime().oldTime() == pointTensorFieldCopies_.at(i)->oldTime().oldTime();
+            pointTensorFields_.at(i)->oldTimeRef().oldTimeRef() == pointTensorFieldCopies_.at(i)->oldTime().oldTime();
         }
     }
 
@@ -1294,11 +1355,11 @@ void preciceAdapter::Adapter::readCheckpoint()
         int nOldTimes(volSymmTensorFields_.at(i)->nOldTimes());
         if (nOldTimes >= 1)
         {
-            volSymmTensorFields_.at(i)->oldTime() == volSymmTensorFieldCopies_.at(i)->oldTime();
+            volSymmTensorFields_.at(i)->oldTimeRef() == volSymmTensorFieldCopies_.at(i)->oldTime();
         }
         if (nOldTimes == 2)
         {
-            volSymmTensorFields_.at(i)->oldTime().oldTime() == volSymmTensorFieldCopies_.at(i)->oldTime().oldTime();
+            volSymmTensorFields_.at(i)->oldTimeRef().oldTimeRef() == volSymmTensorFieldCopies_.at(i)->oldTime().oldTime();
         }
     }
 
@@ -1415,11 +1476,11 @@ void preciceAdapter::Adapter::readMeshCheckpoint()
         int nOldTimes(meshSurfaceScalarFields_.at(i)->nOldTimes());
         if (nOldTimes >= 1)
         {
-            meshSurfaceScalarFields_.at(i)->oldTime() == meshSurfaceScalarFieldCopies_.at(i)->oldTime();
+            meshSurfaceScalarFields_.at(i)->oldTimeRef() == meshSurfaceScalarFieldCopies_.at(i)->oldTime();
         }
         if (nOldTimes == 2)
         {
-            meshSurfaceScalarFields_.at(i)->oldTime().oldTime() == meshSurfaceScalarFieldCopies_.at(i)->oldTime().oldTime();
+            meshSurfaceScalarFields_.at(i)->oldTimeRef().oldTimeRef() == meshSurfaceScalarFieldCopies_.at(i)->oldTime().oldTime();
         }
     }
 
@@ -1432,11 +1493,11 @@ void preciceAdapter::Adapter::readMeshCheckpoint()
         int nOldTimes(meshSurfaceVectorFields_.at(i)->nOldTimes());
         if (nOldTimes >= 1)
         {
-            meshSurfaceVectorFields_.at(i)->oldTime() == meshSurfaceVectorFieldCopies_.at(i)->oldTime();
+            meshSurfaceVectorFields_.at(i)->oldTimeRef() == meshSurfaceVectorFieldCopies_.at(i)->oldTime();
         }
         if (nOldTimes == 2)
         {
-            meshSurfaceVectorFields_.at(i)->oldTime().oldTime() == meshSurfaceVectorFieldCopies_.at(i)->oldTime().oldTime();
+            meshSurfaceVectorFields_.at(i)->oldTimeRef().oldTimeRef() == meshSurfaceVectorFieldCopies_.at(i)->oldTime().oldTime();
         }
     }
 
@@ -1449,11 +1510,11 @@ void preciceAdapter::Adapter::readMeshCheckpoint()
         int nOldTimes(meshVolVectorFields_.at(i)->nOldTimes());
         if (nOldTimes >= 1)
         {
-            meshVolVectorFields_.at(i)->oldTime() == meshVolVectorFieldCopies_.at(i)->oldTime();
+            meshVolVectorFields_.at(i)->oldTimeRef() == meshVolVectorFieldCopies_.at(i)->oldTime();
         }
         if (nOldTimes == 2)
         {
-            meshVolVectorFields_.at(i)->oldTime().oldTime() == meshVolVectorFieldCopies_.at(i)->oldTime().oldTime();
+            meshVolVectorFields_.at(i)->oldTimeRef().oldTimeRef() == meshVolVectorFieldCopies_.at(i)->oldTime().oldTime();
         }
     }
 

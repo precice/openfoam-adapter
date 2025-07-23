@@ -1,6 +1,34 @@
+/*---------------------------------------------------------------------------*\
+    Copyright (C) 2017  Gerasimos Chourdakis
+-------------------------------------------------------------------------------
+-------------------------------------------------------------------------------
+* Copyright (C) 2025 Gesellschaft fuer Anlagen- und Reaktorsicherheit         *
+*                         (GRS) gGmbH                                         *
+-------------------------------------------------------------------------------
+License
+    This file is part of OpenFOAM-preCICE adapter.
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version with terms added by GRS.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License with terms by GRS for more details.
+
+    You should have received a copy of the GNU General Public License
+    with terms by GRS along with this program. If not, please
+    contact your conveyor or GRS gGmbH.
+    For a copy of the unmodified GNU General Public License, see
+    <http://www.gnu.org/licenses/>.
+
+\*---------------------------------------------------------------------------*/
+
 #include "Temperature.H"
 #include "primitivePatchInterpolation.H"
-
+#include "volFields.H"
 
 using namespace Foam;
 
@@ -90,7 +118,7 @@ void preciceAdapter::CHT::Temperature::read(double* buffer, const unsigned int d
     {
         if (cellSetNames_.empty())
         {
-            for (auto& cell : T_->ref())
+            for (auto& cell : T_->internalFieldRef())
             {
                 cell = buffer[bufferIndex++];
             }
@@ -105,7 +133,7 @@ void preciceAdapter::CHT::Temperature::read(double* buffer, const unsigned int d
                 for (const auto& currentCell : cells)
                 {
                     // Copy temperature into the buffer
-                    T_->ref()[currentCell] = buffer[bufferIndex++];
+                    T_->internalFieldRef()[currentCell] = buffer[bufferIndex++];
                 }
             }
         }
