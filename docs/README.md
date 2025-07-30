@@ -72,19 +72,26 @@ The adapter is [easily extensible](https://precice.org/adapter-openfoam-extend.h
 
 ### Related literature
 
-[1] Chourdakis, G., Schneider, D., & Uekermann, B. (2023). OpenFOAM-preCICE: Coupling OpenFOAM with External Solvers for Multi-Physics Simulations. OpenFOAM® Journal, 3, 1–25. [DOI: 10.51560/ofj.v3.88](https://doi.org/10.51560/ofj.v3.88)
+[1] Chourdakis, G., Schneider, D., & Uekermann, B. (2023). OpenFOAM-preCICE: Coupling OpenFOAM with External Solvers for Multi-Physics Simulations. OpenFOAM® Journal, 3, 1–25.<br/>
+[DOI: 10.51560/ofj.v3.88](https://doi.org/10.51560/ofj.v3.88)
 
-[2] Gerasimos Chourdakis. A general OpenFOAM adapter for the coupling library preCICE. Master's thesis, Department of Informatics, Technical University of Munich, 2017.
+[2] Gerasimos Chourdakis. A general OpenFOAM adapter for the coupling library preCICE. Master's thesis, Department of Informatics, Technical University of Munich, 2017.<br/>
+URL: https://mediatum.ub.tum.de/1462269
 
-[3] Lucia Cheung Yau. Conjugate heat transfer with the multiphysics coupling library preCICE. Master’s thesis, Department of Informatics, Technical University of Munich, 2016.
+[3] Lucia Cheung Yau. Conjugate heat transfer with the multiphysics coupling library preCICE. Master’s thesis, Department of Informatics, Technical University of Munich, 2016.<br/>
+URL: https://www5.in.tum.de/pub/Cheung2016_Thesis.pdf
 
-[4] Derek Risseeuw. Fluid Structure Interaction Modelling of Flapping Wings. Master's thesis, Faculty of Aerospace Engineering, Delft University of Technology, 2019.
+[4] Derek Risseeuw. Fluid Structure Interaction Modelling of Flapping Wings. Master's thesis, Faculty of Aerospace Engineering, Delft University of Technology, 2019.<br/>
+URL: http://resolver.tudelft.nl/uuid:70beddde-e870-4c62-9a2f-8758b4e49123
 
-[5] Markus Mühlhäußer. Partitioned flow simulations with preCICE and OpenFOAM. Master's thesis, School of Computation, Information and Technology, Technical University of Munich, 2022.
+[5] Markus Mühlhäußer. Partitioned flow simulations with preCICE and OpenFOAM. Master's thesis, School of Computation, Information and Technology, Technical University of Munich, 2022.<br/>
+URL: https://mediatum.ub.tum.de/node?id=1696254&change_language=en
 
-[6] Mühlhäußer, M., Chourdakis, G., & Uekermann, B. (2023). Partitioned flow simulations with preCICE and OpenFOAM. Proceedings of the ECCOMAS Coupled Problems 2023. [DOI: 10.23967/c.coupled.2023.014](https://doi.org/10.23967/c.coupled.2023.014)
+[6] Mühlhäußer, M., Chourdakis, G., & Uekermann, B. (2023). Partitioned flow simulations with preCICE and OpenFOAM. Proceedings of the ECCOMAS Coupled Problems 2023.<br/>
+[DOI: 10.23967/c.coupled.2023.014](https://doi.org/10.23967/c.coupled.2023.014)
 
-[7] Tina Vladimirova. Design, implementation, and validation of a volume coupling extension for the OpenFOAM-preCICE adapter. IDP report, School of Computation, Information and Technology, Technical University of Munich, 2023.
+[7] Tina Vladimirova. Design, implementation, and validation of a volume coupling extension for the OpenFOAM-preCICE adapter. IDP report, School of Computation, Information and Technology, Technical University of Munich, 2023.<br/>
+URL: https://mediatum.ub.tum.de/1734883
 
 {% disclaimer %}
 This offering is not approved or endorsed by OpenCFD Limited, producer and distributor of the OpenFOAM software via www.openfoam.com, and owner of the OPENFOAM®  and OpenCFD®  trade marks.
