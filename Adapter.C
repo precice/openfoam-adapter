@@ -618,7 +618,7 @@ void preciceAdapter::Adapter::advance()
     }
     catch (const std::runtime_error& e)
     {
-        std::exit(1);
+        std::exit(EXIT_FAILURE);
     }
     ACCUMULATE_TIMER(timeInAdvance_);
 
