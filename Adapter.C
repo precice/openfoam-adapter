@@ -230,20 +230,7 @@ bool preciceAdapter::Adapter::configFileRead()
 void preciceAdapter::Adapter::configure()
 {
     // Read the adapter's configuration file
-    if (!configFileRead())
-    {
-        // This method is called from the functionObject's read() method,
-        // which is called by the Foam::functionObjectList::read() method.
-        // All the exceptions triggered in this method are caught as
-        // warnings and the simulation continues simply without the
-        // functionObject. However, we want the simulation to exit with an
-        // error in case something is wrong. We store the information that
-        // there was an error and it will be handled by the first call to
-        // the functionObject's execute(), which can throw errors normally.
-        errorsInConfigure = true;
-
-        return;
-    }
+    configFileRead();
 
     // Check the timestep type (fixed vs adjustable)
     DEBUG(adapterInfo("Checking the timestep type (fixed vs adjustable)..."));
