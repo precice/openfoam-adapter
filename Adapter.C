@@ -753,9 +753,7 @@ catch (const PreciceError& e)
 bool preciceAdapter::Adapter::isCouplingTimeWindowComplete()
 try
 {
-    bool complete = false;
-    complete = precice_->isTimeWindowComplete();
-    return complete;
+    return precice_->isTimeWindowComplete();
 }
 catch (const PreciceError& e)
 {
