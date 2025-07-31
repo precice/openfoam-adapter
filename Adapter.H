@@ -272,7 +272,7 @@ private:
     void adjustSolverTimeStepAndReadData();
 
     //- Get maximum allowed time step size from preCICE
-    double getMaxTimeStepSize();
+    double getMaxTimeStepSize() const;
 
     //- Determine if the coupling is still happening
     bool isCouplingOngoing();
