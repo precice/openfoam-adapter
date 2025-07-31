@@ -547,7 +547,7 @@ try
     SETUP_TIMER();
 
     bool requiresInitialData = false;
-    precice_->requiresInitialData();
+    requiresInitialData = precice_->requiresInitialData();
 
     if (requiresInitialData)
     {
