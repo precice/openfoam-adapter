@@ -726,7 +726,7 @@ try
 {
     double maxTimeStepSize = 0.0;
     maxTimeStepSize = precice_->getMaxTimeStepSize();
-    maxTimeStepSize;
+    return maxTimeStepSize;
 }
 catch (const PreciceError& e)
 {
