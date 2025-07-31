@@ -568,6 +568,7 @@ catch (const PreciceError& e)
 }
 
 void preciceAdapter::Adapter::finalize()
+try
 {
     if (NULL != precice_ && preciceInitialized_ && !isCouplingOngoing())
     {
@@ -575,14 +576,7 @@ void preciceAdapter::Adapter::finalize()
 
         // Finalize the preCICE solver interface
         SETUP_TIMER();
-        try
-        {
-            precice_->finalize();
-        }
-        catch (const std::runtime_error& e)
-        {
-            std::exit(1);
-        }
+        precice_->finalize();
         ACCUMULATE_TIMER(timeInFinalize_);
 
         preciceInitialized_ = false;
@@ -597,23 +591,25 @@ void preciceAdapter::Adapter::finalize()
 
     return;
 }
+catch (const PreciceError& e)
+{
+    std::exit(EXIT_FAILURE);
+}
 
 void preciceAdapter::Adapter::advance()
+try
 {
     DEBUG(adapterInfo("Advancing preCICE..."));
 
     SETUP_TIMER();
-    try
-    {
-        precice_->advance(timestepSolver_);
-    }
-    catch (const std::runtime_error& e)
-    {
-        std::exit(EXIT_FAILURE);
-    }
+    precice_->advance(timestepSolver_);
     ACCUMULATE_TIMER(timeInAdvance_);
 
     return;
+}
+catch (const PreciceError& e)
+{
+    std::exit(EXIT_FAILURE);
 }
 
 void preciceAdapter::Adapter::adjustSolverTimeStepAndReadData()
