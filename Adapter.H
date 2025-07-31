@@ -242,7 +242,7 @@ private:
     // Configuration
 
     //- Read the adapter's configuration file
-    bool configFileRead();
+    void configFileRead();
 
     //- Check the adapter's configuration file
     bool configFileCheck(const std::string adapterConfigFileName);

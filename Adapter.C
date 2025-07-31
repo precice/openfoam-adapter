@@ -16,215 +16,210 @@ preciceAdapter::Adapter::Adapter(const Time& runTime, const fvMesh& mesh)
     return;
 }
 
-bool preciceAdapter::Adapter::configFileRead()
+void preciceAdapter::Adapter::configFileRead()
 {
 
-    // We need a try-catch here, as if reading preciceDict fails,
-    // the respective exception will be reduced to a warning.
-    // See also comment in preciceAdapter::Adapter::configure().
-    try
+    SETUP_TIMER();
+    adapterInfo("Reading preciceDict...", "info");
+
+    // TODO: static is just a quick workaround to be able
+    // to find the dictionary also out of scope (e.g. in KappaEffective).
+    // We need a better solution.
+    static IOdictionary preciceDict(
+        IOobject(
+            "preciceDict",
+            runTime_.system(),
+            mesh_,
+            IOobject::MUST_READ_IF_MODIFIED,
+            IOobject::NO_WRITE));
+
+    // Read and display the preCICE configuration file name
+    preciceConfigFilename_ = preciceDict.get<fileName>("preciceConfig");
+    DEBUG(adapterInfo("  precice-config-file : " + preciceConfigFilename_));
+
+    // Read and display the participant name
+    participantName_ = preciceDict.get<word>("participant");
+    DEBUG(adapterInfo("  participant name    : " + participantName_));
+
+    // Read and display the list of modules
+    DEBUG(adapterInfo("  modules requested   : "));
+    auto modules_ = preciceDict.get<wordList>("modules");
+    for (const auto& module : modules_)
     {
-        SETUP_TIMER();
-        adapterInfo("Reading preciceDict...", "info");
+        DEBUG(adapterInfo("  - " + module + "\n"));
 
-        // TODO: static is just a quick workaround to be able
-        // to find the dictionary also out of scope (e.g. in KappaEffective).
-        // We need a better solution.
-        static IOdictionary preciceDict(
-            IOobject(
-                "preciceDict",
-                runTime_.system(),
-                mesh_,
-                IOobject::MUST_READ_IF_MODIFIED,
-                IOobject::NO_WRITE));
-
-        // Read and display the preCICE configuration file name
-        preciceConfigFilename_ = preciceDict.get<fileName>("preciceConfig");
-        DEBUG(adapterInfo("  precice-config-file : " + preciceConfigFilename_));
-
-        // Read and display the participant name
-        participantName_ = preciceDict.get<word>("participant");
-        DEBUG(adapterInfo("  participant name    : " + participantName_));
-
-        // Read and display the list of modules
-        DEBUG(adapterInfo("  modules requested   : "));
-        auto modules_ = preciceDict.get<wordList>("modules");
-        for (const auto& module : modules_)
+        // Set the modules switches
+        if (module == "CHT")
         {
-            DEBUG(adapterInfo("  - " + module + "\n"));
-
-            // Set the modules switches
-            if (module == "CHT")
-            {
-                CHTenabled_ = true;
-            }
-
-            if (module == "FSI")
-            {
-                FSIenabled_ = true;
-            }
-
-            if (module == "FF")
-            {
-                FFenabled_ = true;
-            }
+            CHTenabled_ = true;
         }
 
-        // Every interface is a subdictionary of "interfaces",
-        // each with an arbitrary name. Read all of them and create
-        // a list (here: pointer) of dictionaries.
-        const auto* interfaceDictPtr = preciceDict.findDict("interfaces");
-        DEBUG(adapterInfo("  interfaces : "));
-
-        // Check if we found any interfaces
-        // and get the details of each interface
-        if (!interfaceDictPtr)
+        if (module == "FSI")
         {
-            adapterInfo("  Empty list of interfaces", "warning");
-            return false;
-        }
-        else
-        {
-            for (const entry& interfaceDictEntry : *interfaceDictPtr)
-            {
-                if (interfaceDictEntry.isDict())
-                {
-                    const dictionary& interfaceDict = interfaceDictEntry.dict();
-                    struct InterfaceConfig interfaceConfig;
-
-                    interfaceConfig.meshName = interfaceDict.get<word>("mesh");
-                    DEBUG(adapterInfo("  - mesh         : " + interfaceConfig.meshName));
-
-                    // By default, assume "faceCenters" as locationsType
-                    interfaceConfig.locationsType = interfaceDict.lookupOrDefault<word>("locations", "faceCenters");
-                    DEBUG(adapterInfo("    locations    : " + interfaceConfig.locationsType));
-
-                    // By default, assume that no mesh connectivity is required (i.e. no nearest-projection mapping)
-                    interfaceConfig.meshConnectivity = interfaceDict.lookupOrDefault<bool>("connectivity", false);
-                    // Mesh connectivity only makes sense in case of faceNodes, check and raise a warning otherwise
-                    if (interfaceConfig.meshConnectivity && (interfaceConfig.locationsType == "faceCenters" || interfaceConfig.locationsType == "volumeCenters" || interfaceConfig.locationsType == "volumeCentres"))
-                    {
-                        DEBUG(adapterInfo("Mesh connectivity is not supported for faceCenters or volumeCenters. \n"
-                                          "Please configure the desired interface with the locationsType faceNodes. \n"
-                                          "Have a look in the adapter documentation for detailed information.",
-                                          "warning"));
-                        return false;
-                    }
-                    DEBUG(adapterInfo("    connectivity : " + std::to_string(interfaceConfig.meshConnectivity)));
-
-                    DEBUG(adapterInfo("    patches      : "));
-                    auto patches = interfaceDict.get<wordList>("patches");
-                    for (auto patch : patches)
-                    {
-                        interfaceConfig.patchNames.push_back(patch);
-                        DEBUG(adapterInfo("      - " + patch));
-                    }
-
-                    DEBUG(adapterInfo("    cellSets      : "));
-                    auto cellSets = interfaceDict.lookupOrDefault<wordList>("cellSets", wordList());
-
-                    for (auto cellSet : cellSets)
-                    {
-                        interfaceConfig.cellSetNames.push_back(cellSet);
-                        DEBUG(adapterInfo("      - " + cellSet));
-                    }
-
-                    if (!interfaceConfig.cellSetNames.empty() && !(interfaceConfig.locationsType == "volumeCenters" || interfaceConfig.locationsType == "volumeCentres"))
-                    {
-                        adapterInfo("Cell sets are not supported for locationType != volumeCenters. \n"
-                                    "Please configure the desired interface with the locationsType volumeCenters. \n"
-                                    "Have a look in the adapter documentation for detailed information.",
-                                    "warning");
-                        return false;
-                    }
-
-                    DEBUG(adapterInfo("    writeData    : "));
-                    auto writeData = interfaceDict.lookupOrDefault<wordList>("writeData", wordList());
-                    for (auto writeDatum : writeData)
-                    {
-                        interfaceConfig.writeData.push_back(writeDatum);
-                        DEBUG(adapterInfo("      - " + writeDatum));
-                    }
-
-                    DEBUG(adapterInfo("    readData     : "));
-                    auto readData = interfaceDict.lookupOrDefault<wordList>("readData", wordList());
-                    for (auto readDatum : readData)
-                    {
-                        interfaceConfig.readData.push_back(readDatum);
-                        DEBUG(adapterInfo("      - " + readDatum));
-                    }
-                    interfacesConfig_.push_back(interfaceConfig);
-                }
-            }
+            FSIenabled_ = true;
         }
 
-        // NOTE: set the switch for your new module here
-
-        // If the CHT module is enabled, create it, read the
-        // CHT-specific options and configure it.
-        if (CHTenabled_)
+        if (module == "FF")
         {
-            CHT_ = new CHT::ConjugateHeatTransfer(mesh_);
-            if (!CHT_->configure(preciceDict))
-            {
-                return false;
-            }
+            FFenabled_ = true;
         }
-
-        // If the FSI module is enabled, create it, read the
-        // FSI-specific options and configure it.
-        if (FSIenabled_)
-        {
-            // Check for unsupported FSI with meshConnectivity
-            for (uint i = 0; i < interfacesConfig_.size(); i++)
-            {
-                if (interfacesConfig_.at(i).meshConnectivity == true)
-                {
-                    adapterInfo(
-                        "You have requested mesh connectivity (most probably for nearest-projection mapping) "
-                        "and you have enabled the FSI module. "
-                        "Mapping with connectivity information is not implemented for FSI, only for CHT-related fields. "
-                        "warning");
-                    return false;
-                }
-            }
-
-            FSI_ = new FSI::FluidStructureInteraction(mesh_, runTime_);
-            if (!FSI_->configure(preciceDict))
-            {
-                return false;
-            }
-        }
-
-        if (FFenabled_)
-        {
-            FF_ = new FF::FluidFluid(mesh_);
-            if (!FF_->configure(preciceDict))
-            {
-                return false;
-            }
-        }
-
-        // NOTE: Create your module and read any options specific to it here
-
-        if (!CHTenabled_ && !FSIenabled_ && !FFenabled_) // NOTE: Add your new switch here
-        {
-            adapterInfo("No module is enabled.", "error");
-            return false;
-        }
-
-        // TODO: Loading modules should be implemented in more general way,
-        // in order to avoid code duplication. See issue #16 on GitHub.
-
-        ACCUMULATE_TIMER(timeInConfigRead_);
-    }
-    catch (const Foam::error& e)
-    {
-        adapterInfo(e.message(), "error");
-        return false;
     }
 
-    return true;
+    // Every interface is a subdictionary of "interfaces",
+    // each with an arbitrary name. Read all of them and create
+    // a list (here: pointer) of dictionaries.
+    const auto* interfaceDictPtr = preciceDict.findDict("interfaces");
+    DEBUG(adapterInfo("  interfaces : "));
+
+    // Check if we found any interfaces
+    // and get the details of each interface
+    if (!interfaceDictPtr)
+    {
+        adapterInfo("  Empty list of interfaces", "error");
+        return;
+    }
+    else
+    {
+        for (const entry& interfaceDictEntry : *interfaceDictPtr)
+        {
+            if (interfaceDictEntry.isDict())
+            {
+                const dictionary& interfaceDict = interfaceDictEntry.dict();
+                struct InterfaceConfig interfaceConfig;
+
+                interfaceConfig.meshName = interfaceDict.get<word>("mesh");
+                DEBUG(adapterInfo("  - mesh         : " + interfaceConfig.meshName));
+
+                // By default, assume "faceCenters" as locationsType
+                interfaceConfig.locationsType = interfaceDict.lookupOrDefault<word>("locations", "faceCenters");
+                DEBUG(adapterInfo("    locations    : " + interfaceConfig.locationsType));
+
+                // By default, assume that no mesh connectivity is required (i.e. no nearest-projection mapping)
+                interfaceConfig.meshConnectivity = interfaceDict.lookupOrDefault<bool>("connectivity", false);
+                // Mesh connectivity only makes sense in case of faceNodes, check and raise a warning otherwise
+                if (interfaceConfig.meshConnectivity && (interfaceConfig.locationsType == "faceCenters" || interfaceConfig.locationsType == "volumeCenters" || interfaceConfig.locationsType == "volumeCentres"))
+                {
+                    DEBUG(adapterInfo("Mesh connectivity is not supported for faceCenters or volumeCenters. \n"
+                                      "Please configure the desired interface with the locationsType faceNodes. \n"
+                                      "Have a look in the adapter documentation for detailed information.",
+                                      "error"));
+                    return;
+                }
+                DEBUG(adapterInfo("    connectivity : " + std::to_string(interfaceConfig.meshConnectivity)));
+
+                DEBUG(adapterInfo("    patches      : "));
+                auto patches = interfaceDict.get<wordList>("patches");
+                for (auto patch : patches)
+                {
+                    interfaceConfig.patchNames.push_back(patch);
+                    DEBUG(adapterInfo("      - " + patch));
+                }
+
+                DEBUG(adapterInfo("    cellSets      : "));
+                auto cellSets = interfaceDict.lookupOrDefault<wordList>("cellSets", wordList());
+
+                for (auto cellSet : cellSets)
+                {
+                    interfaceConfig.cellSetNames.push_back(cellSet);
+                    DEBUG(adapterInfo("      - " + cellSet));
+                }
+
+                if (!interfaceConfig.cellSetNames.empty() && !(interfaceConfig.locationsType == "volumeCenters" || interfaceConfig.locationsType == "volumeCentres"))
+                {
+                    adapterInfo("Cell sets are not supported for locationType != volumeCenters. \n"
+                                "Please configure the desired interface with the locationsType volumeCenters. \n"
+                                "Have a look in the adapter documentation for detailed information.",
+                                "error");
+                    return;
+                }
+
+                DEBUG(adapterInfo("    writeData    : "));
+                auto writeData = interfaceDict.lookupOrDefault<wordList>("writeData", wordList());
+                for (auto writeDatum : writeData)
+                {
+                    interfaceConfig.writeData.push_back(writeDatum);
+                    DEBUG(adapterInfo("      - " + writeDatum));
+                }
+
+                DEBUG(adapterInfo("    readData     : "));
+                auto readData = interfaceDict.lookupOrDefault<wordList>("readData", wordList());
+                for (auto readDatum : readData)
+                {
+                    interfaceConfig.readData.push_back(readDatum);
+                    DEBUG(adapterInfo("      - " + readDatum));
+                }
+                interfacesConfig_.push_back(interfaceConfig);
+            }
+        }
+    }
+
+    // NOTE: set the switch for your new module here
+
+    // If the CHT module is enabled, create it, read the
+    // CHT-specific options and configure it.
+    if (CHTenabled_)
+    {
+        CHT_ = new CHT::ConjugateHeatTransfer(mesh_);
+        if (!CHT_->configure(preciceDict))
+        {
+            adapterInfo("There was an error while configuring the CHT module",
+                        "error");
+            return;
+        }
+    }
+
+    // If the FSI module is enabled, create it, read the
+    // FSI-specific options and configure it.
+    if (FSIenabled_)
+    {
+        // Check for unsupported FSI with meshConnectivity
+        for (uint i = 0; i < interfacesConfig_.size(); i++)
+        {
+            if (interfacesConfig_.at(i).meshConnectivity == true)
+            {
+                adapterInfo(
+                    "You have requested mesh connectivity (most probably for nearest-projection mapping) "
+                    "and you have enabled the FSI module. "
+                    "Mapping with connectivity information is not implemented for FSI, only for CHT-related fields. "
+                    "error");
+                return;
+            }
+        }
+
+        FSI_ = new FSI::FluidStructureInteraction(mesh_, runTime_);
+        if (!FSI_->configure(preciceDict))
+        {
+            adapterInfo("There was an error while configuring the FSI module",
+                        "error");
+            return;
+        }
+    }
+
+    if (FFenabled_)
+    {
+        FF_ = new FF::FluidFluid(mesh_);
+        if (!FF_->configure(preciceDict))
+        {
+            adapterInfo("There was an error while configuring the FF module",
+                        "error");
+            return;
+        }
+    }
+
+    // NOTE: Create your module and read any options specific to it here
+
+    if (!CHTenabled_ && !FSIenabled_ && !FFenabled_) // NOTE: Add your new switch here
+    {
+        adapterInfo("No module is enabled.", "error");
+        return;
+    }
+
+    // TODO: Loading modules should be implemented in more general way,
+    // in order to avoid code duplication. See issue #16 on GitHub.
+
+    ACCUMULATE_TIMER(timeInConfigRead_);
+
+    return;
 }
 
 void preciceAdapter::Adapter::configure()
