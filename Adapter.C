@@ -768,9 +768,7 @@ catch (const PreciceError& e)
 bool preciceAdapter::Adapter::requiresWritingCheckpoint()
 try
 {
-    bool requiresWritingCheckpoint = false;
-    requiresWritingCheckpoint = precice_->requiresWritingCheckpoint();
-    return requiresWritingCheckpoint;
+    return precice_->requiresWritingCheckpoint();
 }
 catch (const PreciceError& e)
 {
