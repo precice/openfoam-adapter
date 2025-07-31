@@ -611,6 +611,7 @@ catch (const PreciceError& e)
 }
 
 void preciceAdapter::Adapter::adjustSolverTimeStepAndReadData()
+try
 {
     DEBUG(adapterInfo("Adjusting the solver's timestep..."));
 
@@ -669,7 +670,7 @@ void preciceAdapter::Adapter::adjustSolverTimeStepAndReadData()
        the same timestep as the one determined by preCICE.
     */
     double tolerance = 1e-14;
-    if (getMaxTimeStepSize() - timestepSolverDetermined > tolerance)
+    if (precice_->getMaxTimeStepSize() - timestepSolverDetermined > tolerance)
     {
         // Add a bool 'subCycling = true' which is checked in the storeMeshPoints() function.
         adapterInfo(
@@ -685,7 +686,7 @@ void preciceAdapter::Adapter::adjustSolverTimeStepAndReadData()
                 "warning");
         }
     }
-    else if (timestepSolverDetermined - getMaxTimeStepSize() > tolerance)
+    else if (timestepSolverDetermined - precice_->getMaxTimeStepSize() > tolerance)
     {
         // In the last time-step, we adjust to dt = 0, but we don't need to trigger the warning here
         if (isCouplingOngoing())
@@ -693,16 +694,16 @@ void preciceAdapter::Adapter::adjustSolverTimeStepAndReadData()
             adapterInfo(
                 "The solver's timestep cannot be larger than the coupling timestep."
                 " Adjusting from "
-                    + std::to_string(timestepSolverDetermined) + " to " + std::to_string(getMaxTimeStepSize()),
+                    + std::to_string(timestepSolverDetermined) + " to " + std::to_string(precice_->getMaxTimeStepSize()),
                 "warning");
         }
-        timestepSolver_ = getMaxTimeStepSize();
+        timestepSolver_ = precice_->getMaxTimeStepSize();
     }
     else
     {
         DEBUG(adapterInfo("The solver's timestep is the same as the "
                           "coupling timestep."));
-        timestepSolver_ = getMaxTimeStepSize();
+        timestepSolver_ = precice_->getMaxTimeStepSize();
     }
 
     // Update the solver's timestep (but don't trigger the adjustDeltaT(),
@@ -717,12 +718,6 @@ void preciceAdapter::Adapter::adjustSolverTimeStepAndReadData()
     readCouplingData(runTime_.deltaT().value());
 
     return;
-}
-
-double preciceAdapter::Adapter::getMaxTimeStepSize() const
-try
-{
-    return precice_->getMaxTimeStepSize();
 }
 catch (const PreciceError& e)
 {
