@@ -50,12 +50,7 @@ Foam::coupledPressureFvPatchField::coupledPressureFvPatchField(
 {
     if (notNull(iF) && mapper.hasUnmapped())
     {
-        WarningInFunction
-            << "On field " << iF.name() << " patch " << p.name()
-            << " patchField " << this->type()
-            << " : mapper does not map all values." << nl
-            << "    To avoid this warning fully specify the mapping in derived"
-            << " patch fields." << endl;
+        adapterInfo("On field " + iF.name() + " patch " + p.name() + " patchField " + this->type() + " : mapper does not map all values. To avoid this warning, fully specify the mapping in derived patch fields.", "warning");
     }
 }
 

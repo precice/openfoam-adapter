@@ -73,9 +73,6 @@ private:
 
     // Configuration parameters used in the Adapter
 
-    //- Remember if there were errors in the read() method
-    bool errorsInConfigure = false;
-
     //- preCICE configuration file name
     Foam::word preciceConfigFilename_;
 
@@ -245,7 +242,7 @@ private:
     // Configuration
 
     //- Read the adapter's configuration file
-    bool configFileRead();
+    void configFileRead();
 
     //- Check the adapter's configuration file
     bool configFileCheck(const std::string adapterConfigFileName);

@@ -67,11 +67,10 @@ preciceAdapter::Interface::Interface(
         // Throw an error if the patch was not found
         if (patchID == -1)
         {
-            FatalErrorInFunction
-                << "ERROR: Patch '"
-                << patchNames.at(j)
-                << "' does not exist."
-                << exit(FatalError);
+            adapterInfo("Patch \""
+                            + patchNames.at(j) + "\" does not exist and therefore cannot be used as a coupling interface for mesh \""
+                            + meshName + "\". Check the system/preciceDict.",
+                        "error");
         }
 
         // Add the patch in the list
