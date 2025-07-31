@@ -541,39 +541,31 @@ void preciceAdapter::Adapter::writeCouplingData()
 }
 
 void preciceAdapter::Adapter::initialize()
+try
 {
     DEBUG(adapterInfo("Initializing the preCICE solver interface..."));
     SETUP_TIMER();
 
     bool requiresInitialData = false;
-    try
-    {
-        precice_->requiresInitialData();
-    }
-    catch (const std::runtime_error& e)
-    {
-        std::exit(1);
-    }
+    precice_->requiresInitialData();
+
     if (requiresInitialData)
     {
         DEBUG(adapterInfo("Initializing preCICE data..."));
         writeCouplingData();
     }
 
-    try
-    {
-        precice_->initialize();
-    }
-    catch (const std::runtime_error& e)
-    {
-        std::exit(1);
-    }
+    precice_->initialize();
     preciceInitialized_ = true;
     ACCUMULATE_TIMER(timeInInitialize_);
 
     adapterInfo("preCICE was configured and initialized", "info");
 
     return;
+}
+catch (const PreciceError& e)
+{
+    std::exit(EXIT_FAILURE);
 }
 
 void preciceAdapter::Adapter::finalize()
@@ -735,20 +727,19 @@ void preciceAdapter::Adapter::adjustSolverTimeStepAndReadData()
 }
 
 double preciceAdapter::Adapter::getMaxTimeStepSize() const
+try
 {
     double maxTimeStepSize = 0.0;
-    try
-    {
-        maxTimeStepSize = precice_->getMaxTimeStepSize();
-    }
-    catch (const std::runtime_error& e)
-    {
-        std::exit(1);
-    }
-    return maxTimeStepSize;
+    maxTimeStepSize = precice_->getMaxTimeStepSize();
+    maxTimeStepSize;
+}
+catch (const PreciceError& e)
+{
+    std::exit(EXIT_FAILURE);
 }
 
 bool preciceAdapter::Adapter::isCouplingOngoing()
+try
 {
     bool isCouplingOngoing = false;
 
@@ -758,59 +749,49 @@ bool preciceAdapter::Adapter::isCouplingOngoing()
     // was not available.
     if (NULL != precice_)
     {
-        try
-        {
-            isCouplingOngoing = precice_->isCouplingOngoing();
-        }
-        catch (const std::runtime_error& e)
-        {
-            std::exit(1);
-        }
+        isCouplingOngoing = precice_->isCouplingOngoing();
     }
 
     return isCouplingOngoing;
 }
+catch (const PreciceError& e)
+{
+    std::exit(EXIT_FAILURE);
+}
 
 bool preciceAdapter::Adapter::isCouplingTimeWindowComplete()
+try
 {
     bool complete = false;
-    try
-    {
-        complete = precice_->isTimeWindowComplete();
-    }
-    catch (const std::runtime_error& e)
-    {
-        std::exit(1);
-    }
+    complete = precice_->isTimeWindowComplete();
     return complete;
+}
+catch (const PreciceError& e)
+{
+    std::exit(EXIT_FAILURE);
 }
 
 bool preciceAdapter::Adapter::requiresReadingCheckpoint()
+try
 {
     bool requiresReadingCheckpoint = false;
-    try
-    {
-        requiresReadingCheckpoint = precice_->requiresReadingCheckpoint();
-    }
-    catch (const std::runtime_error& e)
-    {
-        std::exit(1);
-    }
+    requiresReadingCheckpoint = precice_->requiresReadingCheckpoint();
     return requiresReadingCheckpoint;
+}
+catch (const PreciceError& e)
+{
+    std::exit(EXIT_FAILURE);
 }
 
 bool preciceAdapter::Adapter::requiresWritingCheckpoint()
 {
     bool requiresWritingCheckpoint = false;
-    try
-    {
-        requiresWritingCheckpoint = precice_->requiresWritingCheckpoint();
-    }
-    catch (const std::runtime_error& e)
-    {
-        std::exit(1);
-    }
+    requiresWritingCheckpoint = precice_->requiresWritingCheckpoint();
     return requiresWritingCheckpoint;
+}
+catch (const PreciceError& e)
+{
+    std::exit(EXIT_FAILURE);
 }
 
 
