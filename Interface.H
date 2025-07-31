@@ -5,7 +5,13 @@
 #include <vector>
 #include "fvCFD.H"
 #include "CouplingDataUser.H"
+
 #include <precice/precice.hpp>
+#if PRECICE_VERSION_GREATER_EQUAL(3, 2, 0)
+using PreciceError = ::precice::Error;
+#else
+using PreciceError = std::runtime_error;
+#endif
 
 #include "pointPatchField.H"
 

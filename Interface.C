@@ -30,66 +30,67 @@ preciceAdapter::Interface::Interface(
     try
     {
         dim_ = precice_.getMeshDimensions(meshName);
-    }
-    catch (const std::runtime_error& e)
-    {
-        std::exit(1);
-    }
 
-    if (dim_ == 2 && meshConnectivity_ == true)
-    {
-        DEBUG(adapterInfo("meshConnectivity is currently only supported for 3D cases. \n"
-                          "You might set up a 3D case and restrict the 3rd dimension by z-dead = true. \n"
-                          "Have a look in the adapter documentation for detailed information.",
-                          "warning"));
-    }
-
-    if (locationsType == "faceCenters" || locationsType == "faceCentres")
-    {
-        locationType_ = LocationType::faceCenters;
-    }
-    else if (locationsType == "faceNodes")
-    {
-        locationType_ = LocationType::faceNodes;
-    }
-    else if (locationsType == "volumeCenters" || locationsType == "volumeCentres")
-    {
-        locationType_ = LocationType::volumeCenters;
-    }
-    else
-    {
-        adapterInfo("Interface points location type \""
-                    "locations = "
-                        + locationsType + "\" is invalid.",
-                    "error-deferred");
-    }
-
-
-    // For every patch that participates in the coupling
-    for (uint j = 0; j < patchNames.size(); j++)
-    {
-        // Get the patchID
-        int patchID = mesh.boundaryMesh().findPatchID(patchNames.at(j));
-
-        // Throw an error if the patch was not found
-        if (patchID == -1)
+        if (dim_ == 2 && meshConnectivity_ == true)
         {
-            FatalErrorInFunction
-                << "ERROR: Patch '"
-                << patchNames.at(j)
-                << "' does not exist."
-                << exit(FatalError);
+            DEBUG(adapterInfo("meshConnectivity is currently only supported for 3D cases. \n"
+                              "You might set up a 3D case and restrict the 3rd dimension by z-dead = true. \n"
+                              "Have a look in the adapter documentation for detailed information.",
+                              "warning"));
         }
 
-        // Add the patch in the list
-        patchIDs_.push_back(patchID);
-    }
+        if (locationsType == "faceCenters" || locationsType == "faceCentres")
+        {
+            locationType_ = LocationType::faceCenters;
+        }
+        else if (locationsType == "faceNodes")
+        {
+            locationType_ = LocationType::faceNodes;
+        }
+        else if (locationsType == "volumeCenters" || locationsType == "volumeCentres")
+        {
+            locationType_ = LocationType::volumeCenters;
+        }
+        else
+        {
+            adapterInfo("Interface points location type \""
+                        "locations = "
+                            + locationsType + "\" is invalid.",
+                        "error-deferred");
+        }
 
-    // Configure the mesh (set the data locations)
-    configureMesh(mesh, namePointDisplacement, nameCellDisplacement);
+
+        // For every patch that participates in the coupling
+        for (uint j = 0; j < patchNames.size(); j++)
+        {
+            // Get the patchID
+            int patchID = mesh.boundaryMesh().findPatchID(patchNames.at(j));
+
+            // Throw an error if the patch was not found
+            if (patchID == -1)
+            {
+                FatalErrorInFunction
+                    << "ERROR: Patch '"
+                    << patchNames.at(j)
+                    << "' does not exist."
+                    << exit(FatalError);
+            }
+
+            // Add the patch in the list
+            patchIDs_.push_back(patchID);
+        }
+
+        // Configure the mesh (set the data locations)
+        configureMesh(mesh, namePointDisplacement, nameCellDisplacement);
+    }
+    catch (const PreciceError& e)
+    {
+        std::exit(EXIT_FAILURE);
+    }
 }
 
 void preciceAdapter::Interface::configureMesh(const fvMesh& mesh, const std::string& namePointDisplacement, const std::string& nameCellDisplacement)
+try
 {
     // The way we configure the mesh differs between meshes based on face centers
     // and meshes based on face nodes.
@@ -195,14 +196,7 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh, const std::str
         }
 
         // Pass the mesh vertices information to preCICE
-        try
-        {
-            precice_.setMeshVertices(meshName_, vertices, vertexIDs_);
-        }
-        catch (const std::runtime_error& e)
-        {
-            std::exit(1);
-        }
+        precice_.setMeshVertices(meshName_, vertices, vertexIDs_);
     }
     else if (locationType_ == LocationType::faceNodes)
     {
@@ -270,14 +264,7 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh, const std::str
         }
 
         // Pass the mesh vertices information to preCICE
-        try
-        {
-            precice_.setMeshVertices(meshName_, vertices, vertexIDs_);
-        }
-        catch (const std::runtime_error& e)
-        {
-            std::exit(1);
-        }
+        precice_.setMeshVertices(meshName_, vertices, vertexIDs_);
 
         if (meshConnectivity_)
         {
@@ -344,14 +331,7 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh, const std::str
                 DEBUG(adapterInfo("Number of triangles: " + std::to_string(faceField.size() * triaPerQuad)));
 
                 //Set Triangles
-                try
-                {
-                    precice_.setMeshTriangles(meshName_, triVertIDs);
-                }
-                catch (const std::runtime_error& e)
-                {
-                    std::exit(1);
-                }
+                precice_.setMeshTriangles(meshName_, triVertIDs);
             }
         }
     }
@@ -457,17 +437,13 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh, const std::str
         }
 
         // Pass the mesh vertices information to preCICE
-        try
-        {
-            precice_.setMeshVertices(meshName_, vertices, vertexIDs_);
-        }
-        catch (const std::runtime_error& e)
-        {
-            std::exit(1);
-        }
+        precice_.setMeshVertices(meshName_, vertices, vertexIDs_);
     }
 }
-
+catch (const PreciceError& e)
+{
+    std::exit(EXIT_FAILURE);
+}
 
 void preciceAdapter::Interface::addCouplingDataWriter(
     std::string dataName,
@@ -567,6 +543,7 @@ void preciceAdapter::Interface::createBuffer()
 }
 
 void preciceAdapter::Interface::readCouplingData(double relativeReadTime)
+try
 {
     // Make every coupling data reader read
     for (uint i = 0; i < couplingDataReaders_.size(); i++)
@@ -578,37 +555,29 @@ void preciceAdapter::Interface::readCouplingData(double relativeReadTime)
         // Make preCICE read vector or scalar data
         // and fill the adapter's buffer
         std::size_t nReadData = 0;
-        try
-        {
-            nReadData = vertexIDs_.size() * precice_.getDataDimensions(meshName_, couplingDataReader->dataName());
-        }
-        catch (const std::runtime_error& e)
-        {
-            std::exit(1);
-        }
+        nReadData = vertexIDs_.size() * precice_.getDataDimensions(meshName_, couplingDataReader->dataName());
+
         // We could add a sanity check here
         // nReadData == vertexIDs_.size() * (1 + (dim_ - 1) * static_cast<int>(couplingDataReader->hasVectorData()));
 
-        try
-        {
-            precice_.readData(
-                meshName_,
-                couplingDataReader->dataName(),
-                vertexIDs_,
-                relativeReadTime,
-                {dataBuffer_.data(), nReadData});
-        }
-        catch (const std::runtime_error& e)
-        {
-            std::exit(1);
-        }
+        precice_.readData(
+            meshName_,
+            couplingDataReader->dataName(),
+            vertexIDs_,
+            relativeReadTime,
+            {dataBuffer_.data(), nReadData});
 
         // Read the received data from the buffer
         couplingDataReader->read(dataBuffer_.data(), dim_);
     }
 }
+catch (const PreciceError& e)
+{
+    std::exit(EXIT_FAILURE);
+}
 
 void preciceAdapter::Interface::writeCouplingData()
+try
 {
     // TODO: wrap around isWriteDataRequired
     // Does the participant need to write data or is it subcycling?
@@ -625,20 +594,17 @@ void preciceAdapter::Interface::writeCouplingData()
         auto nWrittenData = couplingDataWriter->write(dataBuffer_.data(), meshConnectivity_, dim_);
 
         // Make preCICE write vector or scalar data
-        try
-        {
-            precice_.writeData(
-                meshName_,
-                couplingDataWriter->dataName(),
-                vertexIDs_,
-                {dataBuffer_.data(), nWrittenData});
-        }
-        catch (const std::runtime_error& e)
-        {
-            std::exit(1);
-        }
+        precice_.writeData(
+            meshName_,
+            couplingDataWriter->dataName(),
+            vertexIDs_,
+            {dataBuffer_.data(), nWrittenData});
     }
     // }
+}
+catch (const PreciceError& e)
+{
+    std::exit(EXIT_FAILURE);
 }
 
 preciceAdapter::Interface::~Interface()
