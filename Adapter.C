@@ -546,9 +546,7 @@ try
     DEBUG(adapterInfo("Initializing the preCICE solver interface..."));
     SETUP_TIMER();
 
-    bool requiresInitialData = precice_->requiresInitialData();
-
-    if (requiresInitialData)
+    if (precice_->requiresInitialData())
     {
         DEBUG(adapterInfo("Initializing preCICE data..."));
         writeCouplingData();
