@@ -734,7 +734,7 @@ void preciceAdapter::Adapter::adjustSolverTimeStepAndReadData()
     return;
 }
 
-double preciceAdapter::Adapter::getMaxTimeStepSize()
+double preciceAdapter::Adapter::getMaxTimeStepSize() const
 {
     double maxTimeStepSize = 0.0;
     try
