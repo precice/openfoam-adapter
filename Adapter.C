@@ -763,9 +763,7 @@ catch (const PreciceError& e)
 bool preciceAdapter::Adapter::requiresReadingCheckpoint()
 try
 {
-    bool requiresReadingCheckpoint = false;
-    requiresReadingCheckpoint = precice_->requiresReadingCheckpoint();
-    return requiresReadingCheckpoint;
+    return precice_->requiresReadingCheckpoint();
 }
 catch (const PreciceError& e)
 {
