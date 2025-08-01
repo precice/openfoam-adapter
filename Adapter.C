@@ -223,6 +223,7 @@ void preciceAdapter::Adapter::configFileRead()
 }
 
 void preciceAdapter::Adapter::configure()
+try
 {
     // Read the adapter's configuration file
     configFileRead();
@@ -384,8 +385,13 @@ void preciceAdapter::Adapter::configure()
 
     return;
 }
+catch (const PreciceError& e)
+{
+    std::exit(EXIT_FAILURE);
+}
 
 void preciceAdapter::Adapter::execute()
+try
 {
 
     // The solver has already solved the equations for this timestep.
@@ -466,13 +472,22 @@ void preciceAdapter::Adapter::execute()
 
     return;
 }
+catch (const PreciceError& e)
+{
+    std::exit(EXIT_FAILURE);
+}
 
 
 void preciceAdapter::Adapter::adjustTimeStep()
+try
 {
     adjustSolverTimeStepAndReadData();
 
     return;
+}
+catch (const PreciceError& e)
+{
+    std::exit(EXIT_FAILURE);
 }
 
 void preciceAdapter::Adapter::readCouplingData(double relativeReadTime)
@@ -511,9 +526,11 @@ void preciceAdapter::Adapter::initialize()
     SETUP_TIMER();
 
     if (precice_->requiresInitialData())
+    {
+        DEBUG(adapterInfo("Initializing preCICE data..."));
         writeCouplingData();
+    }
 
-    DEBUG(adapterInfo("Initializing preCICE data..."));
     precice_->initialize();
     preciceInitialized_ = true;
     ACCUMULATE_TIMER(timeInInitialize_);
@@ -636,7 +653,7 @@ void preciceAdapter::Adapter::adjustSolverTimeStepAndReadData()
     else if (timestepSolverDetermined - precice_->getMaxTimeStepSize() > tolerance)
     {
         // In the last time-step, we adjust to dt = 0, but we don't need to trigger the warning here
-        if (precice_->isCouplingOngoing())
+        if (isCouplingOngoing())
         {
             adapterInfo(
                 "The solver's timestep cannot be larger than the coupling timestep."
@@ -1502,6 +1519,7 @@ void preciceAdapter::Adapter::writeVolCheckpoint()
 
 
 void preciceAdapter::Adapter::end()
+try
 {
     // Throw a warning if the simulation exited before the coupling was complete
     if (NULL != precice_ && isCouplingOngoing())
@@ -1510,6 +1528,10 @@ void preciceAdapter::Adapter::end()
     }
 
     return;
+}
+catch (const PreciceError& e)
+{
+    std::exit(EXIT_FAILURE);
 }
 
 void preciceAdapter::Adapter::teardown()
@@ -1670,6 +1692,7 @@ void preciceAdapter::Adapter::teardown()
 }
 
 preciceAdapter::Adapter::~Adapter()
+try
 {
     teardown();
 
@@ -1694,4 +1717,8 @@ preciceAdapter::Adapter::~Adapter()
         Info << "-------------------------------------------------------------------------------------" << nl;)
 
     return;
+}
+catch (const PreciceError& e)
+{
+    std::exit(EXIT_FAILURE);
 }
