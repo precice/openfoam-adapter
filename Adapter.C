@@ -391,6 +391,7 @@ catch (const PreciceError& e)
 }
 
 void preciceAdapter::Adapter::execute()
+try
 {
 
     // The solver has already solved the equations for this timestep.
@@ -471,13 +472,22 @@ void preciceAdapter::Adapter::execute()
 
     return;
 }
+catch (const PreciceError& e)
+{
+    std::exit(EXIT_FAILURE);
+}
 
 
 void preciceAdapter::Adapter::adjustTimeStep()
+try
 {
     adjustSolverTimeStepAndReadData();
 
     return;
+}
+catch (const PreciceError& e)
+{
+    std::exit(EXIT_FAILURE);
 }
 
 void preciceAdapter::Adapter::readCouplingData(double relativeReadTime)
@@ -511,7 +521,6 @@ void preciceAdapter::Adapter::writeCouplingData()
 }
 
 void preciceAdapter::Adapter::initialize()
-try
 {
     DEBUG(adapterInfo("Initializing the preCICE solver interface..."));
     SETUP_TIMER();
@@ -530,13 +539,8 @@ try
 
     return;
 }
-catch (const PreciceError& e)
-{
-    std::exit(EXIT_FAILURE);
-}
 
 void preciceAdapter::Adapter::finalize()
-try
 {
     if (NULL != precice_ && preciceInitialized_ && !isCouplingOngoing())
     {
@@ -559,13 +563,8 @@ try
 
     return;
 }
-catch (const PreciceError& e)
-{
-    std::exit(EXIT_FAILURE);
-}
 
 void preciceAdapter::Adapter::advance()
-try
 {
     DEBUG(adapterInfo("Advancing preCICE..."));
 
@@ -575,13 +574,8 @@ try
 
     return;
 }
-catch (const PreciceError& e)
-{
-    std::exit(EXIT_FAILURE);
-}
 
 void preciceAdapter::Adapter::adjustSolverTimeStepAndReadData()
-try
 {
     DEBUG(adapterInfo("Adjusting the solver's timestep..."));
 
@@ -689,13 +683,9 @@ try
 
     return;
 }
-catch (const PreciceError& e)
-{
-    std::exit(EXIT_FAILURE);
-}
+
 
 bool preciceAdapter::Adapter::isCouplingOngoing()
-try
 {
     bool isCouplingOngoing = false;
 
@@ -710,41 +700,21 @@ try
 
     return isCouplingOngoing;
 }
-catch (const PreciceError& e)
-{
-    std::exit(EXIT_FAILURE);
-}
 
 bool preciceAdapter::Adapter::isCouplingTimeWindowComplete()
-try
 {
     return precice_->isTimeWindowComplete();
 }
-catch (const PreciceError& e)
-{
-    std::exit(EXIT_FAILURE);
-}
 
 bool preciceAdapter::Adapter::requiresReadingCheckpoint()
-try
 {
     return precice_->requiresReadingCheckpoint();
 }
-catch (const PreciceError& e)
-{
-    std::exit(EXIT_FAILURE);
-}
 
 bool preciceAdapter::Adapter::requiresWritingCheckpoint()
-try
 {
     return precice_->requiresWritingCheckpoint();
 }
-catch (const PreciceError& e)
-{
-    std::exit(EXIT_FAILURE);
-}
-
 
 void preciceAdapter::Adapter::storeCheckpointTime()
 {
@@ -1549,6 +1519,7 @@ void preciceAdapter::Adapter::writeVolCheckpoint()
 
 
 void preciceAdapter::Adapter::end()
+try
 {
     // Throw a warning if the simulation exited before the coupling was complete
     if (NULL != precice_ && isCouplingOngoing())
@@ -1558,9 +1529,12 @@ void preciceAdapter::Adapter::end()
 
     return;
 }
+catch (const PreciceError& e)
+{
+    std::exit(EXIT_FAILURE);
+}
 
 void preciceAdapter::Adapter::teardown()
-try
 {
     // If the solver interface was not deleted before, delete it now.
     // Normally it should be deleted when isCouplingOngoing() becomes false.
@@ -1716,12 +1690,9 @@ try
 
     return;
 }
-catch (const PreciceError& e)
-{
-    std::exit(EXIT_FAILURE);
-}
 
 preciceAdapter::Adapter::~Adapter()
+try
 {
     teardown();
 
@@ -1746,4 +1717,8 @@ preciceAdapter::Adapter::~Adapter()
         Info << "-------------------------------------------------------------------------------------" << nl;)
 
     return;
+}
+catch (const PreciceError& e)
+{
+    std::exit(EXIT_FAILURE);
 }
