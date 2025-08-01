@@ -223,6 +223,7 @@ void preciceAdapter::Adapter::configFileRead()
 }
 
 void preciceAdapter::Adapter::configure()
+try
 {
     // Read the adapter's configuration file
     configFileRead();
@@ -383,6 +384,10 @@ void preciceAdapter::Adapter::configure()
     const_cast<Time&>(runTime_).setEndTime(GREAT);
 
     return;
+}
+catch (const PreciceError& e)
+{
+    std::exit(EXIT_FAILURE);
 }
 
 void preciceAdapter::Adapter::execute()
@@ -1555,6 +1560,7 @@ void preciceAdapter::Adapter::end()
 }
 
 void preciceAdapter::Adapter::teardown()
+try
 {
     // If the solver interface was not deleted before, delete it now.
     // Normally it should be deleted when isCouplingOngoing() becomes false.
@@ -1709,6 +1715,10 @@ void preciceAdapter::Adapter::teardown()
     // NOTE: Delete your new module here
 
     return;
+}
+catch (const PreciceError& e)
+{
+    std::exit(EXIT_FAILURE);
 }
 
 preciceAdapter::Adapter::~Adapter()
