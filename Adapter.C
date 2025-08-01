@@ -684,7 +684,6 @@ void preciceAdapter::Adapter::adjustSolverTimeStepAndReadData()
     return;
 }
 
-
 bool preciceAdapter::Adapter::isCouplingOngoing()
 {
     bool isCouplingOngoing = false;
@@ -715,6 +714,7 @@ bool preciceAdapter::Adapter::requiresWritingCheckpoint()
 {
     return precice_->requiresWritingCheckpoint();
 }
+
 
 void preciceAdapter::Adapter::storeCheckpointTime()
 {
