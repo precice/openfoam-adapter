@@ -24,7 +24,7 @@ jobs:
     container: precice/precice:nightly
     steps:
     - name: Check out repository
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
     - name: Set up OpenFOAM
       uses: gerlero/setup-openfoam@v1
       with:
