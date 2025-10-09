@@ -1,24 +1,24 @@
-#include "DragForce.H"
+#include "ExplicitMomentum.H"
 #include "coupledVelocityFvPatchField.H"
 
 using namespace Foam;
 
-preciceAdapter::FF::DragForce::DragForce(
+preciceAdapter::FF::ExplicitMomentum::ExplicitMomentum(
     const Foam::fvMesh& mesh,
-    const std::string nameFd)
+    const std::string nameExplicitMomentum)
 {
-    if (mesh.foundObject<volVectorField>(nameFd))
+    if (mesh.foundObject<volVectorField>(nameExplicitMomentum))
     {
-        adapterInfo("Loaded existing particle force object " + nameFd, "debug");
-        F_d_ = const_cast<volVectorField*>(
-            &mesh.lookupObject<volVectorField>(nameFd));
+        adapterInfo("Loaded existing explicit momentum object " + nameExplicitMomentum, "debug");
+        ExplicitMomentum_ = const_cast<volVectorField*>(
+            &mesh.lookupObject<volVectorField>(nameExplicitMomentum));
     }
     else
     {
-        adapterInfo("Creating a new drag force object " + nameFd, "debug");
-        F_d_ = new volVectorField(
+        adapterInfo("Creating a new explicit momentum object " + nameExplicitMomentum, "debug");
+        ExplicitMomentum_ = new volVectorField(
             IOobject(
-                nameFd,
+                nameExplicitMomentum,
                 mesh.time().timeName(),
                 mesh,
                 IOobject::MUST_READ,
@@ -28,7 +28,7 @@ preciceAdapter::FF::DragForce::DragForce(
     dataType_ = vector;
 }
 
-std::size_t preciceAdapter::FF::DragForce::write(double* buffer, bool meshConnectivity, const unsigned int dim)
+std::size_t preciceAdapter::FF::ExplicitMomentum::write(double* buffer, bool meshConnectivity, const unsigned int dim)
 {
     int bufferIndex = 0;
 
@@ -36,7 +36,7 @@ std::size_t preciceAdapter::FF::DragForce::write(double* buffer, bool meshConnec
     {
         if (cellSetNames_.empty())
         {
-            for (const auto& cell : F_d_->internalField())
+            for (const auto& cell : ExplicitMomentum_->internalField())
             {
                 // x-dimension
                 buffer[bufferIndex++] = cell.x();
@@ -55,21 +55,21 @@ std::size_t preciceAdapter::FF::DragForce::write(double* buffer, bool meshConnec
         {
             for (const auto& cellSetName : cellSetNames_)
             {
-                cellSet overlapRegion(F_d_->mesh(), cellSetName);
+                cellSet overlapRegion(ExplicitMomentum_->mesh(), cellSetName);
                 const labelList& cells = overlapRegion.toc();
 
                 for (const auto& currentCell : cells)
                 {
                     // x-dimension
-                    buffer[bufferIndex++] = F_d_->internalField()[currentCell].x();
+                    buffer[bufferIndex++] = ExplicitMomentum_->internalField()[currentCell].x();
 
                     // y-dimension
-                    buffer[bufferIndex++] = F_d_->internalField()[currentCell].y();
+                    buffer[bufferIndex++] = ExplicitMomentum_->internalField()[currentCell].y();
 
                     if (dim == 3)
                     {
                         // z-dimension
-                        buffer[bufferIndex++] = F_d_->internalField()[currentCell].z();
+                        buffer[bufferIndex++] = ExplicitMomentum_->internalField()[currentCell].z();
                     }
                 }
             }
@@ -81,32 +81,32 @@ std::size_t preciceAdapter::FF::DragForce::write(double* buffer, bool meshConnec
     {
         int patchID = patchIDs_.at(j);
 
-        vectorField UPatch = F_d_->boundaryField()[patchID];
+        vectorField ExplicitMomentumPatch = ExplicitMomentum_->boundaryField()[patchID];
 
         // For every cell of the patch
-        forAll(F_d_->boundaryFieldRef()[patchID], i)
+        forAll(ExplicitMomentum_->boundaryFieldRef()[patchID], i)
         {
             // Copy the velocity into the buffer
             // x-dimension
             buffer[bufferIndex++] =
-                UPatch[i].x();
+                ExplicitMomentumPatch[i].x();
 
             // y-dimension
             buffer[bufferIndex++] =
-                UPatch[i].y();
+                ExplicitMomentumPatch[i].y();
 
             if (dim == 3)
             {
                 // z-dimension
                 buffer[bufferIndex++] =
-                    UPatch[i].z();
+                    ExplicitMomentumPatch[i].z();
             }
         }
     }
     return bufferIndex;
 }
 
-void preciceAdapter::FF::DragForce::read(double* buffer, const unsigned int dim)
+void preciceAdapter::FF::ExplicitMomentum::read(double* buffer, const unsigned int dim)
 {
     int bufferIndex = 0;
 
@@ -114,7 +114,7 @@ void preciceAdapter::FF::DragForce::read(double* buffer, const unsigned int dim)
     {
         if (cellSetNames_.empty())
         {
-            for (auto& cell : F_d_->ref())
+            for (auto& cell : ExplicitMomentum_->ref())
             {
                 // x-dimension
                 cell.x() = buffer[bufferIndex++];
@@ -133,21 +133,21 @@ void preciceAdapter::FF::DragForce::read(double* buffer, const unsigned int dim)
         {
             for (const auto& cellSetName : cellSetNames_)
             {
-                cellSet overlapRegion(F_d_->mesh(), cellSetName);
+                cellSet overlapRegion(ExplicitMomentum_->mesh(), cellSetName);
                 const labelList& cells = overlapRegion.toc();
 
                 for (const auto& currentCell : cells)
                 {
                     // x-dimension
-                    F_d_->ref()[currentCell].x() = buffer[bufferIndex++];
+                    ExplicitMomentum_->ref()[currentCell].x() = buffer[bufferIndex++];
 
                     // y-dimension
-                    F_d_->ref()[currentCell].y() = buffer[bufferIndex++];
+                    ExplicitMomentum_->ref()[currentCell].y() = buffer[bufferIndex++];
 
                     if (dim == 3)
                     {
                         // z-dimension
-                        F_d_->ref()[currentCell].z() = buffer[bufferIndex++];
+                        ExplicitMomentum_->ref()[currentCell].z() = buffer[bufferIndex++];
                     }
                 }
             }
@@ -160,11 +160,11 @@ void preciceAdapter::FF::DragForce::read(double* buffer, const unsigned int dim)
         int patchID = patchIDs_.at(j);
 
         // Get the velocity value boundary patch
-        vectorField* valuePatchPtr = &F_d_->boundaryFieldRef()[patchID];
+        vectorField* valuePatchPtr = &ExplicitMomentum_->boundaryFieldRef()[patchID];
         vectorField& valuePatch = *valuePatchPtr;
 
         // For every cell of the patch
-        forAll(F_d_->boundaryFieldRef()[patchID], i)
+        forAll(ExplicitMomentum_->boundaryFieldRef()[patchID], i)
         {
             // Set the velocity as the buffer value
             // x-dimension
@@ -185,7 +185,7 @@ void preciceAdapter::FF::DragForce::read(double* buffer, const unsigned int dim)
     }
 }
 
-bool preciceAdapter::FF::DragForce::isLocationTypeSupported(const bool meshConnectivity) const
+bool preciceAdapter::FF::ExplicitMomentum::isLocationTypeSupported(const bool meshConnectivity) const
 {
     if (meshConnectivity)
     {
@@ -197,7 +197,7 @@ bool preciceAdapter::FF::DragForce::isLocationTypeSupported(const bool meshConne
     }
 }
 
-std::string preciceAdapter::FF::DragForce::getDataName() const
+std::string preciceAdapter::FF::ExplicitMomentum::getDataName() const
 {
-    return "DragForce";
+    return "ExplicitMomentum";
 }

@@ -75,6 +75,14 @@ bool preciceAdapter::FF::FluidFluid::readConfig(const IOdictionary& adapterConfi
     nameDragForce_ = FFdict.lookupOrDefault<word>("nameDragForce", "Fd");
     adapterInfo("    drag force name : " + nameDragForce_);
 
+    // Read the name of the explicit momentum source term (if different)
+    nameExplicitMomentum_ = FFdict.lookupOrDefault<word>("nameExplicitMomentum", "ExplicitMomentum");
+    adapterInfo("    explicit momentum name : " + nameExplicitMomentum_);
+
+    // Read the name of the implicit momentum source term (if different)
+    nameImplicitMomentum_ = FFdict.lookupOrDefault<word>("nameImplicitMomentum", "ImplicitMomentum");
+    adapterInfo("    implicit momentum name : " + nameImplicitMomentum_);
+
     // Check whether to enable flux correction for velocity
     fluxCorrection_ = FFdict.lookupOrDefault<bool>("fluxCorrection", false);
     DEBUG(adapterInfo("    flux correction of velocity is set to : " + std::to_string(fluxCorrection_)));
@@ -271,6 +279,20 @@ bool preciceAdapter::FF::FluidFluid::addReaders(std::string dataName, Interface*
             dataName,
             new DragForce(mesh_, nameDragForce_));
         DEBUG(adapterInfo("Added reader: DragForce."));
+    }
+    else if (dataName.find("ExplicitMomentum") == 0)
+    {
+        interface->addCouplingDataReader(
+            dataName,
+            new ExplicitMomentum(mesh_, nameExplicitMomentum_));
+        DEBUG(adapterInfo("Added reader: ExplicitMomentum."));
+    }
+    else if (dataName.find("ImplicitMomentum") == 0)
+    {
+        interface->addCouplingDataReader(
+            dataName,
+            new ImplicitMomentum(mesh_, nameImplicitMomentum_));
+        DEBUG(adapterInfo("Added reader: ImplicitMomentum."));
     }
     else
     {

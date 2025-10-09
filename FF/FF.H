@@ -5,6 +5,8 @@
 
 #include "FF/Velocity.H"
 #include "FF/DragForce.H"
+#include "FF/ExplicitMomentum.H"
+#include "FF/ImplicitMomentum.H"
 #include "FF/Pressure.H"
 #include "FF/Temperature.H"
 #include "FF/Alpha.H"
@@ -50,6 +52,12 @@ protected:
 
     //- Name of the particle drag force
     std::string nameDragForce_ = "DragForce";
+
+    //- Name of the explicit momentum source term
+    std::string nameExplicitMomentum_ = "ExplicitMomentum";
+
+    //- Name of the implicit momentum source term
+    std::string nameImplicitMomentum_ = "ImplicitMomentum";
 
     //- Flux correction of velocity
     bool fluxCorrection_ = false;
