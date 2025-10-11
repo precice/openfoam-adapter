@@ -700,7 +700,7 @@ void preciceAdapter::Adapter::adjustSolverTimeStepAndReadData()
     // Fits to an implicit Euler
     if (!_skipRead)
         readCouplingData(runTime_.deltaT().value());
-    else
+    else if(precice_->isTimeWindowComplete())
         _skipRead = false;
     return;
 }
