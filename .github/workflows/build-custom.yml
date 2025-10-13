@@ -4,13 +4,13 @@ on:
     inputs:
       virtualEnvironment:
         description: 'Virtual Environment'
-        default: 'ubuntu-18.04'
+        default: 'ubuntu-22.04'
         required: true
         type: choice
         options:
+          - ubuntu-24.04
           - ubuntu-22.04
           - ubuntu-20.04
-          - ubuntu-18.04
       refAdapter:
         description: 'Ref (branch/tag/commit) of the OpenFOAM adapter to build'
         default: 'develop'
@@ -20,25 +20,24 @@ on:
         required: true
         type: choice
         options:
-          - OpenFOAMv2406
-          - OpenFOAMv2312
-          - OpenFOAMv2306
-          - OpenFOAMv2212
-          - OpenFOAMv2206
-          - OpenFOAMv2112
-          - OpenFOAMv2106
-          - OpenFOAMv2012
-          - OpenFOAMv2006
-          - OpenFOAMv1912
-          - OpenFOAM10
-          - OpenFOAM9
-          - OpenFOAM8
-          - OpenFOAM7
-          - OpenFOAM6
-          - OpenFOAM5
+          - 2412
+          - 2406
+          - 2312
+          - 2306
+          - 2212
+          - 2206
+          - 2112
+          - 2106
+          - 2012
+          - 2006
+          - 1912
+          - 10
+          - 9
+          - 8
+          - 7
       versionpreCICE:
         description: 'Version of preCICE to build with'
-        default: 'v3.0.0'
+        default: 'v3.2.0'
         required: true
       runTutorialHeatedPlate:
         description: Run tutorial flow-over-heated-plate
@@ -76,109 +75,20 @@ jobs:
         echo "Run tutorial partitioned-pipe: ${{ github.event.inputs.runTutorialPartitionedPipe }}"
         echo "Tutorials branch: ${{ github.event.inputs.branchTutorials }}"
     - name: Check out repository
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
       with:
         ref: ${{ github.event.inputs.refAdapter }}
     - name: Install preCICE (no cache)
       uses: precice/setup-precice-action@main
       with:
         precice-version: ${{ github.event.inputs.versionpreCICE }}
-    - name: Install OpenFOAM (no cache)
-      id: installOpenFOAM
-      run: |
-        case "${{ github.event.inputs.versionOpenFOAM }}" in
-          OpenFOAMv2406)
-            wget -q -O - https://dl.openfoam.com/add-debian-repo.sh | sudo bash
-            sudo apt-get install openfoam2406-dev
-            echo "{openfoam_exec}={/usr/bin/openfoam2406}" >> $GITHUB_OUTPUT;;
-          OpenFOAMv2312)
-            wget -q -O - https://dl.openfoam.com/add-debian-repo.sh | sudo bash
-            sudo apt-get install openfoam2312-dev
-            echo "{openfoam_exec}={/usr/bin/openfoam2312}" >> $GITHUB_OUTPUT;;
-          OpenFOAMv2306)
-            wget -q -O - https://dl.openfoam.com/add-debian-repo.sh | sudo bash
-            sudo apt-get install openfoam2306-dev
-            echo "{openfoam_exec}={/usr/bin/openfoam2306}" >> $GITHUB_OUTPUT;;
-          OpenFOAMv2212)
-            wget -q -O - https://dl.openfoam.com/add-debian-repo.sh | sudo bash
-            sudo apt-get install openfoam2212-dev
-            echo "{openfoam_exec}={/usr/bin/openfoam2212}" >> $GITHUB_OUTPUT;;
-          OpenFOAMv2206)
-            wget -q -O - https://dl.openfoam.com/add-debian-repo.sh | sudo bash
-            sudo apt-get install openfoam2206-dev
-            echo "{openfoam_exec}={/usr/bin/openfoam2206}" >> $GITHUB_OUTPUT;;
-          OpenFOAMv2112)
-            wget -q -O - https://dl.openfoam.com/add-debian-repo.sh | sudo bash
-            sudo apt-get install openfoam2112-dev
-            echo "{openfoam_exec}={/usr/bin/openfoam2112}" >> $GITHUB_OUTPUT;;
-          OpenFOAMv2106)
-            wget -q -O - https://dl.openfoam.com/add-debian-repo.sh | sudo bash
-            sudo apt-get install openfoam2106-dev
-            echo "{openfoam_exec}={/usr/bin/openfoam2106}" >> $GITHUB_OUTPUT;;
-          OpenFOAMv2012)
-            wget -q -O - https://dl.openfoam.com/add-debian-repo.sh | sudo bash
-            sudo apt-get install openfoam2012-dev
-            echo "{openfoam_exec}={/usr/bin/openfoam2012}" >> $GITHUB_OUTPUT;;
-          OpenFOAMv2006)
-            wget -q -O - https://dl.openfoam.com/add-debian-repo.sh | sudo bash
-            sudo apt-get install openfoam2006-dev
-            echo "{openfoam_exec}={/usr/bin/openfoam2006}" >> $GITHUB_OUTPUT;;
-          OpenFOAMv1912)
-            wget -q -O - https://dl.openfoam.com/add-debian-repo.sh | sudo bash
-            sudo apt-get install openfoam1912-dev
-            echo "{openfoam_exec}={/usr/bin/openfoam1912}" >> $GITHUB_OUTPUT;;
-          OpenFOAM10)
-            sudo sh -c "wget -O - https://dl.openfoam.org/gpg.key | apt-key add -"
-            sudo add-apt-repository http://dl.openfoam.org/ubuntu
-            sudo apt-get update
-            sudo apt-get -y install openfoam10
-            echo "{openfoam_exec}={. /opt/openfoam10/etc/bashrc &&}" >> $GITHUB_OUTPUT;;
-          OpenFOAM9)
-            sudo sh -c "wget -O - https://dl.openfoam.org/gpg.key | apt-key add -"
-            sudo add-apt-repository http://dl.openfoam.org/ubuntu
-            sudo apt-get update
-            sudo apt-get -y install openfoam9
-            echo "{openfoam_exec}={. /opt/openfoam9/etc/bashrc &&}" >> $GITHUB_OUTPUT;;
-          OpenFOAM8)
-            sudo sh -c "wget -O - https://dl.openfoam.org/gpg.key | apt-key add -"
-            sudo add-apt-repository http://dl.openfoam.org/ubuntu
-            sudo apt-get update
-            sudo apt-get -y install openfoam8
-            echo "{openfoam_exec}={. /opt/openfoam8/etc/bashrc &&}" >> $GITHUB_OUTPUT;;
-          OpenFOAM7)
-            sudo sh -c "wget -O - https://dl.openfoam.org/gpg.key | apt-key add -"
-            sudo add-apt-repository http://dl.openfoam.org/ubuntu
-            sudo apt-get update
-            sudo apt-get -y install openfoam7
-            echo "{openfoam_exec}={. /opt/openfoam7/etc/bashrc &&}" >> $GITHUB_OUTPUT;;
-          OpenFOAM6)
-            echo "OpenFOAM 6 is only available on Ubuntu 18.04 or older."
-            sudo sh -c "wget -O - https://dl.openfoam.org/gpg.key | apt-key add -"
-            sudo add-apt-repository http://dl.openfoam.org/ubuntu
-            sudo apt-get update
-            sudo apt-get -y install openfoam6
-            echo "{openfoam_exec}={. /opt/openfoam6/etc/bashrc &&}" >> $GITHUB_OUTPUT;;
-          OpenFOAM5)
-            echo "OpenFOAM 5 is only available on Ubuntu 18.04 or older."
-            sudo sh -c "wget -O - https://dl.openfoam.org/gpg.key | apt-key add -"
-            sudo add-apt-repository http://dl.openfoam.org/ubuntu
-            sudo apt-get update
-            sudo apt-get -y install openfoam5
-            echo "{openfoam_exec}={. /opt/openfoam5/etc/bashrc &&}" >> $GITHUB_OUTPUT;;
-          *)
-            echo "I cannot find ${{ github.event.inputs.refAdapter }} in my known options."
-            exit 1;;
-        esac
-    - name: Sanity check
-      run: |
-        ls /usr/bin/openfoam* || echo "No /usr/bin/openfoam* directories."
-        ls /opt/openfoam* || echo "No /opt/openfoam* directories."
-        echo "GitHub Actions step output openfoam_exec:"
-        echo ${{steps.installOpenFOAM.outputs.openfoam_exec}}
+    - name: Set up OpenFOAM
+      uses: gerlero/setup-openfoam@v1
+      with:
+        openfoam-version: ${{ github.event.inputs.versionOpenFOAM }}
     - name: Build OpenFOAM-preCICE adapter
       run: |
-          echo "OpenFOAM environment: ${{steps.installOpenFOAM.outputs.openfoam_exec}}"
-          ${{steps.installOpenFOAM.outputs.openfoam_exec}} ./Allwmake
+        ./Allwmake
     - name: Get tutorials
       run: |
         git clone https://github.com/precice/tutorials.git --branch ${{ github.event.inputs.branchTutorials }} --depth 1
@@ -187,10 +97,10 @@ jobs:
         if ${{ github.event.inputs.runTutorialHeatedPlate }}
         then
           cd tutorials/flow-over-heated-plate/fluid-openfoam
-          ${{steps.installOpenFOAM.outputs.openfoam_exec}} ./run.sh | tee fluid-openfoam.log 2>&1 &
+          ./run.sh | tee fluid-openfoam.log 2>&1 &
           PIDfluid=$!
           cd ../solid-openfoam
-          ${{steps.installOpenFOAM.outputs.openfoam_exec}} ./run.sh | tee solid-openfoam.log 2>&1
+          ./run.sh | tee solid-openfoam.log 2>&1
           wait $PIDfluid
         fi
     - name: Run tutorial quickstart
@@ -198,19 +108,20 @@ jobs:
         if ${{ github.event.inputs.runTutorialQuickstart }}
         then
           cd tutorials/quickstart/fluid-openfoam
-          if [ "${{ github.event.inputs.versionOpenFOAM }}" == "OpenFOAM5" ]
+          if [ "${{ github.event.inputs.versionOpenFOAM }}" == 5 ]
           then
             echo "Manually changing from pimpleFoam to pimpleDyMFoam for compatibility with OpenFOAM 5."
             sed -i 's/pimpleFoam/pimpleDyMFoam/g' system/controlDict
           fi
-          if [ "${{ github.event.inputs.versionOpenFOAM }}" == "OpenFOAM9" ]
+          if [ "${{ github.event.inputs.versionOpenFOAM }}" == 9 ]
           then
             echo "Manually changing from solver to motionSolver in dynamicMeshDict for compatibility with OpenFOAM 9."
             sed -i 's/solver/motionSolver/g' constant/dynamicMeshDict
           fi
-          ${{steps.installOpenFOAM.outputs.openfoam_exec}} ./run.sh | tee fluid-openfoam.log 2>&1 &
+          ./run.sh | tee fluid-openfoam.log 2>&1 &
           PIDfluid=$!
           cd ../solid-cpp
+          apt-get update && apt-get -y install cmake
           cmake . && make && ./run.sh | tee solid-cpp.log 2>&1
           wait $PIDfluid
         fi
@@ -219,10 +130,10 @@ jobs:
         if ${{ github.event.inputs.runTutorialPartitionedPipe }}
         then
           cd tutorials/partitioned-pipe/fluid1-openfoam-pimplefoam
-          ${{steps.installOpenFOAM.outputs.openfoam_exec}} ./run.sh | tee fluid1-openfoam-pimplefoam.log 2>&1 &
+          ./run.sh | tee fluid1-openfoam-pimplefoam.log 2>&1 &
           PIDfluid=$!
           cd ../fluid2-openfoam-pimplefoam
-          ${{steps.installOpenFOAM.outputs.openfoam_exec}} ./run.sh | tee fluid2-openfoam-pimplefoam.log 2>&1 &
+          ./run.sh | tee fluid2-openfoam-pimplefoam.log 2>&1 &
           wait $PIDfluid
         fi
     - name: Archive logs

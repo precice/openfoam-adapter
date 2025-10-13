@@ -14,10 +14,7 @@ preciceAdapter::FSI::ForceBase::ForceBase(
         && solverType_.compare("compressible") != 0
         && solverType_.compare("solid") != 0)
     {
-        FatalErrorInFunction
-            << "Force based calculations only support "
-            << "compressible, incompressible, or solid solver types."
-            << exit(FatalError);
+        adapterInfo("Force based calculations only support compressible, incompressible, or solid solver types.", "error");
     }
 
     dataType_ = vector;
@@ -82,9 +79,7 @@ Foam::tmp<Foam::volScalarField> preciceAdapter::FSI::ForceBase::rho() const
     }
     else
     {
-        FatalErrorInFunction
-            << "Did not find the correct rho."
-            << exit(FatalError);
+        adapterInfo("Something went wrong while looking for a rho object for the force calculation.", "error");
 
         return volScalarField::null();
     }
@@ -122,9 +117,7 @@ Foam::tmp<Foam::volScalarField> preciceAdapter::FSI::ForceBase::mu() const
     }
     else
     {
-        FatalErrorInFunction
-            << "Did not find the correct mu."
-            << exit(FatalError);
+        adapterInfo("Something went wrong while looking for a mu object for the force calculation.", "error");
 
         return volScalarField::null();
     }
@@ -169,10 +162,7 @@ std::size_t preciceAdapter::FSI::ForceBase::writeToBuffer(double* buffer,
         }
         else
         {
-            FatalErrorInFunction
-                << "Forces calculation does only support "
-                << "compressible or incompressible solver type."
-                << exit(FatalError);
+            adapterInfo("Calculating forces is only supported for solverType compressible or incompressible.", "error");
         }
 
         // Viscous forces
@@ -200,7 +190,5 @@ void preciceAdapter::FSI::ForceBase::readFromBuffer(double* buffer) const
      * this only corresponds to stresses.
      * In general, consider refactoring the ForceBase, Force, and Stress classes.
      */
-    FatalErrorInFunction
-        << "Reading stresses is not yet supported."
-        << exit(FatalError);
+    adapterInfo("Reading stresses is not supported.", "error");
 }

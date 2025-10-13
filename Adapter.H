@@ -24,6 +24,12 @@
 // preCICE Solver Interface
 #include <precice/precice.hpp>
 
+#if PRECICE_VERSION_GREATER_EQUAL(3, 2, 0)
+using PreciceError = ::precice::Error;
+#else
+using PreciceError = std::runtime_error;
+#endif
+
 namespace preciceAdapter
 {
 
@@ -72,9 +78,6 @@ private:
     const Foam::fvMesh& mesh_;
 
     // Configuration parameters used in the Adapter
-
-    //- Remember if there were errors in the read() method
-    bool errorsInConfigure = false;
 
     //- preCICE configuration file name
     Foam::word preciceConfigFilename_;
@@ -245,7 +248,7 @@ private:
     // Configuration
 
     //- Read the adapter's configuration file
-    bool configFileRead();
+    void configFileRead();
 
     //- Check the adapter's configuration file
     bool configFileCheck(const std::string adapterConfigFileName);
@@ -293,6 +296,10 @@ private:
 
     //- Configure the checkpointing
     void setupCheckpointing();
+
+    //- Remove checkpointed fields which are not used by OpenFOAM anymore
+    void pruneCheckpointedFields();
+
 
     //- Make a copy of the runTime object
     void storeCheckpointTime();

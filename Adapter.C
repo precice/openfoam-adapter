@@ -3,6 +3,7 @@
 #include "Utilities.H"
 
 #include "IOstreams.H"
+#include <algorithm>
 
 using namespace Foam;
 
@@ -15,412 +16,383 @@ preciceAdapter::Adapter::Adapter(const Time& runTime, const fvMesh& mesh)
     return;
 }
 
-bool preciceAdapter::Adapter::configFileRead()
+void preciceAdapter::Adapter::configFileRead()
 {
 
-    // We need a try-catch here, as if reading preciceDict fails,
-    // the respective exception will be reduced to a warning.
-    // See also comment in preciceAdapter::Adapter::configure().
-    try
+    SETUP_TIMER();
+    adapterInfo("Reading preciceDict...", "info");
+
+    // TODO: static is just a quick workaround to be able
+    // to find the dictionary also out of scope (e.g. in KappaEffective).
+    // We need a better solution.
+    static IOdictionary preciceDict(
+        IOobject(
+            "preciceDict",
+            runTime_.system(),
+            mesh_,
+            IOobject::MUST_READ_IF_MODIFIED,
+            IOobject::NO_WRITE));
+
+    // Read and display the preCICE configuration file name
+    preciceConfigFilename_ = preciceDict.get<fileName>("preciceConfig");
+    DEBUG(adapterInfo("  precice-config-file : " + preciceConfigFilename_));
+
+    // Read and display the participant name
+    participantName_ = preciceDict.get<word>("participant");
+    DEBUG(adapterInfo("  participant name    : " + participantName_));
+
+    // Read and display the list of modules
+    DEBUG(adapterInfo("  modules requested   : "));
+    auto modules_ = preciceDict.get<wordList>("modules");
+    for (const auto& module : modules_)
     {
-        SETUP_TIMER();
-        adapterInfo("Reading preciceDict...", "info");
+        DEBUG(adapterInfo("  - " + module + "\n"));
 
-        // TODO: static is just a quick workaround to be able
-        // to find the dictionary also out of scope (e.g. in KappaEffective).
-        // We need a better solution.
-        static IOdictionary preciceDict(
-            IOobject(
-                "preciceDict",
-                runTime_.system(),
-                mesh_,
-                IOobject::MUST_READ_IF_MODIFIED,
-                IOobject::NO_WRITE));
-
-        // Read and display the preCICE configuration file name
-        preciceConfigFilename_ = preciceDict.get<fileName>("preciceConfig");
-        DEBUG(adapterInfo("  precice-config-file : " + preciceConfigFilename_));
-
-        // Read and display the participant name
-        participantName_ = preciceDict.get<word>("participant");
-        DEBUG(adapterInfo("  participant name    : " + participantName_));
-
-        // Read and display the list of modules
-        DEBUG(adapterInfo("  modules requested   : "));
-        auto modules_ = preciceDict.get<wordList>("modules");
-        for (const auto& module : modules_)
+        // Set the modules switches
+        if (module == "CHT")
         {
-            DEBUG(adapterInfo("  - " + module + "\n"));
-
-            // Set the modules switches
-            if (module == "CHT")
-            {
-                CHTenabled_ = true;
-            }
-
-            if (module == "FSI")
-            {
-                FSIenabled_ = true;
-            }
-
-            if (module == "FF")
-            {
-                FFenabled_ = true;
-            }
+            CHTenabled_ = true;
         }
 
-        // Every interface is a subdictionary of "interfaces",
-        // each with an arbitrary name. Read all of them and create
-        // a list (here: pointer) of dictionaries.
-        const auto* interfaceDictPtr = preciceDict.findDict("interfaces");
-        DEBUG(adapterInfo("  interfaces : "));
-
-        // Check if we found any interfaces
-        // and get the details of each interface
-        if (!interfaceDictPtr)
+        if (module == "FSI")
         {
-            adapterInfo("  Empty list of interfaces", "warning");
-            return false;
-        }
-        else
-        {
-            for (const entry& interfaceDictEntry : *interfaceDictPtr)
-            {
-                if (interfaceDictEntry.isDict())
-                {
-                    const dictionary& interfaceDict = interfaceDictEntry.dict();
-                    struct InterfaceConfig interfaceConfig;
-
-                    interfaceConfig.meshName = interfaceDict.get<word>("mesh");
-                    DEBUG(adapterInfo("  - mesh         : " + interfaceConfig.meshName));
-
-                    // By default, assume "faceCenters" as locationsType
-                    interfaceConfig.locationsType = interfaceDict.lookupOrDefault<word>("locations", "faceCenters");
-                    DEBUG(adapterInfo("    locations    : " + interfaceConfig.locationsType));
-
-                    // By default, assume that no mesh connectivity is required (i.e. no nearest-projection mapping)
-                    interfaceConfig.meshConnectivity = interfaceDict.lookupOrDefault<bool>("connectivity", false);
-                    // Mesh connectivity only makes sense in case of faceNodes, check and raise a warning otherwise
-                    if (interfaceConfig.meshConnectivity && (interfaceConfig.locationsType == "faceCenters" || interfaceConfig.locationsType == "volumeCenters" || interfaceConfig.locationsType == "volumeCentres"))
-                    {
-                        DEBUG(adapterInfo("Mesh connectivity is not supported for faceCenters or volumeCenters. \n"
-                                          "Please configure the desired interface with the locationsType faceNodes. \n"
-                                          "Have a look in the adapter documentation for detailed information.",
-                                          "warning"));
-                        return false;
-                    }
-                    DEBUG(adapterInfo("    connectivity : " + std::to_string(interfaceConfig.meshConnectivity)));
-
-                    DEBUG(adapterInfo("    patches      : "));
-                    auto patches = interfaceDict.get<wordList>("patches");
-                    for (auto patch : patches)
-                    {
-                        interfaceConfig.patchNames.push_back(patch);
-                        DEBUG(adapterInfo("      - " + patch));
-                    }
-
-                    DEBUG(adapterInfo("    cellSets      : "));
-                    auto cellSets = interfaceDict.lookupOrDefault<wordList>("cellSets", wordList());
-
-                    for (auto cellSet : cellSets)
-                    {
-                        interfaceConfig.cellSetNames.push_back(cellSet);
-                        DEBUG(adapterInfo("      - " + cellSet));
-                    }
-
-                    if (!interfaceConfig.cellSetNames.empty() && !(interfaceConfig.locationsType == "volumeCenters" || interfaceConfig.locationsType == "volumeCentres"))
-                    {
-                        adapterInfo("Cell sets are not supported for locationType != volumeCenters. \n"
-                                    "Please configure the desired interface with the locationsType volumeCenters. \n"
-                                    "Have a look in the adapter documentation for detailed information.",
-                                    "warning");
-                        return false;
-                    }
-
-                    DEBUG(adapterInfo("    writeData    : "));
-                    auto writeData = interfaceDict.get<wordList>("writeData");
-                    for (auto writeDatum : writeData)
-                    {
-                        interfaceConfig.writeData.push_back(writeDatum);
-                        DEBUG(adapterInfo("      - " + writeDatum));
-                    }
-
-                    DEBUG(adapterInfo("    readData     : "));
-                    auto readData = interfaceDict.get<wordList>("readData");
-                    for (auto readDatum : readData)
-                    {
-                        interfaceConfig.readData.push_back(readDatum);
-                        DEBUG(adapterInfo("      - " + readDatum));
-                    }
-                    interfacesConfig_.push_back(interfaceConfig);
-                }
-            }
+            FSIenabled_ = true;
         }
 
-        // NOTE: set the switch for your new module here
-
-        // If the CHT module is enabled, create it, read the
-        // CHT-specific options and configure it.
-        if (CHTenabled_)
+        if (module == "FF")
         {
-            CHT_ = new CHT::ConjugateHeatTransfer(mesh_);
-            if (!CHT_->configure(preciceDict))
-            {
-                return false;
-            }
+            FFenabled_ = true;
         }
-
-        // If the FSI module is enabled, create it, read the
-        // FSI-specific options and configure it.
-        if (FSIenabled_)
-        {
-            // Check for unsupported FSI with meshConnectivity
-            for (uint i = 0; i < interfacesConfig_.size(); i++)
-            {
-                if (interfacesConfig_.at(i).meshConnectivity == true)
-                {
-                    adapterInfo(
-                        "You have requested mesh connectivity (most probably for nearest-projection mapping) "
-                        "and you have enabled the FSI module. "
-                        "Mapping with connectivity information is not implemented for FSI, only for CHT-related fields. "
-                        "warning");
-                    return false;
-                }
-            }
-
-            FSI_ = new FSI::FluidStructureInteraction(mesh_, runTime_);
-            if (!FSI_->configure(preciceDict))
-            {
-                return false;
-            }
-        }
-
-        if (FFenabled_)
-        {
-            FF_ = new FF::FluidFluid(mesh_);
-            if (!FF_->configure(preciceDict))
-            {
-                return false;
-            }
-        }
-
-        // NOTE: Create your module and read any options specific to it here
-
-        if (!CHTenabled_ && !FSIenabled_ && !FFenabled_) // NOTE: Add your new switch here
-        {
-            adapterInfo("No module is enabled.", "error-deferred");
-            return false;
-        }
-
-        // TODO: Loading modules should be implemented in more general way,
-        // in order to avoid code duplication. See issue #16 on GitHub.
-
-        ACCUMULATE_TIMER(timeInConfigRead_);
-    }
-    catch (const Foam::error& e)
-    {
-        adapterInfo(e.message(), "error-deferred");
-        return false;
     }
 
-    return true;
-}
+    // Every interface is a subdictionary of "interfaces",
+    // each with an arbitrary name. Read all of them and create
+    // a list (here: pointer) of dictionaries.
+    const auto* interfaceDictPtr = preciceDict.findDict("interfaces");
+    DEBUG(adapterInfo("  interfaces : "));
 
-void preciceAdapter::Adapter::configure()
-{
-    // Read the adapter's configuration file
-    if (!configFileRead())
+    // Check if we found any interfaces
+    // and get the details of each interface
+    if (!interfaceDictPtr)
     {
-        // This method is called from the functionObject's read() method,
-        // which is called by the Foam::functionObjectList::read() method.
-        // All the exceptions triggered in this method are caught as
-        // warnings and the simulation continues simply without the
-        // functionObject. However, we want the simulation to exit with an
-        // error in case something is wrong. We store the information that
-        // there was an error and it will be handled by the first call to
-        // the functionObject's execute(), which can throw errors normally.
-        errorsInConfigure = true;
+        adapterInfo("  Empty list of interfaces", "error");
+        return;
+    }
+    else
+    {
+        for (const entry& interfaceDictEntry : *interfaceDictPtr)
+        {
+            if (interfaceDictEntry.isDict())
+            {
+                const dictionary& interfaceDict = interfaceDictEntry.dict();
+                struct InterfaceConfig interfaceConfig;
 
+                interfaceConfig.meshName = interfaceDict.get<word>("mesh");
+                DEBUG(adapterInfo("  - mesh         : " + interfaceConfig.meshName));
+
+                // By default, assume "faceCenters" as locationsType
+                interfaceConfig.locationsType = interfaceDict.lookupOrDefault<word>("locations", "faceCenters");
+                DEBUG(adapterInfo("    locations    : " + interfaceConfig.locationsType));
+
+                // By default, assume that no mesh connectivity is required (i.e. no nearest-projection mapping)
+                interfaceConfig.meshConnectivity = interfaceDict.lookupOrDefault<bool>("connectivity", false);
+                // Mesh connectivity only makes sense in case of faceNodes, check and raise a warning otherwise
+                if (interfaceConfig.meshConnectivity && (interfaceConfig.locationsType == "faceCenters" || interfaceConfig.locationsType == "volumeCenters" || interfaceConfig.locationsType == "volumeCentres"))
+                {
+                    DEBUG(adapterInfo("Mesh connectivity is not supported for faceCenters or volumeCenters. \n"
+                                      "Please configure the desired interface with the locationsType faceNodes. \n"
+                                      "Have a look in the adapter documentation for detailed information.",
+                                      "error"));
+                    return;
+                }
+                DEBUG(adapterInfo("    connectivity : " + std::to_string(interfaceConfig.meshConnectivity)));
+
+                DEBUG(adapterInfo("    patches      : "));
+                auto patches = interfaceDict.get<wordList>("patches");
+                for (auto patch : patches)
+                {
+                    interfaceConfig.patchNames.push_back(patch);
+                    DEBUG(adapterInfo("      - " + patch));
+                }
+
+                DEBUG(adapterInfo("    cellSets      : "));
+                auto cellSets = interfaceDict.lookupOrDefault<wordList>("cellSets", wordList());
+
+                for (auto cellSet : cellSets)
+                {
+                    interfaceConfig.cellSetNames.push_back(cellSet);
+                    DEBUG(adapterInfo("      - " + cellSet));
+                }
+
+                if (!interfaceConfig.cellSetNames.empty() && !(interfaceConfig.locationsType == "volumeCenters" || interfaceConfig.locationsType == "volumeCentres"))
+                {
+                    adapterInfo("Cell sets are not supported for locationType != volumeCenters. \n"
+                                "Please configure the desired interface with the locationsType volumeCenters. \n"
+                                "Have a look in the adapter documentation for detailed information.",
+                                "error");
+                    return;
+                }
+
+                DEBUG(adapterInfo("    writeData    : "));
+                auto writeData = interfaceDict.lookupOrDefault<wordList>("writeData", wordList());
+                for (auto writeDatum : writeData)
+                {
+                    interfaceConfig.writeData.push_back(writeDatum);
+                    DEBUG(adapterInfo("      - " + writeDatum));
+                }
+
+                DEBUG(adapterInfo("    readData     : "));
+                auto readData = interfaceDict.lookupOrDefault<wordList>("readData", wordList());
+                for (auto readDatum : readData)
+                {
+                    interfaceConfig.readData.push_back(readDatum);
+                    DEBUG(adapterInfo("      - " + readDatum));
+                }
+                interfacesConfig_.push_back(interfaceConfig);
+            }
+        }
+    }
+
+    // NOTE: set the switch for your new module here
+
+    // If the CHT module is enabled, create it, read the
+    // CHT-specific options and configure it.
+    if (CHTenabled_)
+    {
+        CHT_ = new CHT::ConjugateHeatTransfer(mesh_);
+        if (!CHT_->configure(preciceDict))
+        {
+            adapterInfo("There was an error while configuring the CHT module",
+                        "error");
+            return;
+        }
+    }
+
+    // If the FSI module is enabled, create it, read the
+    // FSI-specific options and configure it.
+    if (FSIenabled_)
+    {
+        // Check for unsupported FSI with meshConnectivity
+        for (uint i = 0; i < interfacesConfig_.size(); i++)
+        {
+            if (interfacesConfig_.at(i).meshConnectivity == true)
+            {
+                adapterInfo(
+                    "You have requested mesh connectivity (most probably for nearest-projection mapping) "
+                    "and you have enabled the FSI module. "
+                    "Mapping with connectivity information is not implemented for FSI, only for CHT-related fields. "
+                    "error");
+                return;
+            }
+        }
+
+        FSI_ = new FSI::FluidStructureInteraction(mesh_, runTime_);
+        if (!FSI_->configure(preciceDict))
+        {
+            adapterInfo("There was an error while configuring the FSI module",
+                        "error");
+            return;
+        }
+    }
+
+    if (FFenabled_)
+    {
+        FF_ = new FF::FluidFluid(mesh_);
+        if (!FF_->configure(preciceDict))
+        {
+            adapterInfo("There was an error while configuring the FF module",
+                        "error");
+            return;
+        }
+    }
+
+    // NOTE: Create your module and read any options specific to it here
+
+    if (!CHTenabled_ && !FSIenabled_ && !FFenabled_) // NOTE: Add your new switch here
+    {
+        adapterInfo("No module is enabled.", "error");
         return;
     }
 
-    try
-    {
-        // Check the timestep type (fixed vs adjustable)
-        DEBUG(adapterInfo("Checking the timestep type (fixed vs adjustable)..."));
-        adjustableTimestep_ = runTime_.controlDict().lookupOrDefault("adjustTimeStep", false);
+    // TODO: Loading modules should be implemented in more general way,
+    // in order to avoid code duplication. See issue #16 on GitHub.
 
-        if (adjustableTimestep_)
-        {
-            DEBUG(adapterInfo("  Timestep type: adjustable."));
-        }
-        else
-        {
-            DEBUG(adapterInfo("  Timestep type: fixed."));
-        }
-
-        // Construct preCICE
-        SETUP_TIMER();
-        DEBUG(adapterInfo("Creating the preCICE solver interface..."));
-        DEBUG(adapterInfo("  Number of processes: " + std::to_string(Pstream::nProcs())));
-        DEBUG(adapterInfo("  MPI rank: " + std::to_string(Pstream::myProcNo())));
-        precice_ = new precice::Participant(participantName_, preciceConfigFilename_, Pstream::myProcNo(), Pstream::nProcs());
-        DEBUG(adapterInfo("  preCICE solver interface was created."));
-
-        ACCUMULATE_TIMER(timeInPreciceConstruct_);
-
-        // Create interfaces
-        REUSE_TIMER();
-        DEBUG(adapterInfo("Creating interfaces..."));
-        for (uint i = 0; i < interfacesConfig_.size(); i++)
-        {
-            std::string namePointDisplacement = FSIenabled_ ? FSI_->getPointDisplacementFieldName() : "default";
-            std::string nameCellDisplacement = FSIenabled_ ? FSI_->getCellDisplacementFieldName() : "default";
-            bool restartFromDeformed = FSIenabled_ ? FSI_->isRestartingFromDeformed() : false;
-
-            Interface* interface = new Interface(*precice_, mesh_, interfacesConfig_.at(i).meshName, interfacesConfig_.at(i).locationsType, interfacesConfig_.at(i).patchNames, interfacesConfig_.at(i).cellSetNames, interfacesConfig_.at(i).meshConnectivity, restartFromDeformed, namePointDisplacement, nameCellDisplacement);
-            interfaces_.push_back(interface);
-            DEBUG(adapterInfo("Interface created on mesh " + interfacesConfig_.at(i).meshName));
-
-            DEBUG(adapterInfo("Adding coupling data writers..."));
-            for (uint j = 0; j < interfacesConfig_.at(i).writeData.size(); j++)
-            {
-                std::string dataName = interfacesConfig_.at(i).writeData.at(j);
-
-                unsigned int inModules = 0;
-
-                // Add CHT-related coupling data writers
-                if (CHTenabled_ && CHT_->addWriters(dataName, interface))
-                {
-                    inModules++;
-                }
-
-                // Add FSI-related coupling data writers
-                if (FSIenabled_ && FSI_->addWriters(dataName, interface))
-                {
-                    inModules++;
-                }
-
-                // Add FF-related coupling data writers
-                if (FFenabled_ && FF_->addWriters(dataName, interface))
-                {
-                    inModules++;
-                }
-
-                if (inModules == 0)
-                {
-                    adapterInfo("I don't know how to write \"" + dataName
-                                    + "\". Maybe this is a typo or maybe you need to enable some adapter module?",
-                                "error-deferred");
-                }
-                else if (inModules > 1)
-                {
-                    adapterInfo("It looks like more than one modules can write \"" + dataName
-                                    + "\" and I don't know how to choose. Try disabling one of the modules.",
-                                "error-deferred");
-                }
-
-                // NOTE: Add any coupling data writers for your module here.
-            } // end add coupling data writers
-
-            DEBUG(adapterInfo("Adding coupling data readers..."));
-            for (uint j = 0; j < interfacesConfig_.at(i).readData.size(); j++)
-            {
-                std::string dataName = interfacesConfig_.at(i).readData.at(j);
-
-                unsigned int inModules = 0;
-
-                // Add CHT-related coupling data readers
-                if (CHTenabled_ && CHT_->addReaders(dataName, interface)) inModules++;
-
-                // Add FSI-related coupling data readers
-                if (FSIenabled_ && FSI_->addReaders(dataName, interface)) inModules++;
-
-                // Add FF-related coupling data readers
-                if (FFenabled_ && FF_->addReaders(dataName, interface)) inModules++;
-
-                if (inModules == 0)
-                {
-                    adapterInfo("I don't know how to read \"" + dataName
-                                    + "\". Maybe this is a typo or maybe you need to enable some adapter module?",
-                                "error-deferred");
-                }
-                else if (inModules > 1)
-                {
-                    adapterInfo("It looks like more than one modules can read \"" + dataName
-                                    + "\" and I don't know how to choose. Try disabling one of the modules.",
-                                "error-deferred");
-                }
-
-                // NOTE: Add any coupling data readers for your module here.
-            } // end add coupling data readers
-
-            // Create the interface's data buffer
-            interface->createBuffer();
-        }
-        ACCUMULATE_TIMER(timeInMeshSetup_);
-
-        // Initialize preCICE and exchange the first coupling data
-        initialize();
-
-        // If checkpointing is required, specify the checkpointed fields
-        // and write the first checkpoint
-        if (requiresWritingCheckpoint())
-        {
-            checkpointing_ = true;
-
-            // Setup the checkpointing (find and add fields to checkpoint)
-            setupCheckpointing();
-
-            // Write checkpoint (for the first iteration)
-            writeCheckpoint();
-        }
-
-        // Adjust the timestep for the first iteration, if it is fixed
-        if (!adjustableTimestep_)
-        {
-            adjustSolverTimeStepAndReadData();
-        }
-
-        // If the solver tries to end before the coupling is complete,
-        // e.g. because the solver's endTime was smaller or (in implicit
-        // coupling) equal with the max-time specified in preCICE,
-        // problems may occur near the end of the simulation,
-        // as the function object may be called only once near the end.
-        // See the implementation of Foam::Time::run() for more details.
-        // To prevent this, we set the solver's endTime to "infinity"
-        // and let only preCICE control the end of the simulation.
-        // This has the side-effect of not triggering the end() method
-        // in any function object normally. Therefore, we trigger it
-        // when preCICE dictates to stop the coupling.
-        adapterInfo(
-            "Setting the solver's endTime to infinity to prevent early exits. "
-            "Only preCICE will control the simulation's endTime. "
-            "Any functionObject's end() method will be triggered by the adapter. "
-            "You may disable this behavior in the adapter's configuration.",
-            "info");
-        const_cast<Time&>(runTime_).setEndTime(GREAT);
-    }
-    catch (const Foam::error& e)
-    {
-        adapterInfo(e.message(), "error-deferred");
-        errorsInConfigure = true;
-    }
+    ACCUMULATE_TIMER(timeInConfigRead_);
 
     return;
 }
 
-void preciceAdapter::Adapter::execute()
+void preciceAdapter::Adapter::configure()
+try
 {
-    if (errorsInConfigure)
+    // Read the adapter's configuration file
+    configFileRead();
+
+    // Check the timestep type (fixed vs adjustable)
+    DEBUG(adapterInfo("Checking the timestep type (fixed vs adjustable)..."));
+    adjustableTimestep_ = runTime_.controlDict().lookupOrDefault("adjustTimeStep", false);
+
+    if (adjustableTimestep_)
     {
-        // Handle any errors during configure().
-        // See the comments in configure() for details.
-        adapterInfo(
-            "There was a problem while configuring the adapter. "
-            "See the log for details.",
-            "error");
+        DEBUG(adapterInfo("  Timestep type: adjustable."));
     }
+    else
+    {
+        DEBUG(adapterInfo("  Timestep type: fixed."));
+    }
+
+    // Construct preCICE
+    SETUP_TIMER();
+    DEBUG(adapterInfo("Creating the preCICE solver interface..."));
+    DEBUG(adapterInfo("  Number of processes: " + std::to_string(Pstream::nProcs())));
+    DEBUG(adapterInfo("  MPI rank: " + std::to_string(Pstream::myProcNo())));
+    precice_ = new precice::Participant(participantName_, preciceConfigFilename_, Pstream::myProcNo(), Pstream::nProcs());
+    DEBUG(adapterInfo("  preCICE solver interface was created."));
+
+    ACCUMULATE_TIMER(timeInPreciceConstruct_);
+
+    // Create interfaces
+    REUSE_TIMER();
+    DEBUG(adapterInfo("Creating interfaces..."));
+    for (uint i = 0; i < interfacesConfig_.size(); i++)
+    {
+        std::string namePointDisplacement = FSIenabled_ ? FSI_->getPointDisplacementFieldName() : "default";
+        std::string nameCellDisplacement = FSIenabled_ ? FSI_->getCellDisplacementFieldName() : "default";
+        bool restartFromDeformed = FSIenabled_ ? FSI_->isRestartingFromDeformed() : false;
+
+        Interface* interface = new Interface(*precice_, mesh_, interfacesConfig_.at(i).meshName, interfacesConfig_.at(i).locationsType, interfacesConfig_.at(i).patchNames, interfacesConfig_.at(i).cellSetNames, interfacesConfig_.at(i).meshConnectivity, restartFromDeformed, namePointDisplacement, nameCellDisplacement);
+        interfaces_.push_back(interface);
+        DEBUG(adapterInfo("Interface created on mesh " + interfacesConfig_.at(i).meshName));
+
+        DEBUG(adapterInfo("Adding coupling data writers..."));
+        for (uint j = 0; j < interfacesConfig_.at(i).writeData.size(); j++)
+        {
+            std::string dataName = interfacesConfig_.at(i).writeData.at(j);
+
+            unsigned int inModules = 0;
+
+            // Add CHT-related coupling data writers
+            if (CHTenabled_ && CHT_->addWriters(dataName, interface))
+            {
+                inModules++;
+            }
+
+            // Add FSI-related coupling data writers
+            if (FSIenabled_ && FSI_->addWriters(dataName, interface))
+            {
+                inModules++;
+            }
+
+            // Add FF-related coupling data writers
+            if (FFenabled_ && FF_->addWriters(dataName, interface))
+            {
+                inModules++;
+            }
+
+            if (inModules == 0)
+            {
+                adapterInfo("I don't know how to write \"" + dataName
+                                + "\". Maybe this is a typo or maybe you need to enable some adapter module?",
+                            "error");
+            }
+            else if (inModules > 1)
+            {
+                adapterInfo("It looks like more than one modules can write \"" + dataName
+                                + "\" and I don't know how to choose. Try disabling one of the modules.",
+                            "error");
+            }
+
+            // NOTE: Add any coupling data writers for your module here.
+        } // end add coupling data writers
+
+        DEBUG(adapterInfo("Adding coupling data readers..."));
+        for (uint j = 0; j < interfacesConfig_.at(i).readData.size(); j++)
+        {
+            std::string dataName = interfacesConfig_.at(i).readData.at(j);
+
+            unsigned int inModules = 0;
+
+            // Add CHT-related coupling data readers
+            if (CHTenabled_ && CHT_->addReaders(dataName, interface)) inModules++;
+
+            // Add FSI-related coupling data readers
+            if (FSIenabled_ && FSI_->addReaders(dataName, interface)) inModules++;
+
+            // Add FF-related coupling data readers
+            if (FFenabled_ && FF_->addReaders(dataName, interface)) inModules++;
+
+            if (inModules == 0)
+            {
+                adapterInfo("I don't know how to read \"" + dataName
+                                + "\". Maybe this is a typo or maybe you need to enable some adapter module?",
+                            "error");
+            }
+            else if (inModules > 1)
+            {
+                adapterInfo("It looks like more than one modules can read \"" + dataName
+                                + "\" and I don't know how to choose. Try disabling one of the modules.",
+                            "error");
+            }
+
+            // NOTE: Add any coupling data readers for your module here.
+        } // end add coupling data readers
+
+        // Create the interface's data buffer
+        interface->createBuffer();
+    }
+    ACCUMULATE_TIMER(timeInMeshSetup_);
+
+    // Initialize preCICE and exchange the first coupling data
+    initialize();
+
+    // If checkpointing is required, specify the checkpointed fields
+    // and write the first checkpoint
+    if (requiresWritingCheckpoint())
+    {
+        checkpointing_ = true;
+
+        // Setup the checkpointing (find and add fields to checkpoint)
+        setupCheckpointing();
+
+        // Write checkpoint (for the first iteration)
+        writeCheckpoint();
+    }
+
+    // Adjust the timestep for the first iteration, if it is fixed
+    if (!adjustableTimestep_)
+    {
+        adjustSolverTimeStepAndReadData();
+    }
+
+    // If the solver tries to end before the coupling is complete,
+    // e.g. because the solver's endTime was smaller or (in implicit
+    // coupling) equal with the max-time specified in preCICE,
+    // problems may occur near the end of the simulation,
+    // as the function object may be called only once near the end.
+    // See the implementation of Foam::Time::run() for more details.
+    // To prevent this, we set the solver's endTime to "infinity"
+    // and let only preCICE control the end of the simulation.
+    // This has the side-effect of not triggering the end() method
+    // in any function object normally. Therefore, we trigger it
+    // when preCICE dictates to stop the coupling.
+    adapterInfo(
+        "Setting the solver's endTime to infinity to prevent early exits. "
+        "Only preCICE will control the simulation's endTime. "
+        "Any functionObject's end() method will be triggered by the adapter. "
+        "You may disable this behavior in the adapter's configuration.",
+        "info");
+    const_cast<Time&>(runTime_).setEndTime(GREAT);
+
+    return;
+}
+catch (const PreciceError& e)
+{
+    std::exit(EXIT_FAILURE);
+}
+
+void preciceAdapter::Adapter::execute()
+try
+{
 
     // The solver has already solved the equations for this timestep.
     // Now call the adapter's methods to perform the coupling.
@@ -437,6 +409,7 @@ void preciceAdapter::Adapter::execute()
     // Read checkpoint if required
     if (requiresReadingCheckpoint())
     {
+        pruneCheckpointedFields();
         readCheckpoint();
     }
 
@@ -499,13 +472,22 @@ void preciceAdapter::Adapter::execute()
 
     return;
 }
+catch (const PreciceError& e)
+{
+    std::exit(EXIT_FAILURE);
+}
 
 
 void preciceAdapter::Adapter::adjustTimeStep()
+try
 {
     adjustSolverTimeStepAndReadData();
 
     return;
+}
+catch (const PreciceError& e)
+{
+    std::exit(EXIT_FAILURE);
 }
 
 void preciceAdapter::Adapter::readCouplingData(double relativeReadTime)
@@ -544,9 +526,11 @@ void preciceAdapter::Adapter::initialize()
     SETUP_TIMER();
 
     if (precice_->requiresInitialData())
+    {
+        DEBUG(adapterInfo("Initializing preCICE data..."));
         writeCouplingData();
+    }
 
-    DEBUG(adapterInfo("Initializing preCICE data..."));
     precice_->initialize();
     preciceInitialized_ = true;
     ACCUMULATE_TIMER(timeInInitialize_);
@@ -669,7 +653,7 @@ void preciceAdapter::Adapter::adjustSolverTimeStepAndReadData()
     else if (timestepSolverDetermined - precice_->getMaxTimeStepSize() > tolerance)
     {
         // In the last time-step, we adjust to dt = 0, but we don't need to trigger the warning here
-        if (precice_->isCouplingOngoing())
+        if (isCouplingOngoing())
         {
             adapterInfo(
                 "The solver's timestep cannot be larger than the coupling timestep."
@@ -895,12 +879,12 @@ void preciceAdapter::Adapter::setupCheckpointing()
     DEBUG(adapterInfo("Adding in checkpointed fields..."));
 
 #undef doLocalCode
-#define doLocalCode(GeomField)                                           \
-    /* Checkpoint registered GeomField objects */                        \
-    for (const word& obj : mesh_.sortedNames<GeomField>())               \
-    {                                                                    \
-        addCheckpointField(mesh_.thisDb().getObjectPtr<GeomField>(obj)); \
-        DEBUG(adapterInfo("Checkpoint " + obj + " : " #GeomField));      \
+#define doLocalCode(GeomFieldType)                                           \
+    /* Checkpoint registered GeomFieldType objects */                        \
+    for (const word& obj : mesh_.sortedNames<GeomFieldType>())               \
+    {                                                                        \
+        addCheckpointField(mesh_.thisDb().getObjectPtr<GeomFieldType>(obj)); \
+        DEBUG(adapterInfo("Checkpoint " + obj + " : " #GeomFieldType));      \
     }
 
     doLocalCode(volScalarField);
@@ -923,6 +907,64 @@ void preciceAdapter::Adapter::setupCheckpointing()
     ACCUMULATE_TIMER(timeInCheckpointingSetup_);
 }
 
+void preciceAdapter::Adapter::pruneCheckpointedFields()
+{
+    // Check if checkpointed fields exist in OpenFOAM registry
+    // If not, remove them from the checkpointed fields vector
+
+    word fieldName;
+    uint index;
+    std::vector<word> regFields;
+    std::vector<uint> toRemoveIndices;
+
+#undef doLocalCode
+#define doLocalCode(GeomFieldType, GeomField_, GeomFieldCopies_)                                                                              \
+    regFields.clear();                                                                                                                        \
+    toRemoveIndices.clear();                                                                                                                  \
+    index = 0;                                                                                                                                \
+    /* Iterate through fields in OpenFOAM registry */                                                                                         \
+    for (const word& fieldName : mesh_.sortedNames<GeomFieldType>())                                                                          \
+    {                                                                                                                                         \
+        regFields.push_back(fieldName);                                                                                                       \
+    }                                                                                                                                         \
+    /* Iterate through checkpointed fields */                                                                                                 \
+    for (GeomFieldType * fieldObj : GeomFieldCopies_)                                                                                         \
+    {                                                                                                                                         \
+        fieldName = fieldObj->name();                                                                                                         \
+        if (std::find(regFields.begin(), regFields.end(), fieldName) == regFields.end())                                                      \
+        {                                                                                                                                     \
+            toRemoveIndices.push_back(index);                                                                                                 \
+        }                                                                                                                                     \
+        index += 1;                                                                                                                           \
+    }                                                                                                                                         \
+    if (!toRemoveIndices.empty())                                                                                                             \
+    {                                                                                                                                         \
+        /* Iterate in reverse to avoid index shifting */                                                                                      \
+        for (auto it = toRemoveIndices.rbegin(); it != toRemoveIndices.rend(); ++it)                                                          \
+        {                                                                                                                                     \
+            index = *it;                                                                                                                      \
+            DEBUG(adapterInfo("Removed " #GeomFieldType " : " + GeomFieldCopies_.at(index)->name() + " from the checkpointed fields list.")); \
+            GeomField_.erase(GeomField_.begin() + index);                                                                                     \
+            delete GeomFieldCopies_.at(index);                                                                                                \
+            GeomFieldCopies_.erase(GeomFieldCopies_.begin() + index);                                                                         \
+        }                                                                                                                                     \
+    }
+
+    doLocalCode(volScalarField, volScalarFields_, volScalarFieldCopies_);
+    doLocalCode(volVectorField, volVectorFields_, volVectorFieldCopies_);
+    doLocalCode(volTensorField, volTensorFields_, volTensorFieldCopies_);
+    doLocalCode(volSymmTensorField, volSymmTensorFields_, volSymmTensorFieldCopies_);
+
+    doLocalCode(surfaceScalarField, surfaceScalarFields_, surfaceScalarFieldCopies_);
+    doLocalCode(surfaceVectorField, surfaceVectorFields_, surfaceVectorFieldCopies_);
+    doLocalCode(surfaceTensorField, surfaceTensorFields_, surfaceTensorFieldCopies_);
+
+    doLocalCode(pointScalarField, pointScalarFields_, pointScalarFieldCopies_);
+    doLocalCode(pointVectorField, pointVectorFields_, pointVectorFieldCopies_);
+    doLocalCode(pointTensorField, pointTensorFields_, pointTensorFieldCopies_);
+
+#undef doLocalCode
+}
 
 // All mesh checkpointed fields
 
@@ -1477,6 +1519,7 @@ void preciceAdapter::Adapter::writeVolCheckpoint()
 
 
 void preciceAdapter::Adapter::end()
+try
 {
     // Throw a warning if the simulation exited before the coupling was complete
     if (NULL != precice_ && isCouplingOngoing())
@@ -1485,6 +1528,10 @@ void preciceAdapter::Adapter::end()
     }
 
     return;
+}
+catch (const PreciceError& e)
+{
+    std::exit(EXIT_FAILURE);
 }
 
 void preciceAdapter::Adapter::teardown()
@@ -1645,6 +1692,7 @@ void preciceAdapter::Adapter::teardown()
 }
 
 preciceAdapter::Adapter::~Adapter()
+try
 {
     teardown();
 
@@ -1669,4 +1717,8 @@ preciceAdapter::Adapter::~Adapter()
         Info << "-------------------------------------------------------------------------------------" << nl;)
 
     return;
+}
+catch (const PreciceError& e)
+{
+    std::exit(EXIT_FAILURE);
 }

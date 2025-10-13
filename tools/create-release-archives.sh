@@ -12,6 +12,6 @@ declare -a branches=("master" "OpenFOAMv1806" "OpenFOAM10" "OpenFOAM9" "OpenFOAM
 mkdir -p release-archives
 for i in "${branches[@]}"
     do
-    archive_name=openefoam-adapter-"${adapter_version}"-"${i}"
+    archive_name=openfoam-adapter-"${adapter_version}"-"${i}"
     git archive --format=tar.gz --prefix="${archive_name}"/ "${remote_name}"/"${i}" >"release-archives/${archive_name}".tar.gz
 done

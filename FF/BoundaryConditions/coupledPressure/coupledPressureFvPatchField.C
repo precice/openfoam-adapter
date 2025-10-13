@@ -50,12 +50,7 @@ Foam::coupledPressureFvPatchField::coupledPressureFvPatchField(
 {
     if (notNull(iF) && mapper.hasUnmapped())
     {
-        WarningInFunction
-            << "On field " << iF.name() << " patch " << p.name()
-            << " patchField " << this->type()
-            << " : mapper does not map all values." << nl
-            << "    To avoid this warning fully specify the mapping in derived"
-            << " patch fields." << endl;
+        adapterInfo("On field " + iF.name() + " patch " + p.name() + " patchField " + this->type() + " : mapper does not map all values. To avoid this warning, fully specify the mapping in derived patch fields.", "warning");
     }
 }
 
@@ -99,7 +94,7 @@ void Foam::coupledPressureFvPatchField::updateCoeffs()
     const scalarField& phip = phi->boundaryField()[this->patch().index()];
     const Foam::volVectorField* U = &db().lookupObject<volVectorField>(uName_);
     const vectorField& Up = U->boundaryField()[this->patch().index()];
-    const vectorField n = this->patch().nf();
+    const vectorField n = this->patch().nf().cref();
 
     int t0 = this->patch().boundaryMesh().mesh().time().startTimeIndex();
     int t = this->patch().boundaryMesh().mesh().time().timeIndex();
