@@ -193,12 +193,14 @@ std::size_t preciceAdapter::FSI::ForceBase::writeToBuffer(double* buffer,
 
 void preciceAdapter::FSI::ForceBase::readFromBuffer(double* buffer) const
 {
-    /* TODO: Implement
+    /* TODO: Implement (issue https://github.com/precice/openfoam-adapter/issues/240)
      * We need two nested for-loops for each patch,
      * the outer for the locations and the inner for the dimensions.
-     * See the preCICE readBlockVectorData() implementation.
+     * Since the Force class already implements a read method,
+     * this only corresponds to stresses.
+     * In general, consider refactoring the ForceBase, Force, and Stress classes.
      */
     FatalErrorInFunction
-        << "Reading forces is not supported."
+        << "Reading stresses is not yet supported."
         << exit(FatalError);
 }
