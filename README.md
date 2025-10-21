@@ -1,16 +1,3 @@
-# OpenFOAM-preCICE adapter for unresolved CFD-DEM
-This is the modified version of the OpenFOAM-preCICE adapter used for the CFD-DEM cases in the bachelor's thesis *Flexible mesh-particle coupling with preCICE* by Robin Walloner.
-It is based on version 1.3.1 of the adapter.
-The original README of the OpenFOAM-preCICE adapter is included at the end of this file.
-
-## Modifications in this version
-- Add drag force as coupling quantity `FF/DragForce.C`
-- Skip reading during first time step in `Adapter.C`
-
-## Building
-See [Get the OpenFOAM adapter](https://precice.org/adapter-openfoam-get.html) in the preCICE documentation.
-
-
 # Original OpenFOAM-preCICE adapter README
 
 [![Ask questions in the forum](https://img.shields.io/badge/community-forum-orange?link=https%3A%2F%2Fprecice.discourse.group%2F)](https://precice.discourse.group/)
