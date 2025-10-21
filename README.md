@@ -1,4 +1,4 @@
-# Original OpenFOAM-preCICE adapter README
+# OpenFOAM-preCICE adapter
 
 [![Ask questions in the forum](https://img.shields.io/badge/community-forum-orange?link=https%3A%2F%2Fprecice.discourse.group%2F)](https://precice.discourse.group/)
 [![Release](https://img.shields.io/github/release/precice/openfoam-adapter.svg)](https://github.com/precice/openfoam-adapter/releases/latest)
