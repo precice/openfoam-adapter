@@ -553,7 +553,6 @@ void preciceAdapter::Adapter::initialize()
     preciceInitialized_ = true;
     ACCUMULATE_TIMER(timeInInitialize_);
 
-    _skipRead = true;
     adapterInfo("preCICE was configured and initialized", "info");
 
     return;
@@ -698,10 +697,7 @@ void preciceAdapter::Adapter::adjustSolverTimeStepAndReadData()
 
     // Read the received coupling data from the buffer
     // Fits to an implicit Euler
-    if (!_skipRead)
-        readCouplingData(runTime_.deltaT().value());
-    else if(precice_->isTimeWindowComplete())
-        _skipRead = false;
+    readCouplingData(runTime_.deltaT().value());
     return;
 }
 

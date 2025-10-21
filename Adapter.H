@@ -100,7 +100,6 @@ private:
     //- Switch to enable the FluidFluid module
     bool FFenabled_ = false;
 
-    bool _skipRead = false;
     // NOTE: Add a switch for your new module here
 
     //- Interfaces
