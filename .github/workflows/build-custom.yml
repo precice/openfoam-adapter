@@ -20,6 +20,8 @@ on:
         required: true
         type: choice
         options:
+          - 2512
+          - 2506
           - 2412
           - 2406
           - 2312
@@ -31,13 +33,16 @@ on:
           - 2012
           - 2006
           - 1912
+          - 13
+          - 12
+          - 11
           - 10
           - 9
           - 8
           - 7
       versionpreCICE:
         description: 'Version of preCICE to build with'
-        default: 'v3.2.0'
+        default: 'v3.3.0'
         required: true
       runTutorialHeatedPlate:
         description: Run tutorial flow-over-heated-plate
