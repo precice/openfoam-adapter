@@ -1373,18 +1373,19 @@ void preciceAdapter::Adapter::readMeshVolCheckpoint()
     // Reload V, V0, V00
     if (volumeCheckpointCounter == 2 || volumeCheckpointCounter == 3)
     {
-        const_cast<volScalarField::Internal&>(mesh_.V()) = *(meshVolFieldCopies_.at(0));
-        DEBUG(adapterInfo("Read mesh volume " + meshVolFieldCopies_.at(0)->name()));
+        // Actually we don't need to reload V, as it is re-calculated in every time-step
+        // const_cast<volScalarField::Internal&>(mesh_.V()) = *(meshVolFieldCopies_.at(0));
+        // DEBUG(adapterInfo("Read mesh volume " + meshVolFieldCopies_.at(0)->name()));
 
-        const_cast<volScalarField::Internal&>(mesh_.V0()) = *(meshVolFieldCopies_.at(1));
-        DEBUG(adapterInfo("Read mesh volume " + meshVolFieldCopies_.at(1)->name()));
+        const_cast<volScalarField::Internal&>(mesh_.V0()) = *(meshVolFieldCopies_.at(0));
+        DEBUG(adapterInfo("Read mesh volume " + meshVolFieldCopies_.at(0)->name()));
 
         DEBUG(adapterInfo("Mesh volumes checkpoint for time t = " + std::to_string(runTime_.value()) + " were read."));
     }
     if (volumeCheckpointCounter == 3)
     {
-        const_cast<volScalarField::Internal&>(mesh_.V00()) = *(meshVolFieldCopies_.at(2));
-        DEBUG(adapterInfo("Read mesh volume " + meshVolFieldCopies_.at(2)->name()));
+        const_cast<volScalarField::Internal&>(mesh_.V00()) = *(meshVolFieldCopies_.at(1));
+        DEBUG(adapterInfo("Read mesh volume " + meshVolFieldCopies_.at(1)->name()));
     }
 
     return;
