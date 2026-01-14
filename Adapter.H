@@ -88,6 +88,9 @@ private:
     //- Switch for checkpointing
     bool checkpointing_ = false;
 
+    //- Moving mesh checkpointing
+    bool meshCheckPointed_ = false;
+
     //- Type of timestep (fixed, adjustable)
     bool adjustableTimestep_;
 
@@ -141,15 +144,12 @@ private:
     //- Checkpointed time (index)
     Foam::label couplingIterationTimeIndex_;
 
-    //- Checkpointed mesh points
-    Foam::pointField meshPoints_;
-    Foam::pointField oldMeshPoints_;
-    bool meshCheckPointed = false;
-
-
     // Vectors of pointers to the checkpointed mesh fields and their copies
 
-    //- Checkpointed surfaceScalarField mesh fields
+    //- Checkpointed mesh points, oldPoints
+    Foam::pointField* meshPoints_;
+    Foam::pointField* meshOldPoints_;
+
     //- Checkpointed surfaceScalarField mesh fields (phi)
     std::vector<Foam::surfaceScalarField*> meshSurfaceScalarFields_;
 

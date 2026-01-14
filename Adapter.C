@@ -636,13 +636,11 @@ void preciceAdapter::Adapter::adjustSolverTimeStepAndReadData()
     double tolerance = 1e-14;
     if (precice_->getMaxTimeStepSize() - timestepSolverDetermined > tolerance)
     {
-        // Add a bool 'subCycling = true' which is checked in the storeMeshPoints() function.
         adapterInfo(
             "The solver's timestep is smaller than the "
             "coupling timestep. Subcycling...",
             "info");
         timestepSolver_ = timestepSolverDetermined;
-        // TODO subcycling is enabled. For FSI the oldVolumes must be written, which is normally not done.
         if (FSIenabled_)
         {
             adapterInfo(
@@ -736,23 +734,21 @@ void preciceAdapter::Adapter::reloadCheckpointTime()
 
 void preciceAdapter::Adapter::storeMeshPoints()
 {
-    DEBUG(adapterInfo("Storing mesh points..."));
-    // TODO: In foam-extend, we would need "allPoints()". Check if this gives the same data.
-    meshPoints_ = mesh_.points();
-    oldMeshPoints_ = mesh_.oldPoints();
+    if (!meshPoints_)
+    {
+        DEBUG(adapterInfo("Storing mesh points..."));
+        // Add points and oldPoints
+        meshPoints_ = new Foam::pointField(mesh_.points());
+        meshOldPoints_ = new Foam::pointField(mesh_.oldPoints());
+    }
 
-    /*
-    // TODO  This is only required for subcycling. It should not be called when not subcycling!!
-    */
-
-    DEBUG(adapterInfo("Stored mesh points."));
     if (mesh_.moving())
     {
-        if (!meshCheckPointed)
+        if (!meshCheckPointed_)
         {
             // Set up the checkpoint for the mesh flux: meshPhi
             setupMeshCheckpointing();
-            meshCheckPointed = true;
+            meshCheckPointed_ = true;
         }
         writeMeshCheckpoint();
     }
@@ -766,24 +762,16 @@ void preciceAdapter::Adapter::reloadMeshPoints()
         return;
     }
 
-    // In Foam::polyMesh::movePoints.
-    // TODO: The function movePoints overwrites the pointer to the old mesh.
-    // Therefore, if you revert the mesh, the oldpointer will be set to the points, which are the new values.
-    DEBUG(adapterInfo("Moving mesh points to their previous locations..."));
+    // Reload mesh points
+    const_cast<Foam::fvMesh&>(mesh_).movePoints(*meshPoints_);
 
-    // TODO
-    // Switch oldpoints on for pure physics. (is this required?). Switch off for better mesh deformation capabilities?
-    // const_cast<pointField&>(mesh_.points()) = oldMeshPoints_;
-    const_cast<fvMesh&>(mesh_).movePoints(meshPoints_);
+    // polyMesh.movePoints will only update oldPoints
+    // if (curMotionTimeIndex_ != time().timeIndex())
+    const_cast<pointField&>(mesh_.oldPoints()) = *meshOldPoints_;
+
+    readMeshCheckpoint();
 
     DEBUG(adapterInfo("Moved mesh points to their previous locations."));
-
-    // TODO The if statement can be removed in this case, but it is still included for clarity
-    if (meshCheckPointed)
-    {
-        readMeshCheckpoint();
-    }
-
 }
 
 void preciceAdapter::Adapter::setupMeshCheckpointing()
@@ -1319,6 +1307,10 @@ void preciceAdapter::Adapter::writeMeshCheckpoint()
 
     DEBUG(adapterInfo("Storing mesh points..."));
 
+    // Store mesh points
+    // swap pointers
+    *(meshOldPoints_) = *(meshPoints_);
+    *(meshPoints_) = mesh_.points();
 
     DEBUG(adapterInfo("Mesh checkpoint for time t = " + std::to_string(runTime_.value()) + " was stored."));
 
@@ -1445,6 +1437,9 @@ void preciceAdapter::Adapter::teardown()
         // NOTE: Add here delete for other types, if needed
 
         checkpointing_ = false;
+
+        delete meshPoints_;
+        delete meshOldPoints_;
     }
 
     // Delete the CHT module
