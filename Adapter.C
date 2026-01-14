@@ -811,15 +811,10 @@ void preciceAdapter::Adapter::setupMeshCheckpointing()
     //      delta
     // are updated by the function fvMesh::movePoints. Only the meshPhi needs checkpointing.
     DEBUG(adapterInfo("Creating a list of the mesh checkpointed fields..."));
+    // Add meshPhi (Face motion flux)
+    addMeshCheckpointField(const_cast<surfaceScalarField&>(mesh_.phi()));
 
-    // Add meshPhi to the checkpointed fields
-    addMeshCheckpointField(
-        const_cast<surfaceScalarField&>(
-            mesh_.phi()));
-#ifdef ADAPTER_DEBUG_MODE
-    adapterInfo(
-        "Added " + mesh_.phi().name() + " in the list of checkpointed fields.");
-#endif
+    DEBUG(adapterInfo("Added " + mesh_.phi().name() + " to the list of checkpointed fields."));
 }
 
 void preciceAdapter::Adapter::setupMeshVolCheckpointing()
@@ -830,18 +825,10 @@ void preciceAdapter::Adapter::setupMeshVolCheckpointing()
     addVolCheckpointField(
         const_cast<volScalarField::Internal&>(
             mesh_.V0()));
-#ifdef ADAPTER_DEBUG_MODE
-    adapterInfo(
-        "Added " + mesh_.V0().name() + " in the list of checkpointed fields.");
-#endif
     // For V00
     addVolCheckpointField(
         const_cast<volScalarField::Internal&>(
             mesh_.V00()));
-#ifdef ADAPTER_DEBUG_MODE
-    adapterInfo(
-        "Added " + mesh_.V00().name() + " in the list of checkpointed fields.");
-#endif
 
     // Also add the buffer fields.
     // TODO For V0
@@ -852,10 +839,6 @@ void preciceAdapter::Adapter::setupMeshVolCheckpointing()
             mesh_.V0()
         )
     ); */
-#ifdef ADAPTER_DEBUG_MODE
-    adapterInfo(
-        "Added " + mesh_.V0().name() + " in the list of buffer checkpointed fields.");
-#endif
     // TODO For V00
     /* addVolCheckpointFieldBuffer
     (
@@ -864,10 +847,6 @@ void preciceAdapter::Adapter::setupMeshVolCheckpointing()
             mesh_.V00()
         )
     );*/
-#ifdef ADAPTER_DEBUG_MODE
-    adapterInfo(
-        "Added " + mesh_.V00().name() + " in the list of buffer checkpointed fields.");
-#endif
 }
 
 
@@ -1287,10 +1266,7 @@ void preciceAdapter::Adapter::readCheckpoint()
 
     // NOTE: Add here other field types to read, if needed.
 
-#ifdef ADAPTER_DEBUG_MODE
-    adapterInfo(
-        "Checkpoint was read. Time = " + std::to_string(runTime_.value()));
-#endif
+    DEBUG(adapterInfo("Checkpoint was read. Time = " + std::to_string(runTime_.value())));
 
     ACCUMULATE_TIMER(timeInCheckpointingRead_);
 
@@ -1374,10 +1350,7 @@ void preciceAdapter::Adapter::writeCheckpoint()
     }
     // NOTE: Add here other types to write, if needed.
 
-#ifdef ADAPTER_DEBUG_MODE
-    adapterInfo(
-        "Checkpoint for time t = " + std::to_string(runTime_.value()) + " was stored.");
-#endif
+    DEBUG(adapterInfo("Checkpoint for time t = " + std::to_string(runTime_.value()) + " was stored."));
 
     ACCUMULATE_TIMER(timeInCheckpointingWrite_);
 
@@ -1440,10 +1413,6 @@ void preciceAdapter::Adapter::readMeshCheckpoint()
         }
     }
 
-#ifdef ADAPTER_DEBUG_MODE
-    adapterInfo(
-        "Mesh checkpoint was read. Time = " + std::to_string(runTime_.value()));
-#endif
 
     return;
 }
@@ -1470,10 +1439,6 @@ void preciceAdapter::Adapter::writeMeshCheckpoint()
         *(meshVolVectorFieldCopies_.at(i)) == *(meshVolVectorFields_.at(i));
     }
 
-#ifdef ADAPTER_DEBUG_MODE
-    adapterInfo(
-        "Mesh checkpoint for time t = " + std::to_string(runTime_.value()) + " was stored.");
-#endif
 
     return;
 }
@@ -1491,10 +1456,6 @@ void preciceAdapter::Adapter::readVolCheckpoint()
         // There are no old times for the internal fields.
     }
 
-#ifdef ADAPTER_DEBUG_MODE
-    adapterInfo(
-        "Mesh volumes were read. Time = " + std::to_string(runTime_.value()));
-#endif
 
     return;
 }
@@ -1509,10 +1470,6 @@ void preciceAdapter::Adapter::writeVolCheckpoint()
         *(volScalarInternalFieldCopies_.at(i)) = *(volScalarInternalFields_.at(i));
     }
 
-#ifdef ADAPTER_DEBUG_MODE
-    adapterInfo(
-        "Mesh volumes checkpoint for time t = " + std::to_string(runTime_.value()) + " was stored.");
-#endif
 
     return;
 }
