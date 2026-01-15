@@ -596,8 +596,20 @@ FSI
 ```
 
 {% important %}
-The option here defines the way the interface mesh is initialized when restarting an FSI simulation in OpenFOAM. In order to restart a coupled simulation, your solid solver needs to be capable of restarting as well. Furthermore, the two participants need to follow the same assumption for the initialization, which for OpenFOAM you can configure with this option. You can find more information about restarting coupled simulations on [Dsicourse](https://precice.discourse.group/t/how-can-i-restart-a-coupled-simulation/675).
+The option here defines the way the interface mesh is initialized when restarting an FSI simulation in OpenFOAM. In order to restart a coupled simulation, your solid solver needs to be capable of restarting as well. Furthermore, the two participants need to follow the same assumption for the initialization, which for OpenFOAM you can configure with this option. You can find more information about restarting coupled simulations on [Discourse](https://precice.discourse.group/t/how-can-i-restart-a-coupled-simulation/675).
 {% endimportant %}
+
+#### Notes on subcycling
+
+If it is necessary to subcycle, i.e., do multiple solver time steps per coupling time window, on either the OpenFOAM side or another solver, please consider additional nuances. A good way to start is reading up on subcycling and [waveform time interpolation](https://precice.org/couple-your-code-waveform). Subcycling is *allowed* by preCICE and the OpenFOAM-adapter, but you may obtain different results with subcycling enabled or not depending on your problem and coupling configuration. This has to do with how the subcycling data is modelled in the time-integration of your problem, where the two independent solvers (coupling participants) with non-matching timesteps march forwards in time. This depends on your timestepping scheme and the type of physical quantity that you are coupling.
+
+Currently, when doing subcycling in OpenFOAM on an FSI problem, the OpenFOAM-adapter will give the following warning:
+
+`The adapter does not fully support subcycling for FSI and instabilities may occur.`
+
+There is an active discussion on the [GitHub issue](https://github.com/precice/openfoam-adapter/issues/368) about why you will get different results with subcycling on the perpendicular-flap case. Until this is resolved, it is not recommended to subcycle the fluid participant in FSI simulations.
+
+In short, preCICE will sample only the instantaneous state of the coupled data at end of the coupling time window. If your coupled quantity is an instantaneous state of the system, such as Temperature, Velocity or Displacement, then your time-dependent problem evolution with subcycling will be modelled correctly. However, if your coupled data is a rate-quantity or something which should be conserved over time, such as Heat-Flux, Momentum-Flux or Force, then you would have to consider the modelling more carefully. For example, to exchange the sum of Heat-Flux samples over the coupling time window.
 
 #### Debugging
 
