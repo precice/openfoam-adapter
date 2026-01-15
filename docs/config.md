@@ -609,7 +609,7 @@ Currently, when doing subcycling in OpenFOAM on an FSI problem, the OpenFOAM-ada
 
 There is an active discussion on the [GitHub issue](https://github.com/precice/openfoam-adapter/issues/368) about why you will get different results with subcycling on the perpendicular-flap case. Until this is resolved, it is not recommended to subcycle the fluid participant in FSI simulations.
 
-In short, preCICE will sample only the instantaneous state of the coupled data at end of the coupling time window. If your coupled quantity is an instantaneous state of the system, such as Temperature, Velocity or Displacement, then your time-dependent problem evolution with subcycling will be modelled correctly. However, if your coupled data is a rate-quantity or something which should be conserved over time, such as Heat-Flux, Momentum-Flux or Force, then you would have to consider the modelling more carefully. For example, to exchange the sum of Heat-Flux samples over the coupling time window.
+In short, preCICE will sample only the instantaneous state of the coupled data at end of the coupling time window. If your coupled quantity is an instantaneous state of the system, such as Temperature, Velocity or Displacement, then your time-dependent problem evolution with subcycling will be modelled correctly. However, if your coupled data is a rate-quantity or something which should be conserved over time, such as Heat-Flux, Momentum-Flux or Force, then you would have to consider the modelling more carefully. For example, to exchange the time-average of Heat-Flux samples over the coupling time window.
 
 #### Debugging
 
