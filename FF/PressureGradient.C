@@ -6,8 +6,8 @@ preciceAdapter::FF::PressureGradient::PressureGradient(
     const Foam::fvMesh& mesh,
     const std::string nameP)
 : p_(
-      const_cast<volScalarField*>(
-          &mesh.lookupObject<volScalarField>(nameP))),
+    const_cast<volScalarField*>(
+        &mesh.lookupObject<volScalarField>(nameP))),
   gradP_(IOobject(
              "gradP",
              mesh.time().timeName(),
