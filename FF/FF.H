@@ -11,7 +11,7 @@
 #include "FF/Temperature.H"
 #include "FF/Alpha.H"
 #include "FF/PressureGradient.H"
-#include "FF/FullPressureGradient.H"
+#include "FF/PressureGradientFull.H"
 #include "FF/VelocityGradient.H"
 #include "FF/TemperatureGradient.H"
 #include "FF/AlphaGradient.H"

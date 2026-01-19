@@ -7,7 +7,7 @@
 #include "VelocityGradient.C"
 #include "Pressure.C"
 #include "PressureGradient.C"
-#include "FullPressureGradient.C"
+#include "PressureGradientFull.C"
 #include "Temperature.C"
 #include "TemperatureGradient.C"
 #include "Alpha.C"
