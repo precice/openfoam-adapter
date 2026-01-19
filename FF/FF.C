@@ -150,6 +150,13 @@ bool preciceAdapter::FF::FluidFluid::addWriters(std::string dataName, Interface*
             new PressureGradient(mesh_, nameP_));
         DEBUG(adapterInfo("Added writer: Pressure Gradient."));
     }
+    else if (dataName.find("FullPressureGradient") == 0)
+    {
+        interface->addCouplingDataWriter(
+            dataName,
+            new PressureGradient(mesh_, nameP_));
+        DEBUG(adapterInfo("Added writer: Full Pressure Gradient."));
+    }
     else if (dataName.find("Pressure") == 0)
     {
         interface->addCouplingDataWriter(

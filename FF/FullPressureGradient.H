@@ -1,5 +1,5 @@
-#ifndef FF_PRESSURE_GRADIENT_H
-#define FF_PRESSURE_GRADIENT_H
+#ifndef FF_FULL_PRESSURE_GRADIENT_H
+#define FF_FULL_PRESSURE_GRADIENT_H
 
 #include "CouplingDataUser.H"
 
@@ -11,7 +11,7 @@ namespace FF
 {
 
 //- Class that writes and reads pressure gradient
-class PressureGradient : public CouplingDataUser
+class FullPressureGradient : public CouplingDataUser
 {
 
 private:
@@ -23,7 +23,7 @@ private:
 
 public:
     //- Constructor
-    PressureGradient(
+    FullPressureGradient(
         const Foam::fvMesh& mesh,
         const std::string nameP);
 
@@ -43,7 +43,7 @@ public:
 }
 
 // NOTE: In order to couple another variable, you need to add another
-// subclass of the CouplingDataUser. Take this file and PressureGradient.C
+// subclass of the CouplingDataUser. Take this file and FullPressureGradient.C
 // as an example and look for more notes in the Adapter.C and Adapter.H.
 // Essentially, the new class needs to implement a constructor (which also
 // sets the dataType_) and implement the write() and read() methods.

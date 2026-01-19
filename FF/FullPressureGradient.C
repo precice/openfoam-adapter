@@ -1,8 +1,8 @@
-#include "PressureGradient.H"
+#include "FullPressureGradient.H"
 
 using namespace Foam;
 
-preciceAdapter::FF::PressureGradient::PressureGradient(
+preciceAdapter::FF::FullPressureGradient::FullPressureGradient(
     const Foam::fvMesh& mesh,
     const std::string nameP)
 : p_(
@@ -19,7 +19,7 @@ preciceAdapter::FF::PressureGradient::PressureGradient(
     dataType_ = vector;
 }
 
-std::size_t preciceAdapter::FF::PressureGradient::write(double* buffer, bool meshConnectivity, const unsigned int dim)
+std::size_t preciceAdapter::FF::FullPressureGradient::write(double* buffer, bool meshConnectivity, const unsigned int dim)
 {
     int bufferIndex = 0;
     gradP_ = fvc::grad(*p_);
@@ -96,7 +96,7 @@ std::size_t preciceAdapter::FF::PressureGradient::write(double* buffer, bool mes
     return bufferIndex;
 }
 
-void preciceAdapter::FF::PressureGradient::read(double* buffer, const unsigned int dim)
+void preciceAdapter::FF::FullPressureGradient::read(double* buffer, const unsigned int dim)
 {
     int bufferIndex = 0;
 
@@ -121,12 +121,12 @@ void preciceAdapter::FF::PressureGradient::read(double* buffer, const unsigned i
     }
 }
 
-bool preciceAdapter::FF::PressureGradient::isLocationTypeSupported(const bool meshConnectivity) const
+bool preciceAdapter::FF::FullPressureGradient::isLocationTypeSupported(const bool meshConnectivity) const
 {
     return (this->locationType_ == LocationType::faceCenters || this->locationType_ == LocationType::volumeCenters);
 }
 
-std::string preciceAdapter::FF::PressureGradient::getDataName() const
+std::string preciceAdapter::FF::FullPressureGradient::getDataName() const
 {
-    return "PressureGradient";
+    return "FullPressureGradient";
 }
