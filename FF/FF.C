@@ -71,6 +71,18 @@ bool preciceAdapter::FF::FluidFluid::readConfig(const IOdictionary& adapterConfi
     namePhi_ = FFdict.lookupOrDefault<word>("namePhi", "phi");
     DEBUG(adapterInfo("    face flux field name : " + namePhi_));
 
+    // Read the name of the face flux field (if different)
+    nameDragForce_ = FFdict.lookupOrDefault<word>("nameDragForce", "Fd");
+    adapterInfo("    drag force name : " + nameDragForce_);
+
+    // Read the name of the explicit momentum source term (if different)
+    nameExplicitMomentum_ = FFdict.lookupOrDefault<word>("nameExplicitMomentum", "ExplicitMomentum");
+    adapterInfo("    explicit momentum name : " + nameExplicitMomentum_);
+
+    // Read the name of the implicit momentum source term (if different)
+    nameImplicitMomentum_ = FFdict.lookupOrDefault<word>("nameImplicitMomentum", "ImplicitMomentum");
+    adapterInfo("    implicit momentum name : " + nameImplicitMomentum_);
+
     // Check whether to enable flux correction for velocity
     fluxCorrection_ = FFdict.lookupOrDefault<bool>("fluxCorrection", false);
     DEBUG(adapterInfo("    flux correction of velocity is set to : " + std::to_string(fluxCorrection_)));
@@ -130,6 +142,13 @@ bool preciceAdapter::FF::FluidFluid::addWriters(std::string dataName, Interface*
             dataName,
             new Velocity(mesh_, nameU_, namePhi_, fluxCorrection_));
         DEBUG(adapterInfo("Added writer: Velocity."));
+    }
+    else if (dataName.find("PressureGradientFull") == 0)
+    {
+        interface->addCouplingDataWriter(
+            dataName,
+            new PressureGradientFull(mesh_, nameP_));
+        DEBUG(adapterInfo("Added writer: Full Pressure Gradient."));
     }
     else if (dataName.find("PressureGradient") == 0)
     {
@@ -260,6 +279,27 @@ bool preciceAdapter::FF::FluidFluid::addReaders(std::string dataName, Interface*
             dataName,
             new Phi(mesh_, namePhi_));
         DEBUG(adapterInfo("Added reader: Phi."));
+    }
+    else if (dataName.find("DragForce") == 0)
+    {
+        interface->addCouplingDataReader(
+            dataName,
+            new DragForce(mesh_, nameDragForce_));
+        DEBUG(adapterInfo("Added reader: DragForce."));
+    }
+    else if (dataName.find("ExplicitMomentum") == 0)
+    {
+        interface->addCouplingDataReader(
+            dataName,
+            new ExplicitMomentum(mesh_, nameExplicitMomentum_));
+        DEBUG(adapterInfo("Added reader: ExplicitMomentum."));
+    }
+    else if (dataName.find("ImplicitMomentum") == 0)
+    {
+        interface->addCouplingDataReader(
+            dataName,
+            new ImplicitMomentum(mesh_, nameImplicitMomentum_));
+        DEBUG(adapterInfo("Added reader: ImplicitMomentum."));
     }
     else
     {

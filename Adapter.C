@@ -680,7 +680,6 @@ void preciceAdapter::Adapter::adjustSolverTimeStepAndReadData()
     // Read the received coupling data from the buffer
     // Fits to an implicit Euler
     readCouplingData(runTime_.deltaT().value());
-
     return;
 }
 

@@ -1,9 +1,13 @@
 // Central inlude file to reduce the number of build targets and build time
 #include "FF.C"
 #include "Velocity.C"
+#include "DragForce.C"
+#include "ExplicitMomentum.C"
+#include "ImplicitMomentum.C"
 #include "VelocityGradient.C"
 #include "Pressure.C"
 #include "PressureGradient.C"
+#include "PressureGradientFull.C"
 #include "Temperature.C"
 #include "TemperatureGradient.C"
 #include "Alpha.C"
