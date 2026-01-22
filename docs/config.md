@@ -252,6 +252,33 @@ The FF module is still experimental and the boundary conditions presented here h
 
 When coupling face flux `Phi`, usually no specific boundary condition needs to be set. The coupled boundary values are therefore not persistent and may change within a timestep.
 
+## GENERIC module
+
+The GENERIC module is an experimental addition, which would theoretically allow for any field to be coupled by its name. Currently, volume coupling of scalar and vector fields is supported, for example, Velocity and Pressure. Surface coupling is subject to boundary conditions, which is still a work-in-progress.
+
+As of OpenFOAM-adapter version 1.3.1, the old schema for readData and writeData is still used in `system/preciceDict`. This means that the coupled fields are specified by a single keyword, where the keywords are mapped to their OpenFOAM objects explicitly in the adapter, e.g., `Velocity` -> `U` or `Pressure` -> `p`. This is like a translation table between preCICE and OpenFOAM. In the future, changes to the schema will allow for the coupling data name and the solver name, i.e., the name as it appears in the solver, to be specified separately. In the meanwhile, to use the GENERIC module, it's required to use one keyword for both. For example, to use the GENERIC module in the channel-transport tutorial case, the coupling data has to be renamed from `Velocity` to `U` (case-sensitive) in `precice-config.xml`, `fluid-openfoam/system/preciceDict` and the other participant `transport-nutils/transport.py`.
+
+```cpp
+// File system/preciceDict
+
+modules (GENERIC);
+
+interfaces
+{
+  Interface1
+  {
+    mesh              Fluid-Mesh;
+    patches           ();
+    locations         volumeCenters;
+
+    writeData
+    (
+        U
+    );
+  };
+};
+```
+
 ### Volume coupling
 
 Besides surface coupling on the domain boundaries, the OpenFOAM adapter also supports coupling overlapping domains, which can be the complete domain, or regions of it. In contrast to surface coupling, though, reading volume data (source terms) requires a few additional configuration steps compared to writing data.
