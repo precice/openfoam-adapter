@@ -143,20 +143,19 @@ bool preciceAdapter::Adapter::configFileRead()
                     }
 
                     DEBUG(adapterInfo("    writeData    : "));
-                    // Get writeData as a dictionary
-                    const dictionary& writeDataDict = interfaceDict.subDict("writeData");
-                    for (const entry& writeDatumEntry : writeDataDict)
+                    const wordList& writeDataDict = interfaceDict.get<wordList>("writeData");
+                    for (const word& writeDatumEntry : writeDataDict)
                     {
-                        word writeDatum = writeDatumEntry.keyword();
+                        word writeDatum = writeDatumEntry;
                         interfaceConfig.writeData.push_back(writeDatum);
                         DEBUG(adapterInfo("      - " + writeDatum));
                     }
 
                     DEBUG(adapterInfo("    readData     : "));
-                    const dictionary& readDataDict = interfaceDict.subDict("readData");
-                    for (const entry& readDatumEntry : readDataDict)
+                    const wordList& readDataDict = interfaceDict.get<wordList>("readData");
+                    for (const word& readDatumEntry : readDataDict)
                     {
-                        word readDatum = readDatumEntry.keyword();
+                        word readDatum = readDatumEntry;
                         interfaceConfig.readData.push_back(readDatum);
                         DEBUG(adapterInfo("      - " + readDatum));
                     }

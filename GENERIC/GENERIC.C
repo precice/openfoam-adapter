@@ -39,45 +39,79 @@ bool preciceAdapter::GENERIC::GenericInterface::readConfig(const IOdictionary& a
             const dictionary& interfaceDict = interfaceDictEntry.dict();
 
             DEBUG(adapterInfo("    writeData    : "));
-            // Get writeData as a dictionary
-            const dictionary& writeDataDict = interfaceDict.subDict("writeData");
-            for (const entry& writeDatumEntry : writeDataDict)
+            const wordList& writeDataDict = interfaceDict.get<wordList>("writeData");
+
+            for (const word& writeDatumEntry : writeDataDict)
             {
+                word dataName = writeDatumEntry;
 
-                const dictionary& writeDatumDict = writeDatumEntry.dict();
-                word dataName = writeDatumEntry.keyword();
-
+                // Assume dataName is same as solver_name, see code for new schema below
                 struct fieldConfig fieldConfig;
                 fieldConfig.name = dataName;
-                fieldConfig.solver_name = writeDatumDict.lookupOrDefault<word>("solver_name", dataName); // default solver_name is the same
-                fieldConfig.operation = writeDatumDict.lookupOrDefault<word>("operation", "value");      // default operation is "value"
+                fieldConfig.solver_name = dataName;
+                fieldConfig.operation = "value";
 
                 interfaceConfig.writeData.push_back(fieldConfig);
-
-                DEBUG(adapterInfo("      - " + dataName));
-                DEBUG(adapterInfo("        solver_name: " + fieldConfig.solver_name));
-                DEBUG(adapterInfo("        operation  : " + fieldConfig.operation));
+                DEBUG(adapterInfo("      - " + fieldConfig.name));
             }
 
             DEBUG(adapterInfo("    readData     : "));
-            const dictionary& readDataDict = interfaceDict.subDict("readData");
-            for (const entry& readDatumEntry : readDataDict)
+            const wordList& readDataDict = interfaceDict.get<wordList>("readData");
+            for (const word& readDatumEntry : readDataDict)
             {
-                const dictionary& readDatumDict = readDatumEntry.dict();
-                word dataName = readDatumEntry.keyword();
+                word dataName = readDatumEntry;
 
                 struct fieldConfig fieldConfig;
                 fieldConfig.name = dataName;
-                fieldConfig.solver_name = readDatumDict.lookupOrDefault<word>("solver_name", dataName); // default solver_name is the same
-                fieldConfig.operation = readDatumDict.lookupOrDefault<word>("operation", "value");      // default operation is "value"
+                fieldConfig.solver_name = dataName;
+                fieldConfig.operation = "value";
 
                 interfaceConfig.readData.push_back(fieldConfig);
-
-                DEBUG(adapterInfo("      - " + dataName));
-                DEBUG(adapterInfo("        solver_name: " + fieldConfig.solver_name));
-                DEBUG(adapterInfo("        operation  : " + fieldConfig.operation));
+                DEBUG(adapterInfo("      - " + fieldConfig.name));
             }
             interfacesConfig_.push_back(interfaceConfig);
+
+            // CODE FOR UPDATED SCHEMA
+            // All entries are dicts instead of keywords,
+            // with each dict containing solver_name and operation
+
+            // for (const entry& writeDatumEntry : writeDataDict)
+            // {
+
+            //     const dictionary& writeDatumDict = writeDatumEntry.dict();
+            //     word dataName = writeDatumEntry.keyword();
+
+            //     struct fieldConfig fieldConfig;
+            //     fieldConfig.name = dataName;
+            //     fieldConfig.solver_name = writeDatumDict.lookupOrDefault<word>("solver_name", dataName); // default solver_name is the same
+            //     fieldConfig.operation = writeDatumDict.lookupOrDefault<word>("operation", "value");      // default operation is "value" alternatively "gradient" or "normalGradient"
+
+            //     interfaceConfig.writeData.push_back(fieldConfig);
+
+            //     DEBUG(adapterInfo("      - " + dataName));
+            //     DEBUG(adapterInfo("        solver_name: " + fieldConfig.solver_name));
+            //     DEBUG(adapterInfo("        operation  : " + fieldConfig.operation));
+            // }
+
+            // DEBUG(adapterInfo("    readData     : "));
+            // const dictionary& readDataDict = interfaceDict.subDict("readData");
+            // for (const entry& readDatumEntry : readDataDict)
+            // {
+            //     const dictionary& readDatumDict = readDatumEntry.dict();
+            //     word dataName = readDatumEntry.keyword();
+
+            //     struct fieldConfig fieldConfig;
+            //     fieldConfig.name = dataName;
+            //     fieldConfig.solver_name = readDatumDict.lookupOrDefault<word>("solver_name", dataName); // default solver_name is the same
+            //     fieldConfig.operation = readDatumDict.lookupOrDefault<word>("operation", "value");      // default operation is "value", alternatively "gradient" or "normalGradient"
+
+            //     interfaceConfig.readData.push_back(fieldConfig);
+
+            //     DEBUG(adapterInfo("      - " + dataName));
+            //     DEBUG(adapterInfo("        solver_name: " + fieldConfig.solver_name));
+            //     DEBUG(adapterInfo("        operation  : " + fieldConfig.operation));
+            // }
+            // interfacesConfig_.push_back(interfaceConfig);
         }
     }
 
