@@ -7,9 +7,9 @@
 
 using namespace Foam;
 
-//----- preciceAdapter::MODULE::scalarFieldCoupler -----------------------------------------
+//----- preciceAdapter::GENERIC::scalarFieldCoupler -----------------------------------------
 
-preciceAdapter::MODULE::ScalarFieldCoupler::ScalarFieldCoupler(
+preciceAdapter::GENERIC::ScalarFieldCoupler::ScalarFieldCoupler(
     const Foam::fvMesh& mesh,
     const struct fieldConfig& fieldConfig)
 : scalarField_(
@@ -23,7 +23,7 @@ preciceAdapter::MODULE::ScalarFieldCoupler::ScalarFieldCoupler(
 
 // only surface field coupling ATM (boundaries)
 
-std::size_t preciceAdapter::MODULE::ScalarFieldCoupler::write(double* buffer, bool meshConnectivity, const unsigned int dim)
+std::size_t preciceAdapter::GENERIC::ScalarFieldCoupler::write(double* buffer, bool meshConnectivity, const unsigned int dim)
 {
     // TODO meshconnectivity
 
@@ -89,7 +89,7 @@ std::size_t preciceAdapter::MODULE::ScalarFieldCoupler::write(double* buffer, bo
     return bufferIndex;
 }
 
-void preciceAdapter::MODULE::ScalarFieldCoupler::read(double* buffer, const unsigned int dim)
+void preciceAdapter::GENERIC::ScalarFieldCoupler::read(double* buffer, const unsigned int dim)
 {
     int bufferIndex = 0;
 
@@ -157,7 +157,7 @@ void preciceAdapter::MODULE::ScalarFieldCoupler::read(double* buffer, const unsi
     }
 }
 
-bool preciceAdapter::MODULE::ScalarFieldCoupler::isLocationTypeSupported(const bool meshConnectivity) const
+bool preciceAdapter::GENERIC::ScalarFieldCoupler::isLocationTypeSupported(const bool meshConnectivity) const
 {
     // TODO
 
@@ -176,14 +176,14 @@ bool preciceAdapter::MODULE::ScalarFieldCoupler::isLocationTypeSupported(const b
     }
 }
 
-std::string preciceAdapter::MODULE::ScalarFieldCoupler::getDataName() const
+std::string preciceAdapter::GENERIC::ScalarFieldCoupler::getDataName() const
 {
     return fieldConfig_.name;
 }
 
-//----- preciceAdapter::MODULE::VectorFieldCoupler -----------------------------------------
+//----- preciceAdapter::GENERIC::VectorFieldCoupler -----------------------------------------
 
-preciceAdapter::MODULE::VectorFieldCoupler::VectorFieldCoupler(
+preciceAdapter::GENERIC::VectorFieldCoupler::VectorFieldCoupler(
     const Foam::fvMesh& mesh,
     const struct fieldConfig& fieldConfig)
 : vectorField_(
@@ -195,7 +195,7 @@ preciceAdapter::MODULE::VectorFieldCoupler::VectorFieldCoupler(
     dataType_ = vector;
 }
 
-std::size_t preciceAdapter::MODULE::VectorFieldCoupler::write(double* buffer, bool meshConnectivity, const unsigned int dim)
+std::size_t preciceAdapter::GENERIC::VectorFieldCoupler::write(double* buffer, bool meshConnectivity, const unsigned int dim)
 {
     int bufferIndex = 0;
 
@@ -266,7 +266,7 @@ std::size_t preciceAdapter::MODULE::VectorFieldCoupler::write(double* buffer, bo
     return bufferIndex;
 }
 
-void preciceAdapter::MODULE::VectorFieldCoupler::read(double* buffer, const unsigned int dim)
+void preciceAdapter::GENERIC::VectorFieldCoupler::read(double* buffer, const unsigned int dim)
 {
     int bufferIndex = 0;
 
@@ -337,7 +337,7 @@ void preciceAdapter::MODULE::VectorFieldCoupler::read(double* buffer, const unsi
     }
 }
 
-bool preciceAdapter::MODULE::VectorFieldCoupler::isLocationTypeSupported(const bool meshConnectivity) const
+bool preciceAdapter::GENERIC::VectorFieldCoupler::isLocationTypeSupported(const bool meshConnectivity) const
 {
     // TODO
     if (meshConnectivity)
@@ -351,7 +351,7 @@ bool preciceAdapter::MODULE::VectorFieldCoupler::isLocationTypeSupported(const b
     }
 }
 
-std::string preciceAdapter::MODULE::VectorFieldCoupler::getDataName() const
+std::string preciceAdapter::GENERIC::VectorFieldCoupler::getDataName() const
 {
     return fieldConfig_.name;
 }

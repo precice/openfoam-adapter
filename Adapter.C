@@ -68,9 +68,9 @@ bool preciceAdapter::Adapter::configFileRead()
                 FFenabled_ = true;
             }
 
-            if (module == "GENERAL")
+            if (module == "GENERIC")
             {
-                generalModuleEnabled_ = true;
+                genericModuleEnabled_ = true;
             }
         }
 
@@ -167,10 +167,10 @@ bool preciceAdapter::Adapter::configFileRead()
 
         // NOTE: set the switch for your new module here
 
-        if (generalModuleEnabled_)
+        if (genericModuleEnabled_)
         {
-            MODULE_ = new MODULE::GeneralInterface(mesh_);
-            if (!MODULE_->configure(preciceDict))
+            GENERIC_ = new GENERIC::GenericInterface(mesh_);
+            if (!GENERIC_->configure(preciceDict))
             {
                 return false;
             }
@@ -223,7 +223,7 @@ bool preciceAdapter::Adapter::configFileRead()
 
         // NOTE: Create your module and read any options specific to it here
 
-        if (!CHTenabled_ && !FSIenabled_ && !FFenabled_ && !generalModuleEnabled_) // NOTE: Add your new switch here
+        if (!CHTenabled_ && !FSIenabled_ && !FFenabled_ && !genericModuleEnabled_) // NOTE: Add your new switch here
         {
             adapterInfo("No module is enabled.", "error-deferred");
             return false;
@@ -315,7 +315,7 @@ void preciceAdapter::Adapter::configure()
                 // Add FF-related coupling data writers
                 if (FFenabled_ && FF_->addWriters(dataName, interface)) inModules++;
 
-                if (generalModuleEnabled_ && MODULE_->addWriters(dataName, interface)) inModules++;
+                if (genericModuleEnabled_ && GENERIC_->addWriters(dataName, interface)) inModules++;
 
                 if (inModules == 0)
                 {
@@ -349,7 +349,7 @@ void preciceAdapter::Adapter::configure()
                 // Add FF-related coupling data readers
                 if (FFenabled_ && FF_->addReaders(dataName, interface)) inModules++;
 
-                if (generalModuleEnabled_ && MODULE_->addReaders(dataName, interface)) inModules++;
+                if (genericModuleEnabled_ && GENERIC_->addReaders(dataName, interface)) inModules++;
 
                 if (inModules == 0)
                 {
@@ -1651,11 +1651,12 @@ void preciceAdapter::Adapter::teardown()
         FF_ = NULL;
     }
 
-    if (NULL != MODULE_)
+    // Delete the GENERIC module
+    if (NULL != GENERIC_)
     {
         DEBUG(adapterInfo("Destroying the general module..."));
-        delete MODULE_;
-        MODULE_ = NULL;
+        delete GENERIC_;
+        GENERIC_ = NULL;
     }
 
     // NOTE: Delete your new module here

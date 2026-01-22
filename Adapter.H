@@ -12,7 +12,7 @@
 // Fluid-Fluid module
 #include "FF/FF.H"
 
-#include "GENERAL/MODULE.H"
+#include "GENERIC/GENERIC.H"
 
 // NOTE: If you want to couple a new variable, include your module's header here.
 // You also need to include it in the Make/files file.
@@ -105,7 +105,7 @@ private:
     // NOTE: Add a switch for your new module here
 
     //- Switch to enable General module
-    bool generalModuleEnabled_ = false;
+    bool genericModuleEnabled_ = false;
 
     //- Interfaces
     std::vector<Interface*> interfaces_;
@@ -127,7 +127,7 @@ private:
 
     // NOTE: Add here a pointer for your new module object
 
-    MODULE::GeneralInterface* MODULE_ = NULL;
+    GENERIC::GenericInterface* GENERIC_ = NULL;
 
     // Timesteps
 
