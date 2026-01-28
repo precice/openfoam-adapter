@@ -137,6 +137,10 @@ For fluid-structure interaction, coupled quantities can be:
 You will run into problems when you use `Displacement(Delta)` as write data set and execute RBF mappings in parallel. This would affect users who use OpenFOAM and the adapter as the Solid participant in order to compute solid mechanics with OpenFOAM (currently not officially supported at all). Have a look [at this issue on GitHub](https://github.com/precice/openfoam-adapter/issues/153) for details.
 {% endwarning %}
 
+{% tip %}
+The `writeData` and `readData` names are case-insensitive since v1.4.0. This means that both `DISPLACEMENTS` and `Displacements` are valid, for example.
+{% endtip %}
+
 ## Configuration of the OpenFOAM case
 
 A few changes are required in the configuration of an OpenFOAM case, in order to specify the interfaces and load the adapter. For some solvers, additional parameters may be needed (see "advanced configuration").
