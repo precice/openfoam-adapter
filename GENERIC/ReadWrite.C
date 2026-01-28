@@ -3,7 +3,8 @@
 #include "fvCFD.H"
 
 #include "fixedValueFvPatchFields.H"
-#include "mixedFvPatchFields.H"
+#include "fixedGradientFvPatchFields.H"
+// #include "mixedFvPatchFields.H"
 
 using namespace Foam;
 
@@ -21,12 +22,10 @@ preciceAdapter::GENERIC::ScalarFieldCoupler::ScalarFieldCoupler(
     dataType_ = scalar;
 }
 
-// only surface field coupling ATM (boundaries)
 
+// In the GENERIC module, only the value operation is supported for now, i.e., cannot write gradients.
 std::size_t preciceAdapter::GENERIC::ScalarFieldCoupler::write(double* buffer, bool meshConnectivity, const unsigned int dim)
 {
-    // TODO meshconnectivity
-
     int bufferIndex = 0;
 
     if (this->locationType_ == LocationType::volumeCenters)
@@ -59,31 +58,31 @@ std::size_t preciceAdapter::GENERIC::ScalarFieldCoupler::write(double* buffer, b
     {
         int patchID = patchIDs_.at(j);
 
-        if (fieldConfig_.operation == "value")
-        {
-            const auto& boundaryPatch(scalarField_->boundaryField()[patchID]);
+        const auto& boundaryPatch(scalarField_->boundaryField()[patchID]);
 
+        //If we use the mesh connectivity, we interpolate from the centres to the nodes
+        if (meshConnectivity)
+        {
+            //Create an Interpolation object at the boundary Field
+            primitivePatchInterpolation patchInterpolator(mesh_.boundaryMesh()[patchID]);
+
+            //Interpolate from centers to nodes
+            scalarField pointValues(
+                patchInterpolator.faceToPointInterpolate(boundaryPatch));
+
+            forAll(pointValues, i)
+            {
+                // Copy the scalar value into the buffer
+                buffer[bufferIndex++] = pointValues[i];
+            }
+        }
+        else
+        {
             // For every cell of the patch
             forAll(boundaryPatch, i)
             {
                 buffer[bufferIndex++] = boundaryPatch[i];
             }
-        }
-        else if (fieldConfig_.operation == "gradient")
-        {
-            // for heat flux need to get value from boundary condition
-
-            const scalarField gradientPatch((scalarField_->boundaryField()[patchID]).snGrad());
-
-            // For every cell of the patch
-            forAll(gradientPatch, i)
-            {
-                buffer[bufferIndex++] = -gradientPatch[i];
-            }
-        }
-        else // TODO : raise error?
-        {
-            adapterInfo("Unsupported operation " + fieldConfig_.operation);
         }
     }
     return bufferIndex;
@@ -135,15 +134,10 @@ void preciceAdapter::GENERIC::ScalarFieldCoupler::read(double* buffer, const uns
         }
         else if (isA<fixedGradientFvPatchScalarField>(bc))
         {
-            // do nothing, this is handled in heat flux
-            // auto& boundaryPatch = bc;
-        }
-        else if (isA<mixedFvPatchScalarField>(bc))
-        {
-            auto& boundaryPatch = refCast<mixedFvPatchScalarField>(bc).refValue();
+            auto& boundaryPatch = refCast<fixedGradientFvPatchScalarField>(bc);
             forAll(boundaryPatch, i)
             {
-                boundaryPatch[i] = buffer[bufferIndex++];
+                boundaryPatch.gradient()[i] = buffer[bufferIndex++];
             }
         }
         else
@@ -195,6 +189,7 @@ preciceAdapter::GENERIC::VectorFieldCoupler::VectorFieldCoupler(
     dataType_ = vector;
 }
 
+// In the GENERIC module, only the value operation is supported for now, i.e., cannot write gradients.
 std::size_t preciceAdapter::GENERIC::VectorFieldCoupler::write(double* buffer, bool meshConnectivity, const unsigned int dim)
 {
     int bufferIndex = 0;
@@ -250,16 +245,40 @@ std::size_t preciceAdapter::GENERIC::VectorFieldCoupler::write(double* buffer, b
 
         // Get the vector field boundary patch
         auto& boundaryPatch = vectorField_->boundaryField()[patchID];
-        // For every cell of the patch
-        forAll(boundaryPatch, i)
+
+        if (meshConnectivity)
         {
-            buffer[bufferIndex++] = boundaryPatch[i].x();
+            //Create an Interpolation object at the boundary Field
+            primitivePatchInterpolation patchInterpolator(mesh_.boundaryMesh()[patchID]);
 
-            buffer[bufferIndex++] = boundaryPatch[i].y();
+            //Interpolate from centers to nodes
+            vectorField pointValues(
+                patchInterpolator.faceToPointInterpolate(boundaryPatch));
 
-            if (dim == 3)
+            forAll(pointValues, i)
             {
-                buffer[bufferIndex++] = boundaryPatch[i].z();
+                buffer[bufferIndex++] = pointValues[i].x();
+                buffer[bufferIndex++] = pointValues[i].y();
+
+                if (dim == 3)
+                {
+                    buffer[bufferIndex++] = pointValues[i].z();
+                }
+            }
+        }
+        else
+        {
+            // For every cell of the patch
+            forAll(boundaryPatch, i)
+            {
+                buffer[bufferIndex++] = boundaryPatch[i].x();
+
+                buffer[bufferIndex++] = boundaryPatch[i].y();
+
+                if (dim == 3)
+                {
+                    buffer[bufferIndex++] = boundaryPatch[i].z();
+                }
             }
         }
     }
@@ -319,20 +338,39 @@ void preciceAdapter::GENERIC::VectorFieldCoupler::read(double* buffer, const uns
     {
         int patchID = patchIDs_.at(j);
 
-        // Get the vector field boundary patch
-        auto& boundaryPatch = vectorField_->boundaryFieldRef()[patchID];
+        auto& bc = vectorField_->boundaryFieldRef()[patchID];
 
-        // For every cell of the patch
-        forAll(boundaryPatch, i)
+        if (isA<fixedValueFvPatchVectorField>(bc))
         {
-            boundaryPatch[i].x() = buffer[bufferIndex++];
-
-            boundaryPatch[i].y() = buffer[bufferIndex++];
-
-            if (dim == 3)
+            auto& boundaryPatch = refCast<fixedValueFvPatchVectorField>(bc);
+            forAll(boundaryPatch, i)
             {
-                boundaryPatch[i].z() = buffer[bufferIndex++];
+                boundaryPatch[i].x() = buffer[bufferIndex++];
+                boundaryPatch[i].y() = buffer[bufferIndex++];
+
+                if (dim == 3)
+                {
+                    boundaryPatch[i].z() = buffer[bufferIndex++];
+                }
             }
+        }
+        else if (isA<fixedGradientFvPatchVectorField>(bc))
+        {
+            auto& boundaryPatch = refCast<fixedGradientFvPatchVectorField>(bc);
+            forAll(boundaryPatch, i)
+            {
+                boundaryPatch.gradient()[i].x() = buffer[bufferIndex++];
+                boundaryPatch.gradient()[i].y() = buffer[bufferIndex++];
+
+                if (dim == 3)
+                {
+                    boundaryPatch.gradient()[i].z() = buffer[bufferIndex++];
+                }
+            }
+        }
+        else
+        {
+            FatalErrorInFunction << "Unsupported boundary condition type " << bc.type() << exit(FatalError);
         }
     }
 }
