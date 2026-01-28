@@ -1,4 +1,5 @@
 #include "Utilities.H"
+#include <cctype>
 
 using namespace Foam;
 
@@ -63,4 +64,11 @@ void adapterInfo(const std::string message, const std::string level)
     }
 
     return;
+}
+
+bool similar(std::string s, std::string with)
+{
+    std::transform(s.begin(), s.end(), s.begin(), [](unsigned char c) { return std::tolower(c); });
+    std::transform(with.begin(), with.end(), with.begin(), [](unsigned char c) { return std::tolower(c); });
+    return s.find(with) == 0;
 }
