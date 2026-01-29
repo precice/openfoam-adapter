@@ -37,6 +37,9 @@ In addition, the adapter supports the following fields in a volume coupling setu
 - Pressure (write)
 - Velocity (read + write)
 
+Some fields might only be supported by specific solver types (e.g., fluid or solid).
+For example, writing forces is supported for fluid solvers, but not for solid solvers.
+
 All features of preCICE are supported, including implicit coupling and nearest-projection mapping. Even though OpenFOAM is 3D, this adapter can also work in the 2D mode of preCICE, defining only one layer of interface nodes (automatically).
 
 ## Try
