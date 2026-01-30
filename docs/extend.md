@@ -28,3 +28,69 @@ section of the `Make/options`. Since the adapter is a shared library,
 another missing library will trigger an "undefined symbol" runtime error.
 
 See also the notes and discussion in [issue #7: Create a module for fluid-structure interaction](https://github.com/precice/openfoam-adapter/issues/7).
+
+## Implicit Coupling Diagram
+
+In implicit coupling, the adapter manages the coupling loop, which entails checkpointing the simulation state (fields and mesh), to restore the initial state at the beginning of each coupling time step. As the coupling data is exchanged, the adapter repeats the time step until convergence. See this diagram for an overview:
+
+![Implicit checkpointing diagram](images/docs-adapter-openfoam-implicit-loop.png)
+
+## Checkpointing
+
+In implicit coupling, the adapter needs to store and reload the state of the simulation to repeat time steps. For reference, here is a list of known checkpointed and non-checkpointed fields in the OpenFOAM adapter.
+
+### Checkpointed Fields
+
+The adapter automatically finds and checkpoints all objects registered in the OpenFOAM object registry (`mesh_.thisDb()`) that match the following types:
+
+#### Volume Fields
+
+- `volScalarField`: e.g., `p`, `T`, `k`, `omega`, `nut`, `nu`, `rho`
+- `volVectorField`: e.g., `U`, `Force`, `cellDisplacement`
+- `volTensorField`: e.g., `grad(U)` (if exists, relevant closed issue [#158](docs-adapter-implicit-loop))
+- `volSymmTensorField`: e.g., `R` (Reynolds stress)
+
+#### Surface Fields
+
+- `surfaceScalarField`: e.g., `phi` (flux), `faceDiffusivity`
+- `surfaceVectorField`: e.g., `Uf`
+- `surfaceTensorField`
+
+#### Point Fields
+
+- `pointScalarField`
+- `pointVectorField`: e.g., `pointDisplacement`
+- `pointTensorField`
+
+The adapter will only create the checkpoint list once during initialization. I.e., after the first solver step it is assumed that no new fields have been created that need to be checkpointed.
+
+#### Mesh Data
+
+To handle mesh motion (ALE), the adapter explicitly checkpoints:
+
+- Mesh Points `mesh_.points()` and `mesh_.oldPoints()`
+- Mesh Motion Flux `mesh_.phi()`
+
+### Non-Checkpointed Fields
+
+Certain fields are purposely not checkpointed, see issue [#324](https://github.com/precice/openfoam-adapter/issues/324) and explanation in [PR #387](https://github.com/precice/openfoam-adapter/pull/387). This is either because they are re-calculated when needed "on-demand" or because they are essentially static (dictionaries assumed unchanging).
+
+The following fields are recalculated by OpenFOAM when `fvMesh::movePoints` is called, so the adapter does not store them:
+
+- `C` (Cell Centers)
+- `Cf` (Face Centers)
+- `Sf` (Face Area Vectors)
+- `magSf` (Face Area Magnitudes)
+- `delta` (Face-Center to Cell-Center distances)
+- `V`, `V0`, `V00` (Cell Volumes): These are already properly checkpointed by OpenFOAM itself, except when subcycling (future pull request [#369](https://github.com/precice/openfoam-adapter/pull/369)).
+
+#### Dictionaries
+
+The adapter does not checkpoint `IOdictionary` objects, assuming they are unchanged over the time windows or handled by OpenFOAM otherwise. Examples:
+
+- `controlDict`
+- `transportProperties`
+- `turbulenceProperties`
+- `fvSchemes`, `fvSolution`
+- `dynamicMeshDict`
+- `preciceDict`
