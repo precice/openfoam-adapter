@@ -62,7 +62,7 @@ The adapter automatically finds and checkpoints all objects registered in the Op
 - `pointVectorField`: e.g., `pointDisplacement`
 - `pointTensorField`
 
-The adapter will only create the checkpoint list once during initialization. I.e., after the first solver step it is assumed that no new fields have been created that need to be checkpointed.
+The adapter will only create the checkpoint list once during initialization: After the first solver step, it is assumed that no new fields have been created that need to be checkpointed.
 
 #### Mesh Data
 
