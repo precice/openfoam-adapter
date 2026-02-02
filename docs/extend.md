@@ -31,9 +31,15 @@ See also the notes and discussion in [issue #7: Create a module for fluid-struct
 
 ## Checkpointing
 
-In implicit coupling, the adapter manages the coupling loop, which entails checkpointing the simulation state (fields and mesh). The checkpoints are stored and reloaded to repeat implicit time steps. As the coupling data is exchanged, the adapter repeats the time step until convergence. See this diagram for an overview:
+In implicit coupling, the adapter manages the coupling loop, which entails checkpointing the simulation state (fields and mesh).
+The checkpoints are stored and reloaded to repeat implicit time steps.
+As the coupling data is exchanged, the adapter repeats the time step until convergence.
+See this diagram for an overview:
 
 ![Implicit checkpointing diagram](images/docs-adapter-openfoam-implicit-loop.png)
+
+While the adapter already takes care of checkpointing all of the usual field and mesh data, your solver or use specific scenario might need to checkpoint more objects.
+Start by looking at the `setupCheckpointing()` function in the [Adapter.C](https://github.com/precice/openfoam-adapter/blob/master/Adapter.C).
 
 ### Checkpointed fields
 
