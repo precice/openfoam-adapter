@@ -134,7 +134,7 @@ bool preciceAdapter::FSI::FluidStructureInteraction::addWriters(std::string data
 {
     bool found = true; // Set to false later, if needed.
 
-    if (similar(dataName, "Force"))
+    if (matchingStrings(dataName, "Force"))
     {
         interface->addCouplingDataWriter(
             dataName,
@@ -142,21 +142,21 @@ bool preciceAdapter::FSI::FluidStructureInteraction::addWriters(std::string data
         );
         DEBUG(adapterInfo("Added writer: Force."));
     }
-    else if (similar(dataName, "DisplacementDelta"))
+    else if (matchingStrings(dataName, "DisplacementDelta"))
     {
         interface->addCouplingDataWriter(
             dataName,
             new DisplacementDelta(mesh_, namePointDisplacement_, nameCellDisplacement_));
         DEBUG(adapterInfo("Added writer: DisplacementDelta."));
     }
-    else if (similar(dataName, "Displacement"))
+    else if (matchingStrings(dataName, "Displacement"))
     {
         interface->addCouplingDataWriter(
             dataName,
             new Displacement(mesh_, namePointDisplacement_, nameCellDisplacement_));
         DEBUG(adapterInfo("Added writer: Displacement."));
     }
-    else if (similar(dataName, "Stress"))
+    else if (matchingStrings(dataName, "Stress"))
     {
         interface->addCouplingDataWriter(
             dataName,
@@ -182,7 +182,7 @@ bool preciceAdapter::FSI::FluidStructureInteraction::addReaders(std::string data
 {
     bool found = true; // Set to false later, if needed.
 
-    if (similar(dataName, "Force"))
+    if (matchingStrings(dataName, "Force"))
     {
         interface->addCouplingDataReader(
             dataName,
@@ -190,21 +190,21 @@ bool preciceAdapter::FSI::FluidStructureInteraction::addReaders(std::string data
         );
         DEBUG(adapterInfo("Added reader: Force."));
     }
-    else if (similar(dataName, "DisplacementDelta"))
+    else if (matchingStrings(dataName, "DisplacementDelta"))
     {
         interface->addCouplingDataReader(
             dataName,
             new DisplacementDelta(mesh_, namePointDisplacement_, nameCellDisplacement_));
         DEBUG(adapterInfo("Added reader: DisplacementDelta."));
     }
-    else if (similar(dataName, "Displacement"))
+    else if (matchingStrings(dataName, "Displacement"))
     {
         interface->addCouplingDataReader(
             dataName,
             new Displacement(mesh_, namePointDisplacement_, nameCellDisplacement_));
         DEBUG(adapterInfo("Added reader: Displacement."));
     }
-    else if (similar(dataName, "Stress"))
+    else if (matchingStrings(dataName, "Stress"))
     {
         interface->addCouplingDataReader(
             dataName,

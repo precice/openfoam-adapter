@@ -41,7 +41,7 @@
 
 void adapterInfo(const std::string message, const std::string level = "debug");
 
-// Does a string start with a given prefix?
-bool similar(std::string s, std::string with);
+// Returns true if the match is found in the beginning of the string s, ignoring case
+bool matchingStrings(std::string s, std::string match);
 
 #endif

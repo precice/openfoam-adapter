@@ -122,21 +122,21 @@ bool preciceAdapter::CHT::ConjugateHeatTransfer::addWriters(std::string dataName
 {
     bool found = true; // Set to false later, if needed.
 
-    if (similar(dataName, "Sink-Temperature"))
+    if (matchingStrings(dataName, "Sink-Temperature"))
     {
         interface->addCouplingDataWriter(
             dataName,
             new SinkTemperature(mesh_, nameT_));
         DEBUG(adapterInfo("Added writer: Sink Temperature."));
     }
-    else if (similar(dataName, "Temperature"))
+    else if (matchingStrings(dataName, "Temperature"))
     {
         interface->addCouplingDataWriter(
             dataName,
             new Temperature(mesh_, nameT_));
         DEBUG(adapterInfo("Added writer: Temperature."));
     }
-    else if (similar(dataName, "Heat-Flux"))
+    else if (matchingStrings(dataName, "Heat-Flux"))
     {
         if (solverType_.compare("compressible") == 0)
         {
@@ -165,7 +165,7 @@ bool preciceAdapter::CHT::ConjugateHeatTransfer::addWriters(std::string dataName
                         "error");
         }
     }
-    else if (similar(dataName, "Heat-Transfer-Coefficient"))
+    else if (matchingStrings(dataName, "Heat-Transfer-Coefficient"))
     {
         if (solverType_.compare("compressible") == 0)
         {
@@ -212,21 +212,21 @@ bool preciceAdapter::CHT::ConjugateHeatTransfer::addReaders(std::string dataName
 {
     bool found = true; // Set to false later, if needed.
 
-    if (similar(dataName, "Sink-Temperature"))
+    if (matchingStrings(dataName, "Sink-Temperature"))
     {
         interface->addCouplingDataReader(
             dataName,
             new SinkTemperature(mesh_, nameT_));
         DEBUG(adapterInfo("Added reader: Sink Temperature."));
     }
-    else if (similar(dataName, "Temperature"))
+    else if (matchingStrings(dataName, "Temperature"))
     {
         interface->addCouplingDataReader(
             dataName,
             new Temperature(mesh_, nameT_));
         DEBUG(adapterInfo("Added reader: Temperature."));
     }
-    else if (similar(dataName, "Heat-Flux"))
+    else if (matchingStrings(dataName, "Heat-Flux"))
     {
         if (solverType_.compare("compressible") == 0)
         {
@@ -255,7 +255,7 @@ bool preciceAdapter::CHT::ConjugateHeatTransfer::addReaders(std::string dataName
                         "error");
         }
     }
-    else if (similar(dataName, "Heat-Transfer-Coefficient"))
+    else if (matchingStrings(dataName, "Heat-Transfer-Coefficient"))
     {
         if (solverType_.compare("compressible") == 0)
         {
