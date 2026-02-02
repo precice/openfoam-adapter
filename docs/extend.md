@@ -80,7 +80,7 @@ The following fields are recalculated by OpenFOAM when `fvMesh::movePoints` is c
 - `Sf` (Face Area Vectors)
 - `magSf` (Face Area Magnitudes)
 - `delta` (Face-Center to Cell-Center distances)
-- `V`, `V0`, `V00` (Cell Volumes): These are already properly checkpointed by OpenFOAM itself, except when subcycling (future pull request [#369](https://github.com/precice/openfoam-adapter/pull/369)).
+- `V`, `V0`, `V00` (Cell Volumes): These are already properly checkpointed by OpenFOAM itself, except when subcycling (needs further handling when subcycling - [related discussion](https://github.com/precice/openfoam-adapter/pull/369#issuecomment-3748773060)).
 
 #### Dictionaries
 
