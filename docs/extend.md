@@ -47,7 +47,7 @@ The adapter automatically finds and checkpoints all objects registered in the Op
 
 - `volScalarField`: e.g., `p`, `T`, `k`, `omega`, `nut`, `nu`, `rho`
 - `volVectorField`: e.g., `U`, `Force`, `cellDisplacement`
-- `volTensorField`: e.g., `grad(U)` (if exists, relevant closed issue [#158](docs-adapter-implicit-loop))
+- `volTensorField`: e.g., `grad(U)` (if exists, relevant closed issue [#158](https://github.com/precice/openfoam-adapter/issues/158))
 - `volSymmTensorField`: e.g., `R` (Reynolds stress)
 
 #### Surface Fields
