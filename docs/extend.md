@@ -75,6 +75,8 @@ To handle mesh motion (ALE), the adapter explicitly checkpoints:
 
 Certain fields are purposely not checkpointed, see issue [#324](https://github.com/precice/openfoam-adapter/issues/324) and explanation in [PR #387](https://github.com/precice/openfoam-adapter/pull/387). This is either because they are re-calculated when needed "on-demand" or because they are essentially static (dictionaries assumed unchanging).
 
+#### Derived fields
+
 The following fields are recalculated by OpenFOAM when `fvMesh::movePoints` is called, so the adapter does not store them:
 
 - `C` (Cell Centers)
