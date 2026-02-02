@@ -138,7 +138,8 @@ You will run into problems when you use `Displacement(Delta)` as write data set 
 {% endwarning %}
 
 {% tip %}
-The `writeData` and `readData` names are case-insensitive since v1.4.0. This means that both `DISPLACEMENTS` and `Displacements` are valid, for example.
+The `writeData` and `readData` names are case-insensitive since v1.4.0. This means that both `TEMPERATURE` and `Temperature` are valid, for example.
+Additionally, since earlier versions, only the beginning of the name needs to match: `Temperatures0` is valid and matched to the temperature reader/writer, for example.
 {% endtip %}
 
 ## Configuration of the OpenFOAM case
