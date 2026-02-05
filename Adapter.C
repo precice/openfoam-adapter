@@ -138,19 +138,15 @@ bool preciceAdapter::Adapter::configFileRead()
                         return false;
                     }
 
-                    DEBUG(adapterInfo("    writeData    : "));
-
-                    // Check if writeData is a dictionary or list
-                    ITstream& writeDataStream = interfaceDict.lookup("writeData");
-                    token firstToken = writeDataStream.peek();
-
-                    if (firstToken == token::BEGIN_BLOCK)
+                    if (interfaceDict.found("writeData"))
                     {
-                        const dictionary& writeDataDict = interfaceDict.subDict("writeData");
-                        for (const entry& writeDatumEntry : writeDataDict)
+                        DEBUG(adapterInfo("    writeData    : "));
+                        ITstream writeDataStream = interfaceDict.lookup("writeData");
+                        PtrList<entry> writeDataList(writeDataStream);
+                        for (const entry& writeDatumEntry : writeDataList)
                         {
                             const dictionary& writeDatumDict = writeDatumEntry.dict();
-                            word dataName = writeDatumEntry.keyword();
+                            word dataName = writeDatumDict.get<word>("name");
 
                             struct fieldConfig fieldConfig;
                             fieldConfig.name = dataName;
@@ -164,40 +160,16 @@ bool preciceAdapter::Adapter::configFileRead()
                             DEBUG(adapterInfo("        operation  : " + fieldConfig.operation));
                         }
                     }
-                    else if (firstToken == token::BEGIN_LIST)
+
+                    if (interfaceDict.found("readData"))
                     {
-
-                        wordList writeDataList = interfaceDict.get<wordList>("writeData");
-                        for (const auto& dataName : writeDataList)
-                        {
-                            struct fieldConfig fieldConfig;
-                            fieldConfig.name = dataName;
-                            fieldConfig.solver_name = dataName;
-                            fieldConfig.operation = "none";
-
-                            interfaceConfig.writeData.push_back(fieldConfig);
-
-                            DEBUG(adapterInfo("      - " + dataName));
-                        }
-                    }
-                    else
-                    {
-                        adapterInfo("writeData should be a dictionary or a list", "error");
-                    }
-
-                    DEBUG(adapterInfo("    readData     : "));
-
-                    // Check if readData is a dictionary or list
-                    ITstream& readDataStream = interfaceDict.lookup("readData");
-                    firstToken = readDataStream.peek();
-
-                    if (firstToken == token::BEGIN_BLOCK)
-                    {
-                        const dictionary& readDataDict = interfaceDict.subDict("readData");
-                        for (const entry& readDatumEntry : readDataDict)
+                        DEBUG(adapterInfo("    readData     : "));
+                        ITstream readDataStream = interfaceDict.lookup("readData");
+                        PtrList<entry> readDataList(readDataStream);
+                        for (const entry& readDatumEntry : readDataList)
                         {
                             const dictionary& readDatumDict = readDatumEntry.dict();
-                            word dataName = readDatumEntry.keyword();
+                            word dataName = readDatumDict.get<word>("name");
 
                             struct fieldConfig fieldConfig;
                             fieldConfig.name = dataName;
@@ -210,31 +182,9 @@ bool preciceAdapter::Adapter::configFileRead()
                             DEBUG(adapterInfo("        solver_name: " + fieldConfig.solver_name));
                             DEBUG(adapterInfo("        operation  : " + fieldConfig.operation));
                         }
-
-                        interfacesConfig_.push_back(interfaceConfig);
                     }
-                    else if (firstToken == token::BEGIN_LIST)
-                    {
 
-                        wordList readDataList = interfaceDict.get<wordList>("readData");
-                        for (const auto& dataName : readDataList)
-                        {
-                            struct fieldConfig fieldConfig;
-                            fieldConfig.name = dataName;
-                            fieldConfig.solver_name = dataName;
-                            fieldConfig.operation = "none";
-
-                            interfaceConfig.readData.push_back(fieldConfig);
-
-                            DEBUG(adapterInfo("      - " + dataName));
-                        }
-
-                        interfacesConfig_.push_back(interfaceConfig);
-                    }
-                    else
-                    {
-                        adapterInfo("readData should be a dictionary or a list", "error");
-                    }
+                    interfacesConfig_.push_back(interfaceConfig);
                 }
             }
         }
