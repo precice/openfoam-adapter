@@ -4,13 +4,13 @@ on:
     inputs:
       virtualEnvironment:
         description: 'Virtual Environment'
-        default: 'ubuntu-18.04'
+        default: 'ubuntu-22.04'
         required: true
         type: choice
         options:
+          - ubuntu-24.04
           - ubuntu-22.04
           - ubuntu-20.04
-          - ubuntu-18.04
       refAdapter:
         description: 'Ref (branch/tag/commit) of the OpenFOAM adapter to build'
         default: 'develop'
@@ -35,11 +35,9 @@ on:
           - 9
           - 8
           - 7
-          - 6
-          - 5
       versionpreCICE:
         description: 'Version of preCICE to build with'
-        default: 'v3.0.0'
+        default: 'v3.2.0'
         required: true
       runTutorialHeatedPlate:
         description: Run tutorial flow-over-heated-plate
@@ -123,6 +121,7 @@ jobs:
           ./run.sh | tee fluid-openfoam.log 2>&1 &
           PIDfluid=$!
           cd ../solid-cpp
+          apt-get update && apt-get -y install cmake
           cmake . && make && ./run.sh | tee solid-cpp.log 2>&1
           wait $PIDfluid
         fi

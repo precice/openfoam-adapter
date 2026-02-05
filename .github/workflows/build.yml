@@ -20,7 +20,7 @@ on:
       - 'README.md'
 jobs:
   build:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     container: precice/precice:nightly
     steps:
     - name: Check out repository
