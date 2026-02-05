@@ -16,6 +16,59 @@ preciceAdapter::Adapter::Adapter(const Time& runTime, const fvMesh& mesh)
     return;
 }
 
+void preciceAdapter::Adapter::readFieldConfigs(const std::string& listName, Foam::ITstream& stream, std::vector<fieldConfig>& configs)
+{
+    if (stream.peek() == token::BEGIN_LIST)
+    {
+        token _t;
+        stream >> _t; // First token is '(', which we throw away
+
+        // Read stream until end of list
+        while (stream.peek() != token::END_LIST && !stream.eof())
+        {
+            // Next token is always a word (the data name)
+            word dataName;
+            stream >> dataName;
+
+            struct fieldConfig fieldConfig;
+
+            // If next token is '{', we have a dictionary (new schema).
+            // We create a dictionary from the stream `dictionary dict(stream);`
+            // The dictionary must contain the 'name'.
+            // If 'solver_name' is not specified, it defaults to 'name'.
+            // 'operation' defaults to "value".
+            // Note: Currently, the modules FF, CHT, and FSI do not use solver_name/operation.
+            if (stream.peek() == token::BEGIN_BLOCK)
+            {
+                dictionary dict(stream);
+                fieldConfig.name = dict.get<word>("name"); // The 'name' entry is mandatory.
+                fieldConfig.solver_name = dict.lookupOrDefault<word>("solver_name", fieldConfig.name);
+                fieldConfig.operation = dict.lookupOrDefault<word>("operation", "value");
+            }
+            // Else, we have a simple word entry (legacy schema/backwards compatibility).
+            // The 'solver_name' defaults to 'name' and 'operation' to "value".
+            // Note: Currently, the modules FF, CHT, and FSI do not use solver_name/operation.
+            else
+            {
+                fieldConfig.name = dataName;
+                fieldConfig.solver_name = fieldConfig.name;
+                fieldConfig.operation = "value";
+            }
+
+            configs.push_back(fieldConfig);
+
+            DEBUG(adapterInfo("      - " + dataName));
+            DEBUG(adapterInfo("        solver_name: " + fieldConfig.solver_name));
+            DEBUG(adapterInfo("        operation  : " + fieldConfig.operation));
+        }
+        stream >> _t; // Last token ')'
+    }
+    else
+    {
+        adapterInfo(listName + " must be a list", "error");
+    }
+}
+
 bool preciceAdapter::Adapter::configFileRead()
 {
 
@@ -142,46 +195,14 @@ bool preciceAdapter::Adapter::configFileRead()
                     {
                         DEBUG(adapterInfo("    writeData    : "));
                         ITstream writeDataStream = interfaceDict.lookup("writeData");
-                        PtrList<entry> writeDataList(writeDataStream);
-                        for (const entry& writeDatumEntry : writeDataList)
-                        {
-                            const dictionary& writeDatumDict = writeDatumEntry.dict();
-                            word dataName = writeDatumDict.get<word>("name");
-
-                            struct fieldConfig fieldConfig;
-                            fieldConfig.name = dataName;
-                            fieldConfig.solver_name = writeDatumDict.lookupOrDefault<word>("solver_name", dataName); // default solver_name is the same
-                            fieldConfig.operation = writeDatumDict.lookupOrDefault<word>("operation", "value");      // default operation is "value"
-
-                            interfaceConfig.writeData.push_back(fieldConfig);
-
-                            DEBUG(adapterInfo("      - " + dataName));
-                            DEBUG(adapterInfo("        solver_name: " + fieldConfig.solver_name));
-                            DEBUG(adapterInfo("        operation  : " + fieldConfig.operation));
-                        }
+                        readFieldConfigs("writeData", writeDataStream, interfaceConfig.writeData);
                     }
 
                     if (interfaceDict.found("readData"))
                     {
                         DEBUG(adapterInfo("    readData     : "));
                         ITstream readDataStream = interfaceDict.lookup("readData");
-                        PtrList<entry> readDataList(readDataStream);
-                        for (const entry& readDatumEntry : readDataList)
-                        {
-                            const dictionary& readDatumDict = readDatumEntry.dict();
-                            word dataName = readDatumDict.get<word>("name");
-
-                            struct fieldConfig fieldConfig;
-                            fieldConfig.name = dataName;
-                            fieldConfig.solver_name = readDatumDict.lookupOrDefault<word>("solver_name", dataName); // default solver_name is the same
-                            fieldConfig.operation = readDatumDict.lookupOrDefault<word>("operation", "value");      // default operation is "value"
-
-                            interfaceConfig.readData.push_back(fieldConfig);
-
-                            DEBUG(adapterInfo("      - " + dataName));
-                            DEBUG(adapterInfo("        solver_name: " + fieldConfig.solver_name));
-                            DEBUG(adapterInfo("        operation  : " + fieldConfig.operation));
-                        }
+                        readFieldConfigs("readData", readDataStream, interfaceConfig.readData);
                     }
 
                     interfacesConfig_.push_back(interfaceConfig);
