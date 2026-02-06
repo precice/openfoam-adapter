@@ -20,6 +20,8 @@ on:
         required: true
         type: choice
         options:
+          - 2512
+          - 2506
           - 2412
           - 2406
           - 2312
@@ -31,13 +33,16 @@ on:
           - 2012
           - 2006
           - 1912
+          - 13
+          - 12
+          - 11
           - 10
           - 9
           - 8
           - 7
       versionpreCICE:
         description: 'Version of preCICE to build with'
-        default: 'v3.2.0'
+        default: 'v3.3.0'
         required: true
       runTutorialHeatedPlate:
         description: Run tutorial flow-over-heated-plate
@@ -75,7 +80,7 @@ jobs:
         echo "Run tutorial partitioned-pipe: ${{ github.event.inputs.runTutorialPartitionedPipe }}"
         echo "Tutorials branch: ${{ github.event.inputs.branchTutorials }}"
     - name: Check out repository
-      uses: actions/checkout@v4
+      uses: actions/checkout@v6
       with:
         ref: ${{ github.event.inputs.refAdapter }}
     - name: Install preCICE (no cache)
@@ -137,7 +142,7 @@ jobs:
           wait $PIDfluid
         fi
     - name: Archive logs
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v6
       with:
         name: logs
         path: |
@@ -151,7 +156,7 @@ jobs:
           tutorials/partitioned-pipe/fluid1-openfoam-pimplefoam/fluid1-openfoam-pimplefoam.log
           tutorials/partitioned-pipe/fluid2-openfoam-pimplefoam/fluid2-openfoam-pimplefoam.log
     - name: Archive case files
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v6
       with:
         name: case-files
         path: |
