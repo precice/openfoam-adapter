@@ -234,7 +234,7 @@ private:
     //- Read the adapter's configuration file
     void configFileRead();
 
-    //- Helper to read a list of field configurations, which can contain either words or dictionaries, or both.
+    //- Helper to read a list of field configurations, which can contain either words, dictionaries, or both
     void readFieldConfigs(const std::string& listName, Foam::ITstream& stream, std::vector<FieldConfig>& configs);
 
     //- Check the adapter's configuration file
