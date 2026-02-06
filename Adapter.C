@@ -16,7 +16,7 @@ preciceAdapter::Adapter::Adapter(const Time& runTime, const fvMesh& mesh)
     return;
 }
 
-void preciceAdapter::Adapter::readFieldConfigs(const std::string& listName, Foam::ITstream& stream, std::vector<fieldConfig>& configs)
+void preciceAdapter::Adapter::readFieldConfigs(const std::string& listName, Foam::ITstream& stream, std::vector<FieldConfig>& configs)
 {
     if (stream.peek() == token::BEGIN_LIST)
     {
@@ -30,7 +30,7 @@ void preciceAdapter::Adapter::readFieldConfigs(const std::string& listName, Foam
             word dataName;
             stream >> dataName;
 
-            struct fieldConfig fieldConfig;
+            struct FieldConfig FieldConfig;
 
             // If next token is '{', we have a dictionary (new schema).
             // We create a dictionary from the stream `dictionary dict(stream);`
@@ -41,25 +41,25 @@ void preciceAdapter::Adapter::readFieldConfigs(const std::string& listName, Foam
             if (stream.peek() == token::BEGIN_BLOCK)
             {
                 dictionary dict(stream);
-                fieldConfig.name = dict.get<word>("name"); // The 'name' entry is mandatory.
-                fieldConfig.solver_name = dict.lookupOrDefault<word>("solver_name", fieldConfig.name);
-                fieldConfig.operation = dict.lookupOrDefault<word>("operation", "value");
+                FieldConfig.name = dict.get<word>("name"); // The 'name' entry is mandatory.
+                FieldConfig.solver_name = dict.lookupOrDefault<word>("solver_name", FieldConfig.name);
+                FieldConfig.operation = dict.lookupOrDefault<word>("operation", "value");
             }
             // Else, we have a simple word entry (legacy schema/backwards compatibility).
             // Note: Currently, the modules FF, CHT, and FSI do not use solver_name/operation.
             else
             {
-                fieldConfig.name = dataName;
-                fieldConfig.solver_name = "Undefined (legacy mode)";
-                fieldConfig.operation = "Undefined (legacy mode)";
+                FieldConfig.name = dataName;
+                FieldConfig.solver_name = "Undefined (legacy mode)";
+                FieldConfig.operation = "Undefined (legacy mode)";
             }
 
-            configs.push_back(fieldConfig);
+            configs.push_back(FieldConfig);
 
             DEBUG(adapterInfo("      - " + dataName));
-            DEBUG(adapterInfo("        name: " + fieldConfig.name));
-            DEBUG(adapterInfo("        solver_name: " + fieldConfig.solver_name));
-            DEBUG(adapterInfo("        operation  : " + fieldConfig.operation));
+            DEBUG(adapterInfo("        name: " + FieldConfig.name));
+            DEBUG(adapterInfo("        solver_name: " + FieldConfig.solver_name));
+            DEBUG(adapterInfo("        operation  : " + FieldConfig.operation));
         }
         stream >> _t; // Last token ')'
     }

@@ -38,7 +38,7 @@ class Adapter
 
 private:
     //- field options
-    struct fieldConfig
+    struct FieldConfig
     {
         std::string name;
         std::string solver_name;
@@ -56,8 +56,8 @@ private:
         bool meshConnectivity;
         std::vector<std::string> patchNames;
         std::vector<std::string> cellSetNames;
-        std::vector<struct fieldConfig> writeData;
-        std::vector<struct fieldConfig> readData;
+        std::vector<struct FieldConfig> writeData;
+        std::vector<struct FieldConfig> readData;
     };
 
     //- Configuration interfaces
@@ -235,7 +235,7 @@ private:
     void configFileRead();
 
     //- Helper to read a list of field configurations, which can contain either words or dictionaries, or both.
-    void readFieldConfigs(const std::string& listName, Foam::ITstream& stream, std::vector<fieldConfig>& configs);
+    void readFieldConfigs(const std::string& listName, Foam::ITstream& stream, std::vector<FieldConfig>& configs);
 
     //- Check the adapter's configuration file
     bool configFileCheck(const std::string adapterConfigFileName);
