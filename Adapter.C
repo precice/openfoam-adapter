@@ -18,6 +18,7 @@ preciceAdapter::Adapter::Adapter(const Time& runTime, const fvMesh& mesh)
 
 void preciceAdapter::Adapter::readFieldConfigs(const std::string& listName, Foam::ITstream& stream, std::vector<FieldConfig>& configs)
 {
+    // Perform check on whether read/writeData is a list
     if (stream.peek() == token::BEGIN_LIST)
     {
         token _t;
@@ -35,8 +36,8 @@ void preciceAdapter::Adapter::readFieldConfigs(const std::string& listName, Foam
             // If next token is '{', we have a dictionary (new schema).
             // We create a dictionary from the stream `dictionary dict(stream);`
             // The dictionary must contain the 'name'.
-            // If 'solver_name' is not specified, it defaults to 'name'.
-            // 'operation' defaults to "value".
+            // If 'solver_name' is not specified, it defaults to the same as 'name'.
+            // 'operation' defaults to 'value'.
             // Note: Currently, the modules FF, CHT, and FSI do not use solver_name/operation.
             if (stream.peek() == token::BEGIN_BLOCK)
             {
@@ -46,7 +47,6 @@ void preciceAdapter::Adapter::readFieldConfigs(const std::string& listName, Foam
                 FieldConfig.operation = dict.lookupOrDefault<word>("operation", "value");
             }
             // Else, we have a simple word entry (legacy schema/backwards compatibility).
-            // Note: Currently, the modules FF, CHT, and FSI do not use solver_name/operation.
             else
             {
                 FieldConfig.name = dataName;
