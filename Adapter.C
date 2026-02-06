@@ -46,18 +46,18 @@ void preciceAdapter::Adapter::readFieldConfigs(const std::string& listName, Foam
                 fieldConfig.operation = dict.lookupOrDefault<word>("operation", "value");
             }
             // Else, we have a simple word entry (legacy schema/backwards compatibility).
-            // The 'solver_name' defaults to 'name' and 'operation' to "value".
             // Note: Currently, the modules FF, CHT, and FSI do not use solver_name/operation.
             else
             {
                 fieldConfig.name = dataName;
-                fieldConfig.solver_name = fieldConfig.name;
-                fieldConfig.operation = "value";
+                fieldConfig.solver_name = "Undefined (legacy mode)";
+                fieldConfig.operation = "Undefined (legacy mode)";
             }
 
             configs.push_back(fieldConfig);
 
             DEBUG(adapterInfo("      - " + dataName));
+            DEBUG(adapterInfo("        name: " + fieldConfig.name));
             DEBUG(adapterInfo("        solver_name: " + fieldConfig.solver_name));
             DEBUG(adapterInfo("        operation  : " + fieldConfig.operation));
         }
