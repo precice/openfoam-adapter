@@ -142,25 +142,6 @@ The `writeData` and `readData` names are case-insensitive since v1.4.0. This mea
 Additionally, since earlier versions, only the beginning of the name needs to match: `Temperatures0` is valid and matched to the temperature reader/writer, for example.
 {% endtip %}
 
-We are currently working in porting the adapter configuration file to the new [adapter configuration schema](https://github.com/precice/preeco-orga/tree/main/adapter-config-schema). Since v1.4.0, `readData` and `writeData` support parsing both the new format. Additional options (`solver_name`, `operation` and `flip-normal`) can be specified in the dictionaries . For example, the data `name` as known by preCICE can be different than the `solver_name` known by OpenFOAM. However, the new options are not yet functionally supported by the current modules FF, CHT and FSI. The legacy word list format is still supported, and both formats can even be mixed:
-
-```cpp
-readData
-(
-    // New dictionary entry
-    Velocity1
-    {
-        name        Velocity;   // Data name as defined in preCICE config
-        solver_name U;          // Optional: Field name in OpenFOAM (defaults to same as 'name')
-        operation   value;      // Optional: Operation to perform on data (defaults to 'value')
-        flip-normal false;      // Optional: Flip the normal direction (defaults to 'false')
-    }
-
-    // Legacy word entry
-    Temperature
-);
-```
-
 ## Configuration of the OpenFOAM case
 
 A few changes are required in the configuration of an OpenFOAM case, in order to specify the interfaces and load the adapter. For some solvers, additional parameters may be needed (see "advanced configuration").
@@ -650,3 +631,24 @@ with the adapter configuration file usually named as `precice-adapter-config.yml
 We moved to a OpenFOAM dictionary format in [#105](https://github.com/precice/openfoam-adapter/pull/105),
 to reduce the dependencies. You may also find the [tutorials #69](https://github.com/precice/tutorials/pull/69)
 to be a useful reference (file changes).
+
+## Upcoming changed to the configuration format
+
+We are currently working in porting the adapter configuration file to the new [adapter configuration schema](https://github.com/precice/preeco-orga/tree/main/adapter-config-schema). Since v1.4.0, `readData` and `writeData` support parsing both the new format. Additional options (`solver_name`, `operation` and `flip-normal`) can be specified in the dictionaries . For example, the data `name` as known by preCICE can be different than the `solver_name` known by OpenFOAM. However, the new options are not yet functionally supported by the current modules FF, CHT and FSI. The legacy word list format is still supported, and both formats can even be mixed:
+
+```cpp
+readData
+(
+    // New dictionary entry
+    Velocity1
+    {
+        name        Velocity;   // Data name as defined in preCICE config
+        solver_name U;          // Optional: Field name in OpenFOAM (defaults to same as 'name')
+        operation   value;      // Optional: Operation to perform on data (defaults to 'value')
+        flip-normal false;      // Optional: Flip the normal direction (defaults to 'false')
+    }
+
+    // Legacy word entry
+    Temperature
+);
+```
