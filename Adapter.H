@@ -37,6 +37,15 @@ class Adapter
 {
 
 private:
+    //- field options
+    struct FieldConfig
+    {
+        std::string name;
+        std::string solver_name;
+        std::string operation;
+        bool flip_normal;
+    };
+
     //- Structure of the configuration of each coupling interface.
     //  Every interface needs to know the coupling mesh, the OpenFOAM
     //  patches that consist the coupling surface and the kinds
@@ -48,8 +57,8 @@ private:
         bool meshConnectivity;
         std::vector<std::string> patchNames;
         std::vector<std::string> cellSetNames;
-        std::vector<std::string> writeData;
-        std::vector<std::string> readData;
+        std::vector<struct FieldConfig> writeData;
+        std::vector<struct FieldConfig> readData;
     };
 
     //- Configuration interfaces
@@ -225,6 +234,9 @@ private:
 
     //- Read the adapter's configuration file
     void configFileRead();
+
+    //- Helper to read a list of field configurations, which can contain either words, dictionaries, or both
+    void readFieldConfigs(const std::string& listName, Foam::ITstream& stream, std::vector<FieldConfig>& configs);
 
     //- Check the adapter's configuration file
     bool configFileCheck(const std::string adapterConfigFileName);

@@ -16,6 +16,69 @@ preciceAdapter::Adapter::Adapter(const Time& runTime, const fvMesh& mesh)
     return;
 }
 
+void preciceAdapter::Adapter::readFieldConfigs(const std::string& listName, Foam::ITstream& stream, std::vector<FieldConfig>& configs)
+{
+    // Perform check on whether read/writeData is a list
+    if (stream.peek() == token::BEGIN_LIST)
+    {
+        token _t;
+        stream >> _t; // First token is '(', which we throw away
+
+        // Read stream until end of list
+        while (stream.peek() != token::END_LIST && !stream.eof())
+        {
+            // Next token is always a word (the data name)
+            word dataName;
+            stream >> dataName;
+
+            struct FieldConfig FieldConfig;
+
+            // If next token is '{', we have a dictionary (new schema).
+            // We create a dictionary from the stream `dictionary dict(stream);`
+            // The dictionary must contain the 'name'.
+            // If 'solver_name' is not specified, it defaults to the same as 'name'.
+            // 'operation' defaults to 'value'.
+            // Note: Currently, the modules FF, CHT, and FSI do not use solver_name/operation.
+            if (stream.peek() == token::BEGIN_BLOCK)
+            {
+                dictionary dict(stream);
+                FieldConfig.name = dict.get<word>("name"); // The 'name' entry is mandatory.
+                FieldConfig.solver_name = dict.lookupOrDefault<word>("solver_name", FieldConfig.name);
+                FieldConfig.operation = dict.lookupOrDefault<word>("operation", "value");
+                try
+                {
+                    FieldConfig.flip_normal = dict.lookupOrDefault<bool>("flip-normal", false);
+                }
+                catch (const Foam::IOerror& e)
+                {
+                    adapterInfo("Error parsing 'flip-normal' for field " + dataName + "\n" + e.message(), "error");
+                }
+            }
+            // Else, we have a simple word entry (legacy schema/backwards compatibility).
+            else
+            {
+                FieldConfig.name = dataName;
+                FieldConfig.solver_name = "Undefined (legacy mode)";
+                FieldConfig.operation = "Undefined (legacy mode)";
+                FieldConfig.flip_normal = false;
+            }
+
+            configs.push_back(FieldConfig);
+
+            DEBUG(adapterInfo("      - " + dataName));
+            DEBUG(adapterInfo("        name: " + FieldConfig.name));
+            DEBUG(adapterInfo("        solver_name: " + FieldConfig.solver_name));
+            DEBUG(adapterInfo("        operation  : " + FieldConfig.operation));
+            DEBUG(adapterInfo("        flip-normal: " + std::string(FieldConfig.flip_normal ? "true" : "false")));
+        }
+        stream >> _t; // Last token ')'
+    }
+    else
+    {
+        adapterInfo(listName + " must be a list", "error");
+    }
+}
+
 void preciceAdapter::Adapter::configFileRead()
 {
 
@@ -133,21 +196,20 @@ void preciceAdapter::Adapter::configFileRead()
                     return;
                 }
 
-                DEBUG(adapterInfo("    writeData    : "));
-                auto writeData = interfaceDict.lookupOrDefault<wordList>("writeData", wordList());
-                for (auto writeDatum : writeData)
+                if (interfaceDict.found("writeData"))
                 {
-                    interfaceConfig.writeData.push_back(writeDatum);
-                    DEBUG(adapterInfo("      - " + writeDatum));
+                    DEBUG(adapterInfo("    writeData    : "));
+                    ITstream writeDataStream = interfaceDict.lookup("writeData");
+                    readFieldConfigs("writeData", writeDataStream, interfaceConfig.writeData);
                 }
 
-                DEBUG(adapterInfo("    readData     : "));
-                auto readData = interfaceDict.lookupOrDefault<wordList>("readData", wordList());
-                for (auto readDatum : readData)
+                if (interfaceDict.found("readData"))
                 {
-                    interfaceConfig.readData.push_back(readDatum);
-                    DEBUG(adapterInfo("      - " + readDatum));
+                    DEBUG(adapterInfo("    readData     : "));
+                    ITstream readDataStream = interfaceDict.lookup("readData");
+                    readFieldConfigs("readData", readDataStream, interfaceConfig.readData);
                 }
+
                 interfacesConfig_.push_back(interfaceConfig);
             }
         }
@@ -267,7 +329,7 @@ try
         DEBUG(adapterInfo("Adding coupling data writers..."));
         for (uint j = 0; j < interfacesConfig_.at(i).writeData.size(); j++)
         {
-            std::string dataName = interfacesConfig_.at(i).writeData.at(j);
+            std::string dataName = interfacesConfig_.at(i).writeData.at(j).name;
 
             unsigned int inModules = 0;
 
@@ -308,7 +370,7 @@ try
         DEBUG(adapterInfo("Adding coupling data readers..."));
         for (uint j = 0; j < interfacesConfig_.at(i).readData.size(); j++)
         {
-            std::string dataName = interfacesConfig_.at(i).readData.at(j);
+            std::string dataName = interfacesConfig_.at(i).readData.at(j).name;
 
             unsigned int inModules = 0;
 
