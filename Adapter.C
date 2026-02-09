@@ -45,7 +45,14 @@ void preciceAdapter::Adapter::readFieldConfigs(const std::string& listName, Foam
                 FieldConfig.name = dict.get<word>("name"); // The 'name' entry is mandatory.
                 FieldConfig.solver_name = dict.lookupOrDefault<word>("solver_name", FieldConfig.name);
                 FieldConfig.operation = dict.lookupOrDefault<word>("operation", "value");
-                FieldConfig.flip_normal = dict.lookupOrDefault<bool>("flip-normal", false);
+                try
+                {
+                    FieldConfig.flip_normal = dict.lookupOrDefault<bool>("flip-normal", false);
+                }
+                catch (const Foam::IOerror& e)
+                {
+                    adapterInfo("Error parsing 'flip-normal' for field " + dataName + "\n" + e.message(), "error");
+                }
             }
             // Else, we have a simple word entry (legacy schema/backwards compatibility).
             else
