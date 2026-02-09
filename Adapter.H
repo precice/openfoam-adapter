@@ -43,6 +43,7 @@ private:
         std::string name;
         std::string solver_name;
         std::string operation;
+        bool flip_normal;
     };
 
     //- Structure of the configuration of each coupling interface.

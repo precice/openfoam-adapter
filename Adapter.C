@@ -45,6 +45,7 @@ void preciceAdapter::Adapter::readFieldConfigs(const std::string& listName, Foam
                 FieldConfig.name = dict.get<word>("name"); // The 'name' entry is mandatory.
                 FieldConfig.solver_name = dict.lookupOrDefault<word>("solver_name", FieldConfig.name);
                 FieldConfig.operation = dict.lookupOrDefault<word>("operation", "value");
+                FieldConfig.flip_normal = dict.lookupOrDefault<bool>("flip-normal", false);
             }
             // Else, we have a simple word entry (legacy schema/backwards compatibility).
             else
@@ -52,6 +53,7 @@ void preciceAdapter::Adapter::readFieldConfigs(const std::string& listName, Foam
                 FieldConfig.name = dataName;
                 FieldConfig.solver_name = "Undefined (legacy mode)";
                 FieldConfig.operation = "Undefined (legacy mode)";
+                FieldConfig.flip_normal = false;
             }
 
             configs.push_back(FieldConfig);
@@ -60,6 +62,7 @@ void preciceAdapter::Adapter::readFieldConfigs(const std::string& listName, Foam
             DEBUG(adapterInfo("        name: " + FieldConfig.name));
             DEBUG(adapterInfo("        solver_name: " + FieldConfig.solver_name));
             DEBUG(adapterInfo("        operation  : " + FieldConfig.operation));
+            DEBUG(adapterInfo("        flip-normal: " + std::string(FieldConfig.flip_normal ? "true" : "false")));
         }
         stream >> _t; // Last token ')'
     }
