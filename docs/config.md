@@ -142,7 +142,7 @@ The `writeData` and `readData` names are case-insensitive since v1.4.0. This mea
 Additionally, since earlier versions, only the beginning of the name needs to match: `Temperatures0` is valid and matched to the temperature reader/writer, for example.
 {% endtip %}
 
-Since v1.4.0, `readData` and `writeData` support parsing the new dictionary schema. Additional options (`solver_name`, `operation` and `flip-normal`) can be specified in the dictionaries . For example, the data `name` as known by preCICE can be different than the `solver_name` known by OpenFOAM. However, the new options are not yet functionally supported by the current modules FF, CHT and FSI. The legacy word list format is still supported, and both formats can even be mixed:
+We are currently working in porting the adapter configuration file to the new [adapter configuration schema](https://github.com/precice/preeco-orga/tree/main/adapter-config-schema). Since v1.4.0, `readData` and `writeData` support parsing both the new format. Additional options (`solver_name`, `operation` and `flip-normal`) can be specified in the dictionaries . For example, the data `name` as known by preCICE can be different than the `solver_name` known by OpenFOAM. However, the new options are not yet functionally supported by the current modules FF, CHT and FSI. The legacy word list format is still supported, and both formats can even be mixed:
 
 ```cpp
 readData
