@@ -39,15 +39,6 @@ class Adapter
 {
 
 private:
-    //- field options
-    struct FieldConfig
-    {
-        std::string name;
-        std::string solver_name;
-        std::string operation;
-        bool flip_normal;
-    };
-
     //- Structure of the configuration of each coupling interface.
     //  Every interface needs to know the coupling mesh, the OpenFOAM
     //  patches that consist the coupling surface and the kinds

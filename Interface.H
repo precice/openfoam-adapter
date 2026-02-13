@@ -12,6 +12,15 @@
 namespace preciceAdapter
 {
 
+//- field options
+struct FieldConfig
+{
+    std::string name;
+    std::string solver_name;
+    std::string operation;
+    bool flip_normal;
+};
+
 class Interface
 {
 protected:
