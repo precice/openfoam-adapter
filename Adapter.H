@@ -26,6 +26,12 @@
 // preCICE Solver Interface
 #include <precice/precice.hpp>
 
+#if PRECICE_VERSION_GREATER_EQUAL(3, 2, 0)
+using PreciceError = ::precice::Error;
+#else
+using PreciceError = std::runtime_error;
+#endif
+
 namespace preciceAdapter
 {
 
@@ -33,6 +39,15 @@ class Adapter
 {
 
 private:
+    //- field options
+    struct FieldConfig
+    {
+        std::string name;
+        std::string solver_name;
+        std::string operation;
+        bool flip_normal;
+    };
+
     //- Structure of the configuration of each coupling interface.
     //  Every interface needs to know the coupling mesh, the OpenFOAM
     //  patches that consist the coupling surface and the kinds
@@ -44,8 +59,8 @@ private:
         bool meshConnectivity;
         std::vector<std::string> patchNames;
         std::vector<std::string> cellSetNames;
-        std::vector<std::string> writeData;
-        std::vector<std::string> readData;
+        std::vector<struct FieldConfig> writeData;
+        std::vector<struct FieldConfig> readData;
     };
 
     //- Configuration interfaces
@@ -75,9 +90,6 @@ private:
 
     // Configuration parameters used in the Adapter
 
-    //- Remember if there were errors in the read() method
-    bool errorsInConfigure = false;
-
     //- preCICE configuration file name
     Foam::word preciceConfigFilename_;
 
@@ -86,6 +98,9 @@ private:
 
     //- Switch for checkpointing
     bool checkpointing_ = false;
+
+    //- Moving mesh checkpointing
+    bool meshCheckPointed_ = false;
 
     //- Type of timestep (fixed, adjustable)
     bool adjustableTimestep_;
@@ -145,44 +160,17 @@ private:
     //- Checkpointed time (index)
     Foam::label couplingIterationTimeIndex_;
 
-    //- Checkpointed mesh points
-    Foam::pointField meshPoints_;
-    Foam::pointField oldMeshPoints_;
-    bool meshCheckPointed = false;
-
-    // TODO: Currently unused, see storeMeshPoints().
-    //- Checkpointed mesh volume
-    // bool oldVolsStored = false;
-    // Foam::volScalarField::Internal * oldVols_;
-    // Foam::volScalarField::Internal * oldOldVols_;
-    // int curTimeIndex_ = 0;
-
     // Vectors of pointers to the checkpointed mesh fields and their copies
 
-    //- Checkpointed surfaceScalarField mesh fields
+    //- Checkpointed mesh points, oldPoints
+    Foam::pointField* meshPoints_;
+    Foam::pointField* meshOldPoints_;
+
+    //- Checkpointed surfaceScalarField mesh fields (phi)
     std::vector<Foam::surfaceScalarField*> meshSurfaceScalarFields_;
 
     //- Checkpointed surfaceScalarField mesh fields (copies)
     std::vector<Foam::surfaceScalarField*> meshSurfaceScalarFieldCopies_;
-
-    //- Checkpointed surfaceVectorField mesh fields
-    std::vector<Foam::surfaceVectorField*> meshSurfaceVectorFields_;
-
-    //- Checkpointed surfaceVectorField mesh fields (copies)
-    std::vector<Foam::surfaceVectorField*> meshSurfaceVectorFieldCopies_;
-
-    //- Checkpointed volVectorField mesh fields
-    std::vector<Foam::volVectorField*> meshVolVectorFields_;
-
-    //- Checkpointed volVectorField mesh fields (copies)
-    std::vector<Foam::volVectorField*> meshVolVectorFieldCopies_;
-
-    // TODO checkpoint for the V0 (Old volume) and V00 (Old-Old volume) fields.
-    //- Checkpointed volScalarField mesh fields
-    std::vector<Foam::volScalarField::Internal*> volScalarInternalFields_;
-
-    //- Checkpointed volScalarField mesh fields (copies)
-    std::vector<Foam::volScalarField::Internal*> volScalarInternalFieldCopies_;
 
     // Vectors of pointers to the checkpointed fields and their copies
 
@@ -252,7 +240,10 @@ private:
     // Configuration
 
     //- Read the adapter's configuration file
-    bool configFileRead();
+    void configFileRead();
+
+    //- Helper to read a list of field configurations, which can contain either words, dictionaries, or both
+    void readFieldConfigs(const std::string& listName, Foam::ITstream& stream, std::vector<FieldConfig>& configs);
 
     //- Check the adapter's configuration file
     bool configFileCheck(const std::string adapterConfigFileName);
@@ -295,11 +286,12 @@ private:
     //- Configure the mesh checkpointing
     void setupMeshCheckpointing();
 
-    //- Configure the mesh checkpointing
-    void setupMeshVolCheckpointing();
-
     //- Configure the checkpointing
     void setupCheckpointing();
+
+    //- Remove checkpointed fields which are not used by OpenFOAM anymore
+    void pruneCheckpointedFields();
+
 
     //- Make a copy of the runTime object
     void storeCheckpointTime();
@@ -314,21 +306,9 @@ private:
     void reloadMeshPoints();
 
     // Add mesh checkpoint fields, depending on the type
-    //- Add a surfaceScalarField mesh field
-    void addMeshCheckpointField(surfaceScalarField& field);
 
-    //- Add a surfaceVectorField mesh field
-    void addMeshCheckpointField(surfaceVectorField& field);
-
-    //- Add a volVectorField mesh field
-    void addMeshCheckpointField(volVectorField& field);
-
-    // TODO V0 and V00 checkpointed field.
-    //- Add the V0 and V00 checkpoint fields
-    void addVolCheckpointField(volScalarField::Internal& field);
-    // void addVolCheckpointFieldBuffer(volScalarField::Internal & field);
-
-    // Add checkpoint fields, depending on the type
+    //- Add a surfaceScalarField mesh field (phi)
+    void addMeshCheckpointField(Foam::surfaceScalarField& field);
 
     //- Add a volScalarField to checkpoint
     void addCheckpointField(volScalarField* field);
@@ -374,13 +354,6 @@ private:
 
     //- Write the checkpoint - store the fields and time
     void writeCheckpoint();
-
-    // TODO Probably these can be included to the mesh checkpoints.
-    //- Read the volume checkpoint - restore the mesh volume fields
-    void readVolCheckpoint();
-
-    //- Write the volume checkpoint to a buffer - restore the mesh volume fields
-    void writeVolCheckpoint();
 
     //- Destroy the preCICE interface and delete the allocated
     //  memory in a proper way. Called by the destructor.

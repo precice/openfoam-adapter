@@ -1,0 +1,8 @@
+virtualEnvironment="ubuntu-22.04"
+refAdapter="develop"
+versionOpenFOAM="2512"
+versionpreCICE="v3.3.0"
+runTutorialHeatedPlate="false"
+runTutorialQuickstart="false"
+runTutorialPartitionedPipe="false"
+branchTutorials="develop"

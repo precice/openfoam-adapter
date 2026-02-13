@@ -1,4 +1,5 @@
 #include "Utilities.H"
+#include <cctype>
 
 using namespace Foam;
 
@@ -29,7 +30,7 @@ void adapterInfo(const std::string message, const std::string level)
         // and exit the functionObject.
         // It will also exit the simulation, unless it
         // is called inside the functionObject's read().
-        FatalErrorInFunction
+        FatalError
             << "\033[31m" // red color
             << "Error in the preCICE adapter: "
             << "\033[0m" // restore color
@@ -37,24 +38,6 @@ void adapterInfo(const std::string message, const std::string level)
             << message.c_str()
             << nl
             << exit(FatalError);
-    }
-    else if (level.compare("error-deferred") == 0)
-    {
-        // Produce an warning message with red header.
-        // OpenFOAM degrades errors inside read()
-        // to warnings, stops the function object, but does
-        // not exit. We throw a warning which is described
-        // as an error, so that OpenFOAM does not exit,
-        // but the user still sees that this is the actual
-        // problem. We catch these errors and exit later.
-        WarningInFunction
-            << "\033[31m" // red color
-            << "Error (deferred - will exit later) in the preCICE adapter: "
-            << "\033[0m" // restore color
-            << nl
-            << message.c_str()
-            << nl
-            << nl;
     }
     else if (level.compare("debug") == 0)
     {
@@ -81,4 +64,11 @@ void adapterInfo(const std::string message, const std::string level)
     }
 
     return;
+}
+
+bool matchingStrings(std::string s, std::string match)
+{
+    std::transform(s.begin(), s.end(), s.begin(), [](unsigned char c) { return std::tolower(c); });
+    std::transform(match.begin(), match.end(), match.begin(), [](unsigned char c) { return std::tolower(c); });
+    return s.find(match) == 0;
 }

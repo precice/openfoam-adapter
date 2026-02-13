@@ -137,6 +137,11 @@ For fluid-structure interaction, coupled quantities can be:
 You will run into problems when you use `Displacement(Delta)` as write data set and execute RBF mappings in parallel. This would affect users who use OpenFOAM and the adapter as the Solid participant in order to compute solid mechanics with OpenFOAM (currently not officially supported at all). Have a look [at this issue on GitHub](https://github.com/precice/openfoam-adapter/issues/153) for details.
 {% endwarning %}
 
+{% tip %}
+The `writeData` and `readData` names are case-insensitive since v1.4.0. This means that both `TEMPERATURE` and `Temperature` are valid, for example.
+Additionally, since earlier versions, only the beginning of the name needs to match: `Temperatures0` is valid and matched to the temperature reader/writer, for example.
+{% endtip %}
+
 ## Configuration of the OpenFOAM case
 
 A few changes are required in the configuration of an OpenFOAM case, in order to specify the interfaces and load the adapter. For some solvers, additional parameters may be needed (see "advanced configuration").
@@ -390,6 +395,7 @@ functions
     preCICE_Adapter
     {
         type preciceAdapterFunctionObject;
+        errors strict; // optional
     }
 }
 ```
@@ -397,6 +403,8 @@ functions
 This directs the solver to use the `preciceAdapterFunctionObject` function object,
 which is part of the `libpreciceAdapterFunctionObject.so` shared library.
 The name `preCICE_Adapter` can be arbitrary. It is important that the library is loaded outside the `functions` dictionary when you want to use the custom boundary conditions that we provide with the FF module.
+
+The `errors strict` option is optional and [available since OpenFOAM v2012](https://www.openfoam.com/news/main-news/openfoam-v20-12/post-processing#post-processing-function-object-error-handling). Since the adapter is necessary to do a coupled simulation, this option instructs OpenFOAM to stop in case it faces issues with loading the adapter. For OpenFOAM versions that don't support this, remove the option.
 
 If you are using other function objects in your simulation, add the preCICE adapter to the end of the list. The adapter will then be executed last, which is important, as the adapter also controls the end of the simulation. When the end of the simulation is detected, the adapter also triggers the `end()` method of all function objects.
 
@@ -455,6 +463,18 @@ It is important to notice that the target data location is again the face center
 {% note %}
 This is implemented for all CHT-related fields mapped with a `consistent` constraint, but it is not implemented for the `FSI` and `FF` modules.
 {% endnote %}
+
+### Notes on subcycling
+
+If it is necessary to subcycle, i.e., do multiple solver time steps per coupling time window, on either the OpenFOAM side or another solver, please consider additional nuances. A good way to start is reading up on subcycling and [waveform time interpolation](https://precice.org/couple-your-code-waveform). Subcycling is *allowed* by preCICE and the OpenFOAM-adapter, but you may obtain different results with subcycling enabled or not depending on your problem and coupling configuration. This has to do with how the subcycling data is modelled in the time-integration of your problem, where the two independent solvers (coupling participants) with non-matching timesteps march forward in time. This depends on the time stepping scheme and the type of physical quantity that you are coupling.
+
+Currently, when doing subcycling in OpenFOAM on an FSI problem, the OpenFOAM-adapter will give the following warning:
+
+`The adapter does not fully support subcycling for FSI and instabilities may occur.`
+
+There is an active discussion on a [GitHub issue](https://github.com/precice/openfoam-adapter/issues/368) about why you will get different results with subcycling on the perpendicular-flap case. Until this is resolved, it is recommended to not subcycle the fluid participant in FSI simulations.
+
+In short, preCICE will sample only the instantaneous state of the coupled data at end of the coupling time window. If your coupled quantity is an instantaneous state of the system, such as Temperature, Velocity or Displacement, then your time-dependent problem evolution with subcycling will be modelled correctly. However, if your coupled data is a rate-quantity or something which should be conserved over time, such as Heat-Flux, Momentum-Flux or Force, then you would have to consider the modelling more carefully. For example, to exchange the time-average of Heat-Flux samples over the coupling time window.
 
 ### Additional properties for some solvers
 
@@ -626,7 +646,7 @@ FSI
 ```
 
 {% important %}
-The option here defines the way the interface mesh is initialized when restarting an FSI simulation in OpenFOAM. In order to restart a coupled simulation, your solid solver needs to be capable of restarting as well. Furthermore, the two participants need to follow the same assumption for the initialization, which for OpenFOAM you can configure with this option. You can find more information about restarting coupled simulations on [Dsicourse](https://precice.discourse.group/t/how-can-i-restart-a-coupled-simulation/675).
+The option here defines the way the interface mesh is initialized when restarting an FSI simulation in OpenFOAM. In order to restart a coupled simulation, your solid solver needs to be capable of restarting as well. Furthermore, the two participants need to follow the same assumption for the initialization, which for OpenFOAM you can configure with this option. You can find more information about restarting coupled simulations on [Discourse](https://precice.discourse.group/t/how-can-i-restart-a-coupled-simulation/675).
 {% endimportant %}
 
 #### Debugging
@@ -644,3 +664,24 @@ with the adapter configuration file usually named as `precice-adapter-config.yml
 We moved to a OpenFOAM dictionary format in [#105](https://github.com/precice/openfoam-adapter/pull/105),
 to reduce the dependencies. You may also find the [tutorials #69](https://github.com/precice/tutorials/pull/69)
 to be a useful reference (file changes).
+
+## Upcoming changes to the configuration format
+
+We are currently working on porting the adapter configuration file to the new [adapter configuration schema](https://github.com/precice/preeco-orga/tree/main/adapter-config-schema). Since v1.4.0, `readData` and `writeData` support parsing both the new format. Additional options (`solver_name`, `operation` and `flip-normal`) can be specified in the dictionaries . For example, the data `name` as known by preCICE can be different than the `solver_name` known by OpenFOAM. However, the new options are not yet functionally supported by the current modules FF, CHT and FSI. The legacy word list format is still supported, and both formats can even be mixed:
+
+```cpp
+readData
+(
+    // New dictionary entry
+    Velocity1
+    {
+        name        Velocity;   // Data name as defined in preCICE config
+        solver_name U;          // Optional: Field name in OpenFOAM (defaults to same as 'name')
+        operation   value;      // Optional: Operation to perform on data (defaults to 'value')
+        flip-normal false;      // Optional: Flip the normal direction (defaults to 'false')
+    }
+
+    // Legacy word entry
+    Temperature
+);
+```

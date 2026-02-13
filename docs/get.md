@@ -17,12 +17,12 @@ To build the adapter, you need to install a few dependencies and then execute th
 
 The adapter also requires [pkg-config](https://linux.die.net/man/1/pkg-config) to [link to preCICE](https://precice.org/installation-linking.html). This is a very common dependency on Linux and is usually already installed.
 
-You can set compile flags by either changing the `ADAPTER_PREP_FLAGS` variable in the `Allwmake` script, or directly setting the value of `ADAPTER_PREP_FLAGS`  as an environment variable.
-To do so, `export ADAPTER_PREP_FLAGS="-D<desired> -D<options>"` before compiling the adapter.
+The `Allwmake` script uses two environment variables:
 
-Adding the `-DADAPTER_DEBUG_MODE` flag to the `ADAPTER_PREP_FLAGS` activates additional debug messages. You may also change the target directory or specify the number of threads to use for the compilation. See the comments in `Allwmake` for more.
-
-Adding the `-DADAPTER_ENABLE_TIMINGS` flag to the `ADAPTER_PREP_FLAGS` activates time measurements for several regions of the adapter, printed at the end of the simulation output (available since v1.2.0).
+* `PRECICE_OPENFOAM_TARGET_DIR`: Where the `libpreciceAdapterFunctionObject.so` will be installed. Defaults to `FOAM_USER_LIBBIN`.
+* `PRECICE_OPENFOAM_CFLAGS`: Additional flags passed to wmake and used by the preprocessor/compiler. Defaults to an empty string.
+  * Adding `-DADAPTER_DEBUG_MODE` flag activates additional debug messages.
+  * Adding the `-DADAPTER_ENABLE_TIMINGS` flag  activates time measurements for several regions of the adapter, printed at the end of the simulation output.
 
 If you are building the adapter often, you may want to build it in parallel. You can set the environment variable `WM_NCOMPPROCS` to the number of parallel threads you want WMake to use.
 

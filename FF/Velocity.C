@@ -92,7 +92,7 @@ std::size_t preciceAdapter::FF::Velocity::write(double* buffer, bool meshConnect
         if (fluxCorrection_)
         {
             scalarField phip = phi_->boundaryFieldRef()[patchID];
-            vectorField n = U_->boundaryField()[patchID].patch().nf();
+            const vectorField n = U_->boundaryField()[patchID].patch().nf().cref();
             const scalarField& magS = U_->boundaryFieldRef()[patchID].patch().magSf();
             UPatch = UPatch - n * (n & U_->boundaryField()[patchID]) + n * phip / magS;
         }
