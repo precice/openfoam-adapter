@@ -12,35 +12,58 @@ This preCICE adapter is a plug-in (function object) for OpenFOAM, which can work
 
 ## What can it do?
 
-This adapter can read/write the following fields in a surface coupling setup:
+This adapter has been demonstrated on different use cases (conjugate heat transfer, fluid-structure interaction, fluid-fluid coupling), both in 2D (3D with one layer of cells in the z-axis) and 3D, and both for flow and solid OpenFOAM-based solvers (see [tutorials](https://precice.org/tutorials.html)).
+The fields to read/write are provided by different adapter modules that one needs to [configure](https://precice.org/adapter-openfoam-config.html) and are currently the following.
 
-- Temperature (read + write)
-- Temperature surface-normal gradient (read + write)
-- Heat flux (read + write)
-- Sink temperature (read + write)
-- Heat transfer coefficient (read + write)
-- Force (read + write)
-- Stress (write)
-- Displacement (read + write)
-- Displacement delta (read)
-- Pressure (read + write)
-- Pressure surface-normal gradient (read + write)
-- Velocity (read + write)
-- Velocity surface-normal gradient (read + write)
-- Phase fraction (alpha) (read + write)
-- Phase fraction (alpha) gradient (read + write)
-- Phase flux (phi) (read + write)
+Legend on locations to read/write:
 
-In addition, the adapter supports the following fields in a volume coupling setup:
+- **N:** Mesh nodes (surface coupling)
+- **F:** Face centers (surface coupling)
+- **C:** cell centers (volume coupling)
+- ***:** mesh connectivity supported (for e.g., nearest-projection mapping)
 
-- Temperature (write)
-- Pressure (write)
-- Velocity (read + write)
+### Module: Conjugate heat transfer
 
-Some fields might only be supported by specific solver types (e.g., fluid or solid).
-For example, writing forces is supported for fluid solvers, but not for solid solvers.
+| Field | Write | Read |  Config prefix |
+| --- | --- | --- | --- |
+| Heat flux | N*, F | N, F* | `Heat-Flux` |
+| Heat transfer coefficient | N*, F | N, F* | `Heat-Transfer-Coefficient` |
+| Sink temperature | N*, F | N, F* | `Sink-Temperature` |
+| Temperature | N*, F, C | N, F*, C | `Temperature` |
 
-All features of preCICE are supported, including implicit coupling and nearest-projection mapping. Even though OpenFOAM is 3D, this adapter can also work in the 2D mode of preCICE, defining only one layer of interface nodes (automatically).
+All fields are supported for both flow (compressible/incompressible) and basic (e.g., laplacianFoam) solvers.
+
+### Module: Fluid-structure interaction
+
+| Field | Write | Read | Config prefix |
+| --- | --- | --- | --- |
+| Displacement: absolute | N*, F* | N*, F* | `Displacement` |
+| Displacement: relative | N*, F* | N*, F* | `DisplacementDelta` |
+| Force | F* (flow) | F* | `Force` |
+| Stress | F* (flow) | F* | `Stress` |
+
+Displacement reading and writing is supported both for flow (compressible or incompressible) and structure solvers.
+Force and stress writing in only supported for flow solvers, reading for both.
+
+### Module: Fluid-fluid coupling
+
+| Field | Write | Read | Config prefix |
+| --- | --- | --- | --- |
+| Drag force | F*, C | F*, C | `DragForce` |
+| Momentum: explicit | F*, C | F*, C | `ExplicitMomentum` |
+| Momentum: implicit | F*, C | F*, C | `ImplicitMomentum` |
+| Phase flux | F* | F* | `Phi` |
+| Phase fraction | F*, C | F*, C | `Alpha` |
+| Phase fraction gradient | F* | F* | `AlphaGradient` |
+| Pressure | F*, C | F*, C | `Pressure` |
+| Pressure: full gradient | F*, C* | F* | `PressureGradientFull` (TODO: read-only) |
+| Pressure: surface-normal gradient | F* | F* | `PressureGradient` |
+| Temperature | F* | F* | `FlowTemperature` |
+| Temperature surface-normal gradient | F* | F* | `FlowTemperatureGradient` |
+| Velocity | F*, C | F*, C | `Velocity` |
+| Velocity surface-normal gradient | F* | F* | `VelocityGradient` |
+
+All fields assume a flow solver.
 
 ## Try
 
