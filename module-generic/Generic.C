@@ -12,7 +12,21 @@ bool preciceAdapter::Generic::GenericInterface::configure(const IOdictionary& ad
 {
     DEBUG(adapterInfo("Configuring the Generic module..."));
 
-    // Read the Generic-specific options from the adapter's configuration file
+    // Scan OpenFOAM object registry once for all
+    // available volScalarFields and volVectorFields
+    for (const auto& solver_name : mesh_.sortedNames<volScalarField>())
+    {
+        availableVolScalarFields += solver_name + " ";
+    }
+    DEBUG(adapterInfo("    Available volScalarFields: " + availableVolScalarFields));
+
+    for (const auto& solver_name : mesh_.sortedNames<volVectorField>())
+    {
+        availableVolVectorFields += solver_name + " ";
+    }
+    DEBUG(adapterInfo("    Available volVectorFields: " + availableVolVectorFields));
+
+    // Read the Generic-module specific options from the adapter's configuration file
     if (!readConfig(adapterConfig))
     {
         return false;

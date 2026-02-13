@@ -31,6 +31,10 @@ protected:
     //- Configuration interfaces
     std::vector<struct InterfaceConfig> interfacesConfig_;
 
+    //- List of available fields in the OpenFOAM object registry
+    std::string availableVolScalarFields;
+    std::string availableVolVectorFields;
+
 public:
     //- Constructor
     GenericInterface(const Foam::fvMesh& mesh);
