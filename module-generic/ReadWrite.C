@@ -8,9 +8,9 @@
 
 using namespace Foam;
 
-//----- preciceAdapter::GENERIC::scalarFieldCoupler -----------------------------------------
+//----- preciceAdapter::Generic::scalarFieldCoupler -----------------------------------------
 
-preciceAdapter::GENERIC::ScalarFieldCoupler::ScalarFieldCoupler(
+preciceAdapter::Generic::ScalarFieldCoupler::ScalarFieldCoupler(
     const Foam::fvMesh& mesh,
     const struct fieldConfig& fieldConfig)
 : scalarField_(
@@ -23,8 +23,8 @@ preciceAdapter::GENERIC::ScalarFieldCoupler::ScalarFieldCoupler(
 }
 
 
-// In the GENERIC module, only the value operation is supported for now, i.e., cannot write gradients.
-std::size_t preciceAdapter::GENERIC::ScalarFieldCoupler::write(double* buffer, bool meshConnectivity, const unsigned int dim)
+// In the Generic module, only the value operation is supported for now, i.e., cannot write gradients.
+std::size_t preciceAdapter::Generic::ScalarFieldCoupler::write(double* buffer, bool meshConnectivity, const unsigned int dim)
 {
     int bufferIndex = 0;
 
@@ -88,7 +88,7 @@ std::size_t preciceAdapter::GENERIC::ScalarFieldCoupler::write(double* buffer, b
     return bufferIndex;
 }
 
-void preciceAdapter::GENERIC::ScalarFieldCoupler::read(double* buffer, const unsigned int dim)
+void preciceAdapter::Generic::ScalarFieldCoupler::read(double* buffer, const unsigned int dim)
 {
     int bufferIndex = 0;
 
@@ -151,7 +151,7 @@ void preciceAdapter::GENERIC::ScalarFieldCoupler::read(double* buffer, const uns
     }
 }
 
-bool preciceAdapter::GENERIC::ScalarFieldCoupler::isLocationTypeSupported(const bool meshConnectivity) const
+bool preciceAdapter::Generic::ScalarFieldCoupler::isLocationTypeSupported(const bool meshConnectivity) const
 {
     // TODO
 
@@ -170,14 +170,14 @@ bool preciceAdapter::GENERIC::ScalarFieldCoupler::isLocationTypeSupported(const 
     }
 }
 
-std::string preciceAdapter::GENERIC::ScalarFieldCoupler::getDataName() const
+std::string preciceAdapter::Generic::ScalarFieldCoupler::getDataName() const
 {
     return fieldConfig_.name;
 }
 
-//----- preciceAdapter::GENERIC::VectorFieldCoupler -----------------------------------------
+//----- preciceAdapter::Generic::VectorFieldCoupler -----------------------------------------
 
-preciceAdapter::GENERIC::VectorFieldCoupler::VectorFieldCoupler(
+preciceAdapter::Generic::VectorFieldCoupler::VectorFieldCoupler(
     const Foam::fvMesh& mesh,
     const struct fieldConfig& fieldConfig)
 : vectorField_(
@@ -189,8 +189,8 @@ preciceAdapter::GENERIC::VectorFieldCoupler::VectorFieldCoupler(
     dataType_ = vector;
 }
 
-// In the GENERIC module, only the value operation is supported for now, i.e., cannot write gradients.
-std::size_t preciceAdapter::GENERIC::VectorFieldCoupler::write(double* buffer, bool meshConnectivity, const unsigned int dim)
+// In the Generic module, only the value operation is supported for now, i.e., cannot write gradients.
+std::size_t preciceAdapter::Generic::VectorFieldCoupler::write(double* buffer, bool meshConnectivity, const unsigned int dim)
 {
     int bufferIndex = 0;
 
@@ -285,7 +285,7 @@ std::size_t preciceAdapter::GENERIC::VectorFieldCoupler::write(double* buffer, b
     return bufferIndex;
 }
 
-void preciceAdapter::GENERIC::VectorFieldCoupler::read(double* buffer, const unsigned int dim)
+void preciceAdapter::Generic::VectorFieldCoupler::read(double* buffer, const unsigned int dim)
 {
     int bufferIndex = 0;
 
@@ -375,7 +375,7 @@ void preciceAdapter::GENERIC::VectorFieldCoupler::read(double* buffer, const uns
     }
 }
 
-bool preciceAdapter::GENERIC::VectorFieldCoupler::isLocationTypeSupported(const bool meshConnectivity) const
+bool preciceAdapter::Generic::VectorFieldCoupler::isLocationTypeSupported(const bool meshConnectivity) const
 {
     // TODO
     if (meshConnectivity)
@@ -389,7 +389,7 @@ bool preciceAdapter::GENERIC::VectorFieldCoupler::isLocationTypeSupported(const 
     }
 }
 
-std::string preciceAdapter::GENERIC::VectorFieldCoupler::getDataName() const
+std::string preciceAdapter::Generic::VectorFieldCoupler::getDataName() const
 {
     return fieldConfig_.name;
 }

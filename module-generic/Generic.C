@@ -1,18 +1,18 @@
-#include "GENERIC.H"
+#include "Generic.H"
 
 #include "Utilities.H"
 
 using namespace Foam;
 
-preciceAdapter::GENERIC::GenericInterface::GenericInterface(
+preciceAdapter::Generic::GenericInterface::GenericInterface(
     const Foam::fvMesh& mesh)
 : mesh_(mesh) {}
 
-bool preciceAdapter::GENERIC::GenericInterface::configure(const IOdictionary& adapterConfig)
+bool preciceAdapter::Generic::GenericInterface::configure(const IOdictionary& adapterConfig)
 {
-    DEBUG(adapterInfo("Configuring the GENERIC module..."));
+    DEBUG(adapterInfo("Configuring the Generic module..."));
 
-    // Read the GENERIC-specific options from the adapter's configuration file
+    // Read the Generic-specific options from the adapter's configuration file
     if (!readConfig(adapterConfig))
     {
         return false;
@@ -21,11 +21,11 @@ bool preciceAdapter::GENERIC::GenericInterface::configure(const IOdictionary& ad
     return true;
 }
 
-bool preciceAdapter::GENERIC::GenericInterface::readConfig(const IOdictionary& adapterConfig)
+bool preciceAdapter::Generic::GenericInterface::readConfig(const IOdictionary& adapterConfig)
 {
-    DEBUG(adapterInfo("Reading GENERIC module configuration..."));
+    DEBUG(adapterInfo("Reading Generic module configuration..."));
 
-    // const dictionary& moduleDict = adapterConfig.subOrEmptyDict("GENERIC");
+    // const dictionary& moduleDict = adapterConfig.subOrEmptyDict("Generic");
 
     // TODO: Reduce code duplication and get the interfaces configuration from preciceAdapter:Adapter
 
@@ -76,7 +76,7 @@ bool preciceAdapter::GENERIC::GenericInterface::readConfig(const IOdictionary& a
     return true;
 }
 
-bool preciceAdapter::GENERIC::GenericInterface::addWriters(std::string dataName, Interface* interface)
+bool preciceAdapter::Generic::GenericInterface::addWriters(std::string dataName, Interface* interface)
 {
     bool found = true; // Set to false later, if needed.
 
@@ -131,7 +131,7 @@ bool preciceAdapter::GENERIC::GenericInterface::addWriters(std::string dataName,
     return found;
 }
 
-bool preciceAdapter::GENERIC::GenericInterface::addReaders(std::string dataName, Interface* interface)
+bool preciceAdapter::Generic::GenericInterface::addReaders(std::string dataName, Interface* interface)
 {
     bool found = true; // Set to false later, if needed.
 

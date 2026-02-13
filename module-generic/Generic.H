@@ -3,13 +3,13 @@
 
 #include "Interface.H"
 
-#include "GENERIC/ReadWrite.H"
+#include "ReadWrite.H"
 
 #include "fvCFD.H"
 
 namespace preciceAdapter
 {
-namespace GENERIC
+namespace Generic
 {
 
 class GenericInterface
@@ -18,7 +18,7 @@ protected:
     //- OpenFOAM fvMesh object
     const Foam::fvMesh& mesh_;
 
-    //- Read the GENERIC related options from the adapter's configuration file
+    //- Read the Generic related options from the adapter's configuration file
     bool readConfig(const IOdictionary& adapterConfig);
 
     //- Struct to store interfaces configuration (modified from Adapter.C)

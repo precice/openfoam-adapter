@@ -12,7 +12,7 @@
 // Fluid-Fluid module
 #include "FF/FF.H"
 
-#include "GENERIC/GENERIC.H"
+#include "module-generic/Generic.H"
 
 // NOTE: If you want to couple a new variable, include your module's header here.
 // You also need to include it in the Make/files file.
@@ -142,7 +142,7 @@ private:
 
     // NOTE: Add here a pointer for your new module object
 
-    GENERIC::GenericInterface* GENERIC_ = NULL;
+    Generic::GenericInterface* Generic_ = NULL;
 
     // Timesteps
 

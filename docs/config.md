@@ -257,18 +257,18 @@ The FF module is still experimental and the boundary conditions presented here h
 
 When coupling face flux `Phi`, usually no specific boundary condition needs to be set. The coupled boundary values are therefore not persistent and may change within a timestep.
 
-## GENERIC module
+## Generic module
 
-The GENERIC module is an experimental addition, which would theoretically allow for any field to be coupled by its name. Currently, volume and surface coupling of scalar and vector fields is supported, for example, Velocity and Pressure. Explicitly setting `locations volumeCenters;` in preciceDict is required for volume coupling. If omitted, it defaults to surface coupling on faceCenters. When writing to OpenFOAM, the GENERIC module automatically detects the boundary condition type (`fixedValue`, `fixedGradient`) of the coupled patch to apply the received data.
+The Generic module is an experimental addition, which would theoretically allow for any field to be coupled by its name. Currently, volume and surface coupling of scalar and vector fields is supported, for example, Velocity and Pressure. Explicitly setting `locations volumeCenters;` in preciceDict is required for volume coupling. If omitted, it defaults to surface coupling on faceCenters. When writing to OpenFOAM, the Generic module automatically detects the boundary condition type (`fixedValue`, `fixedGradient`) of the coupled patch to apply the received data.
 
-As of OpenFOAM-adapter version 1.3.1, the old schema for readData and writeData is still used in `system/preciceDict`. This means that the coupled fields are specified by a single keyword, where the keywords are mapped to their OpenFOAM objects explicitly in the adapter, e.g., `Velocity` -> `U` or `Pressure` -> `p`. This is like a translation table between preCICE and OpenFOAM. In the future, changes to the schema will allow for the coupling data name and the solver name, i.e., the name as it appears in the solver, to be specified separately. In the meanwhile, to use the GENERIC module, it's required to use one keyword for both. For example, to use the GENERIC module in the channel-transport tutorial case, the coupling data has to be renamed from `Velocity` to `U` (case-sensitive) in `precice-config.xml`, `fluid-openfoam/system/preciceDict` and the other participant `transport-nutils/transport.py`.
+As of OpenFOAM-adapter version 1.3.1, the old schema for readData and writeData is still used in `system/preciceDict`. This means that the coupled fields are specified by a single keyword, where the keywords are mapped to their OpenFOAM objects explicitly in the adapter, e.g., `Velocity` -> `U` or `Pressure` -> `p`. This is like a translation table between preCICE and OpenFOAM. In the future, changes to the schema will allow for the coupling data name and the solver name, i.e., the name as it appears in the solver, to be specified separately. In the meanwhile, to use the Generic module, it's required to use one keyword for both. For example, to use the Generic module in the channel-transport tutorial case, the coupling data has to be renamed from `Velocity` to `U` (case-sensitive) in `precice-config.xml`, `fluid-openfoam/system/preciceDict` and the other participant `transport-nutils/transport.py`.
 
-Due to the above schema limitation, Dirichlet-Neumann coupling is limited with the GENERIC module. When reading data into OpenFOAM, the boundary condition must be respected, therefore the data received is applied either as a `fixedValue` or `fixedGradient` boundary condition, determined by the type set in the `0/` files. When writing data from OpenFOAM, it is currently assumed the data is always written as values, i.e., for `fixedValue` boundary conditions. Volume coupling data is always assumed as values for now, i.e., cannot set volume gradient.
+Due to the above schema limitation, Dirichlet-Neumann coupling is limited with the Generic module. When reading data into OpenFOAM, the boundary condition must be respected, therefore the data received is applied either as a `fixedValue` or `fixedGradient` boundary condition, determined by the type set in the `0/` files. When writing data from OpenFOAM, it is currently assumed the data is always written as values, i.e., for `fixedValue` boundary conditions. Volume coupling data is always assumed as values for now, i.e., cannot set volume gradient.
 
 ```cpp
 // File system/preciceDict
 
-modules (GENERIC);
+modules (Generic);
 
 interfaces
 {

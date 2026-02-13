@@ -127,7 +127,7 @@ void preciceAdapter::Adapter::configFileRead()
             FFenabled_ = true;
         }
 
-        if (module == "GENERIC")
+        if (module == "generic")
         {
             genericModuleEnabled_ = true;
         }
@@ -224,8 +224,8 @@ void preciceAdapter::Adapter::configFileRead()
 
     if (genericModuleEnabled_)
     {
-        GENERIC_ = new GENERIC::GenericInterface(mesh_);
-        if (!GENERIC_->configure(preciceDict))
+        Generic_ = new Generic::GenericInterface(mesh_);
+        if (!Generic_->configure(preciceDict))
         {
             return;
         }
@@ -365,9 +365,9 @@ try
                 inModules++;
             }
 
-            if (genericModuleEnabled_ && GENERIC_->addWriters(dataName, interface))
+            if (genericModuleEnabled_ && Generic_->addWriters(dataName, interface))
             {
-                inModules++
+                inModules++;
             };
 
             if (inModules == 0)
@@ -402,7 +402,7 @@ try
             // Add FF-related coupling data readers
             if (FFenabled_ && FF_->addReaders(dataName, interface)) inModules++;
 
-            if (genericModuleEnabled_ && GENERIC_->addReaders(dataName, interface)) inModules++;
+            if (genericModuleEnabled_ && Generic_->addReaders(dataName, interface)) inModules++;
 
             if (inModules == 0)
             {
@@ -1548,12 +1548,12 @@ void preciceAdapter::Adapter::teardown()
         FF_ = NULL;
     }
 
-    // Delete the GENERIC module
-    if (NULL != GENERIC_)
+    // Delete the Generic module
+    if (NULL != Generic_)
     {
-        DEBUG(adapterInfo("Destroying the general module..."));
-        delete GENERIC_;
-        GENERIC_ = NULL;
+        DEBUG(adapterInfo("Destroying the Generic module..."));
+        delete Generic_;
+        Generic_ = NULL;
     }
 
     // NOTE: Delete your new module here

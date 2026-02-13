@@ -7,7 +7,7 @@ CouplingDataUser.C
 CHT/ModuleCHT.C
 FSI/ModuleFSI.C
 FF/ModuleFF.C
-GENERIC/ModuleGeneric.C
+module-generic/ModuleGeneric.C
 
 Adapter.C
 

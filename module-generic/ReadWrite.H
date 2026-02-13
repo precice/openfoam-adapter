@@ -8,7 +8,7 @@
 
 namespace preciceAdapter
 {
-namespace GENERIC
+namespace Generic
 {
 
 struct fieldConfig
