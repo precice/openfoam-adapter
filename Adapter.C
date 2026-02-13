@@ -365,6 +365,7 @@ try
                 inModules++;
             }
 
+            // Add generic module coupling data writers
             if (genericModuleEnabled_ && Generic_->addWriters(dataName, interface))
             {
                 inModules++;
@@ -402,6 +403,7 @@ try
             // Add FF-related coupling data readers
             if (FFenabled_ && FF_->addReaders(dataName, interface)) inModules++;
 
+            // Add generic module coupling data readers
             if (genericModuleEnabled_ && Generic_->addReaders(dataName, interface)) inModules++;
 
             if (inModules == 0)

@@ -140,9 +140,10 @@ private:
     //- Fluid-Fluid module object
     FF::FluidFluid* FF_ = NULL;
 
-    // NOTE: Add here a pointer for your new module object
-
+    //- Generic module object
     Generic::GenericInterface* Generic_ = NULL;
+
+    // NOTE: Add here a pointer for your new module object
 
     // Timesteps
 
