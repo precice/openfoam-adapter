@@ -24,8 +24,8 @@ protected:
     //- Struct to store interfaces configuration (modified from Adapter.C)
     struct InterfaceConfig
     {
-        std::vector<struct fieldConfig> writeData;
-        std::vector<struct fieldConfig> readData;
+        std::vector<struct FieldConfig> writeData;
+        std::vector<struct FieldConfig> readData;
     };
 
     //- Configuration interfaces
@@ -39,10 +39,10 @@ public:
     bool configure(const IOdictionary& adapterConfig);
 
     //- Add coupling data writers
-    bool addWriters(std::string dataName, Interface* interface);
+    bool addWriters(const preciceAdapter::FieldConfig& FieldConfig, Interface* interface);
 
     //- Add coupling data readers
-    bool addReaders(std::string dataName, Interface* interface);
+    bool addReaders(const preciceAdapter::FieldConfig& FieldConfig, Interface* interface);
 };
 
 }

@@ -343,7 +343,8 @@ try
         DEBUG(adapterInfo("Adding coupling data writers..."));
         for (uint j = 0; j < interfacesConfig_.at(i).writeData.size(); j++)
         {
-            std::string dataName = interfacesConfig_.at(i).writeData.at(j).name;
+            FieldConfig FieldConfig = interfacesConfig_.at(i).writeData.at(j);
+            std::string dataName = FieldConfig.name;
 
             unsigned int inModules = 0;
 
@@ -366,7 +367,7 @@ try
             }
 
             // Add generic module coupling data writers
-            if (genericModuleEnabled_ && Generic_->addWriters(dataName, interface))
+            if (genericModuleEnabled_ && Generic_->addWriters(FieldConfig, interface))
             {
                 inModules++;
             };
@@ -390,7 +391,8 @@ try
         DEBUG(adapterInfo("Adding coupling data readers..."));
         for (uint j = 0; j < interfacesConfig_.at(i).readData.size(); j++)
         {
-            std::string dataName = interfacesConfig_.at(i).readData.at(j).name;
+            FieldConfig FieldConfig = interfacesConfig_.at(i).writeData.at(j);
+            std::string dataName = FieldConfig.name;
 
             unsigned int inModules = 0;
 
@@ -404,7 +406,7 @@ try
             if (FFenabled_ && FF_->addReaders(dataName, interface)) inModules++;
 
             // Add generic module coupling data readers
-            if (genericModuleEnabled_ && Generic_->addReaders(dataName, interface)) inModules++;
+            if (genericModuleEnabled_ && Generic_->addReaders(FieldConfig, interface)) inModules++;
 
             if (inModules == 0)
             {

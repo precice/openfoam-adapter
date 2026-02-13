@@ -1,6 +1,7 @@
 #ifndef MODULE_ReadWrite_H
 #define MODULE_ReadWrite_H
 
+#include "Interface.H"
 #include "CouplingDataUser.H"
 
 #include "fvCFD.H"
@@ -11,22 +12,15 @@ namespace preciceAdapter
 namespace Generic
 {
 
-struct fieldConfig
-{
-    std::string name;
-    std::string solver_name;
-    std::string operation;
-};
-
 class ScalarFieldCoupler : public CouplingDataUser // One CouplingDataUser for each field
 {
 protected:
     Foam::volScalarField* scalarField_;
     const Foam::fvMesh& mesh_;
-    const struct fieldConfig& fieldConfig_;
+    const preciceAdapter::FieldConfig& FieldConfig_;
 
 public:
-    ScalarFieldCoupler(const Foam::fvMesh& mesh, const struct fieldConfig& fieldConfig);
+    ScalarFieldCoupler(const Foam::fvMesh& mesh, const preciceAdapter::FieldConfig& FieldConfig);
 
     std::size_t write(double* buffer, bool meshConnectivity, const unsigned int dim);
     void read(double* buffer, const unsigned int dim);
@@ -41,10 +35,10 @@ class VectorFieldCoupler : public CouplingDataUser
 protected:
     Foam::volVectorField* vectorField_;
     const Foam::fvMesh& mesh_;
-    const struct fieldConfig& fieldConfig_;
+    const preciceAdapter::FieldConfig& FieldConfig_;
 
 public:
-    VectorFieldCoupler(const Foam::fvMesh& mesh, const struct fieldConfig& fieldConfig);
+    VectorFieldCoupler(const Foam::fvMesh& mesh, const preciceAdapter::FieldConfig& FieldConfig);
 
     std::size_t write(double* buffer, bool meshConnectivity, const unsigned int dim);
     void read(double* buffer, const unsigned int dim);

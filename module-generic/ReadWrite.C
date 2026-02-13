@@ -11,12 +11,12 @@ using namespace Foam;
 
 preciceAdapter::Generic::ScalarFieldCoupler::ScalarFieldCoupler(
     const Foam::fvMesh& mesh,
-    const struct fieldConfig& fieldConfig)
+    const preciceAdapter::FieldConfig& FieldConfig)
 : scalarField_(
     const_cast<volScalarField*>(
-        &mesh.lookupObject<volScalarField>(fieldConfig.solver_name))),
+        &mesh.lookupObject<volScalarField>(FieldConfig.solver_name))),
   mesh_(mesh),
-  fieldConfig_(fieldConfig)
+  FieldConfig_(FieldConfig)
 {
     dataType_ = scalar;
 }
@@ -171,19 +171,19 @@ bool preciceAdapter::Generic::ScalarFieldCoupler::isLocationTypeSupported(const 
 
 std::string preciceAdapter::Generic::ScalarFieldCoupler::getDataName() const
 {
-    return fieldConfig_.name;
+    return FieldConfig_.name;
 }
 
 //----- preciceAdapter::Generic::VectorFieldCoupler -----------------------------------------
 
 preciceAdapter::Generic::VectorFieldCoupler::VectorFieldCoupler(
     const Foam::fvMesh& mesh,
-    const struct fieldConfig& fieldConfig)
+    const preciceAdapter::FieldConfig& FieldConfig)
 : vectorField_(
     const_cast<volVectorField*>(
-        &mesh.lookupObject<volVectorField>(fieldConfig.solver_name))),
+        &mesh.lookupObject<volVectorField>(FieldConfig.solver_name))),
   mesh_(mesh),
-  fieldConfig_(fieldConfig)
+  FieldConfig_(FieldConfig)
 {
     dataType_ = vector;
 }
@@ -390,5 +390,5 @@ bool preciceAdapter::Generic::VectorFieldCoupler::isLocationTypeSupported(const 
 
 std::string preciceAdapter::Generic::VectorFieldCoupler::getDataName() const
 {
-    return fieldConfig_.name;
+    return FieldConfig_.name;
 }

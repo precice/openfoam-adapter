@@ -23,161 +23,66 @@ bool preciceAdapter::Generic::GenericInterface::configure(const IOdictionary& ad
 
 bool preciceAdapter::Generic::GenericInterface::readConfig(const IOdictionary& adapterConfig)
 {
-    DEBUG(adapterInfo("Reading Generic module configuration..."));
-
-    // const dictionary& moduleDict = adapterConfig.subOrEmptyDict("Generic");
-
-    // TODO: Reduce code duplication and get the interfaces configuration from preciceAdapter:Adapter
-
-    const dictionary* interfaceDictPtr = adapterConfig.findDict("interfaces");
-    struct InterfaceConfig interfaceConfig;
-
-    for (const entry& interfaceDictEntry : *interfaceDictPtr)
-    {
-        if (interfaceDictEntry.isDict())
-        {
-            const dictionary& interfaceDict = interfaceDictEntry.dict();
-
-            DEBUG(adapterInfo("    writeData    : "));
-            const wordList& writeDataDict = interfaceDict.get<wordList>("writeData");
-
-            for (const word& writeDatumEntry : writeDataDict)
-            {
-                word dataName = writeDatumEntry;
-
-                // Assume dataName is same as solver_name, see code for new schema below
-                struct fieldConfig fieldConfig;
-                fieldConfig.name = dataName;
-                fieldConfig.solver_name = dataName;
-                fieldConfig.operation = "value";
-
-                interfaceConfig.writeData.push_back(fieldConfig);
-                DEBUG(adapterInfo("      - " + fieldConfig.name));
-            }
-
-            DEBUG(adapterInfo("    readData     : "));
-            const wordList& readDataDict = interfaceDict.get<wordList>("readData");
-            for (const word& readDatumEntry : readDataDict)
-            {
-                word dataName = readDatumEntry;
-
-                struct fieldConfig fieldConfig;
-                fieldConfig.name = dataName;
-                fieldConfig.solver_name = dataName;
-                fieldConfig.operation = "value";
-
-                interfaceConfig.readData.push_back(fieldConfig);
-                DEBUG(adapterInfo("      - " + fieldConfig.name));
-            }
-            interfacesConfig_.push_back(interfaceConfig);
-        }
-    }
-
+    // Empty for now. No other specific configuration options for the Generic module.
     return true;
 }
 
-bool preciceAdapter::Generic::GenericInterface::addWriters(std::string dataName, Interface* interface)
+bool preciceAdapter::Generic::GenericInterface::addWriters(const preciceAdapter::FieldConfig& FieldConfig, Interface* interface)
 {
-    bool found = true; // Set to false later, if needed.
+    bool found = true;
 
     // Determine type of field
-    bool isScalarField;
-
-    // TODO: refactor to get rid of the inner loop
-
-    // for all interfaces
-    for (uint i = 0; i < interfacesConfig_.size(); i++)
+    if (mesh_.foundObject<volScalarField>(FieldConfig.solver_name))
     {
-        // find the writer corresponding to dataName
-        for (uint j = 0; j < interfacesConfig_.at(i).writeData.size(); j++)
-        {
-            const struct fieldConfig& fieldConfig = interfacesConfig_.at(i).writeData.at(j);
-            if (fieldConfig.name == dataName)
-            {
-
-                if (mesh_.foundObject<volScalarField>(fieldConfig.solver_name))
-                {
-                    isScalarField = true;
-                }
-                else if (mesh_.foundObject<volVectorField>(fieldConfig.solver_name))
-                {
-                    isScalarField = false;
-                }
-                else
-                {
-                    found = false;
-                    adapterInfo("Data " + dataName + " not found!");
-                    return found;
-                }
-
-                if (isScalarField)
-                {
-                    interface->addCouplingDataWriter(
-                        dataName,
-                        new ScalarFieldCoupler(mesh_, fieldConfig));
-                }
-                else
-                {
-                    interface->addCouplingDataWriter(
-                        dataName,
-                        new VectorFieldCoupler(mesh_, fieldConfig));
-                }
-
-                DEBUG(adapterInfo("Added writer: " + dataName));
-            }
-        }
+        interface->addCouplingDataWriter(
+            FieldConfig.name,
+            new ScalarFieldCoupler(mesh_, FieldConfig));
+    }
+    else if (mesh_.foundObject<volVectorField>(FieldConfig.solver_name))
+    {
+        interface->addCouplingDataWriter(
+            FieldConfig.name,
+            new VectorFieldCoupler(mesh_, FieldConfig));
+    }
+    else
+    {
+        found = false;
+        adapterInfo("Generic module: Data " + FieldConfig.name + " not found!");
     }
 
+    if (found)
+    {
+        DEBUG(adapterInfo("Added writer: " + FieldConfig.name));
+    }
     return found;
 }
 
-bool preciceAdapter::Generic::GenericInterface::addReaders(std::string dataName, Interface* interface)
+bool preciceAdapter::Generic::GenericInterface::addReaders(const preciceAdapter::FieldConfig& FieldConfig, Interface* interface)
 {
-    bool found = true; // Set to false later, if needed.
+    bool found = true;
 
     // Determine type of field
-    bool isScalarField;
-
-    for (uint i = 0; i < interfacesConfig_.size(); i++)
+    if (mesh_.foundObject<volScalarField>(FieldConfig.solver_name))
     {
-        for (uint j = 0; j < interfacesConfig_.at(i).readData.size(); j++)
-        {
-            const struct fieldConfig& fieldConfig = interfacesConfig_.at(i).readData.at(j);
-            if (fieldConfig.name == dataName)
-            {
-
-                if (mesh_.foundObject<volScalarField>(fieldConfig.solver_name))
-                {
-                    isScalarField = true;
-                }
-                else if (mesh_.foundObject<volVectorField>(fieldConfig.solver_name))
-                {
-                    isScalarField = false;
-                }
-                else
-                {
-                    found = false;
-                    adapterInfo("Data " + dataName + " not found!");
-                    return found;
-                }
-
-                if (isScalarField)
-                {
-                    interface->addCouplingDataReader(
-                        dataName,
-                        new ScalarFieldCoupler(mesh_, fieldConfig));
-                }
-                else
-                {
-                    interface->addCouplingDataReader(
-                        dataName,
-                        new VectorFieldCoupler(mesh_, fieldConfig));
-                }
-
-                DEBUG(adapterInfo("Added reader: " + dataName));
-            }
-        }
+        interface->addCouplingDataReader(
+            FieldConfig.name,
+            new ScalarFieldCoupler(mesh_, FieldConfig));
+    }
+    else if (mesh_.foundObject<volVectorField>(FieldConfig.solver_name))
+    {
+        interface->addCouplingDataReader(
+            FieldConfig.name,
+            new VectorFieldCoupler(mesh_, FieldConfig));
+    }
+    else
+    {
+        found = false;
+        adapterInfo("Generic module: Data " + FieldConfig.name + " not found!");
     }
 
+    if (found)
+    {
+        DEBUG(adapterInfo("Added reader: " + FieldConfig.name));
+    }
     return found;
 }
