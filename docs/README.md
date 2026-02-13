@@ -96,6 +96,10 @@ The volume coupling functionality was contributed by Tina Vladimirova, in the co
 
 The adapter is [easily extensible](https://precice.org/adapter-openfoam-extend.html).
 
+{% disclaimer %}
+This offering is not approved or endorsed by OpenCFD Limited, producer and distributor of the OpenFOAM software via www.openfoam.com, and owner of the OPENFOAM®  and OpenCFD®  trade marks.
+{% enddisclaimer %}
+
 ### Related literature
 
 [^1]: Chourdakis, G., Schneider, D., & Uekermann, B. (2023). OpenFOAM-preCICE: Coupling OpenFOAM with External Solvers for Multi-Physics Simulations. OpenFOAM® Journal, 3, 1–25.<br/>
@@ -118,7 +122,3 @@ URL: https://mediatum.ub.tum.de/node?id=1696254&change_language=en
 
 [^7]: Tina Vladimirova. Design, implementation, and validation of a volume coupling extension for the OpenFOAM-preCICE adapter. IDP report, School of Computation, Information and Technology, Technical University of Munich, 2023.<br/>
 URL: https://mediatum.ub.tum.de/1734883
-
-{% disclaimer %}
-This offering is not approved or endorsed by OpenCFD Limited, producer and distributor of the OpenFOAM software via www.openfoam.com, and owner of the OPENFOAM®  and OpenCFD®  trade marks.
-{% enddisclaimer %}
