@@ -367,7 +367,7 @@ try
 
             if (genericModuleEnabled_ && GENERIC_->addWriters(dataName, interface))
             {
-                inModules++;
+                inModules++
             };
 
             if (inModules == 0)
