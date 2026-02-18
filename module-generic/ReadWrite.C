@@ -152,13 +152,6 @@ void preciceAdapter::Generic::ScalarFieldCoupler::read(double* buffer, const uns
 
 bool preciceAdapter::Generic::ScalarFieldCoupler::isLocationTypeSupported(const bool meshConnectivity) const
 {
-    // TODO
-
-    // For cases with mesh connectivity, we support:
-    // - face nodes, only for writing
-    // - face centers, only for reading
-    // However, since we do not distinguish between reading and writing in the code, we
-    // always return true and offload the handling to the user.
     if (meshConnectivity)
     {
         return (this->locationType_ == LocationType::faceCenters || this->locationType_ == LocationType::faceNodes); // we currently do not support meshConnectivity for volumeCenters
@@ -245,39 +238,16 @@ std::size_t preciceAdapter::Generic::VectorFieldCoupler::write(double* buffer, b
         // Get the vector field boundary patch
         auto& boundaryPatch = vectorField_->boundaryField()[patchID];
 
-        if (meshConnectivity)
+        // For every cell of the patch
+        forAll(boundaryPatch, i)
         {
-            //Create an Interpolation object at the boundary Field
-            primitivePatchInterpolation patchInterpolator(mesh_.boundaryMesh()[patchID]);
+            buffer[bufferIndex++] = boundaryPatch[i].x();
 
-            //Interpolate from centers to nodes
-            vectorField pointValues(
-                patchInterpolator.faceToPointInterpolate(boundaryPatch));
+            buffer[bufferIndex++] = boundaryPatch[i].y();
 
-            forAll(pointValues, i)
+            if (dim == 3)
             {
-                buffer[bufferIndex++] = pointValues[i].x();
-                buffer[bufferIndex++] = pointValues[i].y();
-
-                if (dim == 3)
-                {
-                    buffer[bufferIndex++] = pointValues[i].z();
-                }
-            }
-        }
-        else
-        {
-            // For every cell of the patch
-            forAll(boundaryPatch, i)
-            {
-                buffer[bufferIndex++] = boundaryPatch[i].x();
-
-                buffer[bufferIndex++] = boundaryPatch[i].y();
-
-                if (dim == 3)
-                {
-                    buffer[bufferIndex++] = boundaryPatch[i].z();
-                }
+                buffer[bufferIndex++] = boundaryPatch[i].z();
             }
         }
     }
@@ -376,11 +346,10 @@ void preciceAdapter::Generic::VectorFieldCoupler::read(double* buffer, const uns
 
 bool preciceAdapter::Generic::VectorFieldCoupler::isLocationTypeSupported(const bool meshConnectivity) const
 {
-    // TODO
     if (meshConnectivity)
     {
-        // does not support volume mapping with mesh connectivity
-        return (this->locationType_ == LocationType::faceCenters);
+        // Mesh connectivity not implemented & tested for vector fields
+        return false;
     }
     else
     {
