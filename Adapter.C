@@ -395,7 +395,7 @@ try
         DEBUG(adapterInfo("Adding coupling data readers..."));
         for (uint j = 0; j < interfacesConfig_.at(i).readData.size(); j++)
         {
-            FieldConfig FieldConfig = interfacesConfig_.at(i).writeData.at(j);
+            FieldConfig FieldConfig = interfacesConfig_.at(i).readData.at(j);
             std::string dataName = FieldConfig.name;
 
             unsigned int inModules = 0;
