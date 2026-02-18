@@ -12,7 +12,7 @@ This preCICE adapter is a plug-in (function object) for OpenFOAM, which can work
 
 ## What can it do?
 
-This adapter has been demonstrated on different use cases (conjugate heat transfer, fluid-structure interaction, fluid-fluid coupling), both in 2D (3D with one layer of cells in the z-axis) and 3D, and both for flow and solid OpenFOAM-based solvers (see [tutorials](https://precice.org/tutorials.html)).
+This adapter has been demonstrated on different use cases (conjugate heat transfer, fluid-structure interaction, fluid-fluid coupling, CFD-DEM), both in 2D (3D with one layer of cells in the z-axis) and 3D, and both for flow and solid OpenFOAM-based solvers (see [tutorials](https://precice.org/tutorials.html)).
 The fields to read/write are provided by different adapter modules that one needs to [configure](https://precice.org/adapter-openfoam-config.html) and are currently the following.
 
 Legend on locations to read/write:
