@@ -41,7 +41,7 @@
 
 void adapterInfo(const std::string message, const std::string level = "debug");
 
-// Returns true if the match is found in the beginning of the string s, ignoring case
+// Returns true if the string s matches the string match, ignoring case
 bool matchingStrings(std::string s, std::string match);
 
 #endif
