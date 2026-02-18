@@ -367,10 +367,14 @@ try
             }
 
             // Add generic module coupling data writers
-            if (genericModuleEnabled_ && Generic_->addWriters(FieldConfig, interface))
+            // Only add Generic interface if not found in other modules
+            if (inModules == 0)
             {
-                inModules++;
-            };
+                if (genericModuleEnabled_ && Generic_->addWriters(FieldConfig, interface))
+                {
+                    inModules++;
+                };
+            }
 
             if (inModules == 0)
             {
@@ -406,7 +410,14 @@ try
             if (FFenabled_ && FF_->addReaders(dataName, interface)) inModules++;
 
             // Add generic module coupling data readers
-            if (genericModuleEnabled_ && Generic_->addReaders(FieldConfig, interface)) inModules++;
+            // Only add Generic interface if not found in other modules
+            if (inModules == 0)
+            {
+                if (genericModuleEnabled_ && Generic_->addReaders(FieldConfig, interface))
+                {
+                    inModules++;
+                }
+            }
 
             if (inModules == 0)
             {
