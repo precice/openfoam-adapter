@@ -286,7 +286,7 @@ void preciceAdapter::Adapter::configFileRead()
 
     if (!CHTenabled_ && !FSIenabled_ && !FFenabled_ && !genericModuleEnabled_) // NOTE: Add your new switch here
     {
-        adapterInfo("No module is enabled.", "error-deferred");
+        adapterInfo("No module is enabled.", "error");
         return;
     }
 
