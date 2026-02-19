@@ -22,6 +22,7 @@ protected:
 public:
     ScalarFieldCoupler(const Foam::fvMesh& mesh, const preciceAdapter::FieldConfig& FieldConfig);
 
+    void initialize();
     std::size_t write(double* buffer, bool meshConnectivity, const unsigned int dim);
     void read(double* buffer, const unsigned int dim);
     bool isLocationTypeSupported(const bool meshConnectivity) const;
@@ -40,6 +41,7 @@ protected:
 public:
     VectorFieldCoupler(const Foam::fvMesh& mesh, const preciceAdapter::FieldConfig& FieldConfig);
 
+    void initialize();
     std::size_t write(double* buffer, bool meshConnectivity, const unsigned int dim);
     void read(double* buffer, const unsigned int dim);
     bool isLocationTypeSupported(const bool meshConnectivity) const;

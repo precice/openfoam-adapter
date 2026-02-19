@@ -21,11 +21,40 @@ preciceAdapter::Generic::ScalarFieldCoupler::ScalarFieldCoupler(
     dataType_ = scalar;
 }
 
+void preciceAdapter::Generic::ScalarFieldCoupler::initialize()
+{
+    if (FieldConfig_.operation == "gradient")
+    {
+        if (this->locationType_ != LocationType::faceCenters)
+        {
+            adapterInfo("Generic module: The gradient operation is only supported for faceCenters location type.", "error");
+        }
+    }
+}
 
-// In the Generic module, only the value operation is supported for now, i.e., cannot write gradients.
+
 std::size_t preciceAdapter::Generic::ScalarFieldCoupler::write(double* buffer, bool meshConnectivity, const unsigned int dim)
 {
     int bufferIndex = 0;
+
+    if (FieldConfig_.operation == "gradient")
+    {
+        // For every boundary patch of the interface
+        for (uint j = 0; j < patchIDs_.size(); j++)
+        {
+            int patchID = patchIDs_.at(j);
+
+            // Get the surface normal gradient boundary patch
+            scalarField gradientPatch(scalarField_->boundaryField()[patchID].snGrad());
+
+            // For every cell of the patch
+            forAll(gradientPatch, i)
+            {
+                buffer[bufferIndex++] = gradientPatch[i];
+            }
+        }
+        return bufferIndex;
+    }
 
     if (this->locationType_ == LocationType::volumeCenters)
     {
@@ -181,7 +210,15 @@ preciceAdapter::Generic::VectorFieldCoupler::VectorFieldCoupler(
     dataType_ = vector;
 }
 
-// In the Generic module, only the value operation is supported for now, i.e., cannot write gradients.
+void preciceAdapter::Generic::VectorFieldCoupler::initialize()
+{
+    // In the Generic module, for vector fields only the value operation is supported for now, i.e., cannot write gradients.
+    if (FieldConfig_.operation == "gradient")
+    {
+        adapterInfo("Generic module: The gradient operation is not yet supported for vector fields.", "error");
+    }
+}
+
 std::size_t preciceAdapter::Generic::VectorFieldCoupler::write(double* buffer, bool meshConnectivity, const unsigned int dim)
 {
     int bufferIndex = 0;
