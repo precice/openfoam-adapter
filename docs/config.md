@@ -259,7 +259,7 @@ When coupling face flux `Phi`, usually no specific boundary condition needs to b
 
 ## Generic module
 
-The Generic module is an experimental addition that allows coupling any field by its name. It supports volume and surface coupling of scalar and vector fields (e.g., `Velocity`, `Pressure`, `Temperature`).
+The Generic module is an experimental addition that allows coupling any field by its name. It supports volume and surface coupling of scalar and vector fields (e.g., `Velocity`, `Pressure`, `Temperature`). If multiple modules are enabled, the Generic module will handle only those fields which have not been defined in the other modules. For example, if FF is also enabled, then fields whose data name starts with `Velocity` will be handled by the FF module instead.
 
 The module supports the dictionary-based configuration format, which allows setting additional options for each field:
 
