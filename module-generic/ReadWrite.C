@@ -183,7 +183,7 @@ bool preciceAdapter::Generic::ScalarFieldCoupler::isLocationTypeSupported(const 
 {
     if (meshConnectivity)
     {
-        return (this->locationType_ == LocationType::faceCenters || this->locationType_ == LocationType::faceNodes); // we currently do not support meshConnectivity for volumeCenters
+        return (this->locationType_ == LocationType::faceNodes);
     }
     else
     {
@@ -385,7 +385,6 @@ bool preciceAdapter::Generic::VectorFieldCoupler::isLocationTypeSupported(const 
 {
     if (meshConnectivity)
     {
-        // Mesh connectivity not implemented & tested for vector fields
         return false;
     }
     else
