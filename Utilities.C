@@ -70,5 +70,5 @@ bool matchingStrings(std::string s, std::string match)
 {
     std::transform(s.begin(), s.end(), s.begin(), [](unsigned char c) { return std::tolower(c); });
     std::transform(match.begin(), match.end(), match.begin(), [](unsigned char c) { return std::tolower(c); });
-    return s == match;
+    return s.find(match) == 0;
 }
