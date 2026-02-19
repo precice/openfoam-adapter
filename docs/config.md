@@ -259,24 +259,23 @@ When coupling face flux `Phi`, usually no specific boundary condition needs to b
 
 ## Generic module
 
-The Generic module is an experimental addition, which would theoretically allow for any field to be coupled by its name. Currently, volume and surface coupling of scalar and vector fields is supported, for example, Velocity and Pressure. Explicitly setting `locations volumeCenters;` in preciceDict is required for volume coupling. If omitted, it defaults to surface coupling on faceCenters. When reading on the OpenFOAM side, the Generic module automatically detects the boundary condition type of the coupled patch to apply the received data. The boundary condition must be respected, therefore the data received is applied either as a `fixedValue` or `fixedGradient` boundary condition, determined by the type set in the `0/` files. Volume coupling data is always assumed as values for now, i.e., cannot set volume gradient.
+The Generic module is an experimental addition that allows coupling any field by its name. It supports volume and surface coupling of scalar and vector fields (e.g., `Velocity`, `Pressure`, `Temperature`).
+
+The module supports the dictionary-based configuration format, which allows setting additional options for each field:
 
 ```cpp
 // File system/preciceDict
 
-modules (generic);
+modules ( generic );
 
 interfaces
 {
   Interface1
   {
     mesh              Fluid-Mesh;
+    patches           (interface);
     // For volume coupling specify volumeCenters
-    patches           ();
-    locations         volumeCenters;
-    // Alternatively, for surface coupling
-    // patches           (interface);
-    // locations         faceCenters;
+    locations         faceCenters;
 
     writeData
     (
@@ -287,10 +286,23 @@ interfaces
         operation   value;      // Optional: Operation to perform on data (defaults to 'value')
         flip-normal false;      // Optional: Flip the normal direction (defaults to 'false')
       }
+
+      TemperatureGradient
+      {
+        name        T_Grad;
+        solver_name T;
+        operation   gradient;   // Use surface normal gradient
+      }
     );
   };
 };
 ```
+
+Explicitly setting `locations volumeCenters;` in preciceDict is required for volume coupling. If omitted, it defaults to surface coupling on `faceCenters`. Volume coupling data is always assumed as values for now, i.e., cannot set volume gradient.
+
+When reading on the OpenFOAM side, the Generic module automatically detects the boundary condition type of the coupled patch to apply the received data. The boundary condition must be respected, therefore the data received is applied either as a `fixedValue` or `fixedGradient` boundary condition, determined by the type set in the `0/` files.
+
+The `operation gradient;` is currently only supported for scalar field surface writing, in which case it actually performs the surface normal gradient operation (data type is still scalar).
 
 ### Volume coupling
 
@@ -669,7 +681,7 @@ to be a useful reference (file changes).
 
 ## Upcoming changes to the configuration format
 
-We are currently working on porting the adapter configuration file to the new [adapter configuration schema](https://github.com/precice/preeco-orga/tree/main/adapter-config-schema). Since v1.4.0, `readData` and `writeData` support parsing both the new format. Additional options (`solver_name`, `operation` and `flip-normal`) can be specified in the dictionaries . For example, the data `name` as known by preCICE can be different than the `solver_name` known by OpenFOAM. However, the new options are not yet functionally supported by the current modules FF, CHT and FSI. The legacy word list format is still supported, and both formats can even be mixed:
+We are currently working on porting the adapter configuration file to the new [adapter configuration schema](https://github.com/precice/preeco-orga/tree/main/adapter-config-schema). Since v1.4.0, `readData` and `writeData` support parsing both the new format. Additional options (`solver_name`, `operation` and `flip-normal`) can be specified in the dictionaries. The new options are currently functionally supported by the **Generic module**. The legacy word list format is still supported, and both formats can even be mixed:
 
 ```cpp
 readData
