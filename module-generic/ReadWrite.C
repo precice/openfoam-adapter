@@ -175,7 +175,7 @@ void preciceAdapter::Generic::ScalarFieldCoupler::read(double* buffer, const uns
         }
         else
         {
-            FatalErrorInFunction << "Unsupported boundary condition type " << bc.type() << exit(FatalError);
+            adapterInfo("Generic module: Unsupported boundary condition type " + bc.type(), "error");
         }
 
         // // evaluate the boundary condition, i.e., do some calculation to obtain the actual value provided refValue
@@ -381,7 +381,7 @@ void preciceAdapter::Generic::VectorFieldCoupler::read(double* buffer, const uns
         }
         else
         {
-            FatalErrorInFunction << "Unsupported boundary condition type " << bc.type() << exit(FatalError);
+            adapterInfo("Generic module: Unsupported boundary condition type " + bc.type(), "error");
         }
     }
 }
