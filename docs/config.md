@@ -257,7 +257,7 @@ The FF module is still experimental and the boundary conditions presented here h
 
 When coupling face flux `Phi`, usually no specific boundary condition needs to be set. The coupled boundary values are therefore not persistent and may change within a timestep.
 
-## Generic module
+#### Generic module
 
 The Generic module is an experimental addition that allows coupling any field by its name. It supports volume and surface coupling of scalar and vector fields (e.g., `Velocity`, `Pressure`, `Temperature`). If multiple modules are enabled, the Generic module will handle only those fields which have not been defined in the other modules. For example, if FF is also enabled, then fields whose data name starts with `Velocity` will be handled by the FF module instead.
 
@@ -291,7 +291,7 @@ interfaces
       {
         name        T_Grad;
         solver_name T;
-        operation   gradient;   // Use surface normal gradient
+        operation   surface-normal-gradient;   // Use surface normal gradient
       }
     );
   };
@@ -302,7 +302,7 @@ Explicitly setting `locations volumeCenters;` in preciceDict is required for vol
 
 When reading on the OpenFOAM side, the Generic module automatically detects the boundary condition type of the coupled patch to apply the received data. The boundary condition must be respected, therefore the data received is applied either as a `fixedValue` or `fixedGradient` boundary condition, determined by the type set in the `0/` files.
 
-The `operation gradient;` is currently only supported for scalar field surface writing, in which case it actually performs the surface normal gradient operation (data type is still scalar).
+The `operation surface-normal-gradient;` is currently only supported for scalar field surface writing. The operation `gradient` as well as the option `flip-normal` are not yet supported by the adapter.
 
 ### Volume coupling
 

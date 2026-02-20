@@ -23,12 +23,17 @@ preciceAdapter::Generic::ScalarFieldCoupler::ScalarFieldCoupler(
 
 void preciceAdapter::Generic::ScalarFieldCoupler::initialize()
 {
-    if (FieldConfig_.operation == "gradient")
+    if (FieldConfig_.operation == "surface-normal-gradient")
     {
         if (this->locationType_ != LocationType::faceCenters)
         {
-            adapterInfo("Generic module: The gradient operation is only supported for faceCenters location type.", "error");
+            adapterInfo("Generic module: The surface-normal-gradient operation is only supported for faceCenters location type.", "error");
         }
+    }
+
+    if (FieldConfig_.operation == "gradient")
+    {
+        adapterInfo("Generic module: The gradient operation is not yet supported for scalar fields. Maybe you meant surface-normal-gradient?", "error");
     }
 }
 
@@ -37,7 +42,7 @@ std::size_t preciceAdapter::Generic::ScalarFieldCoupler::write(double* buffer, b
 {
     int bufferIndex = 0;
 
-    if (FieldConfig_.operation == "gradient")
+    if (FieldConfig_.operation == "surface-normal-gradient")
     {
         // For every boundary patch of the interface
         for (uint j = 0; j < patchIDs_.size(); j++)
@@ -213,7 +218,7 @@ preciceAdapter::Generic::VectorFieldCoupler::VectorFieldCoupler(
 void preciceAdapter::Generic::VectorFieldCoupler::initialize()
 {
     // In the Generic module, for vector fields only the value operation is supported for now, i.e., cannot write gradients.
-    if (FieldConfig_.operation == "gradient")
+    if (FieldConfig_.operation == "gradient" || FieldConfig_.operation == "surface-normal-gradient")
     {
         adapterInfo("Generic module: The gradient operation is not yet supported for vector fields.", "error");
     }
