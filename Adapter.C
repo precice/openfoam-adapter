@@ -401,13 +401,22 @@ try
             unsigned int inModules = 0;
 
             // Add CHT-related coupling data readers
-            if (CHTenabled_ && CHT_->addReaders(dataName, interface)) inModules++;
+            if (CHTenabled_ && CHT_->addReaders(dataName, interface))
+            {
+                inModules++;
+            }
 
             // Add FSI-related coupling data readers
-            if (FSIenabled_ && FSI_->addReaders(dataName, interface)) inModules++;
+            if (FSIenabled_ && FSI_->addReaders(dataName, interface))
+            {
+                inModules++;
+            }
 
             // Add FF-related coupling data readers
-            if (FFenabled_ && FF_->addReaders(dataName, interface)) inModules++;
+            if (FFenabled_ && FF_->addReaders(dataName, interface))
+            {
+                inModules++;
+            }
 
             // Add generic module coupling data readers
             // Only add Generic interface if not found in other modules
