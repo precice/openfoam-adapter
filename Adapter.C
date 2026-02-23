@@ -349,19 +349,19 @@ try
             unsigned int inModules = 0;
 
             // Add CHT-related coupling data writers
-            if (CHTenabled_ && CHT_->addWriters(dataName, interface))
+            if (CHTenabled_ && CHT_->addWriters(fieldConfig, interface))
             {
                 inModules++;
             }
 
             // Add FSI-related coupling data writers
-            if (FSIenabled_ && FSI_->addWriters(dataName, interface))
+            if (FSIenabled_ && FSI_->addWriters(fieldConfig, interface))
             {
                 inModules++;
             }
 
             // Add FF-related coupling data writers
-            if (FFenabled_ && FF_->addWriters(dataName, interface))
+            if (FFenabled_ && FF_->addWriters(fieldConfig, interface))
             {
                 inModules++;
             }
@@ -401,19 +401,19 @@ try
             unsigned int inModules = 0;
 
             // Add CHT-related coupling data readers
-            if (CHTenabled_ && CHT_->addReaders(dataName, interface))
+            if (CHTenabled_ && CHT_->addReaders(fieldConfig, interface))
             {
                 inModules++;
             }
 
             // Add FSI-related coupling data readers
-            if (FSIenabled_ && FSI_->addReaders(dataName, interface))
+            if (FSIenabled_ && FSI_->addReaders(fieldConfig, interface))
             {
                 inModules++;
             }
 
             // Add FF-related coupling data readers
-            if (FFenabled_ && FF_->addReaders(dataName, interface))
+            if (FFenabled_ && FF_->addReaders(fieldConfig, interface))
             {
                 inModules++;
             }

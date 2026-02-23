@@ -125,8 +125,10 @@ std::string preciceAdapter::FF::FluidFluid::determineSolverType()
     return solverType;
 }
 
-bool preciceAdapter::FF::FluidFluid::addWriters(std::string dataName, Interface* interface)
+bool preciceAdapter::FF::FluidFluid::addWriters(const preciceAdapter::FieldConfig& fieldConfig, Interface* interface)
 {
+    std::string dataName = fieldConfig.name;
+
     bool found = true; // Set to false later, if needed.
 
     if (matchingStrings(dataName, "VelocityGradient"))
@@ -213,8 +215,10 @@ bool preciceAdapter::FF::FluidFluid::addWriters(std::string dataName, Interface*
     return found;
 }
 
-bool preciceAdapter::FF::FluidFluid::addReaders(std::string dataName, Interface* interface)
+bool preciceAdapter::FF::FluidFluid::addReaders(const preciceAdapter::FieldConfig& fieldConfig, Interface* interface)
 {
+    std::string dataName = fieldConfig.name;
+
     bool found = true; // Set to false later, if needed.
 
     if (matchingStrings(dataName, "VelocityGradient"))

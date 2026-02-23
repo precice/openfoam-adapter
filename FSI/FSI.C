@@ -130,8 +130,10 @@ std::string preciceAdapter::FSI::FluidStructureInteraction::determineSolverType(
 }
 
 
-bool preciceAdapter::FSI::FluidStructureInteraction::addWriters(std::string dataName, Interface* interface)
+bool preciceAdapter::FSI::FluidStructureInteraction::addWriters(const preciceAdapter::FieldConfig& fieldConfig, Interface* interface)
 {
+    std::string dataName = fieldConfig.name;
+
     bool found = true; // Set to false later, if needed.
 
     if (matchingStrings(dataName, "Force"))
@@ -178,8 +180,10 @@ bool preciceAdapter::FSI::FluidStructureInteraction::addWriters(std::string data
     return found;
 }
 
-bool preciceAdapter::FSI::FluidStructureInteraction::addReaders(std::string dataName, Interface* interface)
+bool preciceAdapter::FSI::FluidStructureInteraction::addReaders(const preciceAdapter::FieldConfig& fieldConfig, Interface* interface)
 {
+    std::string dataName = fieldConfig.name;
+
     bool found = true; // Set to false later, if needed.
 
     if (matchingStrings(dataName, "Force"))

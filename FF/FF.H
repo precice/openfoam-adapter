@@ -77,10 +77,10 @@ public:
     bool configure(const IOdictionary& adapterConfig);
 
     //- Add coupling data writers
-    bool addWriters(std::string dataName, Interface* interface);
+    bool addWriters(const preciceAdapter::FieldConfig& fieldConfig, Interface* interface);
 
     //- Add coupling data readers
-    bool addReaders(std::string dataName, Interface* interface);
+    bool addReaders(const preciceAdapter::FieldConfig& fieldConfig, Interface* interface);
 };
 
 }

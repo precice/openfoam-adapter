@@ -118,8 +118,10 @@ std::string preciceAdapter::CHT::ConjugateHeatTransfer::determineSolverType()
     return solverType;
 }
 
-bool preciceAdapter::CHT::ConjugateHeatTransfer::addWriters(std::string dataName, Interface* interface)
+bool preciceAdapter::CHT::ConjugateHeatTransfer::addWriters(const preciceAdapter::FieldConfig& fieldConfig, Interface* interface)
 {
+    std::string dataName = fieldConfig.name;
+
     bool found = true; // Set to false later, if needed.
 
     if (matchingStrings(dataName, "Sink-Temperature"))
@@ -208,8 +210,10 @@ bool preciceAdapter::CHT::ConjugateHeatTransfer::addWriters(std::string dataName
     return found;
 }
 
-bool preciceAdapter::CHT::ConjugateHeatTransfer::addReaders(std::string dataName, Interface* interface)
+bool preciceAdapter::CHT::ConjugateHeatTransfer::addReaders(const preciceAdapter::FieldConfig& fieldConfig, Interface* interface)
 {
+    std::string dataName = fieldConfig.name;
+
     bool found = true; // Set to false later, if needed.
 
     if (matchingStrings(dataName, "Sink-Temperature"))
