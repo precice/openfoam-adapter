@@ -12,6 +12,8 @@
 // Fluid-Fluid module
 #include "FF/FF.H"
 
+#include "module-generic/Generic.H"
+
 // NOTE: If you want to couple a new variable, include your module's header here.
 // You also need to include it in the Make/files file.
 // In case you use additional OpenFOAM symbols, you may also need to specify
@@ -37,15 +39,6 @@ class Adapter
 {
 
 private:
-    //- field options
-    struct FieldConfig
-    {
-        std::string name;
-        std::string solver_name;
-        std::string operation;
-        bool flip_normal;
-    };
-
     //- Structure of the configuration of each coupling interface.
     //  Every interface needs to know the coupling mesh, the OpenFOAM
     //  patches that consist the coupling surface and the kinds
@@ -117,6 +110,9 @@ private:
 
     // NOTE: Add a switch for your new module here
 
+    //- Switch to enable General module
+    bool genericModuleEnabled_ = false;
+
     //- Interfaces
     std::vector<Interface*> interfaces_;
 
@@ -134,6 +130,9 @@ private:
 
     //- Fluid-Fluid module object
     FF::FluidFluid* FF_ = NULL;
+
+    //- Generic module object
+    Generic::GenericInterface* Generic_ = NULL;
 
     // NOTE: Add here a pointer for your new module object
 

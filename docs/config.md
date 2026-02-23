@@ -257,6 +257,53 @@ The FF module is still experimental and the boundary conditions presented here h
 
 When coupling face flux `Phi`, usually no specific boundary condition needs to be set. The coupled boundary values are therefore not persistent and may change within a timestep.
 
+#### Generic module
+
+The Generic module is an experimental addition that allows coupling any field by its name. It supports volume and surface coupling of scalar and vector fields (e.g., `Velocity`, `Pressure`, `Temperature`). If multiple modules are enabled, the Generic module will handle only those fields which have not been defined in the other modules. For example, if FF is also enabled, then fields whose data name starts with `Velocity` will be handled by the FF module instead.
+
+The module supports the dictionary-based configuration format, which allows setting additional options for each field:
+
+```cpp
+// File system/preciceDict
+
+modules ( generic );
+
+interfaces
+{
+  Interface1
+  {
+    mesh              Fluid-Mesh;
+    patches           (interface);
+    // For volume coupling specify volumeCenters
+    locations         faceCenters;
+
+    writeData
+    (
+      Velocity1
+      {
+        name        Velocity;   // Data name as defined in preCICE config
+        solver_name U;          // Optional: Field name in OpenFOAM (defaults to same as 'name')
+        operation   value;      // Optional: Operation to perform on data (defaults to 'value')
+        flip-normal false;      // Optional: Flip the normal direction (defaults to 'false')
+      }
+
+      TemperatureGradient
+      {
+        name        T_Grad;
+        solver_name T;
+        operation   surface-normal-gradient;   // Use surface normal gradient
+      }
+    );
+  };
+};
+```
+
+Explicitly setting `locations volumeCenters;` in preciceDict is required for volume coupling. If omitted, it defaults to surface coupling on `faceCenters`. Volume coupling data is always assumed as values for now, i.e., cannot set volume gradient.
+
+When reading on the OpenFOAM side, the Generic module automatically detects the boundary condition type of the coupled patch to apply the received data. The boundary condition must be respected, therefore the data received is applied either as a `fixedValue` or `fixedGradient` boundary condition, determined by the type set in the `0/` files.
+
+The `operation surface-normal-gradient;` is currently only supported for scalar field surface writing. The operation `gradient` as well as the option `flip-normal` are not yet supported by the adapter.
+
 ### Volume coupling
 
 Besides surface coupling on the domain boundaries, the OpenFOAM adapter also supports coupling overlapping domains, which can be the complete domain, or regions of it. In contrast to surface coupling, though, reading volume data (source terms) requires a few additional configuration steps compared to writing data.
@@ -634,7 +681,7 @@ to be a useful reference (file changes).
 
 ## Upcoming changes to the configuration format
 
-We are currently working on porting the adapter configuration file to the new [adapter configuration schema](https://github.com/precice/preeco-orga/tree/main/adapter-config-schema). Since v1.4.0, `readData` and `writeData` support parsing both the new format. Additional options (`solver_name`, `operation` and `flip-normal`) can be specified in the dictionaries . For example, the data `name` as known by preCICE can be different than the `solver_name` known by OpenFOAM. However, the new options are not yet functionally supported by the current modules FF, CHT and FSI. The legacy word list format is still supported, and both formats can even be mixed:
+We are currently working on porting the adapter configuration file to the new [adapter configuration schema](https://github.com/precice/preeco-orga/tree/main/adapter-config-schema). Since v1.4.0, `readData` and `writeData` support parsing both the new format. Additional options (`solver_name`, `operation` and `flip-normal`) can be specified in the dictionaries. For example, the data `name` as known by preCICE can be different than the `solver_name` known by OpenFOAM. However, the new options are not yet functionally supported by the current modules FF, CHT and FSI. Support for the new options is planned in the Generic module. The legacy word list format is still supported, and both formats can even be mixed:
 
 ```cpp
 readData

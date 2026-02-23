@@ -126,6 +126,11 @@ void preciceAdapter::Adapter::configFileRead()
         {
             FFenabled_ = true;
         }
+
+        if (module == "generic")
+        {
+            genericModuleEnabled_ = true;
+        }
     }
 
     // Every interface is a subdictionary of "interfaces",
@@ -217,6 +222,15 @@ void preciceAdapter::Adapter::configFileRead()
 
     // NOTE: set the switch for your new module here
 
+    if (genericModuleEnabled_)
+    {
+        Generic_ = new Generic::GenericInterface(mesh_);
+        if (!Generic_->configure(preciceDict))
+        {
+            return;
+        }
+    }
+
     // If the CHT module is enabled, create it, read the
     // CHT-specific options and configure it.
     if (CHTenabled_)
@@ -270,7 +284,7 @@ void preciceAdapter::Adapter::configFileRead()
 
     // NOTE: Create your module and read any options specific to it here
 
-    if (!CHTenabled_ && !FSIenabled_ && !FFenabled_) // NOTE: Add your new switch here
+    if (!CHTenabled_ && !FSIenabled_ && !FFenabled_ && !genericModuleEnabled_) // NOTE: Add your new switch here
     {
         adapterInfo("No module is enabled.", "error");
         return;
@@ -329,7 +343,8 @@ try
         DEBUG(adapterInfo("Adding coupling data writers..."));
         for (uint j = 0; j < interfacesConfig_.at(i).writeData.size(); j++)
         {
-            std::string dataName = interfacesConfig_.at(i).writeData.at(j).name;
+            FieldConfig FieldConfig = interfacesConfig_.at(i).writeData.at(j);
+            std::string dataName = FieldConfig.name;
 
             unsigned int inModules = 0;
 
@@ -351,6 +366,16 @@ try
                 inModules++;
             }
 
+            // Add generic module coupling data writers
+            // Only add Generic interface if not found in other modules
+            if (inModules == 0)
+            {
+                if (genericModuleEnabled_ && Generic_->addWriters(FieldConfig, interface))
+                {
+                    inModules++;
+                };
+            }
+
             if (inModules == 0)
             {
                 adapterInfo("I don't know how to write \"" + dataName
@@ -370,18 +395,38 @@ try
         DEBUG(adapterInfo("Adding coupling data readers..."));
         for (uint j = 0; j < interfacesConfig_.at(i).readData.size(); j++)
         {
-            std::string dataName = interfacesConfig_.at(i).readData.at(j).name;
+            FieldConfig FieldConfig = interfacesConfig_.at(i).readData.at(j);
+            std::string dataName = FieldConfig.name;
 
             unsigned int inModules = 0;
 
             // Add CHT-related coupling data readers
-            if (CHTenabled_ && CHT_->addReaders(dataName, interface)) inModules++;
+            if (CHTenabled_ && CHT_->addReaders(dataName, interface))
+            {
+                inModules++;
+            }
 
             // Add FSI-related coupling data readers
-            if (FSIenabled_ && FSI_->addReaders(dataName, interface)) inModules++;
+            if (FSIenabled_ && FSI_->addReaders(dataName, interface))
+            {
+                inModules++;
+            }
 
             // Add FF-related coupling data readers
-            if (FFenabled_ && FF_->addReaders(dataName, interface)) inModules++;
+            if (FFenabled_ && FF_->addReaders(dataName, interface))
+            {
+                inModules++;
+            }
+
+            // Add generic module coupling data readers
+            // Only add Generic interface if not found in other modules
+            if (inModules == 0)
+            {
+                if (genericModuleEnabled_ && Generic_->addReaders(FieldConfig, interface))
+                {
+                    inModules++;
+                }
+            }
 
             if (inModules == 0)
             {
@@ -1525,6 +1570,14 @@ void preciceAdapter::Adapter::teardown()
         DEBUG(adapterInfo("Destroying the FF module..."));
         delete FF_;
         FF_ = NULL;
+    }
+
+    // Delete the Generic module
+    if (NULL != Generic_)
+    {
+        DEBUG(adapterInfo("Destroying the Generic module..."));
+        delete Generic_;
+        Generic_ = NULL;
     }
 
     // NOTE: Delete your new module here
