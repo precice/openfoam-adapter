@@ -155,8 +155,8 @@ private:
     // Vectors of pointers to the checkpointed mesh fields and their copies
 
     //- Checkpointed mesh points, oldPoints
-    Foam::pointField* meshPoints_;
-    Foam::pointField* meshOldPoints_;
+    Foam::pointField* meshPoints_ = NULL;
+    Foam::pointField* meshOldPoints_ = NULL;
 
     //- Checkpointed surfaceScalarField mesh fields (phi)
     std::vector<Foam::surfaceScalarField*> meshSurfaceScalarFields_;
