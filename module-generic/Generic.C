@@ -53,14 +53,14 @@ bool preciceAdapter::Generic::GenericInterface::addWriters(const preciceAdapter:
         {
             found = true;
             interface->addCouplingDataWriter(
-                fieldConfig.name,
+                fieldConfig,
                 new ScalarFieldCoupler(mesh_, fieldConfig));
         }
         else if (mesh_.foundObject<volVectorField>(fieldConfig.solver_name))
         {
             found = true;
             interface->addCouplingDataWriter(
-                fieldConfig.name,
+                fieldConfig,
                 new VectorFieldCoupler(mesh_, fieldConfig));
         }
         else
@@ -91,14 +91,14 @@ bool preciceAdapter::Generic::GenericInterface::addReaders(const preciceAdapter:
         {
             found = true;
             interface->addCouplingDataReader(
-                fieldConfig.name,
+                fieldConfig,
                 new ScalarFieldCoupler(mesh_, fieldConfig));
         }
         else if (mesh_.foundObject<volVectorField>(fieldConfig.solver_name))
         {
             found = true;
             interface->addCouplingDataReader(
-                fieldConfig.name,
+                fieldConfig,
                 new VectorFieldCoupler(mesh_, fieldConfig));
         }
         else
