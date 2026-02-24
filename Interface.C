@@ -440,6 +440,9 @@ void preciceAdapter::Interface::addCouplingDataWriter(
     // Set the data name (from preCICE)
     couplingDataWriter->setDataName(fieldConfig.name);
 
+    // Set the flip normal option
+    couplingDataWriter->setFlipNormal(fieldConfig.flip_normal);
+
     // Set the patchIDs of the patches that form the interface
     couplingDataWriter->setPatchIDs(patchIDs_);
 
@@ -466,6 +469,9 @@ void preciceAdapter::Interface::addCouplingDataReader(
 {
     // Set the patchIDs of the patches that form the interface
     couplingDataReader->setDataName(fieldConfig.name);
+
+    // Set the flip normal option
+    couplingDataReader->setFlipNormal(fieldConfig.flip_normal);
 
     // Add the CouplingDataUser to the list of readers
     couplingDataReader->setPatchIDs(patchIDs_);
@@ -552,6 +558,9 @@ void preciceAdapter::Interface::readCouplingData(double relativeReadTime)
             relativeReadTime,
             {dataBuffer_.data(), nReadData});
 
+        // Apply flip normal if required
+        couplingDataReader->applyFlipNormal(dataBuffer_.data(), nReadData);
+
         // Read the received data from the buffer
         couplingDataReader->read(dataBuffer_.data(), dim_);
     }
@@ -572,6 +581,9 @@ void preciceAdapter::Interface::writeCouplingData()
 
         // Write the data into the adapter's buffer
         auto nWrittenData = couplingDataWriter->write(dataBuffer_.data(), meshConnectivity_, dim_);
+
+        // Apply flip normal if required
+        couplingDataWriter->applyFlipNormal(dataBuffer_.data(), nWrittenData);
 
         // Make preCICE write vector or scalar data
         precice_.writeData(
