@@ -529,10 +529,6 @@ void preciceAdapter::Interface::createBuffer()
     // Create the data buffer
     // An interface has only one data buffer, which is shared between several
     // CouplingDataUsers.
-    // TODO: Check (write tests) if this works properly when we have multiple
-    // scalar and vector coupling data users in an interface. With the current
-    // preCICE implementation, it should work as, when writing scalars,
-    // it should  only use the first 1/3 elements of the buffer.
     dataBuffer_.resize(dataBufferSize);
 }
 
@@ -568,10 +564,6 @@ void preciceAdapter::Interface::readCouplingData(double relativeReadTime)
 
 void preciceAdapter::Interface::writeCouplingData()
 {
-    // TODO: wrap around isWriteDataRequired
-    // Does the participant need to write data or is it subcycling?
-    // if (precice_.isWriteDataRequired(computedTimestepLength))
-    // {
     // Make every coupling data writer write
     for (uint i = 0; i < couplingDataWriters_.size(); i++)
     {
@@ -592,7 +584,6 @@ void preciceAdapter::Interface::writeCouplingData()
             vertexIDs_,
             {dataBuffer_.data(), nWrittenData});
     }
-    // }
 }
 
 preciceAdapter::Interface::~Interface()
