@@ -43,6 +43,9 @@ protected:
     //- location type of the interface
     LocationType locationType_ = LocationType::none;
 
+    //- flip normal option
+    bool flipNormal_ = false;
+
 public:
     //- Constructor
     CouplingDataUser();
@@ -58,6 +61,12 @@ public:
 
     //- Get the data name
     const std::string& dataName();
+
+    //- Set flip normal option
+    void setFlipNormal(bool flipNormal);
+
+    //- Apply flip normal to the data buffer (multiply by -1)
+    void applyFlipNormal(precice::span<double> dataBuffer);
 
     //- Set the patch IDs that form the interface
     void setPatchIDs(std::vector<int> patchIDs);

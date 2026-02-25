@@ -434,11 +434,14 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh, const std::str
 
 
 void preciceAdapter::Interface::addCouplingDataWriter(
-    std::string dataName,
+    const FieldConfig& fieldConfig,
     CouplingDataUser* couplingDataWriter)
 {
     // Set the data name (from preCICE)
-    couplingDataWriter->setDataName(dataName);
+    couplingDataWriter->setDataName(fieldConfig.name);
+
+    // Set the flip normal option
+    couplingDataWriter->setFlipNormal(fieldConfig.flip_normal);
 
     // Set the patchIDs of the patches that form the interface
     couplingDataWriter->setPatchIDs(patchIDs_);
@@ -461,11 +464,14 @@ void preciceAdapter::Interface::addCouplingDataWriter(
 
 
 void preciceAdapter::Interface::addCouplingDataReader(
-    std::string dataName,
+    const FieldConfig& fieldConfig,
     preciceAdapter::CouplingDataUser* couplingDataReader)
 {
     // Set the patchIDs of the patches that form the interface
-    couplingDataReader->setDataName(dataName);
+    couplingDataReader->setDataName(fieldConfig.name);
+
+    // Set the flip normal option
+    couplingDataReader->setFlipNormal(fieldConfig.flip_normal);
 
     // Add the CouplingDataUser to the list of readers
     couplingDataReader->setPatchIDs(patchIDs_);
@@ -523,10 +529,6 @@ void preciceAdapter::Interface::createBuffer()
     // Create the data buffer
     // An interface has only one data buffer, which is shared between several
     // CouplingDataUsers.
-    // TODO: Check (write tests) if this works properly when we have multiple
-    // scalar and vector coupling data users in an interface. With the current
-    // preCICE implementation, it should work as, when writing scalars,
-    // it should  only use the first 1/3 elements of the buffer.
     dataBuffer_.resize(dataBufferSize);
 }
 
@@ -553,6 +555,9 @@ void preciceAdapter::Interface::readCouplingData(double relativeReadTime)
             relativeReadTime,
             dataSpanRead);
 
+        // Apply flip normal if required
+        couplingDataReader->applyFlipNormal(dataSpanRead);
+
         // Read the received data from the buffer
         couplingDataReader->read(dataSpanRead, dim_);
     }
@@ -560,10 +565,6 @@ void preciceAdapter::Interface::readCouplingData(double relativeReadTime)
 
 void preciceAdapter::Interface::writeCouplingData()
 {
-    // TODO: wrap around isWriteDataRequired
-    // Does the participant need to write data or is it subcycling?
-    // if (precice_.isWriteDataRequired(computedTimestepLength))
-    // {
     // Make every coupling data writer write
     for (uint i = 0; i < couplingDataWriters_.size(); i++)
     {
@@ -577,6 +578,9 @@ void preciceAdapter::Interface::writeCouplingData()
 
         precice::span<double> dataSpanWritten {dataBuffer_.data(), nWrittenData};
 
+        // Apply flip normal if required
+        couplingDataWriter->applyFlipNormal(dataSpanWritten);
+
         // Make preCICE write vector or scalar data
         precice_.writeData(
             meshName_,
@@ -584,7 +588,6 @@ void preciceAdapter::Interface::writeCouplingData()
             vertexIDs_,
             dataSpanWritten);
     }
-    // }
 }
 
 preciceAdapter::Interface::~Interface()

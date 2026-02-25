@@ -17,10 +17,10 @@ class ScalarFieldCoupler : public CouplingDataUser // One CouplingDataUser for e
 protected:
     Foam::volScalarField* scalarField_;
     const Foam::fvMesh& mesh_;
-    const preciceAdapter::FieldConfig& FieldConfig_;
+    const preciceAdapter::FieldConfig& fieldConfig_;
 
 public:
-    ScalarFieldCoupler(const Foam::fvMesh& mesh, const preciceAdapter::FieldConfig& FieldConfig);
+    ScalarFieldCoupler(const Foam::fvMesh& mesh, const preciceAdapter::FieldConfig& fieldConfig);
 
     void initialize();
     std::size_t write(precice::span<double> buffer, bool meshConnectivity, const unsigned int dim);
@@ -36,10 +36,10 @@ class VectorFieldCoupler : public CouplingDataUser
 protected:
     Foam::volVectorField* vectorField_;
     const Foam::fvMesh& mesh_;
-    const preciceAdapter::FieldConfig& FieldConfig_;
+    const preciceAdapter::FieldConfig& fieldConfig_;
 
 public:
-    VectorFieldCoupler(const Foam::fvMesh& mesh, const preciceAdapter::FieldConfig& FieldConfig);
+    VectorFieldCoupler(const Foam::fvMesh& mesh, const preciceAdapter::FieldConfig& fieldConfig);
 
     void initialize();
     std::size_t write(precice::span<double> buffer, bool meshConnectivity, const unsigned int dim);

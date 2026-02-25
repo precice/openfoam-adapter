@@ -41,32 +41,32 @@ bool preciceAdapter::Generic::GenericInterface::readConfig(const IOdictionary& a
     return true;
 }
 
-bool preciceAdapter::Generic::GenericInterface::addWriters(const preciceAdapter::FieldConfig& FieldConfig, Interface* interface)
+bool preciceAdapter::Generic::GenericInterface::addWriters(const preciceAdapter::FieldConfig& fieldConfig, Interface* interface)
 {
     bool found = false;
 
     // Force to use the new schema with the Generic module
-    if (FieldConfig.solver_name != "Undefined (legacy mode)")
+    if (fieldConfig.solver_name != "Undefined (legacy mode)")
     {
         // Determine type of field
-        if (mesh_.foundObject<volScalarField>(FieldConfig.solver_name))
+        if (mesh_.foundObject<volScalarField>(fieldConfig.solver_name))
         {
             found = true;
             interface->addCouplingDataWriter(
-                FieldConfig.name,
-                new ScalarFieldCoupler(mesh_, FieldConfig));
+                fieldConfig,
+                new ScalarFieldCoupler(mesh_, fieldConfig));
         }
-        else if (mesh_.foundObject<volVectorField>(FieldConfig.solver_name))
+        else if (mesh_.foundObject<volVectorField>(fieldConfig.solver_name))
         {
             found = true;
             interface->addCouplingDataWriter(
-                FieldConfig.name,
-                new VectorFieldCoupler(mesh_, FieldConfig));
+                fieldConfig,
+                new VectorFieldCoupler(mesh_, fieldConfig));
         }
         else
         {
             found = false;
-            std::string msg = "Generic module: Data \"" + FieldConfig.name + "\", solver name: \"" + FieldConfig.solver_name + "\" not found!\n";
+            std::string msg = "Generic module: Data \"" + fieldConfig.name + "\", solver name: \"" + fieldConfig.solver_name + "\" not found!\n";
             msg += "Available fields: " + availableVolScalarFields + availableVolVectorFields;
             adapterInfo(msg, "warning");
         }
@@ -74,37 +74,37 @@ bool preciceAdapter::Generic::GenericInterface::addWriters(const preciceAdapter:
 
     if (found)
     {
-        DEBUG(adapterInfo("Added writer: " + FieldConfig.name));
+        DEBUG(adapterInfo("Added writer: " + fieldConfig.name));
     }
     return found;
 }
 
-bool preciceAdapter::Generic::GenericInterface::addReaders(const preciceAdapter::FieldConfig& FieldConfig, Interface* interface)
+bool preciceAdapter::Generic::GenericInterface::addReaders(const preciceAdapter::FieldConfig& fieldConfig, Interface* interface)
 {
     bool found = false;
 
     // Force to use the new schema with the Generic modul
-    if (FieldConfig.solver_name != "Undefined (legacy mode)")
+    if (fieldConfig.solver_name != "Undefined (legacy mode)")
     {
         // Determine type of field
-        if (mesh_.foundObject<volScalarField>(FieldConfig.solver_name))
+        if (mesh_.foundObject<volScalarField>(fieldConfig.solver_name))
         {
             found = true;
             interface->addCouplingDataReader(
-                FieldConfig.name,
-                new ScalarFieldCoupler(mesh_, FieldConfig));
+                fieldConfig,
+                new ScalarFieldCoupler(mesh_, fieldConfig));
         }
-        else if (mesh_.foundObject<volVectorField>(FieldConfig.solver_name))
+        else if (mesh_.foundObject<volVectorField>(fieldConfig.solver_name))
         {
             found = true;
             interface->addCouplingDataReader(
-                FieldConfig.name,
-                new VectorFieldCoupler(mesh_, FieldConfig));
+                fieldConfig,
+                new VectorFieldCoupler(mesh_, fieldConfig));
         }
         else
         {
             found = false;
-            std::string msg = "Generic module: Data \"" + FieldConfig.name + "\" (solver name: \"" + FieldConfig.solver_name + "\") not found!\n";
+            std::string msg = "Generic module: Data \"" + fieldConfig.name + "\" (solver name: \"" + fieldConfig.solver_name + "\") not found!\n";
             msg += "Available fields: " + availableVolScalarFields + availableVolVectorFields;
             adapterInfo(msg, "warning");
         }
@@ -112,7 +112,7 @@ bool preciceAdapter::Generic::GenericInterface::addReaders(const preciceAdapter:
 
     if (found)
     {
-        DEBUG(adapterInfo("Added reader: " + FieldConfig.name));
+        DEBUG(adapterInfo("Added reader: " + fieldConfig.name));
     }
     return found;
 }
