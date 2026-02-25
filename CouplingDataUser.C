@@ -29,13 +29,13 @@ void preciceAdapter::CouplingDataUser::setFlipNormal(bool flipNormal)
     flipNormal_ = flipNormal;
 }
 
-void preciceAdapter::CouplingDataUser::applyFlipNormal(double* dataBuffer, std::size_t size)
+void preciceAdapter::CouplingDataUser::applyFlipNormal(precice::span<double> dataBuffer)
 {
     if (flipNormal_)
     {
-        for (std::size_t i = 0; i < size; ++i)
+        for (double& val : dataBuffer)
         {
-            dataBuffer[i] *= -1.0;
+            val *= -1.0;
         }
     }
 }

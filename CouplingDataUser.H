@@ -2,6 +2,7 @@
 #define COUPLINGDATAUSER_H
 
 #include "Utilities.H"
+#include <precice/precice.hpp>
 #include <vector>
 #include <string>
 
@@ -65,7 +66,7 @@ public:
     void setFlipNormal(bool flipNormal);
 
     //- Apply flip normal to the data buffer (multiply by -1)
-    void applyFlipNormal(double* dataBuffer, std::size_t size);
+    void applyFlipNormal(precice::span<double> dataBuffer);
 
     //- Set the patch IDs that form the interface
     void setPatchIDs(std::vector<int> patchIDs);

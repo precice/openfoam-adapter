@@ -547,15 +547,16 @@ void preciceAdapter::Interface::readCouplingData(double relativeReadTime)
         // We could add a sanity check here
         // nReadData == vertexIDs_.size() * (1 + (dim_ - 1) * static_cast<int>(couplingDataReader->hasVectorData()));
 
+        precice::span<double> dataSpanRead {dataBuffer_.data(), nReadData};
         precice_.readData(
             meshName_,
             couplingDataReader->dataName(),
             vertexIDs_,
             relativeReadTime,
-            {dataBuffer_.data(), nReadData});
+            dataSpanRead);
 
         // Apply flip normal if required
-        couplingDataReader->applyFlipNormal(dataBuffer_.data(), nReadData);
+        couplingDataReader->applyFlipNormal(dataSpanRead);
 
         // Read the received data from the buffer
         couplingDataReader->read(dataBuffer_.data(), dim_);
@@ -574,15 +575,17 @@ void preciceAdapter::Interface::writeCouplingData()
         // Write the data into the adapter's buffer
         auto nWrittenData = couplingDataWriter->write(dataBuffer_.data(), meshConnectivity_, dim_);
 
+        precice::span<double> dataSpanWritten {dataBuffer_.data(), nWrittenData};
+
         // Apply flip normal if required
-        couplingDataWriter->applyFlipNormal(dataBuffer_.data(), nWrittenData);
+        couplingDataWriter->applyFlipNormal(dataSpanWritten);
 
         // Make preCICE write vector or scalar data
         precice_.writeData(
             meshName_,
             couplingDataWriter->dataName(),
             vertexIDs_,
-            {dataBuffer_.data(), nWrittenData});
+            dataSpanWritten);
     }
 }
 
