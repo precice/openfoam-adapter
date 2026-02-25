@@ -12,7 +12,7 @@ preciceAdapter::FF::Alpha::Alpha(
     dataType_ = scalar;
 }
 
-std::size_t preciceAdapter::FF::Alpha::write(double* buffer, bool meshConnectivity, const unsigned int dim)
+std::size_t preciceAdapter::FF::Alpha::write(precice::span<double> buffer, bool meshConnectivity, const unsigned int dim)
 {
     int bufferIndex = 0;
 
@@ -57,7 +57,7 @@ std::size_t preciceAdapter::FF::Alpha::write(double* buffer, bool meshConnectivi
     return bufferIndex;
 }
 
-void preciceAdapter::FF::Alpha::read(double* buffer, const unsigned int dim)
+void preciceAdapter::FF::Alpha::read(precice::span<double> buffer, const unsigned int dim)
 {
     int bufferIndex = 0;
 

@@ -18,7 +18,7 @@ preciceAdapter::CHT::HeatFlux::HeatFlux(
     dataType_ = scalar;
 }
 
-std::size_t preciceAdapter::CHT::HeatFlux::write(double* buffer, bool meshConnectivity, const unsigned int dim)
+std::size_t preciceAdapter::CHT::HeatFlux::write(precice::span<double> buffer, bool meshConnectivity, const unsigned int dim)
 {
     int bufferIndex = 0;
 
@@ -71,7 +71,7 @@ std::size_t preciceAdapter::CHT::HeatFlux::write(double* buffer, bool meshConnec
     return bufferIndex;
 }
 
-void preciceAdapter::CHT::HeatFlux::read(double* buffer, const unsigned int dim)
+void preciceAdapter::CHT::HeatFlux::read(precice::span<double> buffer, const unsigned int dim)
 {
     int bufferIndex = 0;
 

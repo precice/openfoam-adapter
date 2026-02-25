@@ -36,7 +36,7 @@ void preciceAdapter::FSI::Displacement::initialize()
 }
 
 
-std::size_t preciceAdapter::FSI::Displacement::write(double* buffer, bool meshConnectivity, const unsigned int dim)
+std::size_t preciceAdapter::FSI::Displacement::write(precice::span<double> buffer, bool meshConnectivity, const unsigned int dim)
 {
     /* TODO: Implement
      * We need two nested for-loops for each patch,
@@ -91,7 +91,7 @@ std::size_t preciceAdapter::FSI::Displacement::write(double* buffer, bool meshCo
 
 
 // return the displacement to use later in the velocity?
-void preciceAdapter::FSI::Displacement::read(double* buffer, const unsigned int dim)
+void preciceAdapter::FSI::Displacement::read(precice::span<double> buffer, const unsigned int dim)
 {
     int bufferIndex = 0;
     for (unsigned int j = 0; j < patchIDs_.size(); j++)

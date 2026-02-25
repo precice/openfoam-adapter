@@ -13,7 +13,7 @@ preciceAdapter::FF::AlphaGradient::AlphaGradient(
     dataType_ = scalar;
 }
 
-std::size_t preciceAdapter::FF::AlphaGradient::write(double* buffer, bool meshConnectivity, const unsigned int dim)
+std::size_t preciceAdapter::FF::AlphaGradient::write(precice::span<double> buffer, bool meshConnectivity, const unsigned int dim)
 {
     int bufferIndex = 0;
 
@@ -37,7 +37,7 @@ std::size_t preciceAdapter::FF::AlphaGradient::write(double* buffer, bool meshCo
     return bufferIndex;
 }
 
-void preciceAdapter::FF::AlphaGradient::read(double* buffer, const unsigned int dim)
+void preciceAdapter::FF::AlphaGradient::read(precice::span<double> buffer, const unsigned int dim)
 {
     int bufferIndex = 0;
 

@@ -39,11 +39,11 @@ public:
         const Foam::fvMesh& mesh,
         const std::string solverType);
 
-    std::size_t writeToBuffer(double* buffer,
+    std::size_t writeToBuffer(precice::span<double> buffer,
                               Foam::volVectorField& forceField,
                               const unsigned int dim) const;
 
-    void readFromBuffer(double* buffer) const;
+    void readFromBuffer(precice::span<double> buffer) const;
 
     virtual Foam::tmp<Foam::vectorField> getFaceVectors(const unsigned int patchID) const = 0;
 };

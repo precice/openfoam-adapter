@@ -25,10 +25,10 @@ public:
         const std::string nameP);
 
     //- Write the pressure gradient values into the buffer
-    std::size_t write(double* buffer, bool meshConnectivity, const unsigned int dim) override;
+    std::size_t write(precice::span<double> buffer, bool meshConnectivity, const unsigned int dim) override;
 
     //- Read the pressure gradient values from the buffer
-    void read(double* buffer, const unsigned int dim) override;
+    void read(precice::span<double> buffer, const unsigned int dim) override;
 
     bool isLocationTypeSupported(const bool meshConnectivity) const final;
 

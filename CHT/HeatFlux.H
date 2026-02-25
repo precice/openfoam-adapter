@@ -33,11 +33,11 @@ public:
 
     //- Compute heat flux values from the temperature field
     //  and write them into the buffer
-    std::size_t write(double* buffer, bool meshConnectivity, const unsigned int dim) final;
+    std::size_t write(precice::span<double> buffer, bool meshConnectivity, const unsigned int dim) final;
 
     //- Read heat flux values from the buffer and assign them to
     //  the gradient of the temperature field
-    void read(double* buffer, const unsigned int dim) final;
+    void read(precice::span<double> buffer, const unsigned int dim) final;
 
     bool isLocationTypeSupported(const bool meshConnectivity) const final;
 

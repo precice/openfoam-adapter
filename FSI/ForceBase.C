@@ -123,7 +123,7 @@ Foam::tmp<Foam::volScalarField> preciceAdapter::FSI::ForceBase::mu() const
     }
 }
 
-std::size_t preciceAdapter::FSI::ForceBase::writeToBuffer(double* buffer,
+std::size_t preciceAdapter::FSI::ForceBase::writeToBuffer(precice::span<double> buffer,
                                                           volVectorField& forceField,
                                                           const unsigned int dim) const
 {
@@ -181,7 +181,7 @@ std::size_t preciceAdapter::FSI::ForceBase::writeToBuffer(double* buffer,
     return bufferIndex;
 }
 
-void preciceAdapter::FSI::ForceBase::readFromBuffer(double* buffer) const
+void preciceAdapter::FSI::ForceBase::readFromBuffer(precice::span<double> buffer) const
 {
     /* TODO: Implement (issue https://github.com/precice/openfoam-adapter/issues/240)
      * We need two nested for-loops for each patch,

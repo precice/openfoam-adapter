@@ -19,7 +19,7 @@ preciceAdapter::FF::PressureGradientFull::PressureGradientFull(
     dataType_ = vector;
 }
 
-std::size_t preciceAdapter::FF::PressureGradientFull::write(double* buffer, bool meshConnectivity, const unsigned int dim)
+std::size_t preciceAdapter::FF::PressureGradientFull::write(precice::span<double> buffer, bool meshConnectivity, const unsigned int dim)
 {
     int bufferIndex = 0;
     gradP_ = fvc::grad(*p_);
@@ -96,7 +96,7 @@ std::size_t preciceAdapter::FF::PressureGradientFull::write(double* buffer, bool
     return bufferIndex;
 }
 
-void preciceAdapter::FF::PressureGradientFull::read(double* buffer, const unsigned int dim)
+void preciceAdapter::FF::PressureGradientFull::read(precice::span<double> buffer, const unsigned int dim)
 {
     int bufferIndex = 0;
 

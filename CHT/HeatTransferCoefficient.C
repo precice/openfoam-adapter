@@ -20,7 +20,7 @@ preciceAdapter::CHT::HeatTransferCoefficient::HeatTransferCoefficient(
 }
 
 
-std::size_t preciceAdapter::CHT::HeatTransferCoefficient::write(double* buffer, bool meshConnectivity, const unsigned int dim)
+std::size_t preciceAdapter::CHT::HeatTransferCoefficient::write(precice::span<double> buffer, bool meshConnectivity, const unsigned int dim)
 {
     int bufferIndex = 0;
 
@@ -73,7 +73,7 @@ std::size_t preciceAdapter::CHT::HeatTransferCoefficient::write(double* buffer, 
 }
 
 
-void preciceAdapter::CHT::HeatTransferCoefficient::read(double* buffer, const unsigned int dim)
+void preciceAdapter::CHT::HeatTransferCoefficient::read(precice::span<double> buffer, const unsigned int dim)
 {
     int bufferIndex = 0;
 

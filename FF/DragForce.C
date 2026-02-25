@@ -28,7 +28,7 @@ preciceAdapter::FF::DragForce::DragForce(
     dataType_ = vector;
 }
 
-std::size_t preciceAdapter::FF::DragForce::write(double* buffer, bool meshConnectivity, const unsigned int dim)
+std::size_t preciceAdapter::FF::DragForce::write(precice::span<double> buffer, bool meshConnectivity, const unsigned int dim)
 {
     int bufferIndex = 0;
 
@@ -106,7 +106,7 @@ std::size_t preciceAdapter::FF::DragForce::write(double* buffer, bool meshConnec
     return bufferIndex;
 }
 
-void preciceAdapter::FF::DragForce::read(double* buffer, const unsigned int dim)
+void preciceAdapter::FF::DragForce::read(precice::span<double> buffer, const unsigned int dim)
 {
     int bufferIndex = 0;
 

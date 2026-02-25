@@ -36,12 +36,12 @@ preciceAdapter::FSI::Force::Force(
     }
 }
 
-std::size_t preciceAdapter::FSI::Force::write(double* buffer, bool meshConnectivity, const unsigned int dim)
+std::size_t preciceAdapter::FSI::Force::write(precice::span<double> buffer, bool meshConnectivity, const unsigned int dim)
 {
     return this->writeToBuffer(buffer, *Force_, dim);
 }
 
-void preciceAdapter::FSI::Force::read(double* buffer, const unsigned int dim)
+void preciceAdapter::FSI::Force::read(precice::span<double> buffer, const unsigned int dim)
 {
     // Copy the force field from the buffer to OpenFOAM
 

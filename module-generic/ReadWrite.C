@@ -38,7 +38,7 @@ void preciceAdapter::Generic::ScalarFieldCoupler::initialize()
 }
 
 
-std::size_t preciceAdapter::Generic::ScalarFieldCoupler::write(double* buffer, bool meshConnectivity, const unsigned int dim)
+std::size_t preciceAdapter::Generic::ScalarFieldCoupler::write(precice::span<double> buffer, bool meshConnectivity, const unsigned int dim)
 {
     int bufferIndex = 0;
 
@@ -121,7 +121,7 @@ std::size_t preciceAdapter::Generic::ScalarFieldCoupler::write(double* buffer, b
     return bufferIndex;
 }
 
-void preciceAdapter::Generic::ScalarFieldCoupler::read(double* buffer, const unsigned int dim)
+void preciceAdapter::Generic::ScalarFieldCoupler::read(precice::span<double> buffer, const unsigned int dim)
 {
     int bufferIndex = 0;
 
@@ -224,7 +224,7 @@ void preciceAdapter::Generic::VectorFieldCoupler::initialize()
     }
 }
 
-std::size_t preciceAdapter::Generic::VectorFieldCoupler::write(double* buffer, bool meshConnectivity, const unsigned int dim)
+std::size_t preciceAdapter::Generic::VectorFieldCoupler::write(precice::span<double> buffer, bool meshConnectivity, const unsigned int dim)
 {
     int bufferIndex = 0;
 
@@ -296,7 +296,7 @@ std::size_t preciceAdapter::Generic::VectorFieldCoupler::write(double* buffer, b
     return bufferIndex;
 }
 
-void preciceAdapter::Generic::VectorFieldCoupler::read(double* buffer, const unsigned int dim)
+void preciceAdapter::Generic::VectorFieldCoupler::read(precice::span<double> buffer, const unsigned int dim)
 {
     int bufferIndex = 0;
 

@@ -12,7 +12,7 @@ preciceAdapter::FF::Phi::Phi(
     dataType_ = scalar;
 }
 
-std::size_t preciceAdapter::FF::Phi::write(double* buffer, bool meshConnectivity, const unsigned int dim)
+std::size_t preciceAdapter::FF::Phi::write(precice::span<double> buffer, bool meshConnectivity, const unsigned int dim)
 {
     int bufferIndex = 0;
 
@@ -32,7 +32,7 @@ std::size_t preciceAdapter::FF::Phi::write(double* buffer, bool meshConnectivity
     return bufferIndex;
 }
 
-void preciceAdapter::FF::Phi::read(double* buffer, const unsigned int dim)
+void preciceAdapter::FF::Phi::read(precice::span<double> buffer, const unsigned int dim)
 {
     int bufferIndex = 0;
 

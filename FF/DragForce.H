@@ -26,10 +26,10 @@ public:
         const std::string nameFd);
 
     //- Write the velocity values into the buffer
-    std::size_t write(double* buffer, bool meshConnectivity, const unsigned int dim) final;
+    std::size_t write(precice::span<double> buffer, bool meshConnectivity, const unsigned int dim) final;
 
     //- Read the velocity values from the buffer
-    void read(double* buffer, const unsigned int dim) final;
+    void read(precice::span<double> buffer, const unsigned int dim) final;
 
     bool isLocationTypeSupported(const bool meshConnectivity) const final;
 

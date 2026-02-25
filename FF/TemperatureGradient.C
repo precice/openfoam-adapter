@@ -13,7 +13,7 @@ preciceAdapter::FF::TemperatureGradient::TemperatureGradient(
     dataType_ = scalar;
 }
 
-std::size_t preciceAdapter::FF::TemperatureGradient::write(double* buffer, bool meshConnectivity, const unsigned int dim)
+std::size_t preciceAdapter::FF::TemperatureGradient::write(precice::span<double> buffer, bool meshConnectivity, const unsigned int dim)
 {
     int bufferIndex = 0;
 
@@ -37,7 +37,7 @@ std::size_t preciceAdapter::FF::TemperatureGradient::write(double* buffer, bool 
     return bufferIndex;
 }
 
-void preciceAdapter::FF::TemperatureGradient::read(double* buffer, const unsigned int dim)
+void preciceAdapter::FF::TemperatureGradient::read(precice::span<double> buffer, const unsigned int dim)
 {
     int bufferIndex = 0;
 

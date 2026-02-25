@@ -2,6 +2,7 @@
 #define COUPLINGDATAUSER_H
 
 #include "Utilities.H"
+#include <precice/precice.hpp>
 #include <vector>
 #include <string>
 
@@ -75,10 +76,10 @@ public:
 
     //- Write the coupling data to the buffer
     // Returns the number of entries that were filles in the buffer (nComp * vertices)
-    virtual std::size_t write(double* dataBuffer, bool meshConnectivity, const unsigned int dim) = 0;
+    virtual std::size_t write(precice::span<double> dataBuffer, bool meshConnectivity, const unsigned int dim) = 0;
 
     //- Read the coupling data from the buffer
-    virtual void read(double* dataBuffer, const unsigned int dim) = 0;
+    virtual void read(precice::span<double> dataBuffer, const unsigned int dim) = 0;
 
     //- Given the meshConnectivity, return if the underlying loactionType of the
     //- interface nodes is supported by the data set
