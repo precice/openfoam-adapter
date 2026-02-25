@@ -123,16 +123,16 @@ private:
     bool preciceInitialized_ = false;
 
     //- Conjugate Heat Transfer module object
-    CHT::ConjugateHeatTransfer* CHT_ = NULL;
+    CHT::ConjugateHeatTransfer* CHT_ = nullptr;
 
     //- Fluid-Structure Interaction module object
-    FSI::FluidStructureInteraction* FSI_ = NULL;
+    FSI::FluidStructureInteraction* FSI_ = nullptr;
 
     //- Fluid-Fluid module object
-    FF::FluidFluid* FF_ = NULL;
+    FF::FluidFluid* FF_ = nullptr;
 
     //- Generic module object
-    Generic::GenericInterface* Generic_ = NULL;
+    Generic::GenericInterface* Generic_ = nullptr;
 
     // NOTE: Add here a pointer for your new module object
 
