@@ -635,7 +635,7 @@ void preciceAdapter::Adapter::initialize()
 
 void preciceAdapter::Adapter::finalize()
 {
-    if (NULL != precice_ && preciceInitialized_ && !isCouplingOngoing())
+    if (nullptr != precice_ && preciceInitialized_ && !isCouplingOngoing())
     {
         DEBUG(adapterInfo("Finalizing the preCICE solver interface..."));
 
@@ -782,7 +782,7 @@ bool preciceAdapter::Adapter::isCouplingOngoing()
     // the solver would try to access this method again,
     // giving a segmentation fault if precice_
     // was not available.
-    if (NULL != precice_)
+    if (nullptr != precice_)
     {
         isCouplingOngoing = precice_->isCouplingOngoing();
     }
@@ -1413,7 +1413,7 @@ void preciceAdapter::Adapter::end()
 try
 {
     // Throw a warning if the simulation exited before the coupling was complete
-    if (NULL != precice_ && isCouplingOngoing())
+    if (nullptr != precice_ && isCouplingOngoing())
     {
         adapterInfo("The solver exited before the coupling was complete.", "warning");
     }
@@ -1429,11 +1429,11 @@ void preciceAdapter::Adapter::teardown()
 {
     // If the solver interface was not deleted before, delete it now.
     // Normally it should be deleted when isCouplingOngoing() becomes false.
-    if (NULL != precice_)
+    if (nullptr != precice_)
     {
         DEBUG(adapterInfo("Destroying the preCICE solver interface..."));
         delete precice_;
-        precice_ = NULL;
+        precice_ = nullptr;
     }
 
     // Delete the preCICE solver interfaces
@@ -1535,35 +1535,35 @@ void preciceAdapter::Adapter::teardown()
     }
 
     // Delete the CHT module
-    if (NULL != CHT_)
+    if (nullptr != CHT_)
     {
         DEBUG(adapterInfo("Destroying the CHT module..."));
         delete CHT_;
-        CHT_ = NULL;
+        CHT_ = nullptr;
     }
 
     // Delete the FSI module
-    if (NULL != FSI_)
+    if (nullptr != FSI_)
     {
         DEBUG(adapterInfo("Destroying the FSI module..."));
         delete FSI_;
-        FSI_ = NULL;
+        FSI_ = nullptr;
     }
 
     // Delete the FF module
-    if (NULL != FF_)
+    if (nullptr != FF_)
     {
         DEBUG(adapterInfo("Destroying the FF module..."));
         delete FF_;
-        FF_ = NULL;
+        FF_ = nullptr;
     }
 
     // Delete the Generic module
-    if (NULL != Generic_)
+    if (nullptr != Generic_)
     {
         DEBUG(adapterInfo("Destroying the Generic module..."));
         delete Generic_;
-        Generic_ = NULL;
+        Generic_ = nullptr;
     }
 
     // NOTE: Delete your new module here
