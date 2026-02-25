@@ -96,7 +96,15 @@ void preciceAdapter::FSI::DisplacementDelta::read(double* buffer, const unsigned
 
 bool preciceAdapter::FSI::DisplacementDelta::isLocationTypeSupported(const bool meshConnectivity) const
 {
-    return (this->locationType_ == LocationType::faceCenters || this->locationType_ == LocationType::faceNodes);
+    // Solid solver *could* allow connectivity for writing displacement
+    if (meshConnectivity)
+    {
+        return (this->locationType_ == LocationType::faceNodes);
+    }
+    else
+    {
+        return (this->locationType_ == LocationType::faceCenters || this->locationType_ == LocationType::faceNodes);
+    }
 }
 
 std::string preciceAdapter::FSI::DisplacementDelta::getDataName() const

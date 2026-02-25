@@ -248,20 +248,6 @@ void preciceAdapter::Adapter::configFileRead()
     // FSI-specific options and configure it.
     if (FSIenabled_)
     {
-        // Check for unsupported FSI with meshConnectivity
-        for (uint i = 0; i < interfacesConfig_.size(); i++)
-        {
-            if (interfacesConfig_.at(i).meshConnectivity == true)
-            {
-                adapterInfo(
-                    "You have requested mesh connectivity (most probably for nearest-projection mapping) "
-                    "and you have enabled the FSI module. "
-                    "Mapping with connectivity information is not implemented for FSI, only for CHT-related fields. "
-                    "error");
-                return;
-            }
-        }
-
         FSI_ = new FSI::FluidStructureInteraction(mesh_, runTime_);
         if (!FSI_->configure(preciceDict))
         {

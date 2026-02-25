@@ -189,7 +189,7 @@ bool preciceAdapter::FF::DragForce::isLocationTypeSupported(const bool meshConne
 {
     if (meshConnectivity)
     {
-        return (this->locationType_ == LocationType::faceCenters);
+        return false;
     }
     else
     {
