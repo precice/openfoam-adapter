@@ -24,6 +24,22 @@ const std::string& preciceAdapter::CouplingDataUser::dataName()
     return dataName_;
 }
 
+void preciceAdapter::CouplingDataUser::setFlipNormal(bool flipNormal)
+{
+    flipNormal_ = flipNormal;
+}
+
+void preciceAdapter::CouplingDataUser::applyFlipNormal(precice::span<double> dataBuffer)
+{
+    if (flipNormal_)
+    {
+        for (double& val : dataBuffer)
+        {
+            val *= -1.0;
+        }
+    }
+}
+
 void preciceAdapter::CouplingDataUser::setPatchIDs(std::vector<int> patchIDs)
 {
     patchIDs_ = patchIDs;

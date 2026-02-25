@@ -11,19 +11,19 @@ using namespace Foam;
 
 preciceAdapter::Generic::ScalarFieldCoupler::ScalarFieldCoupler(
     const Foam::fvMesh& mesh,
-    const preciceAdapter::FieldConfig& FieldConfig)
+    const preciceAdapter::FieldConfig& fieldConfig)
 : scalarField_(
     const_cast<volScalarField*>(
-        &mesh.lookupObject<volScalarField>(FieldConfig.solver_name))),
+        &mesh.lookupObject<volScalarField>(fieldConfig.solver_name))),
   mesh_(mesh),
-  FieldConfig_(FieldConfig)
+  fieldConfig_(fieldConfig)
 {
     dataType_ = scalar;
 }
 
 void preciceAdapter::Generic::ScalarFieldCoupler::initialize()
 {
-    if (FieldConfig_.operation == "surface-normal-gradient")
+    if (fieldConfig_.operation == "surface-normal-gradient")
     {
         if (this->locationType_ != LocationType::faceCenters)
         {
@@ -31,7 +31,7 @@ void preciceAdapter::Generic::ScalarFieldCoupler::initialize()
         }
     }
 
-    if (FieldConfig_.operation == "gradient")
+    if (fieldConfig_.operation == "gradient")
     {
         adapterInfo("Generic module: The gradient operation is not yet supported for scalar fields. Maybe you meant surface-normal-gradient?", "error");
     }
@@ -42,7 +42,7 @@ std::size_t preciceAdapter::Generic::ScalarFieldCoupler::write(double* buffer, b
 {
     int bufferIndex = 0;
 
-    if (FieldConfig_.operation == "surface-normal-gradient")
+    if (fieldConfig_.operation == "surface-normal-gradient")
     {
         // For every boundary patch of the interface
         for (uint j = 0; j < patchIDs_.size(); j++)
@@ -198,19 +198,19 @@ bool preciceAdapter::Generic::ScalarFieldCoupler::isLocationTypeSupported(const 
 
 std::string preciceAdapter::Generic::ScalarFieldCoupler::getDataName() const
 {
-    return FieldConfig_.name;
+    return fieldConfig_.name;
 }
 
 //----- preciceAdapter::Generic::VectorFieldCoupler -----------------------------------------
 
 preciceAdapter::Generic::VectorFieldCoupler::VectorFieldCoupler(
     const Foam::fvMesh& mesh,
-    const preciceAdapter::FieldConfig& FieldConfig)
+    const preciceAdapter::FieldConfig& fieldConfig)
 : vectorField_(
     const_cast<volVectorField*>(
-        &mesh.lookupObject<volVectorField>(FieldConfig.solver_name))),
+        &mesh.lookupObject<volVectorField>(fieldConfig.solver_name))),
   mesh_(mesh),
-  FieldConfig_(FieldConfig)
+  fieldConfig_(fieldConfig)
 {
     dataType_ = vector;
 }
@@ -218,7 +218,7 @@ preciceAdapter::Generic::VectorFieldCoupler::VectorFieldCoupler(
 void preciceAdapter::Generic::VectorFieldCoupler::initialize()
 {
     // In the Generic module, for vector fields only the value operation is supported for now, i.e., cannot write gradients.
-    if (FieldConfig_.operation == "gradient" || FieldConfig_.operation == "surface-normal-gradient")
+    if (fieldConfig_.operation == "gradient" || fieldConfig_.operation == "surface-normal-gradient")
     {
         adapterInfo("Generic module: The gradient operation is not yet supported for vector fields.", "error");
     }
@@ -400,5 +400,5 @@ bool preciceAdapter::Generic::VectorFieldCoupler::isLocationTypeSupported(const 
 
 std::string preciceAdapter::Generic::VectorFieldCoupler::getDataName() const
 {
-    return FieldConfig_.name;
+    return fieldConfig_.name;
 }

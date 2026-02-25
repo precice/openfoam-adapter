@@ -31,7 +31,7 @@ void preciceAdapter::Adapter::readFieldConfigs(const std::string& listName, Foam
             word dataName;
             stream >> dataName;
 
-            struct FieldConfig FieldConfig;
+            struct FieldConfig fieldConfig;
 
             // If next token is '{', we have a dictionary (new schema).
             // We create a dictionary from the stream `dictionary dict(stream);`
@@ -42,12 +42,12 @@ void preciceAdapter::Adapter::readFieldConfigs(const std::string& listName, Foam
             if (stream.peek() == token::BEGIN_BLOCK)
             {
                 dictionary dict(stream);
-                FieldConfig.name = dict.get<word>("name"); // The 'name' entry is mandatory.
-                FieldConfig.solver_name = dict.lookupOrDefault<word>("solver_name", FieldConfig.name);
-                FieldConfig.operation = dict.lookupOrDefault<word>("operation", "value");
+                fieldConfig.name = dict.get<word>("name"); // The 'name' entry is mandatory.
+                fieldConfig.solver_name = dict.lookupOrDefault<word>("solver_name", fieldConfig.name);
+                fieldConfig.operation = dict.lookupOrDefault<word>("operation", "value");
                 try
                 {
-                    FieldConfig.flip_normal = dict.lookupOrDefault<bool>("flip-normal", false);
+                    fieldConfig.flip_normal = dict.lookupOrDefault<bool>("flip-normal", false);
                 }
                 catch (const Foam::IOerror& e)
                 {
@@ -57,19 +57,19 @@ void preciceAdapter::Adapter::readFieldConfigs(const std::string& listName, Foam
             // Else, we have a simple word entry (legacy schema/backwards compatibility).
             else
             {
-                FieldConfig.name = dataName;
-                FieldConfig.solver_name = "Undefined (legacy mode)";
-                FieldConfig.operation = "Undefined (legacy mode)";
-                FieldConfig.flip_normal = false;
+                fieldConfig.name = dataName;
+                fieldConfig.solver_name = "Undefined (legacy mode)";
+                fieldConfig.operation = "Undefined (legacy mode)";
+                fieldConfig.flip_normal = false;
             }
 
-            configs.push_back(FieldConfig);
+            configs.push_back(fieldConfig);
 
             DEBUG(adapterInfo("      - " + dataName));
-            DEBUG(adapterInfo("        name: " + FieldConfig.name));
-            DEBUG(adapterInfo("        solver_name: " + FieldConfig.solver_name));
-            DEBUG(adapterInfo("        operation  : " + FieldConfig.operation));
-            DEBUG(adapterInfo("        flip-normal: " + std::string(FieldConfig.flip_normal ? "true" : "false")));
+            DEBUG(adapterInfo("        name: " + fieldConfig.name));
+            DEBUG(adapterInfo("        solver_name: " + fieldConfig.solver_name));
+            DEBUG(adapterInfo("        operation  : " + fieldConfig.operation));
+            DEBUG(adapterInfo("        flip-normal: " + std::string(fieldConfig.flip_normal ? "true" : "false")));
         }
         stream >> _t; // Last token ')'
     }
@@ -329,25 +329,25 @@ try
         DEBUG(adapterInfo("Adding coupling data writers..."));
         for (uint j = 0; j < interfacesConfig_.at(i).writeData.size(); j++)
         {
-            FieldConfig FieldConfig = interfacesConfig_.at(i).writeData.at(j);
-            std::string dataName = FieldConfig.name;
+            FieldConfig fieldConfig = interfacesConfig_.at(i).writeData.at(j);
+            std::string dataName = fieldConfig.name;
 
             unsigned int inModules = 0;
 
             // Add CHT-related coupling data writers
-            if (CHTenabled_ && CHT_->addWriters(dataName, interface))
+            if (CHTenabled_ && CHT_->addWriters(fieldConfig, interface))
             {
                 inModules++;
             }
 
             // Add FSI-related coupling data writers
-            if (FSIenabled_ && FSI_->addWriters(dataName, interface))
+            if (FSIenabled_ && FSI_->addWriters(fieldConfig, interface))
             {
                 inModules++;
             }
 
             // Add FF-related coupling data writers
-            if (FFenabled_ && FF_->addWriters(dataName, interface))
+            if (FFenabled_ && FF_->addWriters(fieldConfig, interface))
             {
                 inModules++;
             }
@@ -356,7 +356,7 @@ try
             // Only add Generic interface if not found in other modules
             if (inModules == 0)
             {
-                if (genericModuleEnabled_ && Generic_->addWriters(FieldConfig, interface))
+                if (genericModuleEnabled_ && Generic_->addWriters(fieldConfig, interface))
                 {
                     inModules++;
                 };
@@ -381,25 +381,25 @@ try
         DEBUG(adapterInfo("Adding coupling data readers..."));
         for (uint j = 0; j < interfacesConfig_.at(i).readData.size(); j++)
         {
-            FieldConfig FieldConfig = interfacesConfig_.at(i).readData.at(j);
-            std::string dataName = FieldConfig.name;
+            FieldConfig fieldConfig = interfacesConfig_.at(i).readData.at(j);
+            std::string dataName = fieldConfig.name;
 
             unsigned int inModules = 0;
 
             // Add CHT-related coupling data readers
-            if (CHTenabled_ && CHT_->addReaders(dataName, interface))
+            if (CHTenabled_ && CHT_->addReaders(fieldConfig, interface))
             {
                 inModules++;
             }
 
             // Add FSI-related coupling data readers
-            if (FSIenabled_ && FSI_->addReaders(dataName, interface))
+            if (FSIenabled_ && FSI_->addReaders(fieldConfig, interface))
             {
                 inModules++;
             }
 
             // Add FF-related coupling data readers
-            if (FFenabled_ && FF_->addReaders(dataName, interface))
+            if (FFenabled_ && FF_->addReaders(fieldConfig, interface))
             {
                 inModules++;
             }
@@ -408,7 +408,7 @@ try
             // Only add Generic interface if not found in other modules
             if (inModules == 0)
             {
-                if (genericModuleEnabled_ && Generic_->addReaders(FieldConfig, interface))
+                if (genericModuleEnabled_ && Generic_->addReaders(fieldConfig, interface))
                 {
                     inModules++;
                 }
