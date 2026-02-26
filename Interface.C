@@ -460,6 +460,27 @@ void preciceAdapter::Interface::addCouplingDataWriter(
 
     // Add the CouplingDataUser to the list of writers
     couplingDataWriters_.push_back(couplingDataWriter);
+
+    // Check whether config mismatch scalar or vector data
+    unsigned int preciceDataDim = precice_.getDataDimensions(meshName_, fieldConfig.name);
+    bool isVectorDataConfig = (dim_ == preciceDataDim); // 2d or 3d vectors
+    bool isVectorDataAdapter = couplingDataWriter->hasVectorData();
+
+    // Taking gradient of a scalar field results in a vector field
+    bool isScalarConfiguredGradient = (!isVectorDataConfig) && (fieldConfig.operation == "gradient");
+
+    if (isVectorDataConfig != isVectorDataAdapter)
+    {
+        adapterInfo("Data dimension mismatch for field \"" + fieldConfig.name + "\". "
+                        + "The field is defined as " + (isVectorDataConfig ? "vector" : "scalar")
+                        + " data in the preCICE configuration, but the data is "
+                        + (isVectorDataAdapter ? "vector" : "scalar")
+                        + " in the adapter. Please check your preCICE configuration."
+                        + (isScalarConfiguredGradient ? " If you are trying to couple the gradient of a scalar field, \
+                        make sure the data is defined vector in the preCICE config."
+                                                      : ""),
+                    "error");
+    }
 }
 
 
@@ -490,6 +511,21 @@ void preciceAdapter::Interface::addCouplingDataReader(
 
     // Add the CouplingDataUser to the list of readers
     couplingDataReaders_.push_back(couplingDataReader);
+
+    // Check whether config mismatch scalar or vector data
+    unsigned int preciceDataDim = precice_.getDataDimensions(meshName_, fieldConfig.name);
+    bool isVectorDataConfig = (dim_ == preciceDataDim); // 2d or 3d vectors
+    bool isVectorDataAdapter = couplingDataReader->hasVectorData();
+
+    if (isVectorDataConfig != isVectorDataAdapter)
+    {
+        adapterInfo("Data dimension mismatch for field \"" + fieldConfig.name + "\". "
+                        + "The field is defined as " + (isVectorDataConfig ? "vector" : "scalar")
+                        + " data in the preCICE configuration, but the data is "
+                        + (isVectorDataAdapter ? "vector" : "scalar")
+                        + " in the adapter. Please check your preCICE configuration.",
+                    "error");
+    }
 }
 
 void preciceAdapter::Interface::createBuffer()
