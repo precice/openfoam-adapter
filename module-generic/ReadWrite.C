@@ -18,7 +18,14 @@ preciceAdapter::Generic::ScalarFieldCoupler::ScalarFieldCoupler(
   mesh_(mesh),
   fieldConfig_(fieldConfig)
 {
-    dataType_ = scalar;
+    if (fieldConfig_.operation == "gradient")
+    {
+        dataType_ = vector;
+    }
+    else
+    {
+        dataType_ = scalar;
+    }
 }
 
 void preciceAdapter::Generic::ScalarFieldCoupler::initialize()
@@ -30,17 +37,91 @@ void preciceAdapter::Generic::ScalarFieldCoupler::initialize()
             adapterInfo("Generic module: The surface-normal-gradient operation is only supported for faceCenters location type.", "error");
         }
     }
-
-    if (fieldConfig_.operation == "gradient")
-    {
-        adapterInfo("Generic module: The gradient operation is not yet supported for scalar fields. Maybe you meant surface-normal-gradient?", "error");
-    }
 }
 
 
 std::size_t preciceAdapter::Generic::ScalarFieldCoupler::write(double* buffer, bool meshConnectivity, const unsigned int dim)
 {
     int bufferIndex = 0;
+
+    if (fieldConfig_.operation == "gradient")
+    {
+        // Calculate the full gradient (volVectorField)
+        // Temporary field discarded afterwards
+        Foam::tmp<volVectorField> tmpObject(fvc::grad(*scalarField_));
+        const volVectorField& gradScalarField = tmpObject(); // dereference
+
+        if (this->locationType_ == LocationType::volumeCenters)
+        {
+            if (cellSetNames_.empty())
+            {
+                for (const auto& cell : gradScalarField.internalField())
+                {
+                    // x-dimension
+                    buffer[bufferIndex++] = cell.x();
+
+                    // y-dimension
+                    buffer[bufferIndex++] = cell.y();
+
+                    if (dim == 3)
+                    {
+                        // z-dimension
+                        buffer[bufferIndex++] = cell.z();
+                    }
+                }
+            }
+            else
+            {
+                for (const auto& cellSetName : cellSetNames_)
+                {
+                    cellSet overlapRegion(scalarField_->mesh(), cellSetName);
+                    const labelList& cells = overlapRegion.toc();
+
+                    for (const auto& currentCell : cells)
+                    {
+                        // x-dimension
+                        buffer[bufferIndex++] = gradScalarField.internalField()[currentCell].x();
+
+                        // y-dimension
+                        buffer[bufferIndex++] = gradScalarField.internalField()[currentCell].y();
+
+                        if (dim == 3)
+                        {
+                            // z-dimension
+                            buffer[bufferIndex++] = gradScalarField.internalField()[currentCell].z();
+                        }
+                    }
+                }
+            }
+        }
+
+        // For every boundary patch of the interface
+        for (uint j = 0; j < patchIDs_.size(); j++)
+        {
+            int patchID = patchIDs_.at(j);
+
+            // For every cell of the patch
+            forAll(gradScalarField.boundaryField()[patchID], i)
+            {
+                // Copy the velocity into the buffer
+                // x-dimension
+                buffer[bufferIndex++] =
+                    gradScalarField.boundaryField()[patchID][i].x();
+
+                // y-dimension
+                buffer[bufferIndex++] =
+                    gradScalarField.boundaryField()[patchID][i].y();
+
+                if (dim == 3)
+                {
+                    // z-dimension
+                    buffer[bufferIndex++] =
+                        gradScalarField.boundaryField()[patchID][i].z();
+                }
+            }
+        }
+        return bufferIndex;
+    }
 
     if (fieldConfig_.operation == "surface-normal-gradient")
     {
@@ -124,6 +205,11 @@ std::size_t preciceAdapter::Generic::ScalarFieldCoupler::write(double* buffer, b
 void preciceAdapter::Generic::ScalarFieldCoupler::read(double* buffer, const unsigned int dim)
 {
     int bufferIndex = 0;
+
+    if (fieldConfig_.operation == "gradient" || fieldConfig_.operation == "surface-normal-gradient")
+    {
+        adapterInfo("Generic module: The gradient operation is only supported for writing.", "error");
+    }
 
     if (this->locationType_ == LocationType::volumeCenters)
     {
