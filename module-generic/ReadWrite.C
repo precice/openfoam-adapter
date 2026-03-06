@@ -177,10 +177,6 @@ void preciceAdapter::Generic::ScalarFieldCoupler::read(double* buffer, const uns
         {
             adapterInfo("Generic module: Unsupported boundary condition type " + bc.type(), "error");
         }
-
-        // // evaluate the boundary condition, i.e., do some calculation to obtain the actual value provided refValue
-        // boundaryPatch.updateCoeffs();
-        // boundaryPatch.evaluate();
     }
 }
 
