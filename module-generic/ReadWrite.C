@@ -4,6 +4,7 @@
 
 #include "fixedValueFvPatchFields.H"
 #include "fixedGradientFvPatchFields.H"
+#include "mixedFvPatchFields.H"
 
 using namespace Foam;
 
@@ -34,6 +35,14 @@ void preciceAdapter::Generic::ScalarFieldCoupler::initialize()
     if (fieldConfig_.operation == "gradient")
     {
         adapterInfo("Generic module: The gradient operation is not yet supported for scalar fields. Maybe you meant surface-normal-gradient?", "error");
+    }
+
+    if (fieldConfig_.operation == "ref-value" || fieldConfig_.operation == "ref-gradient")
+    {
+        if (this->locationType_ != LocationType::faceCenters)
+        {
+            adapterInfo("Generic module: Robin boundary conditions (ref-value and ref-gradient operations) are supported only for surface locations (faceCenters).", "error");
+        }
     }
 }
 
@@ -171,6 +180,24 @@ void preciceAdapter::Generic::ScalarFieldCoupler::read(double* buffer, const uns
             forAll(boundaryPatch, i)
             {
                 boundaryPatch.gradient()[i] = buffer[bufferIndex++];
+            }
+        }
+        else if (isA<mixedFvPatchScalarField>(bc))
+        {
+            auto& boundaryPatch = refCast<mixedFvPatchScalarField>(bc);
+            if (fieldConfig_.operation == "ref-value" || fieldConfig_.operation == "value")
+            {
+                forAll(boundaryPatch, i)
+                {
+                    boundaryPatch.refValue()[i] = buffer[bufferIndex++];
+                }
+            }
+            else if (fieldConfig_.operation == "ref-gradient")
+            {
+                forAll(boundaryPatch, i)
+                {
+                    boundaryPatch.refGrad()[i] = buffer[bufferIndex++];
+                }
             }
         }
         else
