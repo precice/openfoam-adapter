@@ -21,6 +21,16 @@ preciceAdapter::Generic::ScalarFieldCoupler::ScalarFieldCoupler(
     if (fieldConfig_.operation == "gradient")
     {
         dataType_ = vector;
+
+        // Allocate memory for gradient field
+        gradientFieldPtr_ = new volVectorField(
+            IOobject(
+                "grad" + fieldConfig_.solver_name,
+                mesh_.time().timeName(),
+                mesh_,
+                IOobject::NO_READ,
+                IOobject::NO_WRITE),
+            fvc::grad(*scalarField_));
     }
     else
     {
@@ -47,9 +57,8 @@ std::size_t preciceAdapter::Generic::ScalarFieldCoupler::write(double* buffer, b
     if (fieldConfig_.operation == "gradient")
     {
         // Calculate the full gradient (volVectorField)
-        // Temporary field discarded afterwards
-        Foam::tmp<volVectorField> tmpObject(fvc::grad(*scalarField_));
-        const volVectorField& gradScalarField = tmpObject(); // dereference
+        *gradientFieldPtr_ = fvc::grad(*scalarField_);
+        volVectorField& gradScalarField = *gradientFieldPtr_;
 
         if (this->locationType_ == LocationType::volumeCenters)
         {
