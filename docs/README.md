@@ -37,7 +37,7 @@ All fields are supported for both flow (compressible/incompressible) and basic (
 
 | Field | Write | Read | Config prefix |
 | --- | --- | --- | --- |
-| Displacement: absolute | N*, F* | N*, F* | `Displacement` |
+| Displacement: absolute | N*, [F*](https://github.com/precice/openfoam-adapter/issues/153) | N*, F* | `Displacement` |
 | Displacement: relative | N*, F* | N*, F* | `DisplacementDelta` |
 | Force | F* (flow) | F* | `Force` |
 | Stress | F* (flow) | F* | `Stress` |
