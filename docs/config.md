@@ -304,7 +304,7 @@ When reading on the OpenFOAM side, the Generic module automatically detects the 
 
 Limitations:
 
-- The operation `gradient` is currently only supported for scalar fields (resulting to a vector field).
+- The operation `gradient` is currently only supported for writing scalar fields (resulting to a vector field).
 - The operation `surface-normal-gradient` is currently only supported for surface scalar field writing (resulting to a scalar field).
 - The operation `flip-normal` is supported for all field types across all modules, but the most relevant use case might be for surface scalar fields, in order to change the direction of, e.g., a flux.
 
