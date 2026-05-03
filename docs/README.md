@@ -53,7 +53,7 @@ Force and stress writing in only supported for flow solvers, reading for both.
 | Momentum: explicit | F*, C | F*, C | `ExplicitMomentum` |
 | Momentum: implicit | F*, C | F*, C | `ImplicitMomentum` |
 | Phase flux | F* | F* | `Phi` |
-| Phase fraction | F*, C | F*, C | `Alpha` |
+| Volume fraction | F*, C | F*, C | `Alpha` |
 | Phase fraction gradient | F* | F* | `AlphaGradient` |
 | Pressure | F*, C | F*, C | `Pressure` |
 | Pressure: full gradient | F*, C* | F* | `PressureGradientFull` (TODO: read-only) |
