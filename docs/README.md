@@ -19,12 +19,12 @@ Legend on locations to read/write:
 
 - **N:** Mesh nodes (surface coupling)
 - **F:** Face centers (surface coupling)
-- **C:** cell centers (volume coupling)
-- ***:** mesh connectivity supported (for e.g., nearest-projection mapping)
+- **C:** Cell centers (volume coupling)
+- ***:** Mesh connectivity supported (for, e.g., nearest-projection mapping)
 
 ### Module: Conjugate heat transfer
 
-| Field | Write | Read |  Config prefix |
+| Field | Write | Read | Config prefix |
 | --- | --- | --- | --- |
 | Heat flux | N*, F | N, F* | `Heat-Flux` |
 | Heat transfer coefficient | N*, F | N, F* | `Heat-Transfer-Coefficient` |
