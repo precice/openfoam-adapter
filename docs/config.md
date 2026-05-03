@@ -283,7 +283,7 @@ interfaces
       {
         name        Velocity;   // Data name as defined in preCICE config
         solver_name U;          // Optional: Field name in OpenFOAM (defaults to same as 'name')
-        operation   value;      // Optional: Operation to perform on data (defaults to 'value')
+        operation   value;      // Optional: Operation to perform on data (defaults to 'value', other options are `gradient` and `surface-normal-gradient`)
         flip-normal false;      // Optional: Flip the normal direction (defaults to 'false')
       }
 
@@ -302,7 +302,11 @@ Explicitly setting `locations volumeCenters;` in preciceDict is required for vol
 
 When reading on the OpenFOAM side, the Generic module automatically detects the boundary condition type of the coupled patch to apply the received data. The boundary condition must be respected, therefore the data received is applied either as a `fixedValue` or `fixedGradient` boundary condition, determined by the type set in the `0/` files.
 
-The `operation surface-normal-gradient;` is currently only supported for scalar field surface writing. The operation `gradient` as well as the option `flip-normal` are not yet supported by the adapter.
+Limitations:
+
+- The operation `gradient` is currently only supported for writing scalar fields (resulting to a vector field).
+- The operation `surface-normal-gradient` is currently only supported for surface scalar field writing (resulting to a scalar field).
+- The operation `flip-normal` is supported for all field types across all modules, but the most relevant use case might be for surface scalar fields, in order to change the direction of, e.g., a flux.
 
 ### Volume coupling
 
