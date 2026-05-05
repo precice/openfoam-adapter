@@ -18,6 +18,7 @@ protected:
     Foam::volScalarField* scalarField_;
     const Foam::fvMesh& mesh_;
     const preciceAdapter::FieldConfig& fieldConfig_;
+    Foam::volVectorField* gradientFieldPtr_ = nullptr;
 
 public:
     ScalarFieldCoupler(const Foam::fvMesh& mesh, const preciceAdapter::FieldConfig& fieldConfig);
@@ -28,7 +29,7 @@ public:
     bool isLocationTypeSupported(const bool meshConnectivity) const;
     std::string getDataName() const;
 
-    virtual ~ScalarFieldCoupler() {};
+    virtual ~ScalarFieldCoupler() { delete gradientFieldPtr_; };
 };
 
 class VectorFieldCoupler : public CouplingDataUser
