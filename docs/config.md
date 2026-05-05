@@ -302,6 +302,24 @@ Explicitly setting `locations volumeCenters;` in preciceDict is required for vol
 
 When reading on the OpenFOAM side, the Generic module automatically detects the boundary condition type of the coupled patch to apply the received data. The boundary condition must be respected, therefore the data received is applied either as a `fixedValue` or `fixedGradient` boundary condition, determined by the type set in the `0/` files.
 
+Additionally, the Robin or mixed boundary condition is now supported for surface coupling. The OpenFOAM boundary type `mixed` must be set for the coupled patch in the `0/` files like so:
+
+```cpp
+// File 0/T
+boundaryField
+{
+    interface
+    {
+        type            mixed;
+        refValue        uniform 1;
+        refGradient     uniform 1;
+        valueFraction   uniform 0.5;
+    }
+}
+```
+
+Any of the three fields `refValue`, `refGradient`, and `valueFraction` can be written or read using the adapter (the initial values will be overwritten by the adapter in case of write). To do so, specify the `operation` for each coupling data in `preciceDict` as `ref-value`, `ref-gradient`, or `value-fraction`. Be careful when using the `value-fraction` operation, as it is not a physical quantity and must be within the range of (0, 1).
+
 Limitations:
 
 - The operation `gradient` is currently only supported for writing scalar fields (resulting to a vector field).
