@@ -263,6 +263,13 @@ void preciceAdapter::Generic::ScalarFieldCoupler::read(double* buffer, const uns
 
         if (isA<fixedValueFvPatchScalarField>(bc))
         {
+            if (fieldConfig_.operation != "value")
+            {
+                adapterInfo(
+                    "Generic module: Unsupported operation " + fieldConfig_.operation + " for boundary condition type " + bc.type() + ". Supported operation is value.",
+                    "error");
+            }
+
             auto& boundaryPatch = refCast<fixedValueFvPatchScalarField>(bc);
             forAll(boundaryPatch, i)
             {
@@ -271,6 +278,13 @@ void preciceAdapter::Generic::ScalarFieldCoupler::read(double* buffer, const uns
         }
         else if (isA<fixedGradientFvPatchScalarField>(bc))
         {
+            if (fieldConfig_.operation != "value")
+            {
+                adapterInfo(
+                    "Generic module: Unsupported operation " + fieldConfig_.operation + " for boundary condition type " + bc.type() + ". Supported operation is value.",
+                    "error");
+            }
+
             auto& boundaryPatch = refCast<fixedGradientFvPatchScalarField>(bc);
             forAll(boundaryPatch, i)
             {
@@ -300,6 +314,12 @@ void preciceAdapter::Generic::ScalarFieldCoupler::read(double* buffer, const uns
                 {
                     boundaryPatch.valueFraction()[i] = buffer[bufferIndex++];
                 }
+            }
+            else
+            {
+                adapterInfo(
+                    "Generic module: Unsupported operation " + fieldConfig_.operation + " for boundary condition type " + bc.type() + ". Supported operations are ref-value, ref-gradient, and value-fraction.",
+                    "error");
             }
         }
         else
