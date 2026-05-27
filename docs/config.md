@@ -318,7 +318,7 @@ boundaryField
 }
 ```
 
-Any of the three fields `refValue`, `refGradient`, and `valueFraction` can be written or read using the adapter (the initial values will be overwritten by the adapter in case of write). To do so, specify the `operation` for each coupling data in `preciceDict` as `ref-value`, `ref-gradient`, or `value-fraction`. Be careful when using the `value-fraction` operation, as it is not a physical quantity and must be within the range of (0, 1). Please note that if you intend to use the `mixed` boundary condition for a heat transfer problem, the `valueFraction` is not the same as the heat transfer coefficient and it's not possible to explictly set the heat transfer coefficient as a parameter.
+Any of the three fields `refValue`, `refGradient`, and `valueFraction` can be written or read using the adapter (the initial values will be overwritten by the adapter). To do so, specify the `operation` for each coupling data in `preciceDict` as `ref-value`, `ref-gradient`, or `value-fraction`. Be careful when using the `value-fraction` operation, as it is not a physical quantity and must be within the range of (0, 1). Please note that if you intend to use the `mixed` boundary condition for a heat transfer problem, the `valueFraction` is not the same as the heat transfer coefficient and it's not possible to explicitly set the heat transfer coefficient as a parameter.
 
 Limitations:
 
