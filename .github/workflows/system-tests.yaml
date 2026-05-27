@@ -39,7 +39,7 @@ jobs:
     needs: gather-refs
     uses: precice/tutorials/.github/workflows/run_testsuite_workflow.yml@develop
     with:
-      suites: openfoam_adapter_pr
+      suites: openfoam-adapter
       build_args: TUTORIALS_REF:${{ needs.gather-refs.outputs.ref-tutorials }},PRECICE_REF:d199bb3,OPENFOAM_EXECUTABLE:openfoam2512,OPENFOAM_ADAPTER_PR:${{ github.event.number }},OPENFOAM_ADAPTER_REF:${{ github.event.pull_request.head.sha }}
       system_tests_branch: develop
       log_level: "DEBUG"
