@@ -280,9 +280,7 @@ void preciceAdapter::Generic::ScalarFieldCoupler::read(double* buffer, const uns
         else if (isA<mixedFvPatchScalarField>(bc))
         {
             auto& boundaryPatch = refCast<mixedFvPatchScalarField>(bc);
-            // Strictly speaking it should be just "ref-value", but I think it's nice to have \
-            // reading the value of a mixed BC using just operation "value".
-            if (fieldConfig_.operation == "ref-value" || fieldConfig_.operation == "value")
+            if (fieldConfig_.operation == "ref-value")
             {
                 forAll(boundaryPatch, i)
                 {
