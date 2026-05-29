@@ -12,6 +12,8 @@
 // Fluid-Fluid module
 #include "FF/FF.H"
 
+#include "module-generic/Generic.H"
+
 // NOTE: If you want to couple a new variable, include your module's header here.
 // You also need to include it in the Make/files file.
 // In case you use additional OpenFOAM symbols, you may also need to specify
@@ -23,6 +25,12 @@
 
 // preCICE Solver Interface
 #include <precice/precice.hpp>
+
+#if PRECICE_VERSION_GREATER_EQUAL(3, 2, 0)
+using PreciceError = ::precice::Error;
+#else
+using PreciceError = std::runtime_error;
+#endif
 
 namespace preciceAdapter
 {
@@ -42,8 +50,8 @@ private:
         bool meshConnectivity;
         std::vector<std::string> patchNames;
         std::vector<std::string> cellSetNames;
-        std::vector<std::string> writeData;
-        std::vector<std::string> readData;
+        std::vector<struct FieldConfig> writeData;
+        std::vector<struct FieldConfig> readData;
     };
 
     //- Configuration interfaces
@@ -73,9 +81,6 @@ private:
 
     // Configuration parameters used in the Adapter
 
-    //- Remember if there were errors in the read() method
-    bool errorsInConfigure = false;
-
     //- preCICE configuration file name
     Foam::word preciceConfigFilename_;
 
@@ -84,6 +89,9 @@ private:
 
     //- Switch for checkpointing
     bool checkpointing_ = false;
+
+    //- Moving mesh checkpointing
+    bool meshCheckPointed_ = false;
 
     //- Type of timestep (fixed, adjustable)
     bool adjustableTimestep_;
@@ -102,6 +110,9 @@ private:
 
     // NOTE: Add a switch for your new module here
 
+    //- Switch to enable General module
+    bool genericModuleEnabled_ = false;
+
     //- Interfaces
     std::vector<Interface*> interfaces_;
 
@@ -112,13 +123,16 @@ private:
     bool preciceInitialized_ = false;
 
     //- Conjugate Heat Transfer module object
-    CHT::ConjugateHeatTransfer* CHT_ = NULL;
+    CHT::ConjugateHeatTransfer* CHT_ = nullptr;
 
     //- Fluid-Structure Interaction module object
-    FSI::FluidStructureInteraction* FSI_ = NULL;
+    FSI::FluidStructureInteraction* FSI_ = nullptr;
 
     //- Fluid-Fluid module object
-    FF::FluidFluid* FF_ = NULL;
+    FF::FluidFluid* FF_ = nullptr;
+
+    //- Generic module object
+    Generic::GenericInterface* Generic_ = nullptr;
 
     // NOTE: Add here a pointer for your new module object
 
@@ -147,8 +161,8 @@ private:
     // Vectors of pointers to the checkpointed mesh fields and their copies
 
     //- Checkpointed mesh points, oldPoints
-    Foam::pointField* meshPoints_;
-    Foam::pointField* meshOldPoints_;
+    Foam::pointField* meshPoints_ = nullptr;
+    Foam::pointField* meshOldPoints_ = nullptr;
 
     //- Checkpointed volScalarField mesh fields (V, V0, V00)
     std::vector<volScalarField::Internal*> meshVolFieldCopies_;
@@ -227,7 +241,10 @@ private:
     // Configuration
 
     //- Read the adapter's configuration file
-    bool configFileRead();
+    void configFileRead();
+
+    //- Helper to read a list of field configurations, which can contain either words, dictionaries, or both
+    void readFieldConfigs(const std::string& listName, Foam::ITstream& stream, std::vector<FieldConfig>& configs);
 
     //- Check the adapter's configuration file
     bool configFileCheck(const std::string adapterConfigFileName);
@@ -269,9 +286,6 @@ private:
 
     //- Configure the mesh checkpointing
     void setupMeshCheckpointing();
-
-    //- Configure the mesh checkpointing
-    void setupMeshVolCheckpointing();
 
     //- Configure the checkpointing
     void setupCheckpointing();

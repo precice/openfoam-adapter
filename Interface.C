@@ -67,11 +67,10 @@ preciceAdapter::Interface::Interface(
         // Throw an error if the patch was not found
         if (patchID == -1)
         {
-            FatalErrorInFunction
-                << "ERROR: Patch '"
-                << patchNames.at(j)
-                << "' does not exist."
-                << exit(FatalError);
+            adapterInfo("Patch \""
+                            + patchNames.at(j) + "\" does not exist and therefore cannot be used as a coupling interface for mesh \""
+                            + meshName + "\". Check the system/preciceDict.",
+                        "error");
         }
 
         // Add the patch in the list
@@ -435,11 +434,14 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh, const std::str
 
 
 void preciceAdapter::Interface::addCouplingDataWriter(
-    std::string dataName,
+    const FieldConfig& fieldConfig,
     CouplingDataUser* couplingDataWriter)
 {
     // Set the data name (from preCICE)
-    couplingDataWriter->setDataName(dataName);
+    couplingDataWriter->setDataName(fieldConfig.name);
+
+    // Set the flip normal option
+    couplingDataWriter->setFlipNormal(fieldConfig.flip_normal);
 
     // Set the patchIDs of the patches that form the interface
     couplingDataWriter->setPatchIDs(patchIDs_);
@@ -458,15 +460,39 @@ void preciceAdapter::Interface::addCouplingDataWriter(
 
     // Add the CouplingDataUser to the list of writers
     couplingDataWriters_.push_back(couplingDataWriter);
+
+    // Check whether config mismatch scalar or vector data
+    unsigned int preciceDataDim = precice_.getDataDimensions(meshName_, fieldConfig.name);
+    bool isVectorDataConfig = (dim_ == preciceDataDim); // 2d or 3d vectors
+    bool isVectorDataAdapter = couplingDataWriter->hasVectorData();
+
+    // Taking gradient of a scalar field results in a vector field
+    bool isScalarConfiguredGradient = (!isVectorDataConfig) && (fieldConfig.operation == "gradient");
+
+    if (isVectorDataConfig != isVectorDataAdapter)
+    {
+        adapterInfo("Data dimension mismatch for field \"" + fieldConfig.name + "\". "
+                        + "The field is defined as " + (isVectorDataConfig ? "vector" : "scalar")
+                        + " data in the preCICE configuration, but the data is "
+                        + (isVectorDataAdapter ? "vector" : "scalar")
+                        + " in the adapter. Please check your preCICE configuration."
+                        + (isScalarConfiguredGradient ? " If you are trying to couple the gradient of a scalar field, \
+                        make sure the data is defined vector in the preCICE config."
+                                                      : ""),
+                    "error");
+    }
 }
 
 
 void preciceAdapter::Interface::addCouplingDataReader(
-    std::string dataName,
+    const FieldConfig& fieldConfig,
     preciceAdapter::CouplingDataUser* couplingDataReader)
 {
     // Set the patchIDs of the patches that form the interface
-    couplingDataReader->setDataName(dataName);
+    couplingDataReader->setDataName(fieldConfig.name);
+
+    // Set the flip normal option
+    couplingDataReader->setFlipNormal(fieldConfig.flip_normal);
 
     // Add the CouplingDataUser to the list of readers
     couplingDataReader->setPatchIDs(patchIDs_);
@@ -485,6 +511,21 @@ void preciceAdapter::Interface::addCouplingDataReader(
 
     // Add the CouplingDataUser to the list of readers
     couplingDataReaders_.push_back(couplingDataReader);
+
+    // Check whether config mismatch scalar or vector data
+    unsigned int preciceDataDim = precice_.getDataDimensions(meshName_, fieldConfig.name);
+    bool isVectorDataConfig = (dim_ == preciceDataDim); // 2d or 3d vectors
+    bool isVectorDataAdapter = couplingDataReader->hasVectorData();
+
+    if (isVectorDataConfig != isVectorDataAdapter)
+    {
+        adapterInfo("Data dimension mismatch for field \"" + fieldConfig.name + "\". "
+                        + "The field is defined as " + (isVectorDataConfig ? "vector" : "scalar")
+                        + " data in the preCICE configuration, but the data is "
+                        + (isVectorDataAdapter ? "vector" : "scalar")
+                        + " in the adapter. Please check your preCICE configuration.",
+                    "error");
+    }
 }
 
 void preciceAdapter::Interface::createBuffer()
@@ -524,10 +565,6 @@ void preciceAdapter::Interface::createBuffer()
     // Create the data buffer
     // An interface has only one data buffer, which is shared between several
     // CouplingDataUsers.
-    // TODO: Check (write tests) if this works properly when we have multiple
-    // scalar and vector coupling data users in an interface. With the current
-    // preCICE implementation, it should work as, when writing scalars,
-    // it should  only use the first 1/3 elements of the buffer.
     dataBuffer_.resize(dataBufferSize);
 }
 
@@ -546,12 +583,16 @@ void preciceAdapter::Interface::readCouplingData(double relativeReadTime)
         // We could add a sanity check here
         // nReadData == vertexIDs_.size() * (1 + (dim_ - 1) * static_cast<int>(couplingDataReader->hasVectorData()));
 
+        precice::span<double> dataSpanRead {dataBuffer_.data(), nReadData};
         precice_.readData(
             meshName_,
             couplingDataReader->dataName(),
             vertexIDs_,
             relativeReadTime,
-            {dataBuffer_.data(), nReadData});
+            dataSpanRead);
+
+        // Apply flip normal if required
+        couplingDataReader->applyFlipNormal(dataSpanRead);
 
         // Read the received data from the buffer
         couplingDataReader->read(dataBuffer_.data(), dim_);
@@ -560,10 +601,6 @@ void preciceAdapter::Interface::readCouplingData(double relativeReadTime)
 
 void preciceAdapter::Interface::writeCouplingData()
 {
-    // TODO: wrap around isWriteDataRequired
-    // Does the participant need to write data or is it subcycling?
-    // if (precice_.isWriteDataRequired(computedTimestepLength))
-    // {
     // Make every coupling data writer write
     for (uint i = 0; i < couplingDataWriters_.size(); i++)
     {
@@ -574,14 +611,18 @@ void preciceAdapter::Interface::writeCouplingData()
         // Write the data into the adapter's buffer
         auto nWrittenData = couplingDataWriter->write(dataBuffer_.data(), meshConnectivity_, dim_);
 
+        precice::span<double> dataSpanWritten {dataBuffer_.data(), nWrittenData};
+
+        // Apply flip normal if required
+        couplingDataWriter->applyFlipNormal(dataSpanWritten);
+
         // Make preCICE write vector or scalar data
         precice_.writeData(
             meshName_,
             couplingDataWriter->dataName(),
             vertexIDs_,
-            {dataBuffer_.data(), nWrittenData});
+            dataSpanWritten);
     }
-    // }
 }
 
 preciceAdapter::Interface::~Interface()

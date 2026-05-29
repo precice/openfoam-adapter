@@ -24,6 +24,22 @@ const std::string& preciceAdapter::CouplingDataUser::dataName()
     return dataName_;
 }
 
+void preciceAdapter::CouplingDataUser::setFlipNormal(bool flipNormal)
+{
+    flipNormal_ = flipNormal;
+}
+
+void preciceAdapter::CouplingDataUser::applyFlipNormal(precice::span<double> dataBuffer)
+{
+    if (flipNormal_)
+    {
+        for (double& val : dataBuffer)
+        {
+            val *= -1.0;
+        }
+    }
+}
+
 void preciceAdapter::CouplingDataUser::setPatchIDs(std::vector<int> patchIDs)
 {
     patchIDs_ = patchIDs;
@@ -51,11 +67,19 @@ void preciceAdapter::CouplingDataUser::checkDataLocation(const bool meshConnecti
         else if (locationType_ == LocationType::volumeCenters)
             location = "volumeCenters";
 
-        adapterInfo("\"locations = " + location + "\" is not supported for the data \""
-                        + getDataName() + "\". Please select a different "
-                                          "location type, a different data set or provide "
-                                          "additional connectivity information.",
-                    "error");
+        if (meshConnectivity)
+        {
+            adapterInfo("The data \"" + getDataName() + "\""
+                            + " does not currently support mesh connectivity (e.g., nearest-projection mapping) for location type "
+                            + "\"" + location + "\".",
+                        "error");
+        }
+        else
+        {
+            adapterInfo("The data \"" + getDataName() + "\" does not support location type \""
+                            + location + "\". Please select a different location type.",
+                        "error");
+        }
     }
 }
 

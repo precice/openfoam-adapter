@@ -71,6 +71,18 @@ bool preciceAdapter::FF::FluidFluid::readConfig(const IOdictionary& adapterConfi
     namePhi_ = FFdict.lookupOrDefault<word>("namePhi", "phi");
     DEBUG(adapterInfo("    face flux field name : " + namePhi_));
 
+    // Read the name of the face flux field (if different)
+    nameDragForce_ = FFdict.lookupOrDefault<word>("nameDragForce", "Fd");
+    adapterInfo("    drag force name : " + nameDragForce_);
+
+    // Read the name of the explicit momentum source term (if different)
+    nameExplicitMomentum_ = FFdict.lookupOrDefault<word>("nameExplicitMomentum", "ExplicitMomentum");
+    adapterInfo("    explicit momentum name : " + nameExplicitMomentum_);
+
+    // Read the name of the implicit momentum source term (if different)
+    nameImplicitMomentum_ = FFdict.lookupOrDefault<word>("nameImplicitMomentum", "ImplicitMomentum");
+    adapterInfo("    implicit momentum name : " + nameImplicitMomentum_);
+
     // Check whether to enable flux correction for velocity
     fluxCorrection_ = FFdict.lookupOrDefault<bool>("fluxCorrection", false);
     DEBUG(adapterInfo("    flux correction of velocity is set to : " + std::to_string(fluxCorrection_)));
@@ -113,70 +125,79 @@ std::string preciceAdapter::FF::FluidFluid::determineSolverType()
     return solverType;
 }
 
-bool preciceAdapter::FF::FluidFluid::addWriters(std::string dataName, Interface* interface)
+bool preciceAdapter::FF::FluidFluid::addWriters(const preciceAdapter::FieldConfig& fieldConfig, Interface* interface)
 {
+    std::string dataName = fieldConfig.name;
+
     bool found = true; // Set to false later, if needed.
 
-    if (dataName.find("VelocityGradient") == 0)
+    if (matchingStrings(dataName, "VelocityGradient"))
     {
         interface->addCouplingDataWriter(
-            dataName,
+            fieldConfig,
             new VelocityGradient(mesh_, nameU_));
         DEBUG(adapterInfo("Added writer: Velocity Gradient."));
     }
-    else if (dataName.find("Velocity") == 0)
+    else if (matchingStrings(dataName, "Velocity"))
     {
         interface->addCouplingDataWriter(
-            dataName,
+            fieldConfig,
             new Velocity(mesh_, nameU_, namePhi_, fluxCorrection_));
         DEBUG(adapterInfo("Added writer: Velocity."));
     }
-    else if (dataName.find("PressureGradient") == 0)
+    else if (matchingStrings(dataName, "PressureGradientFull"))
     {
         interface->addCouplingDataWriter(
-            dataName,
+            fieldConfig,
+            new PressureGradientFull(mesh_, nameP_));
+        DEBUG(adapterInfo("Added writer: Full Pressure Gradient."));
+    }
+    else if (matchingStrings(dataName, "PressureGradient"))
+    {
+        interface->addCouplingDataWriter(
+            fieldConfig,
             new PressureGradient(mesh_, nameP_));
         DEBUG(adapterInfo("Added writer: Pressure Gradient."));
     }
-    else if (dataName.find("Pressure") == 0)
+    else if (matchingStrings(dataName, "Pressure"))
     {
         interface->addCouplingDataWriter(
-            dataName,
+            fieldConfig,
             new Pressure(mesh_, nameP_));
         DEBUG(adapterInfo("Added writer: Pressure."));
     }
-    else if (dataName.find("FlowTemperatureGradient") == 0)
+    else if (matchingStrings(dataName, "FlowTemperatureGradient"))
     {
         interface->addCouplingDataWriter(
-            dataName,
+            fieldConfig,
             new TemperatureGradient(mesh_, nameT_));
         DEBUG(adapterInfo("Added writer: Flow Temperature Gradient."));
     }
-    else if (dataName.find("FlowTemperature") == 0)
+    else if (matchingStrings(dataName, "FlowTemperature"))
     {
         interface->addCouplingDataWriter(
-            dataName,
+            fieldConfig,
             new Temperature(mesh_, nameT_));
         DEBUG(adapterInfo("Added writer: Flow Temperature."));
     }
-    else if (dataName.find("AlphaGradient") == 0)
+    else if (matchingStrings(dataName, "AlphaGradient"))
     {
         interface->addCouplingDataWriter(
-            dataName,
+            fieldConfig,
             new AlphaGradient(mesh_, nameAlpha_));
         DEBUG(adapterInfo("Added writer: Alpha Gradient."));
     }
-    else if (dataName.find("Alpha") == 0)
+    else if (matchingStrings(dataName, "Alpha"))
     {
         interface->addCouplingDataWriter(
-            dataName,
+            fieldConfig,
             new Alpha(mesh_, nameAlpha_));
         DEBUG(adapterInfo("Added writer: Alpha."));
     }
-    else if (dataName.find("Phi") == 0)
+    else if (matchingStrings(dataName, "Phi"))
     {
         interface->addCouplingDataWriter(
-            dataName,
+            fieldConfig,
             new Phi(mesh_, namePhi_));
         DEBUG(adapterInfo("Added writer: Phi."));
     }
@@ -194,72 +215,95 @@ bool preciceAdapter::FF::FluidFluid::addWriters(std::string dataName, Interface*
     return found;
 }
 
-bool preciceAdapter::FF::FluidFluid::addReaders(std::string dataName, Interface* interface)
+bool preciceAdapter::FF::FluidFluid::addReaders(const preciceAdapter::FieldConfig& fieldConfig, Interface* interface)
 {
+    std::string dataName = fieldConfig.name;
+
     bool found = true; // Set to false later, if needed.
 
-    if (dataName.find("VelocityGradient") == 0)
+    if (matchingStrings(dataName, "VelocityGradient"))
     {
         interface->addCouplingDataReader(
-            dataName,
+            fieldConfig,
             new VelocityGradient(mesh_, nameU_));
         DEBUG(adapterInfo("Added reader: VelocityGradient."));
     }
-    else if (dataName.find("Velocity") == 0)
+    else if (matchingStrings(dataName, "Velocity"))
     {
         interface->addCouplingDataReader(
-            dataName,
+            fieldConfig,
             new Velocity(mesh_, nameU_, namePhi_));
         DEBUG(adapterInfo("Added reader: Velocity."));
     }
-    else if (dataName.find("PressureGradient") == 0)
+    else if (matchingStrings(dataName, "PressureGradient"))
     {
         interface->addCouplingDataReader(
-            dataName,
+            fieldConfig,
             new PressureGradient(mesh_, nameP_));
         DEBUG(adapterInfo("Added reader: Pressure Gradient."));
     }
-    else if (dataName.find("Pressure") == 0)
+    else if (matchingStrings(dataName, "Pressure"))
     {
         interface->addCouplingDataReader(
-            dataName,
+            fieldConfig,
             new Pressure(mesh_, nameP_));
         DEBUG(adapterInfo("Added reader: Pressure."));
     }
-    else if (dataName.find("FlowTemperatureGradient") == 0)
+    else if (matchingStrings(dataName, "FlowTemperatureGradient"))
     {
         interface->addCouplingDataReader(
-            dataName,
+            fieldConfig,
             new TemperatureGradient(mesh_, nameT_));
         DEBUG(adapterInfo("Added reader: Flow Temperature Gradient."));
     }
-    else if (dataName.find("FlowTemperature") == 0)
+    else if (matchingStrings(dataName, "FlowTemperature"))
     {
         interface->addCouplingDataReader(
-            dataName,
+            fieldConfig,
             new Temperature(mesh_, nameT_));
         DEBUG(adapterInfo("Added reader: Flow Temperature."));
     }
-    else if (dataName.find("AlphaGradient") == 0)
+    else if (matchingStrings(dataName, "AlphaGradient"))
     {
         interface->addCouplingDataReader(
-            dataName,
+            fieldConfig,
             new AlphaGradient(mesh_, nameAlpha_));
         DEBUG(adapterInfo("Added reader: Alpha Gradient."));
     }
-    else if (dataName.find("Alpha") == 0)
+    else if (matchingStrings(dataName, "Alpha"))
     {
         interface->addCouplingDataReader(
-            dataName,
+            fieldConfig,
             new Alpha(mesh_, nameAlpha_));
         DEBUG(adapterInfo("Added reader: Alpha."));
     }
-    else if (dataName.find("Phi") == 0)
+    else if (matchingStrings(dataName, "Phi"))
     {
         interface->addCouplingDataReader(
-            dataName,
+            fieldConfig,
             new Phi(mesh_, namePhi_));
         DEBUG(adapterInfo("Added reader: Phi."));
+    }
+    else if (matchingStrings(dataName, "DragForce"))
+    {
+        interface->addCouplingDataReader(
+            fieldConfig,
+            new DragForce(mesh_, nameDragForce_));
+        DEBUG(adapterInfo("Added reader: DragForce."));
+    }
+    else if (matchingStrings(dataName, "ExplicitMomentum"))
+    {
+        interface->addCouplingDataReader(
+            fieldConfig,
+            new ExplicitMomentum(mesh_, nameExplicitMomentum_));
+        DEBUG(adapterInfo("Added reader: ExplicitMomentum."));
+    }
+    else if (matchingStrings(dataName, "ImplicitMomentum"))
+    {
+        interface->addCouplingDataReader(
+            fieldConfig,
+            new ImplicitMomentum(mesh_, nameImplicitMomentum_));
+        DEBUG(adapterInfo("Added reader: ImplicitMomentum."));
     }
     else
     {

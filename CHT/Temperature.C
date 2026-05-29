@@ -128,14 +128,9 @@ void preciceAdapter::CHT::Temperature::read(double* buffer, const unsigned int d
 
 bool preciceAdapter::CHT::Temperature::isLocationTypeSupported(const bool meshConnectivity) const
 {
-    // For cases with mesh connectivity, we support:
-    // - face nodes, only for writing
-    // - face centers, only for reading
-    // However, since we do not distinguish between reading and writing in the code, we
-    // always return true and offload the handling to the user.
     if (meshConnectivity)
     {
-        return (this->locationType_ == LocationType::faceCenters || this->locationType_ == LocationType::faceNodes); // we currently do not support meshConnectivity for volumeCenters
+        return (this->locationType_ == LocationType::faceNodes);
     }
     else
     {

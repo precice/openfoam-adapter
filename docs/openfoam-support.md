@@ -7,14 +7,14 @@ summary: Recent OpenFOAM.com versions work out-of-the-box. Recent OpenFOAM.org v
 
 ## How to get OpenFOAM
 
-The easiest way to start is to get binary packages for your Linux distribution. For example, to [get OpenFOAM v2412 on Ubuntu](https://develop.openfoam.com/Development/openfoam/-/wikis/precompiled/debian#precompiled-packages-debianubuntu):
+The easiest way to start is to get binary packages for your Linux distribution. For example, to [get OpenFOAM v2512 on Ubuntu](https://gitlab.com/openfoam/core/openfoam/-/wikis/precompiled/debian):
 
 ```bash
 # Add the signing key, add the repository, update:
 wget -q -O - https://dl.openfoam.com/add-debian-repo.sh | sudo bash
 
-# Install OpenFOAM v2412:
-sudo apt-get install openfoam2412-dev
+# Install OpenFOAM v2512:
+sudo apt-get install openfoam2512-dev
 ```
 
 As these steps change your `.profile`, you need to log out and in again to make OpenFOAM fully discoverable.
@@ -34,7 +34,7 @@ Currently, and since v1.3.0 of the adapter (first one for preCICE v3), only the 
 We provide version-specific [release archives](https://github.com/precice/openfoam-adapter/releases/latest) and respective Git branches for:
 
 - OpenCFD / ESI (openfoam.com) - main focus:
-  - [OpenFOAM v1812-v2412](https://github.com/precice/openfoam-adapter) or newer
+  - [OpenFOAM v1812-v2512](https://github.com/precice/openfoam-adapter) or newer
   - [OpenFOAM v1612-v1806](https://github.com/precice/openfoam-adapter/tree/OpenFOAMv1806) (not tested)
 - OpenFOAM Foundation (openfoam.org) - secondary, consider experimental:
   - [OpenFOAM 10](https://github.com/precice/openfoam-adapter/tree/OpenFOAM10)
@@ -53,7 +53,7 @@ We use the Ubuntu repositories of each OpenFOAM vendor for testing. Quick refere
 
 - OpenCFD / ESI (openfoam.com):
   - [PPA repository](https://dl.openfoam.com/repos/deb/)
-  - More details on the [OpenFOAM documentation](https://develop.openfoam.com/Development/openfoam/-/wikis/precompiled).
+  - More details on the [OpenFOAM documentation](https://gitlab.com/openfoam/core/openfoam/-/wikis/precompiled).
 - OpenFOAM Foundation (openfoam.org):
   - [PPA repository](https://dl.openfoam.org/ubuntu/)
   - More details on the [OpenFOAM documentation](https://dl.openfoam.org/).
@@ -64,6 +64,8 @@ The following table gives an overview, including versions that we do not support
 
 | version     | 24.04 | 22.04 | 20.04 | 18.04 |
 | ---         | ---   | ---   | ---   | ---   |
+| (com) v2512 | x     | x     | x     | x     |
+| (com) v2506 | x     | x     | x     | x     |
 | (com) v2412 | x     | x     | x     | x     |
 | (com) v2406 | x     | x     | x     | x     |
 | (com) v2312 | x     | x     | x     | x     |
@@ -99,11 +101,12 @@ We take into account the following relevant differences between OpenFOAM version
 - **dictionary access:** In dictionaries (essentially: in the `preciceDict`), some methods are not available. These are mainly used in the configuration step in `Adapter.C`, but also in `ForceBase.C`.
   - Replace `preciceDict.get<fileName>("...")` with `static_cast<fileName>(preciceDict.lookup("...")`.
   - Replace `preciceDict.get<word>("...")` with `static_cast<word>(preciceDict.lookup("..."))`.
+  - Replace `preciceDict.getOrDefault` with `preciceDict.lookupOrDefault`.
   - Replace `preciceDict.get<wordList>("...")` with `static_cast<wordList>(preciceDict.lookup("..."))`.
   - Replace `preciceDict.findDict("...")` with `preciceDict.subDictPtr("...")`.
 - **Db access:** In the macro that deals with adding checkpointed fields, some methods are not available.
-  - Replace `mesh_.sortedNames<GeomField>()` with `mesh_.lookupClass<GeomField>().sortedToc()`.
-  - Replace `mesh_.thisDb().getObjectPtr<GeomField>(obj)` with `&(const_cast<GeomField&>(mesh_.thisDb().lookupObject<GeomField>(obj)))`.
+  - Replace `mesh_.sortedNames<GeomFieldType>()` with `mesh_.lookupClass<GeomFieldType>().sortedToc()`.
+  - Replace `mesh_.thisDb().getObjectPtr<GeomFieldType>(obj)` with `&(const_cast<GeomFieldType&>(mesh_.thisDb().lookupObject<GeomFieldType>(obj)))`.
 - **Pointers:** `std::unique_ptr` is not available.
   - Replace `std::unique_ptr<T>` with `Foam::autoPtr<T>`.
   - Replace calls to pointer `.reset()`, such as `ForceOwning_.reset(new volVectorField(`, with `ForceOwning_ = new volVectorField(`. Adjust the number of closing parentheses.
@@ -134,6 +137,9 @@ Related work in the adapter: [PR #33](https://github.com/precice/openfoam-adapte
 
 OpenFOAM 7 was [released](https://openfoam.org/release/7/) in July 2019 ([GitHub mirror](https://github.com/OpenFOAM/OpenFOAM-7), [Doxygen](https://cpp.openfoam.org/v7)). Compared to OpenFOAM 6:
 
+- **writeEntry:** The interface for `writeEntry` was changed.
+  - Where in the latest adapter (`FF/BoundaryConditions`) you see `this->writeEntry("value", os)`, replace it with `writeEntry(os, "value", *this)`.
+  - Similarly, where `this->valueFraction().writeEntry("valueFraction", os);`, replace it with `writeEntry(os, "valueFraction", this->valueFraction())`. Similarly for `this->refValue().writeEntry("refValue", os)`.
 - **fileName:** `fileName::DIRECTORY` was renamed to `fileType::directory`.
   - Replace this in the `Adapter.C`.
 

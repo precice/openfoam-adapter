@@ -1,4 +1,4 @@
-name: Build with OpenFOAM v2412
+name: Build with OpenFOAM v2512
 on:
   push:
     branches-ignore:
@@ -20,14 +20,14 @@ on:
       - 'README.md'
 jobs:
   build:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     container: precice/precice:nightly
     steps:
     - name: Check out repository
-      uses: actions/checkout@v4
+      uses: actions/checkout@v6
     - name: Set up OpenFOAM
       uses: gerlero/setup-openfoam@v1
       with:
-        openfoam-version: 2412
+        openfoam-version: 2512
     - name: Build OpenFOAM-preCICE adapter
       run: ./Allwmake

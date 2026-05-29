@@ -130,36 +130,38 @@ std::string preciceAdapter::FSI::FluidStructureInteraction::determineSolverType(
 }
 
 
-bool preciceAdapter::FSI::FluidStructureInteraction::addWriters(std::string dataName, Interface* interface)
+bool preciceAdapter::FSI::FluidStructureInteraction::addWriters(const preciceAdapter::FieldConfig& fieldConfig, Interface* interface)
 {
+    std::string dataName = fieldConfig.name;
+
     bool found = true; // Set to false later, if needed.
 
-    if (dataName.find("Force") == 0)
+    if (matchingStrings(dataName, "Force"))
     {
         interface->addCouplingDataWriter(
-            dataName,
+            fieldConfig,
             new Force(mesh_, solverType_, nameForce_) /* TODO: Add any other arguments here */
         );
         DEBUG(adapterInfo("Added writer: Force."));
     }
-    else if (dataName.find("DisplacementDelta") == 0)
+    else if (matchingStrings(dataName, "DisplacementDelta"))
     {
         interface->addCouplingDataWriter(
-            dataName,
+            fieldConfig,
             new DisplacementDelta(mesh_, namePointDisplacement_, nameCellDisplacement_));
         DEBUG(adapterInfo("Added writer: DisplacementDelta."));
     }
-    else if (dataName.find("Displacement") == 0)
+    else if (matchingStrings(dataName, "Displacement"))
     {
         interface->addCouplingDataWriter(
-            dataName,
+            fieldConfig,
             new Displacement(mesh_, namePointDisplacement_, nameCellDisplacement_));
         DEBUG(adapterInfo("Added writer: Displacement."));
     }
-    else if (dataName.find("Stress") == 0)
+    else if (matchingStrings(dataName, "Stress"))
     {
         interface->addCouplingDataWriter(
-            dataName,
+            fieldConfig,
             new Stress(mesh_, solverType_) /* TODO: Add any other arguments here */
         );
         DEBUG(adapterInfo("Added writer: Stress."));
@@ -178,36 +180,38 @@ bool preciceAdapter::FSI::FluidStructureInteraction::addWriters(std::string data
     return found;
 }
 
-bool preciceAdapter::FSI::FluidStructureInteraction::addReaders(std::string dataName, Interface* interface)
+bool preciceAdapter::FSI::FluidStructureInteraction::addReaders(const preciceAdapter::FieldConfig& fieldConfig, Interface* interface)
 {
+    std::string dataName = fieldConfig.name;
+
     bool found = true; // Set to false later, if needed.
 
-    if (dataName.find("Force") == 0)
+    if (matchingStrings(dataName, "Force"))
     {
         interface->addCouplingDataReader(
-            dataName,
+            fieldConfig,
             new Force(mesh_, solverType_, nameForce_) /* TODO: Add any other arguments here */
         );
         DEBUG(adapterInfo("Added reader: Force."));
     }
-    else if (dataName.find("DisplacementDelta") == 0)
+    else if (matchingStrings(dataName, "DisplacementDelta"))
     {
         interface->addCouplingDataReader(
-            dataName,
+            fieldConfig,
             new DisplacementDelta(mesh_, namePointDisplacement_, nameCellDisplacement_));
         DEBUG(adapterInfo("Added reader: DisplacementDelta."));
     }
-    else if (dataName.find("Displacement") == 0)
+    else if (matchingStrings(dataName, "Displacement"))
     {
         interface->addCouplingDataReader(
-            dataName,
+            fieldConfig,
             new Displacement(mesh_, namePointDisplacement_, nameCellDisplacement_));
         DEBUG(adapterInfo("Added reader: Displacement."));
     }
-    else if (dataName.find("Stress") == 0)
+    else if (matchingStrings(dataName, "Stress"))
     {
         interface->addCouplingDataReader(
-            dataName,
+            fieldConfig,
             new Stress(mesh_, solverType_) /* TODO: Add any other arguments here */
         );
         DEBUG(adapterInfo("Added reader: Stress."));

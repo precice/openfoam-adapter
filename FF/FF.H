@@ -4,10 +4,14 @@
 #include "Interface.H"
 
 #include "FF/Velocity.H"
+#include "FF/DragForce.H"
+#include "FF/ExplicitMomentum.H"
+#include "FF/ImplicitMomentum.H"
 #include "FF/Pressure.H"
 #include "FF/Temperature.H"
 #include "FF/Alpha.H"
 #include "FF/PressureGradient.H"
+#include "FF/PressureGradientFull.H"
 #include "FF/VelocityGradient.H"
 #include "FF/TemperatureGradient.H"
 #include "FF/AlphaGradient.H"
@@ -47,6 +51,15 @@ protected:
     //- Name of the face flux field
     std::string namePhi_ = "phi";
 
+    //- Name of the particle drag force
+    std::string nameDragForce_ = "DragForce";
+
+    //- Name of the explicit momentum source term
+    std::string nameExplicitMomentum_ = "ExplicitMomentum";
+
+    //- Name of the implicit momentum source term
+    std::string nameImplicitMomentum_ = "ImplicitMomentum";
+
     //- Flux correction of velocity
     bool fluxCorrection_ = false;
 
@@ -64,10 +77,10 @@ public:
     bool configure(const IOdictionary& adapterConfig);
 
     //- Add coupling data writers
-    bool addWriters(std::string dataName, Interface* interface);
+    bool addWriters(const preciceAdapter::FieldConfig& fieldConfig, Interface* interface);
 
     //- Add coupling data readers
-    bool addReaders(std::string dataName, Interface* interface);
+    bool addReaders(const preciceAdapter::FieldConfig& fieldConfig, Interface* interface);
 };
 
 }
