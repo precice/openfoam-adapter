@@ -160,6 +160,13 @@ std::size_t preciceAdapter::Generic::ScalarFieldCoupler::write(double* buffer, b
         return bufferIndex;
     }
 
+    if (fieldConfig_.operation == "ref-value" || fieldConfig_.operation == "ref-gradient" || fieldConfig_.operation == "value-fraction")
+    {
+        adapterInfo(
+            "Generic module: The mixed boundary condition operations (ref-value, ref-gradient, and value-fraction) are only supported for the read side. If you wish to write these fields, just use the value or surface-normal-gradient operations instead.",
+            "error");
+    }
+
     if (this->locationType_ == LocationType::volumeCenters)
     {
         if (cellSetNames_.empty())

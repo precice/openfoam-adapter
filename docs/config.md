@@ -302,7 +302,7 @@ Explicitly setting `locations volumeCenters;` in preciceDict is required for vol
 
 When reading on the OpenFOAM side, the Generic module automatically detects the boundary condition type of the coupled patch to apply the received data. The boundary condition must be respected, therefore the data received is applied either as a `fixedValue` or `fixedGradient` boundary condition, determined by the type set in the `0/` files.
 
-Additionally, the Robin or mixed boundary condition is now supported for surface coupling. The OpenFOAM boundary type `mixed` must be set for the coupled patch in the `0/` files like so:
+Additionally, the Robin or mixed boundary condition is now supported for scalar surface coupling. The OpenFOAM boundary type `mixed` or `mixedCoded` must be set for the coupled patch in the `0/` files like so:
 
 ```cpp
 // File 0/T
@@ -318,7 +318,11 @@ boundaryField
 }
 ```
 
-Any of the three fields `refValue`, `refGradient`, and `valueFraction` can be written or read using the adapter (the initial values will be overwritten by the adapter). To do so, specify the `operation` for each coupling data in `preciceDict` as `ref-value`, `ref-gradient`, or `value-fraction`. Be careful when using the `value-fraction` operation, as it is not a physical quantity and must be within the range of (0, 1). Please note that if you intend to use the `mixed` boundary condition for a heat transfer problem, the `valueFraction` is not the same as the heat transfer coefficient and it's not possible to explicitly set the heat transfer coefficient as a parameter.
+Any of the three fields `refValue`, `refGradient`, and `valueFraction` can be read from another participant (the initial values will be overwritten by the adapter). To do so, specify the `operation` for each coupling data in `preciceDict` as `ref-value`, `ref-gradient`, or `value-fraction`. Be careful when using the `value-fraction` operation, as it is not a physical quantity and must be within the range of [0, 1].
+
+These three operations are only supported for the read side. To write coupling data from a mixed boundary patch, just use the standard `value` or `surface-normal-gradient` operation. The `valueFraction` field of the mixed boundary condition is not exposed by the adapter for writing.
+
+Please note that if you intend to use the `mixed` boundary condition for a heat transfer problem, the `valueFraction` is not the same as the heat transfer coefficient and it's not possible to explicitly set the heat transfer coefficient as a parameter.
 
 Limitations:
 
