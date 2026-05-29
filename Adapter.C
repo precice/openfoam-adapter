@@ -845,7 +845,7 @@ void preciceAdapter::Adapter::storeMeshPoints()
         writeMeshCheckpoint();
 
         // For Ddt schemes which use up to two previous timesteps V0, V00
-        if (volumeCheckpointCounter < 3)
+        if (volumeCheckpointState_ != VolumeCheckpointState::ALL_AVAILABLE)
         {
             setupMeshVolCheckpointing();
         }
@@ -888,27 +888,24 @@ void preciceAdapter::Adapter::setupMeshCheckpointing()
 void preciceAdapter::Adapter::setupMeshVolCheckpointing()
 {
     // Add the mesh volumes for the current and up to two previous time steps (V, V0, V00), if available
-    if (volumeCheckpointCounter == 0)
+    if (volumeCheckpointState_ == VolumeCheckpointState::UNINITIALIZED)
     {
         // When V is available, also V0 is available (see fvMesh::movePoints, storeOldVol(V()))
-        // volumeCheckpointCounter will be 2 after this call
-
         addMeshVolCheckpointField(const_cast<volScalarField::Internal&>(mesh_.V()));
         DEBUG(adapterInfo("Checkpoint mesh V"));
 
-        volumeCheckpointCounter += 1;
-
         addMeshVolCheckpointField(const_cast<volScalarField::Internal&>(mesh_.V0()));
         DEBUG(adapterInfo("Checkpoint mesh V0"));
-    }
 
-    if (volumeCheckpointCounter == 2)
+        volumeCheckpointState_ = VolumeCheckpointState::V_AND_V0_AVAILABLE;
+    }
+    else if (volumeCheckpointState_ == VolumeCheckpointState::V_AND_V0_AVAILABLE)
     {
         addMeshVolCheckpointField(const_cast<volScalarField::Internal&>(mesh_.V00()));
         DEBUG(adapterInfo("Checkpoint mesh V00"));
-    }
 
-    volumeCheckpointCounter += 1;
+        volumeCheckpointState_ = VolumeCheckpointState::ALL_AVAILABLE;
+    }
 }
 
 
@@ -1447,7 +1444,7 @@ void preciceAdapter::Adapter::writeMeshCheckpoint()
 void preciceAdapter::Adapter::readMeshVolCheckpoint()
 {
     // Reload V, V0, V00
-    if (volumeCheckpointCounter == 2 || volumeCheckpointCounter == 3)
+    if (volumeCheckpointState_ == VolumeCheckpointState::V_AND_V0_AVAILABLE || volumeCheckpointState_ == VolumeCheckpointState::ALL_AVAILABLE)
     {
         // Actually we don't need to reload V, as it is re-calculated in every time-step
         // const_cast<volScalarField::Internal&>(mesh_.V()) = *(meshVolFieldCopies_.at(0));
@@ -1458,7 +1455,7 @@ void preciceAdapter::Adapter::readMeshVolCheckpoint()
 
         DEBUG(adapterInfo("Mesh volumes checkpoint for time t = " + std::to_string(runTime_.value()) + " were read."));
     }
-    if (volumeCheckpointCounter == 3)
+    if (volumeCheckpointState_ == VolumeCheckpointState::ALL_AVAILABLE)
     {
         const_cast<volScalarField::Internal&>(mesh_.V00()) = *(meshVolFieldCopies_.at(1));
         DEBUG(adapterInfo("Read mesh volume " + meshVolFieldCopies_.at(1)->name()));
@@ -1470,7 +1467,7 @@ void preciceAdapter::Adapter::readMeshVolCheckpoint()
 void preciceAdapter::Adapter::writeMeshVolCheckpoint()
 {
     // Store V, V0, V00
-    if (volumeCheckpointCounter == 2 || volumeCheckpointCounter == 3)
+    if (volumeCheckpointState_ == VolumeCheckpointState::V_AND_V0_AVAILABLE || volumeCheckpointState_ == VolumeCheckpointState::ALL_AVAILABLE)
     {
         *(meshVolFieldCopies_.at(0)) = const_cast<volScalarField::Internal&>(mesh_.V());
         DEBUG(adapterInfo("Write mesh volume " + meshVolFieldCopies_.at(0)->name()));
@@ -1480,7 +1477,7 @@ void preciceAdapter::Adapter::writeMeshVolCheckpoint()
 
         DEBUG(adapterInfo("Mesh volumes checkpoint for time t = " + std::to_string(runTime_.value()) + " were stored."));
     }
-    if (volumeCheckpointCounter == 3)
+    if (volumeCheckpointState_ == VolumeCheckpointState::ALL_AVAILABLE)
     {
         *(meshVolFieldCopies_.at(2)) = const_cast<volScalarField::Internal&>(mesh_.V00());
         DEBUG(adapterInfo("Write mesh volume " + meshVolFieldCopies_.at(2)->name()));

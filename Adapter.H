@@ -152,11 +152,16 @@ private:
     //- Checkpointed time (index)
     Foam::label couplingIterationTimeIndex_;
 
-    bool meshCheckPointed = false;
-    bool oldVolsStored = false;
 
-    //- Volume checkpointing counter (max value 3)
-    u_int8_t volumeCheckpointCounter = 0;
+    enum class VolumeCheckpointState : uint8_t
+    {
+        UNINITIALIZED = 0,
+        V_AND_V0_AVAILABLE = 1,
+        ALL_AVAILABLE = 2
+    };
+
+    //- Volume checkpointing state
+    VolumeCheckpointState volumeCheckpointState_ = VolumeCheckpointState::UNINITIALIZED;
 
     // Vectors of pointers to the checkpointed mesh fields and their copies
 
