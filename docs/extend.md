@@ -72,6 +72,7 @@ To handle mesh motion (ALE), the adapter explicitly checkpoints:
 
 - Mesh Points `mesh_.points()` and `mesh_.oldPoints()`
 - Mesh Motion Flux `mesh_.phi()`
+- Cell Volumes `V`, `V0`, and `V00`
 
 ### Non-checkpointed fields
 
@@ -86,7 +87,6 @@ The following fields are recalculated by OpenFOAM when `fvMesh::movePoints` is c
 - `Sf` (Face Area Vectors)
 - `magSf` (Face Area Magnitudes)
 - `delta` (Face-Center to Cell-Center distances)
-- `V`, `V0`, `V00` (Cell Volumes): These are already properly checkpointed by OpenFOAM itself, except when subcycling (needs further handling when subcycling - [related discussion](https://github.com/precice/openfoam-adapter/pull/369#issuecomment-3748773060)).
 
 #### Dictionaries
 
