@@ -287,6 +287,9 @@ private:
     //- Configure the mesh checkpointing
     void setupMeshCheckpointing();
 
+    //- Configure the mesh volume checkpointing
+    void setupMeshVolCheckpointing();
+
     //- Configure the checkpointing
     void setupCheckpointing();
 
