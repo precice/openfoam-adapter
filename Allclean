@@ -9,6 +9,7 @@ if [ -z "${WM_PROJECT_VERSION:-}" ]; then
 fi
 
 # Cleanup all the WMake directories
+wclean implicitPatchInjection/
 wclean && echo "Cleaning complete!"
 
 # Delete the log files

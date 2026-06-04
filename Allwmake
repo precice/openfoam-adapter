@@ -13,6 +13,10 @@ ADAPTER_CFLAGS="${PRECICE_OPENFOAM_CFLAGS:-}"
 # e.g., add "export WM_NCOMPPROCS=4" to your ~/.bashrc
 # Make sure that these options are supported by your OpenFOAM version.
 adapter_build_command(){
+    log "Building custom Lagrangian particle injector..."
+    wmake libso implicitPatchInjection/
+
+    log "Building preCICE adapter..."
     wmake libso
 }
 
