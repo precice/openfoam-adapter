@@ -14,6 +14,9 @@
 
 #include "module-generic/Generic.H"
 
+// Lagrangian particle checkpointing include
+#include "basicThermoCloud.H"
+
 // NOTE: If you want to couple a new variable, include your module's header here.
 // You also need to include it in the Make/files file.
 // In case you use additional OpenFOAM symbols, you may also need to specify
@@ -108,6 +111,9 @@ private:
     //- Switch to enable the FluidFluid module
     bool FFenabled_ = false;
 
+    //- Switch for Lagrangian particle checkpointing
+    bool lagrangianCheckPointed_ = false;
+
     // NOTE: Add a switch for your new module here
 
     //- Switch to enable General module
@@ -143,6 +149,14 @@ private:
 
     //- Stored (fixed) timestep
     double timestepStored_;
+
+    // Lagrangian particle cloud pointers
+
+    //- Pointer to all active particle clouds
+    std::vector<Foam::basicThermoCloud*> activeClouds_;
+
+    //- 2D Array of cloned particles to hold the current state for each particle cloud
+    std::vector<std::vector<Foam::autoPtr<Foam::basicThermoCloud::particleType>>> backupParcelsLists_;
 
     // Checkpointing
 

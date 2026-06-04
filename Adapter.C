@@ -887,6 +887,29 @@ void preciceAdapter::Adapter::setupCheckpointing()
 {
     SETUP_TIMER();
 
+    // Lagrangian particle checkpoint setup
+    activeClouds_.clear();
+
+    // loop over all of the names of the basicThermClouds that exist
+    for (const word& cloudName : mesh_.thisDb().sortedNames<basicThermoCloud>())
+    {
+	// define a cloud pointer
+        basicThermoCloud* cloudPtr = const_cast<basicThermoCloud*>(mesh_.thisDb().getObjectPtr<basicThermoCloud>(cloudName));
+	if (cloudPtr)
+	{
+	    // populate activeClouds_ with pointer contents
+            activeClouds_.push_back(cloudPtr);
+	    lagrangianCheckPointed_ = true;
+	    adapterInfo("Successfully located basicThermoCloud '" + cloudName + "' for Lagrangian checkpointing.", "info");
+	}
+    }
+
+    // Allocate the 2D backup array with the number of clouds found
+    if (lagrangianCheckPointed_)
+    {
+        backupParcelsLists_.resize(activeClouds_.size());
+    }
+
     // Add fields in the checkpointing list - sorted for parallel consistency
     DEBUG(adapterInfo("Adding in checkpointed fields..."));
 
@@ -1269,6 +1292,27 @@ void preciceAdapter::Adapter::readCheckpoint()
         }
     }
 
+    // Lagrangian particle checkpoint read; restore state
+    if (lagrangianCheckPointed_)
+    {
+        for (size_t c = 0; c < activeClouds_.size(); ++c)
+	{
+            auto& cloud = activeClouds_[c];
+	    auto& backups = backupParcelsLists_[c];
+
+	    // Erase the future state for this cloud
+	    cloud->clear();
+
+	    // Resurrect the past from this cloud's backups
+	    for (auto& pPtr : backups)
+	    {
+                basicThermoCloud::particleType* restoredPtr = static_cast<basicThermoCloud::particleType*>(pPtr().clone().ptr());
+		cloud->addParticle(restoredPtr);
+	    }
+	    DEBUG(adapterInfo("Restored " + std::to_string(backups.size()) + " parcels for cloud '" + cloud->name() + "'."));
+	}
+    }
+
     // NOTE: Add here other field types to read, if needed.
 
     DEBUG(adapterInfo("Checkpoint was read. Time = " + std::to_string(runTime_.value())));
@@ -1353,6 +1397,29 @@ void preciceAdapter::Adapter::writeCheckpoint()
     {
         *(pointTensorFieldCopies_.at(i)) == *(pointTensorFields_.at(i));
     }
+
+    // Lagrangian particle checkpoint write; save current state
+    if (lagrangianCheckPointed_)
+    {
+	// loop over all clouds
+	for (size_t c = 0; c < activeClouds_.size(); ++c)
+	{
+            auto& cloud = activeClouds_[c];
+	    auto& backups = backupParcelsLists_[c];
+
+	    // clear previous backups
+	    backups.clear();
+
+	    // Clone the current state for this specific cloud
+	    forAllIter(basicThermoCloud, *cloud, iter)
+	    {
+                basicThermoCloud::particleType* clonedPtr = static_cast<basicThermoCloud::particleType*>(iter().clone().ptr());
+		backups.push_back(autoPtr<basicThermoCloud::particleType>(clonedPtr));
+	    }
+	    DEBUG(adapterInfo("Checkpointed " + std::to_string(backups.size()) + " parcels for cloud '" + cloud->name() + "'."));
+	}
+    }
+
     // NOTE: Add here other types to write, if needed.
 
     DEBUG(adapterInfo("Checkpoint for time t = " + std::to_string(runTime_.value()) + " was stored."));
@@ -1565,6 +1632,14 @@ void preciceAdapter::Adapter::teardown()
         delete Generic_;
         Generic_ = nullptr;
     }
+
+    // Delete Lagrangian particle backups
+    for (auto& backups : backupParcelsLists_)
+    {
+        backups.clear();
+    }
+    backupParcelsLists_.clear();
+    activeClouds_.clear();
 
     // NOTE: Delete your new module here
 
