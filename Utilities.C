@@ -72,4 +72,3 @@ bool matchingStrings(std::string s, std::string match)
     std::transform(match.begin(), match.end(), match.begin(), [](unsigned char c) { return std::tolower(c); });
     return s.find(match) == 0;
 }
-

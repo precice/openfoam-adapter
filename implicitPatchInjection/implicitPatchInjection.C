@@ -34,67 +34,47 @@ License
 
 template<class CloudType>
 const Foam::Enum<typename Foam::implicitPatchInjection<CloudType>::velocityType>
-Foam::implicitPatchInjection<CloudType>::velocityTypeNames_
-({
-    { vtFixedValue, "fixedValue" },
-    { vtPatchValue, "patchValue" },
-    { vtZeroGradient, "zeroGradient" },
-});
+    Foam::implicitPatchInjection<CloudType>::velocityTypeNames_({
+        {vtFixedValue, "fixedValue"},
+        {vtPatchValue, "patchValue"},
+        {vtZeroGradient, "zeroGradient"},
+    });
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
 template<class CloudType>
-Foam::implicitPatchInjection<CloudType>::implicitPatchInjection
-(
+Foam::implicitPatchInjection<CloudType>::implicitPatchInjection(
     const dictionary& dict,
     CloudType& owner,
-    const word& modelName
-)
-:
-    InjectionModel<CloudType>(dict, owner, modelName, typeName),
-    patchInjectionBase(owner.mesh(), this->coeffDict().getWord("patch")),
-    duration_(this->coeffDict().getScalar("duration")),
-    parcelsPerSecond_
-    (
-        this->coeffDict().getScalar("parcelsPerSecond")
-    ),
-    velocityType_
-    (
-        velocityTypeNames_.getOrDefault
-        (
-            "velocityType",
-            this->coeffDict(),
-            vtFixedValue
-        )
-    ),
-    U0_
-    (
-        velocityType_ == vtFixedValue
-      ? this->coeffDict().template get<vector>("U0")
-      : Zero
-    ),
-    flowRateProfile_
-    (
-        Function1<scalar>::New
-        (
-            "flowRateProfile",
-            this->coeffDict(),
-            &owner.mesh()
-        )
-    ),
-    sizeDistribution_
-    (
-        distributionModel::New
-        (
-            this->coeffDict().subDict("sizeDistribution"),
-            owner.rndGen()
-        )
-    ),
-    currentParceli_(-1),
-    currentFacei_(-1),
-    lastMeshTimeStart_(-Foam::GREAT),
-    savedDelayedVolume_(0.0),
-    savedRndGen_(owner.rndGen())
+    const word& modelName)
+: InjectionModel<CloudType>(dict, owner, modelName, typeName),
+  patchInjectionBase(owner.mesh(), this->coeffDict().getWord("patch")),
+  duration_(this->coeffDict().getScalar("duration")),
+  parcelsPerSecond_(
+      this->coeffDict().getScalar("parcelsPerSecond")),
+  velocityType_(
+      velocityTypeNames_.getOrDefault(
+          "velocityType",
+          this->coeffDict(),
+          vtFixedValue)),
+  U0_(
+      velocityType_ == vtFixedValue
+          ? this->coeffDict().template get<vector>("U0")
+          : Zero),
+  flowRateProfile_(
+      Function1<scalar>::New(
+          "flowRateProfile",
+          this->coeffDict(),
+          &owner.mesh())),
+  sizeDistribution_(
+      distributionModel::New(
+          this->coeffDict().subDict("sizeDistribution"),
+          owner.rndGen())),
+  currentParceli_(-1),
+  currentFacei_(-1),
+  lastMeshTimeStart_(-Foam::GREAT),
+  savedDelayedVolume_(0.0),
+  savedRndGen_(owner.rndGen())
 {
     // Convert from user time to reduce the number of time conversion calls
     const Time& time = owner.db().time();
@@ -112,25 +92,23 @@ Foam::implicitPatchInjection<CloudType>::implicitPatchInjection
 
 
 template<class CloudType>
-Foam::implicitPatchInjection<CloudType>::implicitPatchInjection
-(
-    const implicitPatchInjection<CloudType>& im
-)
-:
-    InjectionModel<CloudType>(im),
-    patchInjectionBase(im),
-    duration_(im.duration_),
-    parcelsPerSecond_(im.parcelsPerSecond_),
-    velocityType_(im.velocityType_),
-    U0_(im.U0_),
-    flowRateProfile_(im.flowRateProfile_.clone()),
-    sizeDistribution_(im.sizeDistribution_.clone()),
-    currentParceli_(im.currentParceli_),
-    currentFacei_(im.currentFacei_),
-    lastMeshTimeStart_(im.lastMeshTimeStart_),
-    savedDelayedVolume_(im.savedDelayedVolume_),
-    savedRndGen_(im.savedRndGen_)
-{}
+Foam::implicitPatchInjection<CloudType>::implicitPatchInjection(
+    const implicitPatchInjection<CloudType>& im)
+: InjectionModel<CloudType>(im),
+  patchInjectionBase(im),
+  duration_(im.duration_),
+  parcelsPerSecond_(im.parcelsPerSecond_),
+  velocityType_(im.velocityType_),
+  U0_(im.U0_),
+  flowRateProfile_(im.flowRateProfile_.clone()),
+  sizeDistribution_(im.sizeDistribution_.clone()),
+  currentParceli_(im.currentParceli_),
+  currentFacei_(im.currentFacei_),
+  lastMeshTimeStart_(im.lastMeshTimeStart_),
+  savedDelayedVolume_(im.savedDelayedVolume_),
+  savedRndGen_(im.savedRndGen_)
+{
+}
 
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
@@ -150,12 +128,10 @@ Foam::scalar Foam::implicitPatchInjection<CloudType>::timeEnd() const
 
 // override base class prepareForNextTimeStep
 template<class CloudType>
-bool Foam::implicitPatchInjection<CloudType>::prepareForNextTimeStep
-(
+bool Foam::implicitPatchInjection<CloudType>::prepareForNextTimeStep(
     const scalar time,
     label& newParcels,
-    scalar& newVolumeFraction
-)
+    scalar& newVolumeFraction)
 {
     // Calculate the exact mathematical start of the current fluid timestep
     scalar meshTimeStart = time - this->owner().db().time().deltaTValue();
@@ -164,77 +140,69 @@ bool Foam::implicitPatchInjection<CloudType>::prepareForNextTimeStep
     // time failed to move forward and we are in a preCICE sub-iteration
     if (this->timeStep0_ > meshTimeStart + SMALL)
     {
-	// reset the base class local time-trackers
-	this->timeStep0_ = meshTimeStart;
-	this->time0_ = meshTimeStart;
+        // reset the base class local time-trackers
+        this->timeStep0_ = meshTimeStart;
+        this->time0_ = meshTimeStart;
 
-	// wipe the base class cosmetic counters
-	this->massInjected_ = 0.0;
-	this->parcelsAddedTotal_ = 0;
-	this->nInjections_ = 0;
+        // wipe the base class cosmetic counters
+        this->massInjected_ = 0.0;
+        this->parcelsAddedTotal_ = 0;
+        this->nInjections_ = 0;
 
-	// restore the fractional volume from the start of the window
-	this->delayedVolume_ = savedDelayedVolume_;
+        // restore the fractional volume from the start of the window
+        this->delayedVolume_ = savedDelayedVolume_;
 
-	// clear the table's stateful cache
-	flowRateProfile_ = Function1<scalar>::New
-	(
-	    "flowRateProfile",
-	    this->coeffDict(),
-	    &this->owner().mesh()
-	);
+        // clear the table's stateful cache
+        flowRateProfile_ = Function1<scalar>::New(
+            "flowRateProfile",
+            this->coeffDict(),
+            &this->owner().mesh());
 
-	// restore the RNG state to perfectly replicate particle placement and sizes
-	this->owner().rndGen() = savedRndGen_;
+        // restore the RNG state to perfectly replicate particle placement and sizes
+        this->owner().rndGen() = savedRndGen_;
     }
     else
     {
         // forward march detected
-	
-	// save the fractional volume state at the start of this new time window
-	savedDelayedVolume_ = this->delayedVolume_;
 
-	// save the RNG state at the start of this new time window
-	savedRndGen_ = this->owner().rndGen();
+        // save the fractional volume state at the start of this new time window
+        savedDelayedVolume_ = this->delayedVolume_;
+
+        // save the RNG state at the start of this new time window
+        savedRndGen_ = this->owner().rndGen();
     }
 
     // update the tracker for the next pass
     lastMeshTimeStart_ = meshTimeStart;
 
     // pass control back to native base class to run its standard math
-    return InjectionModel<CloudType>::prepareForNextTimeStep
-    (
+    return InjectionModel<CloudType>::prepareForNextTimeStep(
         time,
-	newParcels,
-	newVolumeFraction
-    );
+        newParcels,
+        newVolumeFraction);
 }
 
 
 template<class CloudType>
-Foam::label Foam::implicitPatchInjection<CloudType>::parcelsToInject
-(
+Foam::label Foam::implicitPatchInjection<CloudType>::parcelsToInject(
     const scalar time0,
-    const scalar time1
-)
+    const scalar time1)
 {
     // use -SMALL to account for floating point truncation during time rewinds
     if ((time0 > -SMALL) && (time0 < duration_))
     {
         // force floating point noise back to perfect zero for calculation
         scalar t0 = max(0.0, time0);
-        scalar nParcels = (time1 - t0)*parcelsPerSecond_;
+        scalar nParcels = (time1 - t0) * parcelsPerSecond_;
         Random& rnd = this->owner().rndGen();
         scalar rndPos = rnd.globalPosition(scalar(0), scalar(1));
         label nParcelsToInject = floor(nParcels);
 
         // Inject an additional parcel with a probability based on the
         // remainder after the floor function
-        if
-        (
+        if (
             nParcelsToInject > 0
-         && (nParcels - scalar(nParcelsToInject) > rndPos)
-        )
+            && (nParcels - scalar(nParcelsToInject) > rndPos))
         {
             ++nParcelsToInject;
         }
@@ -247,11 +215,9 @@ Foam::label Foam::implicitPatchInjection<CloudType>::parcelsToInject
 
 
 template<class CloudType>
-Foam::scalar Foam::implicitPatchInjection<CloudType>::volumeToInject
-(
+Foam::scalar Foam::implicitPatchInjection<CloudType>::volumeToInject(
     const scalar time0,
-    const scalar time1
-)
+    const scalar time1)
 {
     // use -SMALL to account for floating point truncation during time rewinds
     if ((time0 > -SMALL) && (time0 < duration_))
@@ -265,99 +231,93 @@ Foam::scalar Foam::implicitPatchInjection<CloudType>::volumeToInject
 
 
 template<class CloudType>
-void Foam::implicitPatchInjection<CloudType>::setPositionAndCell
-(
+void Foam::implicitPatchInjection<CloudType>::setPositionAndCell(
     const label parcelI,
     const label nParcels,
     const scalar time,
     vector& position,
     label& cellOwner,
     label& tetFacei,
-    label& tetPti
-)
+    label& tetPti)
 {
     currentParceli_ = parcelI;
 
-    currentFacei_ = patchInjectionBase::setPositionAndCell
-    (
+    currentFacei_ = patchInjectionBase::setPositionAndCell(
         this->owner().mesh(),
         this->owner().rndGen(),
         position,
         cellOwner,
         tetFacei,
-        tetPti
-    );
+        tetPti);
 }
 
 
 template<class CloudType>
-void Foam::implicitPatchInjection<CloudType>::setProperties
-(
+void Foam::implicitPatchInjection<CloudType>::setProperties(
     const label parcelI,
     const label nParcels,
     const scalar time,
-    typename CloudType::parcelType& parcel
-)
+    typename CloudType::parcelType& parcel)
 {
     // Set particle velocity
     switch (velocityType_)
     {
-        case vtFixedValue:
+    case vtFixedValue:
+    {
+        parcel.U() = U0_;
+        break;
+    }
+    case vtPatchValue:
+    {
+        if (parcelI != currentParceli_)
         {
-            parcel.U() = U0_;
-            break;
+            WarningInFunction
+                << "Synchronisation problem: "
+                << "attempting to set injected parcel " << parcelI
+                << " properties using cached parcel " << currentParceli_
+                << " properties" << endl;
         }
-        case vtPatchValue:
-        {
-            if (parcelI != currentParceli_)
-            {
-                WarningInFunction
-                    << "Synchronisation problem: "
-                    << "attempting to set injected parcel " << parcelI
-                    << " properties using cached parcel " << currentParceli_
-                    << " properties" << endl;
-            }
 
-            const label patchFacei = currentFacei_;
+        const label patchFacei = currentFacei_;
 
-            if (patchFacei < 0)
-            {
-                FatalErrorInFunction
-                    << "Unable to set parcel velocity using patch value "
-                    << "due to missing face index: patchFacei=" << patchFacei
-                    << abort(FatalError);
-            }
-
-            const volVectorField& U = this->owner().U();
-            const label patchi = this->patchId_;
-            parcel.U() = U.boundaryField()[patchi][patchFacei];
-            break;
-        }
-        case vtZeroGradient:
-        {
-            const label celli = parcel.cell();
-
-            if (celli < 0)
-            {
-                FatalErrorInFunction
-                    << "Unable to set parcel velocity using zeroGradient "
-                    << "due to missing cell index"
-                    << abort(FatalError);
-            }
-
-            const volVectorField& U = this->owner().U();
-            parcel.U() = U[celli];
-            break;
-        }
-        default:
+        if (patchFacei < 0)
         {
             FatalErrorInFunction
-                << "Unhandled velocityType "
-                << velocityTypeNames_[velocityType_]
-                << ". Available options are:"
-                << velocityTypeNames_.sortedToc()
+                << "Unable to set parcel velocity using patch value "
+                << "due to missing face index: patchFacei=" << patchFacei
                 << abort(FatalError);
         }
+
+        const volVectorField& U = this->owner().U();
+        const label patchi = this->patchId_;
+        parcel.U() = U.boundaryField()[patchi][patchFacei];
+        break;
+    }
+    case vtZeroGradient:
+    {
+        const label celli = parcel.cell();
+
+        if (celli < 0)
+        {
+            FatalErrorInFunction
+                << "Unable to set parcel velocity using zeroGradient "
+                << "due to missing cell index"
+                << abort(FatalError);
+        }
+
+        const volVectorField& U = this->owner().U();
+        parcel.U() = U[celli];
+        break;
+    }
+    default:
+    {
+        FatalErrorInFunction
+            << "Unhandled velocityType "
+            << velocityTypeNames_[velocityType_]
+            << ". Available options are:"
+            << velocityTypeNames_.sortedToc()
+            << abort(FatalError);
+    }
     }
 
     // Set particle diameter

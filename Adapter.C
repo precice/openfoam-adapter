@@ -893,15 +893,15 @@ void preciceAdapter::Adapter::setupCheckpointing()
     // loop over all of the names of the basicThermClouds that exist
     for (const word& cloudName : mesh_.thisDb().sortedNames<basicThermoCloud>())
     {
-	// define a cloud pointer
+        // define a cloud pointer
         basicThermoCloud* cloudPtr = const_cast<basicThermoCloud*>(mesh_.thisDb().getObjectPtr<basicThermoCloud>(cloudName));
-	if (cloudPtr)
-	{
-	    // populate activeClouds_ with pointer contents
+        if (cloudPtr)
+        {
+            // populate activeClouds_ with pointer contents
             activeClouds_.push_back(cloudPtr);
-	    lagrangianCheckPointed_ = true;
-	    adapterInfo("Successfully located basicThermoCloud '" + cloudName + "' for Lagrangian checkpointing.", "info");
-	}
+            lagrangianCheckPointed_ = true;
+            adapterInfo("Successfully located basicThermoCloud '" + cloudName + "' for Lagrangian checkpointing.", "info");
+        }
     }
 
     // Allocate the 2D backup array with the number of clouds found
@@ -1296,21 +1296,21 @@ void preciceAdapter::Adapter::readCheckpoint()
     if (lagrangianCheckPointed_)
     {
         for (size_t c = 0; c < activeClouds_.size(); ++c)
-	{
+        {
             auto& cloud = activeClouds_[c];
-	    auto& backups = backupParcelsLists_[c];
+            auto& backups = backupParcelsLists_[c];
 
-	    // Erase the future state for this cloud
-	    cloud->clear();
+            // Erase the future state for this cloud
+            cloud->clear();
 
-	    // Resurrect the past from this cloud's backups
-	    for (auto& pPtr : backups)
-	    {
+            // Resurrect the past from this cloud's backups
+            for (auto& pPtr : backups)
+            {
                 basicThermoCloud::particleType* restoredPtr = static_cast<basicThermoCloud::particleType*>(pPtr().clone().ptr());
-		cloud->addParticle(restoredPtr);
-	    }
-	    DEBUG(adapterInfo("Restored " + std::to_string(backups.size()) + " parcels for cloud '" + cloud->name() + "'."));
-	}
+                cloud->addParticle(restoredPtr);
+            }
+            DEBUG(adapterInfo("Restored " + std::to_string(backups.size()) + " parcels for cloud '" + cloud->name() + "'."));
+        }
     }
 
     // NOTE: Add here other field types to read, if needed.
@@ -1401,23 +1401,23 @@ void preciceAdapter::Adapter::writeCheckpoint()
     // Lagrangian particle checkpoint write; save current state
     if (lagrangianCheckPointed_)
     {
-	// loop over all clouds
-	for (size_t c = 0; c < activeClouds_.size(); ++c)
-	{
+        // loop over all clouds
+        for (size_t c = 0; c < activeClouds_.size(); ++c)
+        {
             auto& cloud = activeClouds_[c];
-	    auto& backups = backupParcelsLists_[c];
+            auto& backups = backupParcelsLists_[c];
 
-	    // clear previous backups
-	    backups.clear();
+            // clear previous backups
+            backups.clear();
 
-	    // Clone the current state for this specific cloud
-	    forAllIter(basicThermoCloud, *cloud, iter)
-	    {
+            // Clone the current state for this specific cloud
+            forAllIter(basicThermoCloud, *cloud, iter)
+            {
                 basicThermoCloud::particleType* clonedPtr = static_cast<basicThermoCloud::particleType*>(iter().clone().ptr());
-		backups.push_back(autoPtr<basicThermoCloud::particleType>(clonedPtr));
-	    }
-	    DEBUG(adapterInfo("Checkpointed " + std::to_string(backups.size()) + " parcels for cloud '" + cloud->name() + "'."));
-	}
+                backups.push_back(autoPtr<basicThermoCloud::particleType>(clonedPtr));
+            }
+            DEBUG(adapterInfo("Checkpointed " + std::to_string(backups.size()) + " parcels for cloud '" + cloud->name() + "'."));
+        }
     }
 
     // NOTE: Add here other types to write, if needed.

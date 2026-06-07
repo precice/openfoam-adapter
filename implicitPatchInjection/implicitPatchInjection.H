@@ -75,105 +75,94 @@ class distributionModel;
 
 template<class CloudType>
 class implicitPatchInjection
-:
-    public InjectionModel<CloudType>,
-    public patchInjectionBase
+: public InjectionModel<CloudType>,
+  public patchInjectionBase
 {
 public:
-
     // Public Data Types
 
-        //- Velocity type enumeration
-        enum velocityType
-        {
-            vtFixedValue,   //!< User supplied fixed value
-            vtPatchValue,   //!< Patch face values
-            vtZeroGradient  //!< Patch internal cell values
-        };
+    //- Velocity type enumeration
+    enum velocityType
+    {
+        vtFixedValue,  //!< User supplied fixed value
+        vtPatchValue,  //!< Patch face values
+        vtZeroGradient //!< Patch internal cell values
+    };
 
-        //- Velocity type names
-        static const Enum<velocityType> velocityTypeNames_;
+    //- Velocity type names
+    static const Enum<velocityType> velocityTypeNames_;
 
 
 private:
-
     // Private data
 
-        //- Injection duration [s]
-        scalar duration_;
+    //- Injection duration [s]
+    scalar duration_;
 
-        //- Number of parcels to introduce per second []
-        const label parcelsPerSecond_;
+    //- Number of parcels to introduce per second []
+    const label parcelsPerSecond_;
 
-        //- Velocity type
-        const velocityType velocityType_;
+    //- Velocity type
+    const velocityType velocityType_;
 
-        //- Initial parcel velocity [m/s]
-        //  Note: Only used for vtFixedValue
-        const vector U0_;
+    //- Initial parcel velocity [m/s]
+    //  Note: Only used for vtFixedValue
+    const vector U0_;
 
-        //- Flow rate profile relative to SOI []
-        autoPtr<Function1<scalar>> flowRateProfile_;
+    //- Flow rate profile relative to SOI []
+    autoPtr<Function1<scalar>> flowRateProfile_;
 
-        //- Parcel size distribution model
-        const autoPtr<distributionModel> sizeDistribution_;
+    //- Parcel size distribution model
+    const autoPtr<distributionModel> sizeDistribution_;
 
-        //- Current parcel being processed
-        label currentParceli_;
+    //- Current parcel being processed
+    label currentParceli_;
 
-        //- Current face being processed
-        label currentFacei_;
+    //- Current face being processed
+    label currentFacei_;
 
-        //- Track the Eulerian mesh clock to detect preCICE sub-iterations
-        scalar lastMeshTimeStart_;
+    //- Track the Eulerian mesh clock to detect preCICE sub-iterations
+    scalar lastMeshTimeStart_;
 
-	//- Cache the delayed volume to prevent fractional mass leaks on rewind
-	scalar savedDelayedVolume_;
+    //- Cache the delayed volume to prevent fractional mass leaks on rewind
+    scalar savedDelayedVolume_;
 
-	//- Cache the random number generator state to eliminate Monte Carlo
-	// noise on rewind
-	Random savedRndGen_;
+    //- Cache the random number generator state to eliminate Monte Carlo
+    // noise on rewind
+    Random savedRndGen_;
 
 
 protected:
-
     //- Determine properties for next time step/injection interval
     // use to override base class prepareForNextTimeStep
-    virtual bool prepareForNextTimeStep
-    (
+    virtual bool prepareForNextTimeStep(
         const scalar time,
-	label& newParcels,
-	scalar& newVolumeFraction
-    );
+        label& newParcels,
+        scalar& newVolumeFraction);
 
 
 public:
-
     //- Runtime type information
     TypeName("implicitPatchInjection");
 
 
     // Constructors
 
-        //- Construct from dictionary
-        implicitPatchInjection
-        (
-            const dictionary& dict,
-            CloudType& owner,
-            const word& modelName
-        );
+    //- Construct from dictionary
+    implicitPatchInjection(
+        const dictionary& dict,
+        CloudType& owner,
+        const word& modelName);
 
-        //- Construct copy
-        implicitPatchInjection(const implicitPatchInjection<CloudType>& im);
+    //- Construct copy
+    implicitPatchInjection(const implicitPatchInjection<CloudType>& im);
 
-        //- Construct and return a clone
-        virtual autoPtr<InjectionModel<CloudType>> clone() const
-        {
-            return autoPtr<InjectionModel<CloudType>>
-            (
-                new implicitPatchInjection<CloudType>(*this)
-            );
-        }
+    //- Construct and return a clone
+    virtual autoPtr<InjectionModel<CloudType>> clone() const
+    {
+        return autoPtr<InjectionModel<CloudType>>(
+            new implicitPatchInjection<CloudType>(*this));
+    }
 
 
     //- Destructor
@@ -182,53 +171,49 @@ public:
 
     // Member Functions
 
-        //- Inherit updateMesh from patchInjectionBase
-        using patchInjectionBase::updateMesh;
+    //- Inherit updateMesh from patchInjectionBase
+    using patchInjectionBase::updateMesh;
 
-        //- Set injector locations when mesh is updated
-        virtual void updateMesh();
+    //- Set injector locations when mesh is updated
+    virtual void updateMesh();
 
-        //- Return the end-of-injection time
-        virtual scalar timeEnd() const;
+    //- Return the end-of-injection time
+    virtual scalar timeEnd() const;
 
-        //- Number of parcels to introduce relative to SOI
-        virtual label parcelsToInject(const scalar time0, const scalar time1);
+    //- Number of parcels to introduce relative to SOI
+    virtual label parcelsToInject(const scalar time0, const scalar time1);
 
-        //- Volume of parcels to introduce relative to SOI
-        virtual scalar volumeToInject(const scalar time0, const scalar time1);
+    //- Volume of parcels to introduce relative to SOI
+    virtual scalar volumeToInject(const scalar time0, const scalar time1);
 
 
-        // Injection geometry
+    // Injection geometry
 
-            //- Inherit setPositionAndCell from patchInjectionBase
-            using patchInjectionBase::setPositionAndCell;
+    //- Inherit setPositionAndCell from patchInjectionBase
+    using patchInjectionBase::setPositionAndCell;
 
-            //- Set the injection position and owner cell, tetFace and tetPt
-            virtual void setPositionAndCell
-            (
-                const label parcelI,
-                const label nParcels,
-                const scalar time,
-                vector& position,
-                label& cellOwner,
-                label& tetFacei,
-                label& tetPti
-            );
+    //- Set the injection position and owner cell, tetFace and tetPt
+    virtual void setPositionAndCell(
+        const label parcelI,
+        const label nParcels,
+        const scalar time,
+        vector& position,
+        label& cellOwner,
+        label& tetFacei,
+        label& tetPti);
 
-            virtual void setProperties
-            (
-                const label parcelI,
-                const label nParcels,
-                const scalar time,
-                typename CloudType::parcelType& parcel
-            );
+    virtual void setProperties(
+        const label parcelI,
+        const label nParcels,
+        const scalar time,
+        typename CloudType::parcelType& parcel);
 
-            //- Flag to identify whether model fully describes the parcel
-            virtual bool fullyDescribed() const;
+    //- Flag to identify whether model fully describes the parcel
+    virtual bool fullyDescribed() const;
 
-            //- Return flag to identify whether or not injection of parcelI is
-            //  permitted
-            virtual bool validInjection(const label parcelI);
+    //- Return flag to identify whether or not injection of parcelI is
+    //  permitted
+    virtual bool validInjection(const label parcelI);
 };
 
 
@@ -239,7 +224,7 @@ public:
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 #ifdef NoRepository
-    #include "implicitPatchInjection.C"
+#include "implicitPatchInjection.C"
 #endif
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
