@@ -7,6 +7,7 @@
 -------------------------------------------------------------------------------
     Copyright (C) 2011-2017 OpenFOAM Foundation
     Copyright (C) 2021 OpenCFD Ltd.
+    Copyright (C) 2026 Corvid Technologies
 -------------------------------------------------------------------------------
 License
     This file is part of OpenFOAM.
@@ -31,7 +32,13 @@ Group
     grpLagrangianIntermediateInjectionSubModels
 
 Description
-    Patch injection.
+    Implicit patch injection with preCICE time-rewind support.
+
+    Derived from native patchInjection (v2412) to support Eulerian-Lagrangian 
+    implicit coupling. Explicitly handles memory lobotomization, 
+    delayedVolume_ fractional mass caching, and rndGen() seed restoration 
+    during preCICE sub-iteration rewinds to ensure strict mass conservation 
+    and eliminate Monte Carlo noise.
 
     User specifies:
       - Total mass to inject
