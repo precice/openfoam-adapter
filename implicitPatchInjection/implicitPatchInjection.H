@@ -61,6 +61,7 @@ SourceFiles
 
 #include "InjectionModel.H"
 #include "patchInjectionBase.H"
+#include <vector>
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -121,15 +122,26 @@ private:
     //- Current face being processed
     label currentFacei_;
 
-    //- Track the Eulerian mesh clock to detect preCICE sub-iterations
-    scalar lastMeshTimeStart_;
+    //- Cache the history of times to determine which index corresponds to
+    // the beginning of the time window
+    std::vector<scalar> histTime_;
 
-    //- Cache the delayed volume to prevent fractional mass leaks on rewind
-    scalar savedDelayedVolume_;
+    //- Cache the time-window history of delayed volume to prevent
+    // fractional mass leaks on rewind
+    std::vector<scalar> histDelayedVolume_;
 
-    //- Cache the random number generator state to eliminate Monte Carlo
-    // noise on rewind
-    Random savedRndGen_;
+    //- cache the time-window history of the mass injected value
+    std::vector<scalar> histMassInjected_;
+
+    //- cache the time-window history of the parcels added value
+    std::vector<label> histParcelsAdded_;
+
+    //- cache the time-window history of the N injections value
+    std::vector<label> histNInjections_;
+
+    //- Cache the time-window history of the random number generator state
+    // to eliminate Monte Carlo noise
+    std::vector<Random> histRnd_;
 
 
 protected:

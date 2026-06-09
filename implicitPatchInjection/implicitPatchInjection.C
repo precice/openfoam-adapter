@@ -71,10 +71,7 @@ Foam::implicitPatchInjection<CloudType>::implicitPatchInjection(
           this->coeffDict().subDict("sizeDistribution"),
           owner.rndGen())),
   currentParceli_(-1),
-  currentFacei_(-1),
-  lastMeshTimeStart_(-Foam::GREAT),
-  savedDelayedVolume_(0.0),
-  savedRndGen_(owner.rndGen())
+  currentFacei_(-1)
 {
     // Convert from user time to reduce the number of time conversion calls
     const Time& time = owner.db().time();
@@ -103,10 +100,7 @@ Foam::implicitPatchInjection<CloudType>::implicitPatchInjection(
   flowRateProfile_(im.flowRateProfile_.clone()),
   sizeDistribution_(im.sizeDistribution_.clone()),
   currentParceli_(im.currentParceli_),
-  currentFacei_(im.currentFacei_),
-  lastMeshTimeStart_(im.lastMeshTimeStart_),
-  savedDelayedVolume_(im.savedDelayedVolume_),
-  savedRndGen_(im.savedRndGen_)
+  currentFacei_(im.currentFacei_)
 {
 }
 
@@ -134,23 +128,37 @@ bool Foam::implicitPatchInjection<CloudType>::prepareForNextTimeStep(
     scalar& newVolumeFraction)
 {
     // Calculate the exact mathematical start of the current fluid timestep
-    scalar meshTimeStart = time - this->owner().db().time().deltaTValue();
+    scalar dt = this->owner().db().time().deltaTValue();
+    scalar meshTimeStart = time - dt;
 
-    // if the mesh tim is eqaul to or less than the last time we evaluated then
-    // time failed to move forward and we are in a preCICE sub-iteration
-    if (this->timeStep0_ > meshTimeStart + SMALL)
+    // define relative tolerance to help us find the index for the time-window
+    // start timestep
+    scalar tolerance = 1e-6 * dt;
+
+    // search the history buffer to see if we are rewinding to previously
+    // visited timestep
+    int foundIndex = -1;
+    for (int i = histTime_.size() - 1; i >= 0; --i)
     {
-        // reset the base class local time-trackers
+        // use the relative tolerance to match to the timestep
+        if (mag(histTime_[i] - meshTimeStart) <= tolerance)
+        {
+            foundIndex = i;
+            break;
+        }
+    }
+
+    if (foundIndex != -1)
+    {
+        // rewind detected, we have been at this timestep before
         this->timeStep0_ = meshTimeStart;
         this->time0_ = meshTimeStart;
 
-        // wipe the base class cosmetic counters
-        this->massInjected_ = 0.0;
-        this->parcelsAddedTotal_ = 0;
-        this->nInjections_ = 0;
-
-        // restore the fractional volume from the start of the window
-        this->delayedVolume_ = savedDelayedVolume_;
+        // restore exact states from this moment in history
+        this->delayedVolume_ = histDelayedVolume_[foundIndex];
+        this->massInjected_ = histMassInjected_[foundIndex];
+        this->parcelsAddedTotal_ = histParcelsAdded_[foundIndex];
+        this->nInjections_ = histNInjections_[foundIndex];
 
         // clear the table's stateful cache
         flowRateProfile_ = Function1<scalar>::New(
@@ -158,22 +166,29 @@ bool Foam::implicitPatchInjection<CloudType>::prepareForNextTimeStep(
             this->coeffDict(),
             &this->owner().mesh());
 
-        // restore the RNG state to perfectly replicate particle placement and sizes
-        this->owner().rndGen() = savedRndGen_;
+        // restore the RNG state
+        this->owner().rndGen() = histRnd_[foundIndex];
+
+        // erase all history AFTER this point, as we are overwritin the
+        // timeline
+        histTime_.resize(foundIndex + 1);
+        histDelayedVolume_.resize(foundIndex + 1);
+        histMassInjected_.resize(foundIndex + 1);
+        histParcelsAdded_.resize(foundIndex + 1);
+        histNInjections_.resize(foundIndex + 1);
+        histRnd_.resize(foundIndex + 1);
     }
     else
     {
-        // forward march detected
-
-        // save the fractional volume state at the start of this new time window
-        savedDelayedVolume_ = this->delayedVolume_;
-
-        // save the RNG state at the start of this new time window
-        savedRndGen_ = this->owner().rndGen();
+        // forward march detected; a new timestep we haven't seen yet
+        // save the current states BEFORE the base class changes them
+        histTime_.push_back(meshTimeStart);
+        histDelayedVolume_.push_back(this->delayedVolume_);
+        histMassInjected_.push_back(this->massInjected_);
+        histParcelsAdded_.push_back(this->parcelsAddedTotal_);
+        histNInjections_.push_back(this->nInjections_);
+        histRnd_.push_back(this->owner().rndGen());
     }
-
-    // update the tracker for the next pass
-    lastMeshTimeStart_ = meshTimeStart;
 
     // pass control back to native base class to run its standard math
     return InjectionModel<CloudType>::prepareForNextTimeStep(
