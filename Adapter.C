@@ -888,26 +888,39 @@ void preciceAdapter::Adapter::setupCheckpointing()
     SETUP_TIMER();
 
     // Lagrangian particle checkpoint setup
-    activeClouds_.clear();
+    activeKinematicClouds_.clear();
+    activeThermoClouds_.clear();
+    activeKinematicCollidingClouds_.clear();
 
-    // loop over all of the names of the basicThermClouds that exist
-    for (const word& cloudName : mesh_.thisDb().sortedNames<basicThermoCloud>())
-    {
-        // define a cloud pointer
-        basicThermoCloud* cloudPtr = const_cast<basicThermoCloud*>(mesh_.thisDb().getObjectPtr<basicThermoCloud>(cloudName));
-        if (cloudPtr)
-        {
-            // populate activeClouds_ with pointer contents
-            activeClouds_.push_back(cloudPtr);
-            lagrangianCheckPointed_ = true;
-            adapterInfo("Successfully located basicThermoCloud '" + cloudName + "' for Lagrangian checkpointing.", "info");
-        }
+    // macro to loop over all names of the cloud type, define a cloud pointer, and populate
+    // the activeCloud vector with the pointer contents for a given cloud type
+
+#undef setupCloudType
+#define setupCloudType(CloudType, ActiveList) \
+    for (const word& cloudName : mesh_.thisDb().sortedNames<CloudType>()) \
+    { \
+        CloudType* cloudPtr = const_cast<CloudType*>(mesh_.thisDb().getObjectPtr<CloudType>(cloudName)); \
+        if (cloudPtr) \
+        { \
+            ActiveList.push_back(cloudPtr); \
+            lagrangianCheckPointed_ = true; \
+            adapterInfo("Successfully located " #CloudType " '" + cloudName + "' for Lagrangian checkpointing.", "info"); \
+	} \
     }
+
+    // run macro for all available cloud types
+    setupCloudType(basicKinematicCloud, activeKinematicClouds_);
+    setupCloudType(basicThermoCloud, activeThermoClouds_);
+    setupCloudType(basicKinematicCollidingCloud, activeKinematicCollidingClouds_);
+
+#undef setupCloudType
 
     // Allocate the 2D backup array with the number of clouds found
     if (lagrangianCheckPointed_)
     {
-        backupParcelsLists_.resize(activeClouds_.size());
+        backupKinematicParcelsLists_.resize(activeKinematicClouds_.size());
+        backupThermoParcelsLists_.resize(activeThermoClouds_.size());
+        backupKinematicCollidingParcelsLists_.resize(activeKinematicCollidingClouds_.size());
     }
 
     // Add fields in the checkpointing list - sorted for parallel consistency
@@ -1295,22 +1308,29 @@ void preciceAdapter::Adapter::readCheckpoint()
     // Lagrangian particle checkpoint read; restore state
     if (lagrangianCheckPointed_)
     {
-        for (size_t c = 0; c < activeClouds_.size(); ++c)
-        {
-            auto& cloud = activeClouds_[c];
-            auto& backups = backupParcelsLists_[c];
-
-            // Erase the future state for this cloud
-            cloud->clear();
-
-            // Resurrect the past from this cloud's backups
-            for (auto& pPtr : backups)
-            {
-                basicThermoCloud::particleType* restoredPtr = static_cast<basicThermoCloud::particleType*>(pPtr().clone().ptr());
-                cloud->addParticle(restoredPtr);
-            }
-            DEBUG(adapterInfo("Restored " + std::to_string(backups.size()) + " parcels for cloud '" + cloud->name() + "'."));
+    // macro to restore the state of different cloud types
+#undef restoreCloudType
+#define restoreCloudType(CloudType, ActiveList, BackupList) \
+        for (size_t c = 0; c < ActiveList.size(); ++c) \
+        { \
+            auto& cloud = ActiveList[c]; \
+            auto& backups = BackupList[c]; \
+            /* Erase the future state for this cloud */ \
+            cloud->clear(); \
+            /* Resurrect the past from this cloud's backups */ \
+            for (auto& pPtr : backups) \
+            { \
+                CloudType::particleType* restoredPtr = static_cast<CloudType::particleType*>(pPtr().clone().ptr()); \
+                cloud->addParticle(restoredPtr); \
+            } \
+            DEBUG(adapterInfo("Restored " + std::to_string(backups.size()) + " parcels for cloud '" + cloud->name() + "'.")); \
         }
+
+	restoreCloudType(basicKinematicCloud, activeKinematicClouds_, backupKinematicParcelsLists_);
+	restoreCloudType(basicThermoCloud, activeThermoClouds_, backupThermoParcelsLists_);
+	restoreCloudType(basicKinematicCollidingCloud, activeKinematicCollidingClouds_, backupKinematicCollidingParcelsLists_);
+
+#undef restoreCloudType
     }
 
     // NOTE: Add here other field types to read, if needed.
@@ -1401,23 +1421,29 @@ void preciceAdapter::Adapter::writeCheckpoint()
     // Lagrangian particle checkpoint write; save current state
     if (lagrangianCheckPointed_)
     {
-        // loop over all clouds
-        for (size_t c = 0; c < activeClouds_.size(); ++c)
-        {
-            auto& cloud = activeClouds_[c];
-            auto& backups = backupParcelsLists_[c];
-
-            // clear previous backups
-            backups.clear();
-
-            // Clone the current state for this specific cloud
-            forAllIter(basicThermoCloud, *cloud, iter)
-            {
-                basicThermoCloud::particleType* clonedPtr = static_cast<basicThermoCloud::particleType*>(iter().clone().ptr());
-                backups.push_back(autoPtr<basicThermoCloud::particleType>(clonedPtr));
-            }
-            DEBUG(adapterInfo("Checkpointed " + std::to_string(backups.size()) + " parcels for cloud '" + cloud->name() + "'."));
+#undef backupCloudType
+#define backupCloudType(CloudType, ActiveList, BackupList) \
+        /* loop over all clouds */ \
+        for (size_t c = 0; c < ActiveList.size(); ++c) \
+        { \
+            auto& cloud = ActiveList[c]; \
+            auto& backups = BackupList[c]; \
+            /* clear previous backups */ \
+            backups.clear(); \
+            /* Clone the current state for this specific cloud */ \
+            forAllIter(CloudType, *cloud, iter) \
+            { \
+                CloudType::particleType* clonedPtr = static_cast<CloudType::particleType*>(iter().clone().ptr()); \
+                backups.push_back(autoPtr<CloudType::particleType>(clonedPtr)); \
+            } \
+            DEBUG(adapterInfo("Checkpointed " + std::to_string(backups.size()) + " parcels for cloud '" + cloud->name() + "'.")); \
         }
+
+	backupCloudType(basicKinematicCloud, activeKinematicClouds_, backupKinematicParcelsLists_);
+	backupCloudType(basicThermoCloud, activeThermoClouds_, backupThermoParcelsLists_);
+	backupCloudType(basicKinematicCollidingCloud, activeKinematicCollidingClouds_, backupKinematicCollidingParcelsLists_);
+
+#undef backupCloudType
     }
 
     // NOTE: Add here other types to write, if needed.
@@ -1634,13 +1660,20 @@ void preciceAdapter::Adapter::teardown()
     }
 
     // Delete Lagrangian particle backups
-    for (auto& backups : backupParcelsLists_)
-    {
-        backups.clear();
-    }
-    backupParcelsLists_.clear();
-    activeClouds_.clear();
+#undef teardownCloudType
+#define teardownCloudType(ActiveList, BackupList) \
+    for (auto& backups : BackupList) \
+    { \
+        backups.clear(); \
+    } \
+    BackupList.clear(); \
+    ActiveList.clear();
 
+    teardownCloudType(activeKinematicClouds_, backupKinematicParcelsLists_);
+    teardownCloudType(activeThermoClouds_, backupThermoParcelsLists_);
+    teardownCloudType(activeKinematicCollidingClouds_, backupKinematicCollidingParcelsLists_);
+
+#undef teardownCloudType
     // NOTE: Delete your new module here
 
     return;

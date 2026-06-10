@@ -14,8 +14,10 @@
 
 #include "module-generic/Generic.H"
 
-// Lagrangian particle checkpointing include
+// Lagrangian particle checkpointing includes
 #include "basicThermoCloud.H"
+#include "basicKinematicCloud.H"
+#include "basicKinematicCollidingCloud.H"
 
 // NOTE: If you want to couple a new variable, include your module's header here.
 // You also need to include it in the Make/files file.
@@ -153,10 +155,14 @@ private:
     // Lagrangian particle cloud pointers
 
     //- Pointer to all active particle clouds
-    std::vector<Foam::basicThermoCloud*> activeClouds_;
+    std::vector<Foam::basicThermoCloud*> activeThermoClouds_;
+    std::vector<Foam::basicKinematicCloud*> activeKinematicClouds_;
+    std::vector<Foam::basicKinematicCollidingCloud*> activeKinematicCollidingClouds_;
 
     //- 2D Array of cloned particles to hold the current state for each particle cloud
-    std::vector<std::vector<Foam::autoPtr<Foam::basicThermoCloud::particleType>>> backupParcelsLists_;
+    std::vector<std::vector<Foam::autoPtr<Foam::basicThermoCloud::particleType>>> backupThermoParcelsLists_;
+    std::vector<std::vector<Foam::autoPtr<Foam::basicKinematicCloud::particleType>>> backupKinematicParcelsLists_;
+    std::vector<std::vector<Foam::autoPtr<Foam::basicKinematicCollidingCloud::particleType>>> backupKinematicCollidingParcelsLists_;
 
     // Checkpointing
 
