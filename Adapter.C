@@ -1579,6 +1579,9 @@ void preciceAdapter::Adapter::teardown()
         }
         meshVolFieldCopies_.clear();
 
+        delete meshPoints_;
+        delete meshOldPoints_;
+
         // volTensorField
         for (uint i = 0; i < volTensorFieldCopies_.size(); i++)
         {
@@ -1610,9 +1613,6 @@ void preciceAdapter::Adapter::teardown()
         // NOTE: Add here delete for other types, if needed
 
         checkpointing_ = false;
-
-        delete meshPoints_;
-        delete meshOldPoints_;
     }
 
     // Delete the CHT module
