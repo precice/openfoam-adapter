@@ -1,3 +1,5 @@
-makeImplicitConeNozzleInjection.C
+makeImplicitConeNozzleInjectionKinematic.C
+makeImplicitConeNozzleInjectionKinematicColliding.C
+makeImplicitConeNozzleInjectionThermo.C
 
 LIB = $(ADAPTER_TARGET_DIR)/libimplicitConeNozzleInjection
