@@ -1446,9 +1446,7 @@ void preciceAdapter::Adapter::readMeshVolCheckpoint()
     // Reload V, V0, V00
     if (volumeCheckpointState_ == VolumeCheckpointState::V_AND_V0_AVAILABLE || volumeCheckpointState_ == VolumeCheckpointState::ALL_AVAILABLE)
     {
-        // Actually we don't need to reload V, as it is re-calculated in every time-step
-        // const_cast<volScalarField::Internal&>(mesh_.V()) = *(meshVolFieldCopies_.at(0));
-        // DEBUG(adapterInfo("Read mesh volume " + meshVolFieldCopies_.at(0)->name()));
+        // We do not need to reload V, as it is re-calculated in every time-step
 
         const_cast<volScalarField::Internal&>(mesh_.V0()) = *(meshVolFieldCopies_.at(0));
         DEBUG(adapterInfo("Read mesh volume " + meshVolFieldCopies_.at(0)->name()));
