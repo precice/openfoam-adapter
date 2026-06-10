@@ -4,6 +4,7 @@
 
 #include "fixedValueFvPatchFields.H"
 #include "fixedGradientFvPatchFields.H"
+#include "mixedFvPatchFields.H"
 
 using namespace Foam;
 
@@ -45,6 +46,14 @@ void preciceAdapter::Generic::ScalarFieldCoupler::initialize()
         if (this->locationType_ != LocationType::faceCenters)
         {
             adapterInfo("Generic module: The surface-normal-gradient operation is only supported for faceCenters location type.", "error");
+        }
+    }
+
+    if (fieldConfig_.operation == "ref-value" || fieldConfig_.operation == "ref-gradient" || fieldConfig_.operation == "value-fraction")
+    {
+        if (this->locationType_ != LocationType::faceCenters)
+        {
+            adapterInfo("Generic module: Robin boundary conditions (ref-value, ref-gradient, and value-fraction operations) are supported only for surface locations (faceCenters).", "error");
         }
     }
 }
@@ -151,6 +160,13 @@ std::size_t preciceAdapter::Generic::ScalarFieldCoupler::write(double* buffer, b
         return bufferIndex;
     }
 
+    if (fieldConfig_.operation == "ref-value" || fieldConfig_.operation == "ref-gradient" || fieldConfig_.operation == "value-fraction")
+    {
+        adapterInfo(
+            "Generic module: The mixed boundary condition operations (ref-value, ref-gradient, and value-fraction) are only supported for the read side. If you wish to write these fields, just use the value or surface-normal-gradient operations instead.",
+            "error");
+    }
+
     if (this->locationType_ == LocationType::volumeCenters)
     {
         if (cellSetNames_.empty())
@@ -254,6 +270,13 @@ void preciceAdapter::Generic::ScalarFieldCoupler::read(double* buffer, const uns
 
         if (isA<fixedValueFvPatchScalarField>(bc))
         {
+            if (fieldConfig_.operation != "value")
+            {
+                adapterInfo(
+                    "Generic module: Unsupported operation " + fieldConfig_.operation + " for boundary condition type " + bc.type() + ". Supported operation is value.",
+                    "error");
+            }
+
             auto& boundaryPatch = refCast<fixedValueFvPatchScalarField>(bc);
             forAll(boundaryPatch, i)
             {
@@ -262,20 +285,54 @@ void preciceAdapter::Generic::ScalarFieldCoupler::read(double* buffer, const uns
         }
         else if (isA<fixedGradientFvPatchScalarField>(bc))
         {
+            if (fieldConfig_.operation != "value")
+            {
+                adapterInfo(
+                    "Generic module: Unsupported operation " + fieldConfig_.operation + " for boundary condition type " + bc.type() + ". Supported operation is value.",
+                    "error");
+            }
+
             auto& boundaryPatch = refCast<fixedGradientFvPatchScalarField>(bc);
             forAll(boundaryPatch, i)
             {
                 boundaryPatch.gradient()[i] = buffer[bufferIndex++];
             }
         }
+        else if (isA<mixedFvPatchScalarField>(bc))
+        {
+            auto& boundaryPatch = refCast<mixedFvPatchScalarField>(bc);
+            if (fieldConfig_.operation == "ref-value")
+            {
+                forAll(boundaryPatch, i)
+                {
+                    boundaryPatch.refValue()[i] = buffer[bufferIndex++];
+                }
+            }
+            else if (fieldConfig_.operation == "ref-gradient")
+            {
+                forAll(boundaryPatch, i)
+                {
+                    boundaryPatch.refGrad()[i] = buffer[bufferIndex++];
+                }
+            }
+            else if (fieldConfig_.operation == "value-fraction")
+            {
+                forAll(boundaryPatch, i)
+                {
+                    boundaryPatch.valueFraction()[i] = buffer[bufferIndex++];
+                }
+            }
+            else
+            {
+                adapterInfo(
+                    "Generic module: Unsupported operation " + fieldConfig_.operation + " for boundary condition type " + bc.type() + ". Supported operations are ref-value, ref-gradient, and value-fraction.",
+                    "error");
+            }
+        }
         else
         {
             adapterInfo("Generic module: Unsupported boundary condition type " + bc.type(), "error");
         }
-
-        // // evaluate the boundary condition, i.e., do some calculation to obtain the actual value provided refValue
-        // boundaryPatch.updateCoeffs();
-        // boundaryPatch.evaluate();
     }
 }
 
