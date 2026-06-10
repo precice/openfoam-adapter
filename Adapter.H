@@ -367,7 +367,6 @@ private:
     //- Write the checkpoint - store the fields and time
     void writeCheckpoint();
 
-    // TODO Probably these can be included to the mesh checkpoints.
     //- Read the volume checkpoint - restore the mesh volume fields
     void readMeshVolCheckpoint();
 
