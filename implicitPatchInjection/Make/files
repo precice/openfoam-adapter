@@ -2,5 +2,6 @@ makeImplicitPatchInjectionKinematic.C
 makeImplicitPatchInjectionKinematicColliding.C
 makeImplicitPatchInjectionThermo.C
 makeImplicitPatchInjectionReacting.C
+makeImplicitPatchInjectionReactingMultiphase.C
 
 LIB = $(ADAPTER_TARGET_DIR)/libimplicitPatchInjection

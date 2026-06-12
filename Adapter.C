@@ -892,6 +892,7 @@ void preciceAdapter::Adapter::setupCheckpointing()
     activeThermoClouds_.clear();
     activeKinematicCollidingClouds_.clear();
     activeReactingClouds_.clear();
+    activeReactingMultiphaseClouds_.clear();
 
     // macro to loop over all names of the cloud type, define a cloud pointer, and populate
     // the activeCloud vector with the pointer contents for a given cloud type
@@ -913,6 +914,7 @@ void preciceAdapter::Adapter::setupCheckpointing()
     setupCloudType(basicKinematicCloud, activeKinematicClouds_);
     setupCloudType(basicThermoCloud, activeThermoClouds_);
     setupCloudType(basicReactingCloud, activeReactingClouds_);
+    setupCloudType(basicReactingMultiphaseCloud, activeReactingMultiphaseClouds_);
     setupCloudType(basicKinematicCollidingCloud, activeKinematicCollidingClouds_);
 
 #undef setupCloudType
@@ -923,6 +925,7 @@ void preciceAdapter::Adapter::setupCheckpointing()
         backupKinematicParcelsLists_.resize(activeKinematicClouds_.size());
         backupThermoParcelsLists_.resize(activeThermoClouds_.size());
         backupReactingParcelsLists_.resize(activeReactingClouds_.size());
+        backupReactingMultiphaseParcelsLists_.resize(activeReactingMultiphaseClouds_.size());
         backupKinematicCollidingParcelsLists_.resize(activeKinematicCollidingClouds_.size());
     }
 
@@ -1332,6 +1335,7 @@ void preciceAdapter::Adapter::readCheckpoint()
 	restoreCloudType(basicKinematicCloud, activeKinematicClouds_, backupKinematicParcelsLists_);
 	restoreCloudType(basicThermoCloud, activeThermoClouds_, backupThermoParcelsLists_);
 	restoreCloudType(basicReactingCloud, activeReactingClouds_, backupReactingParcelsLists_);
+	restoreCloudType(basicReactingMultiphaseCloud, activeReactingMultiphaseClouds_, backupReactingMultiphaseParcelsLists_);
 	restoreCloudType(basicKinematicCollidingCloud, activeKinematicCollidingClouds_, backupKinematicCollidingParcelsLists_);
 
 #undef restoreCloudType
@@ -1446,6 +1450,7 @@ void preciceAdapter::Adapter::writeCheckpoint()
 	backupCloudType(basicKinematicCloud, activeKinematicClouds_, backupKinematicParcelsLists_);
 	backupCloudType(basicThermoCloud, activeThermoClouds_, backupThermoParcelsLists_);
 	backupCloudType(basicReactingCloud, activeReactingClouds_, backupReactingParcelsLists_);
+	backupCloudType(basicReactingMultiphaseCloud, activeReactingMultiphaseClouds_, backupReactingMultiphaseParcelsLists_);
 	backupCloudType(basicKinematicCollidingCloud, activeKinematicCollidingClouds_, backupKinematicCollidingParcelsLists_);
 
 #undef backupCloudType
@@ -1677,6 +1682,7 @@ void preciceAdapter::Adapter::teardown()
     teardownCloudType(activeKinematicClouds_, backupKinematicParcelsLists_);
     teardownCloudType(activeThermoClouds_, backupThermoParcelsLists_);
     teardownCloudType(activeReactingClouds_, backupReactingParcelsLists_);
+    teardownCloudType(activeReactingMultiphaseClouds_, backupReactingMultiphaseParcelsLists_);
     teardownCloudType(activeKinematicCollidingClouds_, backupKinematicCollidingParcelsLists_);
 
 #undef teardownCloudType
