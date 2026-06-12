@@ -16,6 +16,7 @@
 
 // Lagrangian particle checkpointing includes
 #include "basicThermoCloud.H"
+#include "basicReactingCloud.H"
 #include "basicKinematicCloud.H"
 #include "basicKinematicCollidingCloud.H"
 
@@ -156,11 +157,13 @@ private:
 
     //- Pointer to all active particle clouds
     std::vector<Foam::basicThermoCloud*> activeThermoClouds_;
+    std::vector<Foam::basicReactingCloud*> activeReactingClouds_;
     std::vector<Foam::basicKinematicCloud*> activeKinematicClouds_;
     std::vector<Foam::basicKinematicCollidingCloud*> activeKinematicCollidingClouds_;
 
     //- 2D Array of cloned particles to hold the current state for each particle cloud
     std::vector<std::vector<Foam::autoPtr<Foam::basicThermoCloud::particleType>>> backupThermoParcelsLists_;
+    std::vector<std::vector<Foam::autoPtr<Foam::basicReactingCloud::particleType>>> backupReactingParcelsLists_;
     std::vector<std::vector<Foam::autoPtr<Foam::basicKinematicCloud::particleType>>> backupKinematicParcelsLists_;
     std::vector<std::vector<Foam::autoPtr<Foam::basicKinematicCollidingCloud::particleType>>> backupKinematicCollidingParcelsLists_;
 
