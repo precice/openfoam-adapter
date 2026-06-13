@@ -6,5 +6,5 @@
 
 namespace Foam
 {
-    makeInjectionModelType(implicitConeNozzleInjection, basicThermoCloud);
+makeInjectionModelType(implicitConeNozzleInjection, basicThermoCloud);
 }

@@ -898,16 +898,16 @@ void preciceAdapter::Adapter::setupCheckpointing()
     // the activeCloud vector with the pointer contents for a given cloud type
 
 #undef setupCloudType
-#define setupCloudType(CloudType, ActiveList) \
-    for (const word& cloudName : mesh_.thisDb().sortedNames<CloudType>()) \
-    { \
-        CloudType* cloudPtr = const_cast<CloudType*>(mesh_.thisDb().getObjectPtr<CloudType>(cloudName)); \
-        if (cloudPtr) \
-        { \
-            ActiveList.push_back(cloudPtr); \
-            lagrangianCheckPointed_ = true; \
+#define setupCloudType(CloudType, ActiveList)                                                                             \
+    for (const word& cloudName : mesh_.thisDb().sortedNames<CloudType>())                                                 \
+    {                                                                                                                     \
+        CloudType* cloudPtr = const_cast<CloudType*>(mesh_.thisDb().getObjectPtr<CloudType>(cloudName));                  \
+        if (cloudPtr)                                                                                                     \
+        {                                                                                                                 \
+            ActiveList.push_back(cloudPtr);                                                                               \
+            lagrangianCheckPointed_ = true;                                                                               \
             adapterInfo("Successfully located " #CloudType " '" + cloudName + "' for Lagrangian checkpointing.", "info"); \
-	} \
+        }                                                                                                                 \
     }
 
     // run macro for all available cloud types
@@ -1314,29 +1314,29 @@ void preciceAdapter::Adapter::readCheckpoint()
     // Lagrangian particle checkpoint read; restore state
     if (lagrangianCheckPointed_)
     {
-    // macro to restore the state of different cloud types
+        // macro to restore the state of different cloud types
 #undef restoreCloudType
-#define restoreCloudType(CloudType, ActiveList, BackupList) \
-        for (size_t c = 0; c < ActiveList.size(); ++c) \
-        { \
-            auto& cloud = ActiveList[c]; \
-            auto& backups = BackupList[c]; \
-            /* Erase the future state for this cloud */ \
-            cloud->clear(); \
-            /* Resurrect the past from this cloud's backups */ \
-            for (auto& pPtr : backups) \
-            { \
-                CloudType::particleType* restoredPtr = static_cast<CloudType::particleType*>(pPtr().clone().ptr()); \
-                cloud->addParticle(restoredPtr); \
-            } \
-            DEBUG(adapterInfo("Restored " + std::to_string(backups.size()) + " parcels for cloud '" + cloud->name() + "'.")); \
-        }
+#define restoreCloudType(CloudType, ActiveList, BackupList)                                                               \
+    for (size_t c = 0; c < ActiveList.size(); ++c)                                                                        \
+    {                                                                                                                     \
+        auto& cloud = ActiveList[c];                                                                                      \
+        auto& backups = BackupList[c];                                                                                    \
+        /* Erase the future state for this cloud */                                                                       \
+        cloud->clear();                                                                                                   \
+        /* Resurrect the past from this cloud's backups */                                                                \
+        for (auto& pPtr : backups)                                                                                        \
+        {                                                                                                                 \
+            CloudType::particleType* restoredPtr = static_cast<CloudType::particleType*>(pPtr().clone().ptr());           \
+            cloud->addParticle(restoredPtr);                                                                              \
+        }                                                                                                                 \
+        DEBUG(adapterInfo("Restored " + std::to_string(backups.size()) + " parcels for cloud '" + cloud->name() + "'.")); \
+    }
 
-	restoreCloudType(basicKinematicCloud, activeKinematicClouds_, backupKinematicParcelsLists_);
-	restoreCloudType(basicThermoCloud, activeThermoClouds_, backupThermoParcelsLists_);
-	restoreCloudType(basicReactingCloud, activeReactingClouds_, backupReactingParcelsLists_);
-	restoreCloudType(basicReactingMultiphaseCloud, activeReactingMultiphaseClouds_, backupReactingMultiphaseParcelsLists_);
-	restoreCloudType(basicKinematicCollidingCloud, activeKinematicCollidingClouds_, backupKinematicCollidingParcelsLists_);
+        restoreCloudType(basicKinematicCloud, activeKinematicClouds_, backupKinematicParcelsLists_);
+        restoreCloudType(basicThermoCloud, activeThermoClouds_, backupThermoParcelsLists_);
+        restoreCloudType(basicReactingCloud, activeReactingClouds_, backupReactingParcelsLists_);
+        restoreCloudType(basicReactingMultiphaseCloud, activeReactingMultiphaseClouds_, backupReactingMultiphaseParcelsLists_);
+        restoreCloudType(basicKinematicCollidingCloud, activeKinematicCollidingClouds_, backupKinematicCollidingParcelsLists_);
 
 #undef restoreCloudType
     }
@@ -1430,28 +1430,28 @@ void preciceAdapter::Adapter::writeCheckpoint()
     if (lagrangianCheckPointed_)
     {
 #undef backupCloudType
-#define backupCloudType(CloudType, ActiveList, BackupList) \
-        /* loop over all clouds */ \
-        for (size_t c = 0; c < ActiveList.size(); ++c) \
-        { \
-            auto& cloud = ActiveList[c]; \
-            auto& backups = BackupList[c]; \
-            /* clear previous backups */ \
-            backups.clear(); \
-            /* Clone the current state for this specific cloud */ \
-            forAllIter(CloudType, *cloud, iter) \
-            { \
-                CloudType::particleType* clonedPtr = static_cast<CloudType::particleType*>(iter().clone().ptr()); \
-                backups.push_back(autoPtr<CloudType::particleType>(clonedPtr)); \
-            } \
-            DEBUG(adapterInfo("Checkpointed " + std::to_string(backups.size()) + " parcels for cloud '" + cloud->name() + "'.")); \
-        }
+#define backupCloudType(CloudType, ActiveList, BackupList)                                                                    \
+    /* loop over all clouds */                                                                                                \
+    for (size_t c = 0; c < ActiveList.size(); ++c)                                                                            \
+    {                                                                                                                         \
+        auto& cloud = ActiveList[c];                                                                                          \
+        auto& backups = BackupList[c];                                                                                        \
+        /* clear previous backups */                                                                                          \
+        backups.clear();                                                                                                      \
+        /* Clone the current state for this specific cloud */                                                                 \
+        forAllIter(CloudType, *cloud, iter)                                                                                   \
+        {                                                                                                                     \
+            CloudType::particleType* clonedPtr = static_cast<CloudType::particleType*>(iter().clone().ptr());                 \
+            backups.push_back(autoPtr<CloudType::particleType>(clonedPtr));                                                   \
+        }                                                                                                                     \
+        DEBUG(adapterInfo("Checkpointed " + std::to_string(backups.size()) + " parcels for cloud '" + cloud->name() + "'.")); \
+    }
 
-	backupCloudType(basicKinematicCloud, activeKinematicClouds_, backupKinematicParcelsLists_);
-	backupCloudType(basicThermoCloud, activeThermoClouds_, backupThermoParcelsLists_);
-	backupCloudType(basicReactingCloud, activeReactingClouds_, backupReactingParcelsLists_);
-	backupCloudType(basicReactingMultiphaseCloud, activeReactingMultiphaseClouds_, backupReactingMultiphaseParcelsLists_);
-	backupCloudType(basicKinematicCollidingCloud, activeKinematicCollidingClouds_, backupKinematicCollidingParcelsLists_);
+        backupCloudType(basicKinematicCloud, activeKinematicClouds_, backupKinematicParcelsLists_);
+        backupCloudType(basicThermoCloud, activeThermoClouds_, backupThermoParcelsLists_);
+        backupCloudType(basicReactingCloud, activeReactingClouds_, backupReactingParcelsLists_);
+        backupCloudType(basicReactingMultiphaseCloud, activeReactingMultiphaseClouds_, backupReactingMultiphaseParcelsLists_);
+        backupCloudType(basicKinematicCollidingCloud, activeKinematicCollidingClouds_, backupKinematicCollidingParcelsLists_);
 
 #undef backupCloudType
     }
@@ -1672,11 +1672,11 @@ void preciceAdapter::Adapter::teardown()
     // Delete Lagrangian particle backups
 #undef teardownCloudType
 #define teardownCloudType(ActiveList, BackupList) \
-    for (auto& backups : BackupList) \
-    { \
-        backups.clear(); \
-    } \
-    BackupList.clear(); \
+    for (auto& backups : BackupList)              \
+    {                                             \
+        backups.clear();                          \
+    }                                             \
+    BackupList.clear();                           \
     ActiveList.clear();
 
     teardownCloudType(activeKinematicClouds_, backupKinematicParcelsLists_);

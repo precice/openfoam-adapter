@@ -6,5 +6,5 @@
 
 namespace Foam
 {
-    makeInjectionModelType(implicitPatchInjection, basicKinematicCloud);
+makeInjectionModelType(implicitPatchInjection, basicKinematicCloud);
 }
