@@ -1,7 +1,0 @@
-makeImplicitConeNozzleInjectionKinematic.C
-makeImplicitConeNozzleInjectionKinematicColliding.C
-makeImplicitConeNozzleInjectionThermo.C
-makeImplicitConeNozzleInjectionReacting.C
-makeImplicitConeNozzleInjectionReactingMultiphase.C
-
-LIB = $(ADAPTER_TARGET_DIR)/libimplicitConeNozzleInjection
