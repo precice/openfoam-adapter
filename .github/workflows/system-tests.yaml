@@ -7,7 +7,7 @@ on:
 jobs:
   run-system-tests:
     if: ${{ github.event.label.name == 'trigger-system-tests' }}
-    uses: precice/tutorials/.github/workflows/run_testsuite_workflow.yml@develop
+    uses: precice/tutorials/.github/workflows/system-tests.yml@develop
     with:
       suites: openfoam-adapter
       build_args: OPENFOAM_EXECUTABLE:openfoam2512,OPENFOAM_ADAPTER_PR:${{ github.event.number }},OPENFOAM_ADAPTER_REF:${{ github.event.pull_request.head.sha }}
