@@ -209,7 +209,7 @@ bool preciceAdapter::FF::Velocity::isLocationTypeSupported(const bool meshConnec
 {
     if (meshConnectivity)
     {
-        return (this->locationType_ == LocationType::faceCenters);
+        return false;
     }
     else
     {

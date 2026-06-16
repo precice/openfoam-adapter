@@ -137,6 +137,11 @@ For fluid-structure interaction, coupled quantities can be:
 You will run into problems when you use `Displacement(Delta)` as write data set and execute RBF mappings in parallel. This would affect users who use OpenFOAM and the adapter as the Solid participant in order to compute solid mechanics with OpenFOAM (currently not officially supported at all). Have a look [at this issue on GitHub](https://github.com/precice/openfoam-adapter/issues/153) for details.
 {% endwarning %}
 
+{% tip %}
+The `writeData` and `readData` names are case-insensitive since v1.4.0. This means that both `TEMPERATURE` and `Temperature` are valid, for example.
+Additionally, since earlier versions, only the beginning of the name needs to match: `Temperatures0` is valid and matched to the temperature reader/writer, for example.
+{% endtip %}
+
 ## Configuration of the OpenFOAM case
 
 A few changes are required in the configuration of an OpenFOAM case, in order to specify the interfaces and load the adapter. For some solvers, additional parameters may be needed (see "advanced configuration").
@@ -251,6 +256,79 @@ The FF module is still experimental and the boundary conditions presented here h
 `Alpha` refers to the phase variable used in e.g. the volume of fluid multiphase solver `interFoam`.
 
 When coupling face flux `Phi`, usually no specific boundary condition needs to be set. The coupled boundary values are therefore not persistent and may change within a timestep.
+
+#### Generic module
+
+The Generic module is an experimental addition that allows coupling any field by its name. It supports volume and surface coupling of scalar and vector fields (e.g., `Velocity`, `Pressure`, `Temperature`). If multiple modules are enabled, the Generic module will handle only those fields which have not been defined in the other modules. For example, if FF is also enabled, then fields whose data name starts with `Velocity` will be handled by the FF module instead.
+
+The module supports the dictionary-based configuration format, which allows setting additional options for each field:
+
+```cpp
+// File system/preciceDict
+
+modules ( generic );
+
+interfaces
+{
+  Interface1
+  {
+    mesh              Fluid-Mesh;
+    patches           (interface);
+    // For volume coupling specify volumeCenters
+    locations         faceCenters;
+
+    writeData
+    (
+      Velocity1
+      {
+        name        Velocity;   // Data name as defined in preCICE config
+        solver_name U;          // Optional: Field name in OpenFOAM (defaults to same as 'name')
+        operation   value;      // Optional: Operation to perform on data (defaults to 'value', other options are `gradient` and `surface-normal-gradient`)
+        flip-normal false;      // Optional: Flip the normal direction (defaults to 'false')
+      }
+
+      TemperatureGradient
+      {
+        name        T_Grad;
+        solver_name T;
+        operation   surface-normal-gradient;   // Use surface normal gradient
+      }
+    );
+  };
+};
+```
+
+Explicitly setting `locations volumeCenters;` in preciceDict is required for volume coupling. If omitted, it defaults to surface coupling on `faceCenters`. Volume coupling data is always assumed as values for now, i.e., cannot set volume gradient.
+
+When reading on the OpenFOAM side, the Generic module automatically detects the boundary condition type of the coupled patch to apply the received data. The boundary condition must be respected, therefore the data received is applied either as a `fixedValue` or `fixedGradient` boundary condition, determined by the type set in the `0/` files.
+
+Additionally, the Robin or mixed boundary condition is now supported for scalar surface coupling. The OpenFOAM boundary type `mixed` or `mixedCoded` must be set for the coupled patch in the `0/` files like so:
+
+```cpp
+// File 0/T
+boundaryField
+{
+    interface
+    {
+        type            mixed;
+        refValue        uniform 1;
+        refGradient     uniform 1;
+        valueFraction   uniform 0.5;
+    }
+}
+```
+
+Any of the three fields `refValue`, `refGradient`, and `valueFraction` can be read from another participant (the initial values will be overwritten by the adapter). To do so, specify the `operation` for each coupling data in `preciceDict` as `ref-value`, `ref-gradient`, or `value-fraction`. Be careful when using the `value-fraction` operation, as it is not a physical quantity and must be within the range of [0, 1].
+
+These three operations are only supported for the read side. To write coupling data from a mixed boundary patch, just use the standard `value` or `surface-normal-gradient` operation. The `valueFraction` field of the mixed boundary condition is not exposed by the adapter for writing.
+
+Please note that if you intend to use the `mixed` boundary condition for a heat transfer problem, the `valueFraction` is not the same as the heat transfer coefficient and it's not possible to explicitly set the heat transfer coefficient as a parameter.
+
+Limitations:
+
+- The operation `gradient` is currently only supported for writing scalar fields (resulting to a vector field).
+- The operation `surface-normal-gradient` is currently only supported for surface scalar field writing (resulting to a scalar field).
+- The operation `flip-normal` is supported for all field types across all modules, but the most relevant use case might be for surface scalar fields, in order to change the direction of, e.g., a flux.
 
 ### Volume coupling
 
@@ -428,7 +506,7 @@ This is implemented for all CHT-related fields mapped with a `consistent` constr
 
 ### Notes on subcycling
 
-If it is necessary to subcycle, i.e., do multiple solver time steps per coupling time window, on either the OpenFOAM side or another solver, please consider additional nuances. A good way to start is reading up on subcycling and [waveform time interpolation](https://precice.org/couple-your-code-waveform). Subcycling is *allowed* by preCICE and the OpenFOAM-adapter, but you may obtain different results with subcycling enabled or not depending on your problem and coupling configuration. This has to do with how the subcycling data is modelled in the time-integration of your problem, where the two independent solvers (coupling participants) with non-matching timesteps march forward in time. This depends on the time stepping scheme and the type of physical quantity that you are coupling.
+If it is necessary to subcycle, i.e., do multiple solver time steps per coupling time window, on either the OpenFOAM side or another solver, please consider additional nuances. A good way to start is reading up on subcycling and [waveform time interpolation](https://precice.org/couple-your-code-waveform). Subcycling is allowed by preCICE and the OpenFOAM-adapter, but you may obtain different results with subcycling enabled or not depending on your problem and coupling configuration. This has to do with how the subcycling data is modelled in the time-integration of your problem, where the two independent solvers (coupling participants) with non-matching timesteps march forward in time. This depends on the time stepping scheme and the type of physical quantity that you are coupling.
 
 Currently, when doing subcycling in OpenFOAM on an FSI problem, the OpenFOAM-adapter will give the following warning:
 
@@ -626,3 +704,24 @@ with the adapter configuration file usually named as `precice-adapter-config.yml
 We moved to a OpenFOAM dictionary format in [#105](https://github.com/precice/openfoam-adapter/pull/105),
 to reduce the dependencies. You may also find the [tutorials #69](https://github.com/precice/tutorials/pull/69)
 to be a useful reference (file changes).
+
+## Upcoming changes to the configuration format
+
+We are currently working on porting the adapter configuration file to the new [adapter configuration schema](https://github.com/precice/preeco-orga/tree/main/adapter-config-schema). Since v1.4.0, `readData` and `writeData` support parsing both the new format. Additional options (`solver_name`, `operation` and `flip-normal`) can be specified in the dictionaries. For example, the data `name` as known by preCICE can be different than the `solver_name` known by OpenFOAM. However, the new options are not yet functionally supported by the current modules FF, CHT and FSI. Support for the new options is planned in the Generic module. The legacy word list format is still supported, and both formats can even be mixed:
+
+```cpp
+readData
+(
+    // New dictionary entry
+    Velocity1
+    {
+        name        Velocity;   // Data name as defined in preCICE config
+        solver_name U;          // Optional: Field name in OpenFOAM (defaults to same as 'name')
+        operation   value;      // Optional: Operation to perform on data (defaults to 'value')
+        flip-normal false;      // Optional: Flip the normal direction (defaults to 'false')
+    }
+
+    // Legacy word entry
+    Temperature
+);
+```

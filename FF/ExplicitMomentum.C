@@ -189,7 +189,7 @@ bool preciceAdapter::FF::ExplicitMomentum::isLocationTypeSupported(const bool me
 {
     if (meshConnectivity)
     {
-        return (this->locationType_ == LocationType::faceCenters);
+        return false;
     }
     else
     {
