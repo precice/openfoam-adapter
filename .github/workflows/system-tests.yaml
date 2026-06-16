@@ -5,41 +5,9 @@ on:
     types: [labeled]
 
 jobs:
-  gather-refs:
-    if: ${{ github.event.label.name == 'trigger-system-tests' }}
-    runs-on: ubuntu-latest
-    outputs:
-      ref-tutorials: ${{ steps.ref-tutorials.outputs.shorthash }}
-    steps:
-      - id: ref-tutorials
-        uses: nmbgeek/github-action-get-latest-commit@main
-        with:
-          owner: precice
-          repo: tutorials
-          branch: develop
-      - id: report-refs
-        name: Report Git refs
-        run: |
-          printf 'Tutorials: ${{ steps.ref-tutorials.outputs.shorthash }}\n ${{ steps.ref-tutorials.outputs.description }}\n----------\n'
-      - id: summary
-        name: Prepare Markdown summary
-        run: |
-          echo "### OpenFOAM adapter" >> $GITHUB_STEP_SUMMARY
-          echo "Reference (pull request): \`${{ github.event.pull_request.head.sha }}\`" >> $GITHUB_STEP_SUMMARY
-          echo "Pull request number: [${{ github.event.number }}](https://github.com/precice/openfoam-adapter/pull/${{ github.event.number }})" >> $GITHUB_STEP_SUMMARY
-          echo "### Tutorials" >> $GITHUB_STEP_SUMMARY
-          echo "Reference (develop): [\`${{ steps.ref-tutorials.outputs.shorthash }}\`](https://github.com/precice/tutorials/commit/${{ steps.ref-tutorials.outputs.shorthash }})" >> $GITHUB_STEP_SUMMARY
-          echo "Description:" >> $GITHUB_STEP_SUMMARY
-          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
-          echo "${{ steps.ref-tutorials.outputs.description }}" >> $GITHUB_STEP_SUMMARY
-          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
-
   run-system-tests:
     if: ${{ github.event.label.name == 'trigger-system-tests' }}
-    needs: gather-refs
-    uses: precice/tutorials/.github/workflows/run_testsuite_workflow.yml@develop
+    uses: precice/tutorials/.github/workflows/system-tests.yml@develop
     with:
       suites: openfoam-adapter
-      build_args: TUTORIALS_REF:${{ needs.gather-refs.outputs.ref-tutorials }},PRECICE_REF:v3.4.1,OPENFOAM_EXECUTABLE:openfoam2512,OPENFOAM_ADAPTER_PR:${{ github.event.number }},OPENFOAM_ADAPTER_REF:${{ github.event.pull_request.head.sha }}
-      system_tests_branch: develop
-      log_level: "DEBUG"
+      build_args: OPENFOAM_EXECUTABLE:openfoam2512,OPENFOAM_ADAPTER_PR:${{ github.event.number }},OPENFOAM_ADAPTER_REF:${{ github.event.pull_request.head.sha }}
