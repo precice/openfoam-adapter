@@ -37,6 +37,7 @@ We provide version-specific [release archives](https://github.com/precice/openfo
 - OpenCFD / ESI (openfoam.com) - main focus:
   - [OpenFOAM v1812-v2512](https://github.com/precice/openfoam-adapter) or newer
   - [OpenFOAM v1612-v1806](https://github.com/precice/openfoam-adapter/tree/OpenFOAMv1806) (not tested)
+  - For OpenFOAM v2606, see a [patch (already merged)](https://github.com/precice/openfoam-adapter/pull/410)
 - OpenFOAM Foundation (openfoam.org) - secondary, consider experimental:
   - [OpenFOAM 10](https://github.com/precice/openfoam-adapter/tree/OpenFOAM10)
   - [OpenFOAM 9](https://github.com/precice/openfoam-adapter/tree/OpenFOAM9)

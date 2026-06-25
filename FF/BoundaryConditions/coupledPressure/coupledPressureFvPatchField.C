@@ -56,16 +56,6 @@ Foam::coupledPressureFvPatchField::coupledPressureFvPatchField(
 
 
 Foam::coupledPressureFvPatchField::coupledPressureFvPatchField(
-    const coupledPressureFvPatchField& ptf)
-: fixedFluxExtrapolatedPressureFvPatchScalarField(ptf),
-  refValue_(ptf.refValue_),
-  refGrad_(ptf.refGrad_),
-  valueFraction_(ptf.valueFraction_)
-{
-}
-
-
-Foam::coupledPressureFvPatchField::coupledPressureFvPatchField(
     const coupledPressureFvPatchField& ptf,
     const DimensionedField<Foam::scalar, volMesh>& iF)
 : fixedFluxExtrapolatedPressureFvPatchScalarField(ptf, iF),
