@@ -57,16 +57,6 @@ Foam::coupledVelocityFvPatchField::coupledVelocityFvPatchField(
 
 
 Foam::coupledVelocityFvPatchField::coupledVelocityFvPatchField(
-    const coupledVelocityFvPatchField& ptf)
-: fvPatchField<vector>(ptf),
-  refValue_(ptf.refValue_),
-  refGrad_(ptf.refGrad_),
-  valueFraction_(ptf.valueFraction_)
-{
-}
-
-
-Foam::coupledVelocityFvPatchField::coupledVelocityFvPatchField(
     const coupledVelocityFvPatchField& ptf,
     const DimensionedField<vector, volMesh>& iF)
 : fvPatchField<vector>(ptf, iF),
