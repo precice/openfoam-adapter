@@ -1,6 +1,7 @@
 ---
 title: Get the OpenFOAM adapter
 permalink: adapter-openfoam-get.html
+url: /adapter-openfoam-get.html
 keywords: adapter, openfoam, building
 summary: "Get the code from GitHub and run ./Allwmake. If this fails, look into wmake.log and ldd.log."
 ---

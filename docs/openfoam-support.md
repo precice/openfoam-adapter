@@ -1,6 +1,7 @@
 ---
 title: OpenFOAM support
 permalink: adapter-openfoam-support.html
+url: /adapter-openfoam-support.html
 keywords: adapter, openfoam, support, versions
 summary: Recent OpenFOAM.com versions work out-of-the-box. Recent OpenFOAM.org versions are also supported, but you will need a version-specific branch.
 ---
