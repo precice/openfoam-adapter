@@ -1,7 +1,8 @@
 ---
 title: Configure the OpenFOAM adapter
 permalink: adapter-openfoam-config.html
-url: /adapter-openfoam-config.html
+aliases:
+  - /adapter-openfoam-config.html
 keywords: adapter, openfoam, configuration, preciceDict, controlDict
 summary: "Write a system/preciceDict, set compatible boundary conditions, and activate the adapter in your system/controlDict."
 ---
