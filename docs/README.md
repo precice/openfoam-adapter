@@ -1,10 +1,10 @@
 ---
 title: The OpenFOAM adapter
 permalink: adapter-openfoam-overview.html
-url: /adapter-openfoam-overview.html
-redirect_from: adapter-openfoam.html
 aliases:
+  - /adapter-openfoam-overview.html
   - /adapter-openfoam.html
+redirect_from: adapter-openfoam.html
 keywords: adapter, openfoam, cite, versions
 summary: An OpenFOAM function object for CHT, FSI, and fluid-fluid coupled simulations using preCICE.
 ---
