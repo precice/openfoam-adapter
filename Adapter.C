@@ -887,6 +887,7 @@ void preciceAdapter::Adapter::setupCheckpointing()
 {
     SETUP_TIMER();
 
+#ifdef ADAPTER_ENABLE_LAGRANGIAN
     // Lagrangian particle checkpoint setup
     activeKinematicClouds_.clear();
     activeThermoClouds_.clear();
@@ -929,6 +930,7 @@ void preciceAdapter::Adapter::setupCheckpointing()
         backupReactingMultiphaseParcelsLists_.resize(activeReactingMultiphaseClouds_.size());
         backupKinematicCollidingParcelsLists_.resize(activeKinematicCollidingClouds_.size());
     }
+#endif
 
     // Add fields in the checkpointing list - sorted for parallel consistency
     DEBUG(adapterInfo("Adding in checkpointed fields..."));
@@ -1312,6 +1314,7 @@ void preciceAdapter::Adapter::readCheckpoint()
         }
     }
 
+#ifdef ADAPTER_ENABLE_LAGRANGIAN
     // Lagrangian particle checkpoint read; restore state
     if (lagrangianCheckPointed_)
     {
@@ -1341,6 +1344,7 @@ void preciceAdapter::Adapter::readCheckpoint()
 
 #undef restoreCloudType
     }
+#endif
 
     // NOTE: Add here other field types to read, if needed.
 
@@ -1427,6 +1431,7 @@ void preciceAdapter::Adapter::writeCheckpoint()
         *(pointTensorFieldCopies_.at(i)) == *(pointTensorFields_.at(i));
     }
 
+#ifdef ADAPTER_ENABLE_LAGRANGIAN
     // Lagrangian particle checkpoint write; save current state
     if (lagrangianCheckPointed_)
     {
@@ -1456,6 +1461,7 @@ void preciceAdapter::Adapter::writeCheckpoint()
 
 #undef backupCloudType
     }
+#endif
 
     // NOTE: Add here other types to write, if needed.
 
@@ -1670,6 +1676,7 @@ void preciceAdapter::Adapter::teardown()
         Generic_ = nullptr;
     }
 
+#ifdef ADAPTER_ENABLE_LAGRANGIAN
     // Delete Lagrangian particle backups
 #undef teardownCloudType
 #define teardownCloudType(ActiveList, BackupList) \
@@ -1687,6 +1694,7 @@ void preciceAdapter::Adapter::teardown()
     teardownCloudType(activeKinematicCollidingClouds_, backupKinematicCollidingParcelsLists_);
 
 #undef teardownCloudType
+#endif
     // NOTE: Delete your new module here
 
     return;

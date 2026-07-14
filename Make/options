@@ -1,15 +1,6 @@
 EXE_INC = \
     -I$(LIB_SRC)/finiteVolume/lnInclude \
-    -I$(LIB_SRC)/finiteArea/lnInclude \
-    -I$(LIB_SRC)/faOptions/lnInclude \
-    -I$(LIB_SRC)/lagrangian/basic/lnInclude \
-    -I$(LIB_SRC)/lagrangian/intermediate/lnInclude \
-    -I$(LIB_SRC)/lagrangian/distributionModels/lnInclude \
     -I$(LIB_SRC)/meshTools/lnInclude \
-    -I$(LIB_SRC)/regionModels/lnInclude \
-    -I$(LIB_SRC)/regionModels/regionModel/lnInclude \
-    -I$(LIB_SRC)/regionModels/surfaceFilmModels/lnInclude \
-    -I$(LIB_SRC)/regionFaModels/lnInclude \
     -I$(LIB_SRC)/transportModels/ \
     -I$(LIB_SRC)/transportModels/incompressible/lnInclude \
     -I$(LIB_SRC)/transportModels/compressible/lnInclude \
@@ -17,14 +8,11 @@ EXE_INC = \
     -I$(LIB_SRC)/transportModels/interfaceProperties/lnInclude \
     -I$(LIB_SRC)/transportModels/immiscibleIncompressibleTwoPhaseMixture/lnInclude \
     -I$(LIB_SRC)/thermophysicalModels/basic/lnInclude \
-    -I$(LIB_SRC)/thermophysicalModels/SLGThermo/lnInclude \
-    -I$(LIB_SRC)/thermophysicalModels/specie/lnInclude \
-    -I$(LIB_SRC)/thermophysicalModels/thermophysicalProperties/lnInclude \
-    -I$(LIB_SRC)/thermophysicalModels/reactionThermo/lnInclude \
     -I$(LIB_SRC)/TurbulenceModels/turbulenceModels/lnInclude \
     -I$(LIB_SRC)/TurbulenceModels/compressible/lnInclude \
     -I$(LIB_SRC)/TurbulenceModels/incompressible/lnInclude \
     -I$(LIB_SRC)/triSurface/lnInclude \
+    $(ADAPTER_LAGRANGIAN_INC) \
     $(ADAPTER_PKG_CONFIG_CFLAGS) \
     -I../ \
     $(ADAPTER_CFLAGS)
@@ -35,15 +23,6 @@ LIB_LIBS = \
     -lcompressibleTurbulenceModels \
     -lincompressibleTurbulenceModels \
     -limmiscibleIncompressibleTwoPhaseMixture \
-    -llagrangian \
-    -llagrangianIntermediate \
-    -lspecie \
-    -lSLGThermo \
-    -lregionModels \
-    -lsurfaceFilmModels \
-    -lreactionThermophysicalModels \
-    -lthermophysicalProperties \
-    -lregionFaModels \
-    -lfiniteArea \
+    $(ADAPTER_LAGRANGIAN_LIBS) \
     $(ADAPTER_PKG_CONFIG_LIBS) \
     -lprecice

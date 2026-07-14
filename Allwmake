@@ -6,6 +6,7 @@ set -e -u
 # Optional: Preprocessor flags
 # "-DADAPTER_DEBUG_MODE" enables debug messages
 # "-DADAPTER_ENABLE_TIMINGS" enables time measurements
+# "-DADAPTER_ENABLE_LAGRANGIAN" enables lagrangian particle support
 ADAPTER_CFLAGS="${PRECICE_OPENFOAM_CFLAGS:-}"
 
 # Build command and options
@@ -13,8 +14,10 @@ ADAPTER_CFLAGS="${PRECICE_OPENFOAM_CFLAGS:-}"
 # e.g., add "export WM_NCOMPPROCS=4" to your ~/.bashrc
 # Make sure that these options are supported by your OpenFOAM version.
 adapter_build_command(){
-    log "Building implicit injectors..."
-    wmake libso implicitInjectionWrapper/
+    if [ "${ADAPTER_ENABLE_LAGRANGIAN:-0}" = "1" ]; then
+        log "Building implicit injectors..."
+        wmake libso implicitInjectionWrapper/
+    fi
 
     log "Building preCICE adapter..."
     wmake libso
@@ -40,6 +43,19 @@ warning() {
 
 # Information header
 log "Building the OpenFOAM-preCICE adapter..."
+
+# Check if the user opted into Lagrangian particle features
+if [ "${ADAPTER_ENABLE_LAGRANGIAN:-0}" = "1" ]; then
+    log "Enabling Lagrangian particle tracking support..."
+    export ADAPTER_CFLAGS="${ADAPTER_CFLAGS} -DADAPTER_ENABLE_LAGRANGIAN"
+
+    # export these variables so Make/options can link to them dynamically
+    export ADAPTER_LAGRANGIAN_INC="-I\$(LIB_SRC)/finiteArea/lnInclude -I\$(LIB_SRC)/faOptions/lnInclude -I\$(LIB_SRC)/lagrangian/basic/lnInclude -I\$(LIB_SRC)/lagrangian/intermediate/lnInclude -I\$(LIB_SRC)/lagrangian/distributionModels/lnInclude -I\$(LIB_SRC)/regionModels/lnInclude -I\$(LIB_SRC)/regionModels/regionModel/lnInclude -I\$(LIB_SRC)/regionModels/surfaceFilmModels/lnInclude -I\$(LIB_SRC)/regionFaModels/lnInclude -I\$(LIB_SRC)/thermophysicalModels/SLGThermo/lnInclude -I\$(LIB_SRC)/thermophysicalModels/specie/lnInclude -I\$(LIB_SRC)/thermophysicalModels/thermophysicalProperties/lnInclude -I\$(LIB_SRC)/thermophysicalModels/reactionThermo/lnInclude"
+    export ADAPTER_LAGRANGIAN_LIBS="-llagrangian -llagrangianIntermediate -lspecie -lSLGThermo -lregionModels -lsurfaceFilmModels -lreactionThermophysicalModels -lthermophysicalProperties -lregionFaModels -lfiniteArea"
+else
+    export ADAPTER_LAGRANGIAN_INC=""
+    export ADAPTER_LAGRANGIAN_LIBS=""
+fi
 
 # Export the environment variables
 export ADAPTER_CFLAGS

@@ -15,11 +15,13 @@
 #include "module-generic/Generic.H"
 
 // Lagrangian particle checkpointing includes
+#ifdef ADAPTER_ENABLE_LAGRANGIAN
 #include "basicThermoCloud.H"
 #include "basicReactingCloud.H"
 #include "basicReactingMultiphaseCloud.H"
 #include "basicKinematicCloud.H"
 #include "basicKinematicCollidingCloud.H"
+#endif
 
 // NOTE: If you want to couple a new variable, include your module's header here.
 // You also need to include it in the Make/files file.
@@ -115,8 +117,10 @@ private:
     //- Switch to enable the FluidFluid module
     bool FFenabled_ = false;
 
+#ifdef ADAPTER_ENABLE_LAGRANGIAN
     //- Switch for Lagrangian particle checkpointing
     bool lagrangianCheckPointed_ = false;
+#endif
 
     // NOTE: Add a switch for your new module here
 
@@ -155,7 +159,7 @@ private:
     double timestepStored_;
 
     // Lagrangian particle cloud pointers
-
+#ifdef ADAPTER_ENABLE_LAGRANGIAN
     //- Pointer to all active particle clouds
     std::vector<Foam::basicThermoCloud*> activeThermoClouds_;
     std::vector<Foam::basicReactingCloud*> activeReactingClouds_;
@@ -169,6 +173,7 @@ private:
     std::vector<std::vector<Foam::autoPtr<Foam::basicReactingMultiphaseCloud::particleType>>> backupReactingMultiphaseParcelsLists_;
     std::vector<std::vector<Foam::autoPtr<Foam::basicKinematicCloud::particleType>>> backupKinematicParcelsLists_;
     std::vector<std::vector<Foam::autoPtr<Foam::basicKinematicCollidingCloud::particleType>>> backupKinematicCollidingParcelsLists_;
+#endif
 
     // Checkpointing
 
