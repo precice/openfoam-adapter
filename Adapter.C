@@ -896,6 +896,7 @@ void preciceAdapter::Adapter::setupCheckpointing()
 
     // macro to loop over all names of the cloud type, define a cloud pointer, and populate
     // the activeCloud vector with the pointer contents for a given cloud type
+    DEBUG(adapterInfo("Adding in checkpointed clouds..."));
 
 #undef setupCloudType
 #define setupCloudType(CloudType, ActiveList)                                                                             \
