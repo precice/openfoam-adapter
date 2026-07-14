@@ -42,10 +42,12 @@ Description
     implicit coupling.
 
     Derived from native InjectionModels (v2412) to support Eulerian-Lagrangian 
-    implicit coupling. Explicitly handles memory lobotomization, 
+    implicit coupling. Explicitly handles injection memory removal, 
     delayedVolume_ fractional mass caching, time0_ and timeStep0_ caching,
     and rndGen() seed restoration during preCICE sub-iteration rewinds to
     ensure strict mass conservation and eliminate Monte Carlo noise.
+
+    Native OpenFOAM InjectionModels found here: https://gitlab.com/openfoam/core/openfoam/-/tree/OpenFOAM-v2412/src/lagrangian/intermediate/submodels/Kinematic/InjectionModel
 
 SourceFiles
     implicitInjectionWrapper.C
