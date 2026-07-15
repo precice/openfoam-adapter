@@ -4,12 +4,12 @@ This library is provided in addition to the OpenFOAM preCICE adapter in order to
 
 ## Source Files
 
-implicitInjectionWrapper.H - a wrapper template class used to override the prepareForNextTimeStep function from the native OpenFOAM InjectionModel class for every InjectionModel type. This creates "implicit" versions of the native OpenFOAM InjectionModel types (implicitPatchInjection, implicitConeNozzleInjection, implicitManualInjection, etc.) that support checkpoint logic from preCICE implicit coupling.
-makeImplicitInjectorsKinematic.C - uses macro defined in implicitInjectionWrapper.H to create wrapped template classes for implicitPatchInjection, implicitConeNozzleInjection, and implicitManualInjection types registered to the basicKinematicCloud type
-makeImplicitInjectorsKinematicColliding.C - uses macro defined in implicitInjectionWrapper.H to create wrapped template classes for implicitPatchInjection, implicitConeNozzleInjection, and implicitManualInjection types registered to the basicKinematicCollidingCloud type
-makeImplicitInjectorsReacting.C - uses macro defined in implicitInjectionWrapper.H to create wrapped template classes for implicitPatchInjection, implicitConeNozzleInjection, and implicitManualInjection types registered to the basicReactingCloud type
-makeImplicitInjectorsReactingMultiphase.C - uses macro defined in implicitInjectionWrapper.H to create wrapped template classes for implicitPatchInjection, implicitConeNozzleInjection, and implicitManualInjection types registered to the basicReactingMultiphaseCloud type
-makeImplicitInjectorsThermo.C - uses macro defined in implicitInjectionWrapper.H to create wrapped template classes for implicitPatchInjection, implicitConeNozzleInjection, and implicitManualInjection types registered to the basicThermoCloud type
+- `implicitInjectionWrapper.H` - a wrapper template class used to override the `prepareForNextTimeStep` function from the native OpenFOAM `InjectionModel` class for every `InjectionModel` type. This creates "implicit" versions of the native OpenFOAM InjectionModel types (`implicitPatchInjection`, `implicitConeNozzleInjection`, `implicitManualInjection`, etc.) that support checkpoint logic from preCICE implicit coupling.
+- `makeImplicitInjectorsKinematic.C` - uses macro defined in `implicitInjectionWrapper.H` to create wrapped template classes for `implicitPatchInjection`, `implicitConeNozzleInjection`, and `implicitManualInjection` types registered to the `basicKinematicCloud` type
+- `makeImplicitInjectorsKinematicColliding.C` - uses macro defined in `implicitInjectionWrapper.H` to create wrapped template classes for `implicitPatchInjection`, `implicitConeNozzleInjection`, and `implicitManualInjection` types registered to the `basicKinematicCollidingCloud` type
+- `makeImplicitInjectorsReacting.C` - uses macro defined in `implicitInjectionWrapper.H` to create wrapped template classes for `implicitPatchInjection`, `implicitConeNozzleInjection`, and `implicitManualInjection` types registered to the `basicReactingCloud` type
+- `makeImplicitInjectorsReactingMultiphase.C` - uses macro defined in `implicitInjectionWrapper.H` to create wrapped template classes for `implicitPatchInjection`, `implicitConeNozzleInjection`, and `implicitManualInjection` types registered to the `basicReactingMultiphaseCloud` type
+- `makeImplicitInjectorsThermo.C` - uses macro defined in `implicitInjectionWrapper.H` to create wrapped template classes for `implicitPatchInjection`, `implicitConeNozzleInjection`, and `implicitManualInjection` types registered to the `basicThermoCloud` type
 
 ## User-Guide
 
