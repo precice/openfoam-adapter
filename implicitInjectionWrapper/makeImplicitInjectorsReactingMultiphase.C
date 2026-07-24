@@ -5,6 +5,7 @@
 #include "PatchInjection.H"
 #include "ConeNozzleInjection.H"
 #include "ManualInjection.H"
+#include "CellZoneInjection.H"
 
 //- Utilities
 #include "implicitInjectionWrapper.H"
@@ -15,9 +16,11 @@ namespace Foam
 DEFINE_IMPLICIT_INJECTOR(implicitPatchInjection, PatchInjection);
 DEFINE_IMPLICIT_INJECTOR(implicitConeNozzleInjection, ConeNozzleInjection);
 DEFINE_IMPLICIT_INJECTOR(implicitManualInjection, ManualInjection);
+DEFINE_IMPLICIT_INJECTOR(implicitCellZoneInjection, CellZoneInjection);
 
 //- Register for basicReactingMultiphaseCloud
 makeInjectionModelType(implicitPatchInjection, basicReactingMultiphaseCloud);
 makeInjectionModelType(implicitConeNozzleInjection, basicReactingMultiphaseCloud);
 makeInjectionModelType(implicitManualInjection, basicReactingMultiphaseCloud);
+makeInjectionModelType(implicitCellZoneInjection, basicReactingMultiphaseCloud);
 }

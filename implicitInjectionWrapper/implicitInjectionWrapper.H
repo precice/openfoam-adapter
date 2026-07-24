@@ -37,7 +37,7 @@ Description
     from the InjectionModel class for every InjectionModel type.
 
     This creates "implicit" versions of the native OpenFOAM InjectionModel
-    types (implicitPatchInjection, implicitConeNozzleInjection,
+    types (implicitPatchInjection, implicitConeNozzleInjection, implicitCellZoneInjection,
     implicitManualInjection, etc.) that support time-rewind from preCICE
     implicit coupling.
 
