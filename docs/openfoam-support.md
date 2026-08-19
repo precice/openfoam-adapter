@@ -9,14 +9,14 @@ summary: Recent OpenFOAM.com versions work out-of-the-box. Recent OpenFOAM.org v
 
 ## How to get OpenFOAM
 
-The easiest way to start is to get binary packages for your Linux distribution. For example, to [get OpenFOAM v2512 on Ubuntu](https://gitlab.com/openfoam/core/openfoam/-/wikis/precompiled/debian):
+The easiest way to start is to get binary packages for your Linux distribution. For example, to [get OpenFOAM v2606 on Ubuntu](https://gitlab.com/openfoam/core/openfoam/-/wikis/precompiled/debian):
 
 ```bash
 # Add the signing key, add the repository, update:
 wget -q -O - https://dl.openfoam.com/add-debian-repo.sh | sudo bash
 
-# Install OpenFOAM v2512:
-sudo apt-get install openfoam2512-dev
+# Install OpenFOAM v2606:
+sudo apt-get install openfoam2606-dev
 ```
 
 As these steps change your `.profile`, you need to log out and in again to make OpenFOAM fully discoverable.
@@ -36,9 +36,10 @@ Currently, and since v1.3.0 of the adapter (first one for preCICE v3), only the 
 We provide version-specific [release archives](https://github.com/precice/openfoam-adapter/releases/latest) and respective Git branches for:
 
 - OpenCFD / ESI (openfoam.com) - main focus:
-  - [OpenFOAM v1812-v2512](https://github.com/precice/openfoam-adapter) or newer
+  - [OpenFOAM v1812-v2606](https://github.com/precice/openfoam-adapter) or newer
+    - See [compatibility changes and from v2512 to v2606](https://github.com/precice/openfoam-adapter/pull/410)
+    - See [expected results differences in FSI cases (mesh motion) with OpenFOAM v2606](https://github.com/precice/openfoam-adapter/pull/411)
   - [OpenFOAM v1612-v1806](https://github.com/precice/openfoam-adapter/tree/OpenFOAMv1806) (not tested)
-  - For OpenFOAM v2606, see a [patch (already merged)](https://github.com/precice/openfoam-adapter/pull/410)
 - OpenFOAM Foundation (openfoam.org) - secondary, consider experimental:
   - [OpenFOAM 10](https://github.com/precice/openfoam-adapter/tree/OpenFOAM10)
   - [OpenFOAM 9](https://github.com/precice/openfoam-adapter/tree/OpenFOAM9)
@@ -67,6 +68,7 @@ The following table gives an overview, including versions that we do not support
 
 | version     | 24.04 | 22.04 | 20.04 | 18.04 |
 | ---         | ---   | ---   | ---   | ---   |
+| (com) v2606 | x     | x     | x     | x     |
 | (com) v2512 | x     | x     | x     | x     |
 | (com) v2506 | x     | x     | x     | x     |
 | (com) v2412 | x     | x     | x     | x     |
