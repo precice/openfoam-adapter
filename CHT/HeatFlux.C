@@ -1,7 +1,6 @@
 #include "HeatFlux.H"
-#include "primitivePatchInterpolation.H"
 
-#include "fvCFD.H"
+#include "OpenFOAMCompatibility.H"
 
 using namespace Foam;
 
@@ -38,7 +37,7 @@ std::size_t preciceAdapter::CHT::HeatFlux::write(double* buffer, bool meshConnec
         if (meshConnectivity)
         {
             //Setup Interpolation object
-            primitivePatchInterpolation patchInterpolator(mesh_.boundaryMesh()[patchID]);
+            primitivePatchInterpolation patchInterpolator(mesh_.boundary()[patchID].poly());
 
             scalarField gradientPoints;
 

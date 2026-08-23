@@ -28,7 +28,7 @@ void preciceAdapter::FSI::DisplacementDelta::initialize()
         for (unsigned int j = 0; j < patchIDs_.size(); ++j)
         {
             const unsigned int patchID = patchIDs_.at(j);
-            interpolationObjects_.emplace_back(new primitivePatchInterpolation(mesh_.boundaryMesh()[patchID]));
+            interpolationObjects_.emplace_back(new primitivePatchInterpolation(mesh_.boundary()[patchID].poly()));
         }
     }
 }

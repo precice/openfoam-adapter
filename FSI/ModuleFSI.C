@@ -5,3 +5,4 @@
 #include "Stress.C"
 #include "Displacement.C"
 #include "DisplacementDelta.C"
+#include "Velocity.C"

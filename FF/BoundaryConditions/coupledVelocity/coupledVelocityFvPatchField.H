@@ -33,7 +33,7 @@ SourceFiles
 #define coupledVelocityFvPatchField_H
 
 #include "fvPatchFields.H"
-#include "fvCFD.H"
+#include "OpenFOAMCompatibility.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -72,12 +72,12 @@ public:
     //- Construct from patch and internal field
     coupledVelocityFvPatchField(
         const fvPatch&,
-        const DimensionedField<vector, volMesh>&);
+        const DimensionedField<vector, fvMesh>&);
 
     //- Construct from patch, internal field and dictionary
     coupledVelocityFvPatchField(
         const fvPatch&,
-        const DimensionedField<vector, volMesh>&,
+        const DimensionedField<vector, fvMesh>&,
         const dictionary&);
 
     //- Construct by mapping the given coupledVelocityFvPatchField
@@ -85,7 +85,7 @@ public:
     coupledVelocityFvPatchField(
         const coupledVelocityFvPatchField&,
         const fvPatch&,
-        const DimensionedField<vector, volMesh>&,
+        const DimensionedField<vector, fvMesh>&,
         const fvPatchFieldMapper&);
 
     //- Disallow copy without setting internal field reference
@@ -95,11 +95,11 @@ public:
     //- Construct as copy setting internal field reference
     coupledVelocityFvPatchField(
         const coupledVelocityFvPatchField&,
-        const DimensionedField<vector, volMesh>&);
+        const DimensionedField<vector, fvMesh>&);
 
     //- Construct and return a clone setting internal field reference
     virtual tmp<fvPatchField<vector>> clone(
-        const DimensionedField<vector, volMesh>& iF) const
+        const DimensionedField<vector, fvMesh>& iF) const
     {
         return tmp<fvPatchField<vector>>(
             new coupledVelocityFvPatchField(*this, iF));

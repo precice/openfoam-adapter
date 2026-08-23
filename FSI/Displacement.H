@@ -3,9 +3,8 @@
 
 #include "CouplingDataUser.H"
 
-#include "fvCFD.H"
+#include "OpenFOAMCompatibility.H"
 #include "fixedValuePointPatchFields.H"
-#include "primitivePatchInterpolation.H"
 
 namespace preciceAdapter
 {

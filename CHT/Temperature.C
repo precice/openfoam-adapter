@@ -1,5 +1,4 @@
 #include "Temperature.H"
-#include "primitivePatchInterpolation.H"
 
 
 using namespace Foam;
@@ -56,7 +55,7 @@ std::size_t preciceAdapter::CHT::Temperature::write(double* buffer, bool meshCon
         if (meshConnectivity)
         {
             //Create an Interpolation object at the boundary Field
-            primitivePatchInterpolation patchInterpolator(mesh_.boundaryMesh()[patchID]);
+            primitivePatchInterpolation patchInterpolator(mesh_.boundary()[patchID].poly());
 
             //Interpolate from centers to nodes
             scalarField TPoints(
@@ -90,7 +89,7 @@ void preciceAdapter::CHT::Temperature::read(double* buffer, const unsigned int d
     {
         if (cellSetNames_.empty())
         {
-            for (auto& cell : T_->ref())
+            for (auto& cell : T_->internalFieldRef())
             {
                 cell = buffer[bufferIndex++];
             }
@@ -105,7 +104,7 @@ void preciceAdapter::CHT::Temperature::read(double* buffer, const unsigned int d
                 for (const auto& currentCell : cells)
                 {
                     // Copy temperature into the buffer
-                    T_->ref()[currentCell] = buffer[bufferIndex++];
+                    T_->internalFieldRef()[currentCell] = buffer[bufferIndex++];
                 }
             }
         }

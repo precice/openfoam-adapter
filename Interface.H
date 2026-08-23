@@ -3,7 +3,7 @@
 
 #include <string>
 #include <vector>
-#include "fvCFD.H"
+#include "OpenFOAMCompatibility.H"
 #include "CouplingDataUser.H"
 #include <precice/precice.hpp>
 

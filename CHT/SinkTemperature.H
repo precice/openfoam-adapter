@@ -3,7 +3,7 @@
 
 #include "CouplingDataUser.H"
 #include "mixedFvPatchFields.H"
-#include "fvCFD.H"
+#include "OpenFOAMCompatibility.H"
 
 namespace preciceAdapter
 {

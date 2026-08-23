@@ -10,7 +10,7 @@ preciceAdapter::FSI::Stress::Stress(
     Stress_ = new volVectorField(
         IOobject(
             "Stress",
-            mesh_.time().timeName(),
+            mesh_.time().timeName(mesh_.time().value()),
             mesh,
             IOobject::NO_READ,
             IOobject::AUTO_WRITE),

@@ -3,7 +3,7 @@
 
 #include "CouplingDataUser.H"
 
-#include "fvCFD.H"
+#include "OpenFOAMCompatibility.H"
 #include "cellSet.H"
 
 namespace preciceAdapter

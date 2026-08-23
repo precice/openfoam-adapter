@@ -8,7 +8,7 @@
 
 Foam::coupledVelocityFvPatchField::coupledVelocityFvPatchField(
     const fvPatch& p,
-    const DimensionedField<vector, volMesh>& iF)
+    const DimensionedField<vector, fvMesh>& iF)
 : fvPatchField<vector>(p, iF),
   refValue_(p.size(), Zero),
   refGrad_(p.size(), Zero),
@@ -19,7 +19,7 @@ Foam::coupledVelocityFvPatchField::coupledVelocityFvPatchField(
 
 Foam::coupledVelocityFvPatchField::coupledVelocityFvPatchField(
     const fvPatch& p,
-    const DimensionedField<vector, volMesh>& iF,
+    const DimensionedField<vector, fvMesh>& iF,
     const dictionary& dict)
 : fvPatchField<vector>(p, iF),
   refValue_("refValue", dict, p.size()),
@@ -46,7 +46,7 @@ Foam::coupledVelocityFvPatchField::coupledVelocityFvPatchField(
 Foam::coupledVelocityFvPatchField::coupledVelocityFvPatchField(
     const coupledVelocityFvPatchField& ptf,
     const fvPatch& p,
-    const DimensionedField<vector, volMesh>& iF,
+    const DimensionedField<vector, fvMesh>& iF,
     const fvPatchFieldMapper& mapper)
 : fvPatchField<vector>(ptf, p, iF, mapper)
 {
@@ -58,7 +58,7 @@ Foam::coupledVelocityFvPatchField::coupledVelocityFvPatchField(
 
 Foam::coupledVelocityFvPatchField::coupledVelocityFvPatchField(
     const coupledVelocityFvPatchField& ptf,
-    const DimensionedField<vector, volMesh>& iF)
+    const DimensionedField<vector, fvMesh>& iF)
 : fvPatchField<vector>(ptf, iF)
 {
     this->refValue() = ptf.refValue_;

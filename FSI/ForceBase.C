@@ -25,7 +25,7 @@ preciceAdapter::FSI::ForceBase::ForceBase(
 }
 
 // Calculate viscous force
-Foam::tmp<Foam::volSymmTensorField> preciceAdapter::FSI::ForceBase::devRhoReff() const
+Foam::tmp<Foam::surfaceVectorField> preciceAdapter::FSI::ForceBase::devTau() const
 {
     //For turbulent flows
     typedef compressibleMomentumTransportModel cmpTurbModel;
@@ -43,17 +43,25 @@ Foam::tmp<Foam::volSymmTensorField> preciceAdapter::FSI::ForceBase::devRhoReff()
         const icoTurbModel& turb =
             mesh_.lookupObject<icoTurbModel>(icoTurbModel::typeName);
 
-        return rho() * turb.devSigma();
+        return fvc::interpolate(rho()) * turb.devSigma();
     }
     else
     {
         // For laminar flows get the velocity
         const volVectorField& U = mesh_.lookupObject<volVectorField>("U");
+        const surfaceScalarField muEffI(fvc::interpolate(mu()));
 
-        return -mu() * dev(twoSymm(fvc::grad(U)));
+        return surfaceVectorField::New
+        (
+            "devTau",
+           -muEffI
+           *(
+               fvc::dotInterpolate(mesh_.nf(), dev2(T(fvc::grad(U))))
+             + fvc::snGrad(U)
+            )
+        );
     }
 }
-
 // lookup correct rho
 Foam::tmp<Foam::volScalarField> preciceAdapter::FSI::ForceBase::rho() const
 {
@@ -73,7 +81,7 @@ Foam::tmp<Foam::volScalarField> preciceAdapter::FSI::ForceBase::rho() const
             new volScalarField(
                 IOobject(
                     "rho",
-                    mesh_.time().timeName(),
+                    mesh_.time().timeName(mesh_.time().value()),
                     mesh_,
                     IOobject::NO_READ,
                     IOobject::NO_WRITE),
@@ -135,9 +143,9 @@ std::size_t preciceAdapter::FSI::ForceBase::writeToBuffer(double* buffer,
 {
     // Compute forces. See the Forces function object.
     // Stress tensor boundary field
-    tmp<volSymmTensorField> tdevRhoReff(devRhoReff());
-    const volSymmTensorField::Boundary& devRhoReffb(
-        tdevRhoReff().boundaryField());
+    tmp<surfaceVectorField> tdevTau(devTau());
+    const surfaceVectorField::Boundary& devRhoReffb(
+        tdevTau().boundaryField());
 
     // Density boundary field
     tmp<volScalarField> trho(rho());
@@ -176,7 +184,7 @@ std::size_t preciceAdapter::FSI::ForceBase::writeToBuffer(double* buffer,
 
         // Viscous forces
         forceField.boundaryFieldRef()[patchID] +=
-            surface & devRhoReffb[patchID];
+            mesh_.magSf().boundaryField()[patchID] * devRhoReffb[patchID];
 
         // Write the forces to the preCICE buffer
         // For every cell of the patch

@@ -25,7 +25,7 @@ preciceAdapter::FF::Velocity::Velocity(
         U_ = new volVectorField(
             IOobject(
                 nameU,
-                mesh.time().timeName(),
+                mesh.time().timeName(mesh.time().value()),
                 mesh,
                 IOobject::MUST_READ,
                 IOobject::AUTO_WRITE),
@@ -129,7 +129,7 @@ void preciceAdapter::FF::Velocity::read(double* buffer, const unsigned int dim)
     {
         if (cellSetNames_.empty())
         {
-            for (auto& cell : U_->ref())
+            for (auto& cell : U_->internalFieldRef())
             {
                 // x-dimension
                 cell.x() = buffer[bufferIndex++];
@@ -154,15 +154,15 @@ void preciceAdapter::FF::Velocity::read(double* buffer, const unsigned int dim)
                 for (const auto& currentCell : cells)
                 {
                     // x-dimension
-                    U_->ref()[currentCell].x() = buffer[bufferIndex++];
+                    U_->internalFieldRef()[currentCell].x() = buffer[bufferIndex++];
 
                     // y-dimension
-                    U_->ref()[currentCell].y() = buffer[bufferIndex++];
+                    U_->internalFieldRef()[currentCell].y() = buffer[bufferIndex++];
 
                     if (dim == 3)
                     {
                         // z-dimension
-                        U_->ref()[currentCell].z() = buffer[bufferIndex++];
+                        U_->internalFieldRef()[currentCell].z() = buffer[bufferIndex++];
                     }
                 }
             }

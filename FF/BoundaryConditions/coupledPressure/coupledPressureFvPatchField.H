@@ -74,12 +74,12 @@ public:
     //- Construct from patch and internal field
     coupledPressureFvPatchField(
         const fvPatch&,
-        const DimensionedField<Foam::scalar, volMesh>&);
+        const DimensionedField<Foam::scalar, fvMesh>&);
 
     //- Construct from patch, internal field and dictionary
     coupledPressureFvPatchField(
         const fvPatch&,
-        const DimensionedField<Foam::scalar, volMesh>&,
+        const DimensionedField<Foam::scalar, fvMesh>&,
         const dictionary&,
         const bool valueRequired = true);
 
@@ -88,7 +88,7 @@ public:
     coupledPressureFvPatchField(
         const coupledPressureFvPatchField&,
         const fvPatch&,
-        const DimensionedField<Foam::scalar, volMesh>&,
+        const DimensionedField<Foam::scalar, fvMesh>&,
         const fvPatchFieldMapper&);
 
     //- Disallow copy without setting internal field reference
@@ -98,11 +98,11 @@ public:
     //- Construct as copy setting internal field reference
     coupledPressureFvPatchField(
         const coupledPressureFvPatchField&,
-        const DimensionedField<Foam::scalar, volMesh>&);
+        const DimensionedField<Foam::scalar, fvMesh>&);
 
     //- Construct and return a clone setting internal field reference
     virtual tmp<fvPatchScalarField> clone(
-        const DimensionedField<Foam::scalar, volMesh>& iF) const
+        const DimensionedField<Foam::scalar, fvMesh>& iF) const
     {
         return tmp<fvPatchScalarField>(
             new coupledPressureFvPatchField(*this, iF));

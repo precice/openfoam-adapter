@@ -7,8 +7,8 @@
 
 Foam::coupledPressureFvPatchField::coupledPressureFvPatchField(
     const fvPatch& p,
-    const DimensionedField<Foam::scalar, volMesh>& iF)
-: fixedFluxExtrapolatedPressureFvPatchScalarField(p, iF),
+    const DimensionedField<Foam::scalar, fvMesh>& iF)
+: fixedFluxExtrapolatedPressureFvPatchScalarField(p, iF, dictionary()),
   refValue_(p.size(), Zero),
   refGrad_(p.size(), Zero),
   valueFraction_(p.size(), Zero)
@@ -18,7 +18,7 @@ Foam::coupledPressureFvPatchField::coupledPressureFvPatchField(
 
 Foam::coupledPressureFvPatchField::coupledPressureFvPatchField(
     const fvPatch& p,
-    const DimensionedField<Foam::scalar, volMesh>& iF,
+    const DimensionedField<Foam::scalar, fvMesh>& iF,
     const dictionary& dict,
     const bool valueRequired)
 : fixedFluxExtrapolatedPressureFvPatchScalarField(p, iF, dict),
@@ -41,27 +41,18 @@ Foam::coupledPressureFvPatchField::coupledPressureFvPatchField(
 Foam::coupledPressureFvPatchField::coupledPressureFvPatchField(
     const coupledPressureFvPatchField& ptf,
     const fvPatch& p,
-    const DimensionedField<Foam::scalar, volMesh>& iF,
+    const DimensionedField<Foam::scalar, fvMesh>& iF,
     const fvPatchFieldMapper& mapper)
 : fixedFluxExtrapolatedPressureFvPatchScalarField(ptf, p, iF, mapper),
   refValue_(ptf.refValue_),
   refGrad_(ptf.refGrad_),
   valueFraction_(ptf.valueFraction_)
 {
-    if (notNull(iF) && mapper.hasUnmapped())
-    {
-        WarningInFunction
-            << "On field " << iF.name() << " patch " << p.name()
-            << " patchField " << this->type()
-            << " : mapper does not map all values." << nl
-            << "    To avoid this warning fully specify the mapping in derived"
-            << " patch fields." << endl;
-    }
 }
 
 Foam::coupledPressureFvPatchField::coupledPressureFvPatchField(
     const coupledPressureFvPatchField& ptf,
-    const DimensionedField<Foam::scalar, volMesh>& iF)
+    const DimensionedField<Foam::scalar, fvMesh>& iF)
 : fixedFluxExtrapolatedPressureFvPatchScalarField(ptf, iF)
 {
     this->refValue() = ptf.refValue_;

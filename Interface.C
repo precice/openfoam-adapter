@@ -59,7 +59,7 @@ preciceAdapter::Interface::Interface(
     for (uint j = 0; j < patchNames.size(); j++)
     {
         // Get the patchID
-        int patchID = mesh.boundaryMesh().findPatchID(patchNames.at(j));
+        int patchID = mesh.boundary().findIndex(patchNames.at(j));
 
         // Throw an error if the patch was not found
         if (patchID == -1)
@@ -92,7 +92,7 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh, const std::str
         for (uint j = 0; j < patchIDs_.size(); j++)
         {
             numDataLocations_ +=
-                mesh.boundaryMesh()[patchIDs_.at(j)].faceCentres().size();
+                mesh.boundary()[patchIDs_.at(j)].poly().faceCentres().size();
         }
         DEBUG(adapterInfo("Number of face centres: " + std::to_string(numDataLocations_)));
 
@@ -119,7 +119,7 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh, const std::str
         {
             // Get the face centers of the current patch
             vectorField faceCenters =
-                mesh.boundaryMesh()[patchIDs_.at(j)].faceCentres();
+                mesh.boundary()[patchIDs_.at(j)].poly().faceCentres();
 
             // Move the interface according to the current values of the cellDisplacement field,
             // to account for any displacements accumulated before restarting the simulation.
@@ -138,7 +138,7 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh, const std::str
             if (dim_ == 2)
             {
                 const pointField faceNodes =
-                    mesh.boundaryMesh()[patchIDs_.at(j)].localPoints();
+                    mesh.boundary()[patchIDs_.at(j)].poly().localPoints();
                 const auto faceNodesSize = faceNodes.size();
                 //Allocate memory for z-coordinates
                 std::array<double, 2> z_location({0, 0});
@@ -193,7 +193,7 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh, const std::str
         for (uint j = 0; j < patchIDs_.size(); j++)
         {
             numDataLocations_ +=
-                mesh.boundaryMesh()[patchIDs_.at(j)].localPoints().size();
+                mesh.boundary()[patchIDs_.at(j)].poly().localPoints().size();
         }
         DEBUG(adapterInfo("Number of face nodes: " + std::to_string(numDataLocations_)));
 
@@ -230,7 +230,7 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh, const std::str
             // TODO: Check if this behaves correctly with multiple, connected patches.
             // TODO: Maybe this should be a pointVectorField?
             pointField faceNodes =
-                mesh.boundaryMesh()[patchIDs_.at(j)].localPoints();
+                mesh.boundary()[patchIDs_.at(j)].poly().localPoints();
 
             // Similar to the cell displacement above:
             // Move the interface according to the current values of the cellDisplacement field,
@@ -285,8 +285,8 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh, const std::str
                 const int nodesPerTria = 3;
 
                 // Get the list of faces and coordinates at the interface patch
-                const List<face> faceField = mesh.boundaryMesh()[patchIDs_.at(j)].localFaces();
-                Field<point> pointCoords = mesh.boundaryMesh()[patchIDs_.at(j)].localPoints();
+                const List<face> faceField = mesh.boundary()[patchIDs_.at(j)].poly().localFaces();
+                Field<point> pointCoords = mesh.boundary()[patchIDs_.at(j)].poly().localPoints();
 
                 // Subtract the displacement part in case we have deformation
                 if (pointDisplacement != nullptr && !restartFromDeformed_)
@@ -357,7 +357,7 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh, const std::str
         for (uint j = 0; j < patchIDs_.size(); j++)
         {
             numDataLocations_ +=
-                mesh.boundaryMesh()[patchIDs_.at(j)].faceCentres().size();
+                mesh.boundary()[patchIDs_.at(j)].poly().faceCentres().size();
         }
         DEBUG(adapterInfo("Number of coupling volumes: " + std::to_string(numDataLocations_)));
 
@@ -413,7 +413,7 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh, const std::str
         {
             // Get the face centers of the current patch
             const vectorField faceCenters =
-                mesh.boundaryMesh()[patchIDs_.at(j)].faceCentres();
+                mesh.boundary()[patchIDs_.at(j)].poly().faceCentres();
 
             // Assign the (x,y,z) locations to the vertices
             for (int i = 0; i < faceCenters.size(); i++)

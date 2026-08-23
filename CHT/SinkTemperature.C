@@ -1,5 +1,4 @@
 #include "SinkTemperature.H"
-#include "primitivePatchInterpolation.H"
 
 using namespace Foam;
 
@@ -34,7 +33,7 @@ std::size_t preciceAdapter::CHT::SinkTemperature::write(double* buffer, bool mes
         if (meshConnectivity)
         {
             //Create an Interpolation object at the boundary Field
-            primitivePatchInterpolation patchInterpolator(mesh_.boundaryMesh()[patchID]);
+            primitivePatchInterpolation patchInterpolator(mesh_.boundary()[patchID].poly());
 
             scalarField patchInternalPointField;
 

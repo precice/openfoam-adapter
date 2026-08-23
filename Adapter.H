@@ -191,6 +191,17 @@ private:
     //- Checkpointed volVectorField fields (copies)
     std::vector<Foam::volVectorField*> volVectorFieldCopies_;
 
+    //- Dedicated value-internal checkpoint for the velocity field U.
+    //  OpenFOAM 14 clones dynamic-coded boundary patch fields (codedBase with
+    //  reloadable library unloading) when a GeometricField is copy-constructed,
+    //  which corrupts the compiled redirectPatchFieldPtr_ on teardown. Since the
+    //  boundary is deterministic (recomputed by the case boundary conditions),
+    //  we only store the internal field and old-times here and restore by value.
+    Foam::volVectorField* UField_ = nullptr;
+    Foam::vectorField UInternalCopies_;
+    Foam::vectorField UOldInternalCopies_;
+    label UnOldTimes_ = 0;
+
     //- Checkpointed surfaceScalarField fields
     std::vector<Foam::surfaceScalarField*> surfaceScalarFields_;
 

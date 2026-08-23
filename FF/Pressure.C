@@ -66,7 +66,7 @@ void preciceAdapter::FF::Pressure::read(double* buffer, const unsigned int dim)
     {
         if (cellSetNames_.empty())
         {
-            for (auto& cell : p_->ref())
+            for (auto& cell : p_->internalFieldRef())
             {
                 cell = buffer[bufferIndex++];
             }
@@ -81,7 +81,7 @@ void preciceAdapter::FF::Pressure::read(double* buffer, const unsigned int dim)
                 for (const auto& currentCell : cells)
                 {
                     // Copy the pressure into the buffer
-                    p_->ref()[currentCell] = buffer[bufferIndex++];
+                    p_->internalFieldRef()[currentCell] = buffer[bufferIndex++];
                 }
             }
         }

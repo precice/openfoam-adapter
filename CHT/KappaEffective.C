@@ -1,5 +1,4 @@
 #include "KappaEffective.H"
-#include "primitivePatchInterpolation.H"
 
 #include "Utilities.H"
 
@@ -21,7 +20,7 @@ void preciceAdapter::CHT::KappaEff_Compressible::extract(uint patchID, bool mesh
     if (meshConnectivity)
     {
         //Create an Interpolation object at the boundary Field
-        primitivePatchInterpolation patchInterpolator(mesh_.boundaryMesh()[patchID]);
+        primitivePatchInterpolation patchInterpolator(mesh_.boundary()[patchID].poly());
 
         //Interpolate kappaEff_ from centers to nodes
         kappaEff_ = patchInterpolator.faceToPointInterpolate(thermophysicalTransportModel_.kappaEff()().boundaryField()[patchID]);
@@ -55,7 +54,7 @@ void preciceAdapter::CHT::KappaEff_Incompressible::extract(uint patchID, bool me
     if (meshConnectivity)
     {
         //Create an Interpolation object at the boundary Field
-        primitivePatchInterpolation patchInterpolator(mesh_.boundaryMesh()[patchID]);
+        primitivePatchInterpolation patchInterpolator(mesh_.boundary()[patchID].poly());
 
         //Interpolate kappaEff_ from centers to nodes
         kappaEff_ = patchInterpolator.faceToPointInterpolate(thermophysicalTransportModel_.kappaEff()().boundaryField()[patchID]);

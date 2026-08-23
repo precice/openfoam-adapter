@@ -212,6 +212,13 @@ bool preciceAdapter::FSI::FluidStructureInteraction::addReaders(std::string data
         );
         DEBUG(adapterInfo("Added reader: Stress."));
     }
+    else if (dataName.find("AirVelocity") == 0 || dataName.find("Velocity") == 0)
+    {
+        interface->addCouplingDataReader(
+            dataName,
+            new Velocity(mesh_));
+        DEBUG(adapterInfo("Added reader: Velocity."));
+    }
     else
     {
         found = false;

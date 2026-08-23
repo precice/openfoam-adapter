@@ -22,7 +22,7 @@ preciceAdapter::FSI::Force::Force(
         ForceOwning_.reset(new volVectorField(
             IOobject(
                 nameForce,
-                mesh_.time().timeName(),
+                mesh_.time().timeName(mesh_.time().value()),
                 mesh,
                 IOobject::NO_READ,
                 IOobject::AUTO_WRITE),

@@ -30,7 +30,7 @@ void preciceAdapter::FSI::Displacement::initialize()
         for (unsigned int j = 0; j < patchIDs_.size(); ++j)
         {
             const unsigned int patchID = patchIDs_.at(j);
-            interpolationObjects_.emplace_back(new primitivePatchInterpolation(mesh_.boundaryMesh()[patchID]));
+            interpolationObjects_.emplace_back(new primitivePatchInterpolation(mesh_.boundary()[patchID].poly()));
         }
     }
 }
@@ -78,7 +78,7 @@ std::size_t preciceAdapter::FSI::Displacement::write(double* buffer, bool meshCo
             forAll(pointDisplacement_->boundaryField()[patchID], i)
             {
                 const labelList& meshPoints =
-                    mesh_.boundaryMesh()[patchID].meshPoints();
+                    mesh_.boundary()[patchID].poly().meshPoints();
 
                 for (unsigned int d = 0; d < dim; ++d)
                     buffer[bufferIndex++] =

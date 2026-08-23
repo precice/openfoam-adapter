@@ -1,8 +1,7 @@
 #include "HeatTransferCoefficient.H"
 
-#include "fvCFD.H"
+#include "OpenFOAMCompatibility.H"
 #include "mixedFvPatchFields.H"
-#include "primitivePatchInterpolation.H"
 
 using namespace Foam;
 
@@ -40,7 +39,7 @@ std::size_t preciceAdapter::CHT::HeatTransferCoefficient::write(double* buffer, 
         if (meshConnectivity)
         {
             //Setup Interpolation object
-            primitivePatchInterpolation patchInterpolator(mesh_.boundaryMesh()[patchID]);
+            primitivePatchInterpolation patchInterpolator(mesh_.boundary()[patchID].poly());
 
             scalarField deltaPoints;
 

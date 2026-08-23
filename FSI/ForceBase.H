@@ -4,7 +4,7 @@
 
 #include "CouplingDataUser.H"
 
-#include "fvCFD.H"
+#include "OpenFOAMCompatibility.H"
 
 #include "pointFields.H"
 #include "vectorField.H"
@@ -21,7 +21,7 @@ class ForceBase : public CouplingDataUser
 {
 protected:
     //- Stress tensor (see the OpenFOAM "Forces" function object)
-    Foam::tmp<Foam::volSymmTensorField> devRhoReff() const;
+    Foam::tmp<Foam::surfaceVectorField> devTau() const;
 
     Foam::tmp<Foam::volScalarField> rho() const;
 
