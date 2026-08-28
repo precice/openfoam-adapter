@@ -4,21 +4,36 @@ using namespace Foam;
 
 preciceAdapter::FSI::Stress::Stress(
     const Foam::fvMesh& mesh,
-    const std::string solverType)
+    const std::string solverType,
+    const std::string nameStress)
 : ForceBase(mesh, solverType)
 {
-    Stress_ = new volVectorField(
-        IOobject(
-            "Stress",
-            mesh_.time().timeName(),
+    // Check if a stress field with the requested name exists.
+    // If yes (e.g., solids4Foam), bind Stress_ to that field.
+    // If not (e.g., pimpleFoam), create it.
+    if (mesh_.foundObject<volVectorField>(nameStress))
+    {
+        Stress_ =
+            &const_cast<volVectorField&>(
+                mesh_.lookupObject<volVectorField>(nameStress));
+    }
+    else
+    {
+        StressOwning_.reset(new volVectorField(
+            IOobject(
+                nameStress,
+                mesh_.time().timeName(),
+                mesh,
+                IOobject::NO_READ,
+                IOobject::AUTO_WRITE),
             mesh,
-            IOobject::NO_READ,
-            IOobject::AUTO_WRITE),
-        mesh,
-        dimensionedVector(
-            "pdim",
-            dimensionSet(1, -1, -2, 0, 0, 0, 0),
-            Foam::vector::zero));
+            dimensionedVector(
+                "pdim",
+                dimensionSet(1, -1, -2, 0, 0, 0, 0),
+                Foam::vector::zero)));
+
+        Stress_ = StressOwning_.get();
+    }
 }
 
 std::size_t preciceAdapter::FSI::Stress::write(double* buffer, bool meshConnectivity, const unsigned int dim)
@@ -28,7 +43,7 @@ std::size_t preciceAdapter::FSI::Stress::write(double* buffer, bool meshConnecti
 
 void preciceAdapter::FSI::Stress::read(double* buffer, const unsigned int dim)
 {
-    this->readFromBuffer(buffer);
+    this->readFromBuffer(buffer, *Stress_, dim);
 }
 
 bool preciceAdapter::FSI::Stress::isLocationTypeSupported(const bool meshConnectivity) const
@@ -52,9 +67,4 @@ Foam::tmp<Foam::vectorField> preciceAdapter::FSI::Stress::getFaceVectors(const u
 {
     // face normal vectors
     return mesh_.boundary()[patchID].nf();
-}
-
-preciceAdapter::FSI::Stress::~Stress()
-{
-    delete Stress_;
 }
