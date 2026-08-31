@@ -36,6 +36,16 @@ protected:
     //- Names of the OpenFOAM cell sets to be coupled (for volume coupling)
     std::vector<std::string> cellSetNames_;
 
+    //- Names of the propellerDisk fvModels to be coupled (for fixedPoints)
+    std::vector<std::string> propellerNames_;
+
+    //- Explicit fixed 3D points of the interface (for the fixedPoints
+    //  location type, e.g. control-surface hinges)
+    std::vector<std::vector<double>> interfacePoints_;
+
+    //- Fixed 3D points of the interface (for the fixedPoints location type)
+    std::vector<std::vector<double>> fixedPoints_;
+
     //- Number of data points (cell centers) on the interface
     int numDataLocations_ = 0;
 
@@ -75,6 +85,8 @@ public:
         std::string locationsType,
         std::vector<std::string> patchNames,
         std::vector<std::string> cellSetNames,
+        std::vector<std::string> propellerNames,
+        std::vector<std::vector<double>> interfacePoints,
         bool meshConnectivity,
         bool restartFromDeformed,
         const std::string& namePointDisplacement,

@@ -86,6 +86,37 @@ bool preciceAdapter::FSI::FluidStructureInteraction::readConfig(const IOdictiona
     nameForce_ = FSIdict.lookupOrDefault<word>("nameForce", "Force");
     DEBUG(adapterInfo("    force field name : " + nameForce_));
 
+    // Read the names of the propellerDisk fvModels to be coupled.
+    // The order defines both the interface fixedPoints order and the
+    // order in which the propeller loads are written to preCICE.
+    // TODO: This is perhaps better placed in the interface dict.
+    auto propellers = FSIdict.lookupOrDefault<wordList>("propellers", wordList());
+    for (auto propeller : propellers)
+    {
+        propellerNames_.push_back(propeller);
+        DEBUG(adapterInfo("    propeller fvModel : " + propeller));
+    }
+
+    // Read the control-surface definitions. Each entry is a sub-dictionary
+    // with the surface patch name, the hinge point and the rotation axis:
+    //   controlSurfaces ( { patch elevator; hinge (0.5 0.25 0.05); axis (1 0 0); } );
+    // The order must match the fixedPoints of the Control-Mesh interface.
+    if (FSIdict.found("controlSurfaces"))
+    {
+        const List<dictionary> surfList(FSIdict.lookup("controlSurfaces"));
+        for (const dictionary& surf : surfList)
+        {
+            ControlSurfaceConfig cfg;
+            cfg.patch = surf.lookup<word>("patch");
+            const vector hinge = surf.lookup<vector>("hinge");
+            const vector axis = surf.lookup<vector>("axis");
+            cfg.hinge = {hinge.x(), hinge.y(), hinge.z()};
+            cfg.axis = {axis.x(), axis.y(), axis.z()};
+            controlSurfaces_.push_back(cfg);
+            DEBUG(adapterInfo("    control surface : " + cfg.patch));
+        }
+    }
+
     return true;
 }
 
@@ -164,6 +195,34 @@ bool preciceAdapter::FSI::FluidStructureInteraction::addWriters(std::string data
         );
         DEBUG(adapterInfo("Added writer: Stress."));
     }
+    else if (dataName.find("Thrust") == 0)
+    {
+        interface->addCouplingDataWriter(
+            dataName,
+            new PropellerLoad(mesh_, propellerNames_, false));
+        DEBUG(adapterInfo("Added writer: PropellerLoad (thrust)."));
+    }
+    else if (dataName.find("PropTorque") == 0)
+    {
+        interface->addCouplingDataWriter(
+            dataName,
+            new PropellerLoad(mesh_, propellerNames_, true));
+        DEBUG(adapterInfo("Added writer: PropellerLoad (torque)."));
+    }
+    else if (dataName.find("HingeForce") == 0)
+    {
+        interface->addCouplingDataWriter(
+            dataName,
+            new SurfaceHinge(mesh_, solverType_, controlSurfaces_, false));
+        DEBUG(adapterInfo("Added writer: SurfaceHinge (force)."));
+    }
+    else if (dataName.find("HingeMoment") == 0)
+    {
+        interface->addCouplingDataWriter(
+            dataName,
+            new SurfaceHinge(mesh_, solverType_, controlSurfaces_, true));
+        DEBUG(adapterInfo("Added writer: SurfaceHinge (moment)."));
+    }
     else
     {
         found = false;
@@ -219,6 +278,13 @@ bool preciceAdapter::FSI::FluidStructureInteraction::addReaders(std::string data
             new Velocity(mesh_));
         DEBUG(adapterInfo("Added reader: Velocity."));
     }
+    else if (dataName.find("Deflection") == 0)
+    {
+        interface->addCouplingDataReader(
+            dataName,
+            new ControlDeflection(mesh_, controlSurfaces_));
+        DEBUG(adapterInfo("Added reader: ControlDeflection."));
+    }
     else
     {
         found = false;
@@ -241,6 +307,16 @@ std::string preciceAdapter::FSI::FluidStructureInteraction::getCellDisplacementF
 std::string preciceAdapter::FSI::FluidStructureInteraction::getPointDisplacementFieldName()
 {
     return namePointDisplacement_;
+}
+
+std::vector<std::string> preciceAdapter::FSI::FluidStructureInteraction::getPropellerNames()
+{
+    return propellerNames_;
+}
+
+std::vector<preciceAdapter::FSI::ControlSurfaceConfig> preciceAdapter::FSI::FluidStructureInteraction::getControlSurfaces()
+{
+    return controlSurfaces_;
 }
 
 bool preciceAdapter::FSI::FluidStructureInteraction::isRestartingFromDeformed()

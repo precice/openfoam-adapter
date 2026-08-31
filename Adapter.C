@@ -110,7 +110,7 @@ bool preciceAdapter::Adapter::configFileRead()
                     DEBUG(adapterInfo("    connectivity : " + std::to_string(interfaceConfig.meshConnectivity)));
 
                     DEBUG(adapterInfo("    patches      : "));
-                    auto patches = static_cast<wordList>(interfaceDict.lookup("patches"));
+                    auto patches = interfaceDict.lookupOrDefault<wordList>("patches", wordList());
                     for (auto patch : patches)
                     {
                         interfaceConfig.patchNames.push_back(patch);
@@ -126,6 +126,22 @@ bool preciceAdapter::Adapter::configFileRead()
                         DEBUG(adapterInfo("      - " + cellSet));
                     }
 
+                    DEBUG(adapterInfo("    propellers    : "));
+                    auto propellers = interfaceDict.lookupOrDefault<wordList>("propellers", wordList());
+                    for (auto propeller : propellers)
+                    {
+                        interfaceConfig.propellerNames.push_back(propeller);
+                        DEBUG(adapterInfo("      - " + propeller));
+                    }
+
+                    DEBUG(adapterInfo("    points        : "));
+                    auto pointsList = interfaceDict.lookupOrDefault<List<vector>>("points", List<vector>());
+                    for (const auto& pt : pointsList)
+                    {
+                        interfaceConfig.interfacePoints.push_back({pt.x(), pt.y(), pt.z()});
+                        DEBUG(adapterInfo("      - " + pt));
+                    }
+
                     if (!interfaceConfig.cellSetNames.empty() && !(interfaceConfig.locationsType == "volumeCenters" || interfaceConfig.locationsType == "volumeCentres"))
                     {
                         adapterInfo("Cell sets are not supported for locationType != volumeCenters. \n"
@@ -136,7 +152,7 @@ bool preciceAdapter::Adapter::configFileRead()
                     }
 
                     DEBUG(adapterInfo("    writeData    : "));
-                    auto writeData = static_cast<wordList>(interfaceDict.lookup("writeData"));
+                    auto writeData = interfaceDict.lookupOrDefault<wordList>("writeData", wordList());
                     for (auto writeDatum : writeData)
                     {
                         interfaceConfig.writeData.push_back(writeDatum);
@@ -144,7 +160,7 @@ bool preciceAdapter::Adapter::configFileRead()
                     }
 
                     DEBUG(adapterInfo("    readData     : "));
-                    auto readData = static_cast<wordList>(interfaceDict.lookup("readData"));
+                    auto readData = interfaceDict.lookupOrDefault<wordList>("readData", wordList());
                     for (auto readDatum : readData)
                     {
                         interfaceConfig.readData.push_back(readDatum);
@@ -276,7 +292,7 @@ void preciceAdapter::Adapter::configure()
             std::string nameCellDisplacement = FSIenabled_ ? FSI_->getCellDisplacementFieldName() : "default";
             bool restartFromDeformed = FSIenabled_ ? FSI_->isRestartingFromDeformed() : false;
 
-            Interface* interface = new Interface(*precice_, mesh_, interfacesConfig_.at(i).meshName, interfacesConfig_.at(i).locationsType, interfacesConfig_.at(i).patchNames, interfacesConfig_.at(i).cellSetNames, interfacesConfig_.at(i).meshConnectivity, restartFromDeformed, namePointDisplacement, nameCellDisplacement);
+            Interface* interface = new Interface(*precice_, mesh_, interfacesConfig_.at(i).meshName, interfacesConfig_.at(i).locationsType, interfacesConfig_.at(i).patchNames, interfacesConfig_.at(i).cellSetNames, interfacesConfig_.at(i).propellerNames, interfacesConfig_.at(i).interfacePoints, interfacesConfig_.at(i).meshConnectivity, restartFromDeformed, namePointDisplacement, nameCellDisplacement);
             interfaces_.push_back(interface);
             DEBUG(adapterInfo("Interface created on mesh " + interfacesConfig_.at(i).meshName));
 
@@ -431,6 +447,11 @@ void preciceAdapter::Adapter::execute()
 
     // Advance preCICE
     advance();
+
+    // Read the coupling data received from the coupling partners. This makes
+    // the AirVelocity, Displacement and Deflection readers apply their values
+    // (e.g. the moving-wall velocity and the control-surface rotations).
+    readCouplingData(timestepSolver_);
 
     // Read checkpoint if required
     if (requiresReadingCheckpoint())

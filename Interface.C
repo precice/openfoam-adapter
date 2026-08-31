@@ -2,6 +2,8 @@
 #include "Utilities.H"
 #include "polygonTriangulate.H"
 #include "cellSet.H"
+#include "fvModels.H"
+#include "propellerDisk.H"
 #include <map>
 
 using namespace Foam;
@@ -13,6 +15,8 @@ preciceAdapter::Interface::Interface(
     std::string locationsType,
     std::vector<std::string> patchNames,
     std::vector<std::string> cellSetNames,
+    std::vector<std::string> propellerNames,
+    std::vector<std::vector<double>> interfacePoints,
     bool meshConnectivity,
     bool restartFromDeformed,
     const std::string& namePointDisplacement,
@@ -21,6 +25,8 @@ preciceAdapter::Interface::Interface(
   meshName_(meshName),
   patchNames_(patchNames),
   cellSetNames_(cellSetNames),
+  propellerNames_(propellerNames),
+  interfacePoints_(interfacePoints),
   meshConnectivity_(meshConnectivity),
   restartFromDeformed_(restartFromDeformed)
 {
@@ -45,6 +51,29 @@ preciceAdapter::Interface::Interface(
     else if (locationsType == "volumeCenters" || locationsType == "volumeCentres")
     {
         locationType_ = LocationType::volumeCenters;
+    }
+    else if (locationsType == "fixedPoints")
+    {
+        locationType_ = LocationType::fixedPoints;
+
+        if (!interfacePoints_.empty())
+        {
+            // Explicit points (e.g. control-surface hinges) from the
+            // interface dictionary.
+            fixedPoints_ = interfacePoints_;
+        }
+        else
+        {
+            // Get the fixed points (propeller hub centres) from the
+            // propellerDisk fvModels listed in propellerNames_.
+            const fvModels& models = mesh.lookupObject<fvModels>("fvModels");
+            for (const std::string& name : propellerNames_)
+            {
+                const fv::propellerDisk& prop = dynamicCast<const fv::propellerDisk>(models[name]);
+                const vector& c = prop.centre();
+                fixedPoints_.push_back({c[0], c[1], c[2]});
+            }
+        }
     }
     else
     {
@@ -425,6 +454,29 @@ void preciceAdapter::Interface::configureMesh(const fvMesh& mesh, const std::str
                     vertices[verticesIndex++] = faceCenters[i].z();
                 }
             }
+        }
+
+        // Pass the mesh vertices information to preCICE
+        precice_.setMeshVertices(meshName_, vertices, vertexIDs_);
+    }
+    else if (locationType_ == LocationType::fixedPoints)
+    {
+        // Count the data locations: one per fixed point (propeller hub)
+        numDataLocations_ = fixedPoints_.size();
+        DEBUG(adapterInfo("Number of fixed points: " + std::to_string(numDataLocations_)));
+
+        // Array of the mesh vertices.
+        std::vector<double> vertices(dim_ * numDataLocations_);
+
+        // Array of the indices of the mesh vertices.
+        vertexIDs_.resize(numDataLocations_);
+
+        // Assign the (x,y,z) locations to the vertices
+        int verticesIndex = 0;
+        for (const auto& point : fixedPoints_)
+        {
+            for (unsigned int d = 0; d < dim_; ++d)
+                vertices[verticesIndex++] = point[d];
         }
 
         // Pass the mesh vertices information to preCICE

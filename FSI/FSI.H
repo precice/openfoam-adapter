@@ -8,6 +8,9 @@
 #include "FSI/Force.H"
 #include "FSI/Stress.H"
 #include "FSI/Velocity.H"
+#include "FSI/PropellerLoad.H"
+#include "FSI/ControlDeflection.H"
+#include "FSI/SurfaceHinge.H"
 
 #include "OpenFOAMCompatibility.H"
 
@@ -41,6 +44,13 @@ protected:
     //- Name of the force field
     std::string nameForce_ = "Force";
 
+    //- Names of the propellerDisk fvModels to couple (e.g. "propeller1")
+    std::vector<std::string> propellerNames_;
+
+    //- Control surface configurations (patch + hinge + axis), ordered to
+    //  match the fixedPoints of the Control-Mesh interface.
+    std::vector<ControlSurfaceConfig> controlSurfaces_;
+
     /* TODO: Declare here any parameters that should be read from
     /  the configuration file. See CHT/CHT.H for reference.
     /  We want to support in-house solvers with different field names,
@@ -73,6 +83,12 @@ public:
 
     //- Return the namePointDisplacement_ field name
     std::string getPointDisplacementFieldName();
+
+    //- Return the propeller fvModel names
+    std::vector<std::string> getPropellerNames();
+
+    //- Return the control surface configurations
+    std::vector<ControlSurfaceConfig> getControlSurfaces();
 
     //- Return the boolean variable stored in the class
     bool isRestartingFromDeformed();

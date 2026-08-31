@@ -6,3 +6,6 @@
 #include "Displacement.C"
 #include "DisplacementDelta.C"
 #include "Velocity.C"
+#include "PropellerLoad.C"
+#include "ControlDeflection.C"
+#include "SurfaceHinge.C"
