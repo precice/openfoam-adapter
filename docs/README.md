@@ -15,8 +15,8 @@ This preCICE adapter is a plug-in (function object) for OpenFOAM, which can work
 
 ## What can it do?
 
-This adapter has been demonstrated on different use cases (conjugate heat transfer, fluid-structure interaction, fluid-fluid coupling, CFD-DEM), both in 2D (3D with one layer of cells in the z-axis) and 3D, and both for flow and solid OpenFOAM-based solvers (see [tutorials](https://precice.org/tutorials.html)).
-The fields to read/write are provided by different adapter modules that one needs to [configure](https://precice.org/adapter-openfoam-config.html) and are currently the following.
+This adapter has been demonstrated on different use cases (conjugate heat transfer, fluid-structure interaction, fluid-fluid coupling, and CFD-DEM), both in 2D (3D with one layer of cells in the z-axis) and 3D, and both for flow and solid OpenFOAM-based solvers (see [tutorials](https://precice.org/tutorials.html)).
+The fields to read/write are provided by different adapter modules that one needs to [configure](https://precice.org/adapter-openfoam-config.html) and are described in the following tables.
 
 Legend on locations to read/write:
 
@@ -45,8 +45,8 @@ All fields are supported for both flow (compressible/incompressible) and basic (
 | Force | F* (flow) | F* | `Force` |
 | Stress | F* (flow) | F* | `Stress` |
 
-Displacement reading and writing is supported both for flow (compressible or incompressible) and structure solvers.
-Force and stress writing in only supported for flow solvers, reading for both.
+Displacement reading and writing are supported for both flow (compressible or incompressible) and structure solvers.
+Force and stress writing is only supported for flow solvers; reading is supported for both.
 
 ### Module: Fluid-fluid coupling
 
