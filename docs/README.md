@@ -23,7 +23,9 @@ Legend on locations to read/write:
 - **N:** Mesh nodes (surface coupling)
 - **F:** Face centers (surface coupling)
 - **C:** Cell centers (volume coupling)
-- ***:** Mesh connectivity supported (for, e.g., nearest-projection mapping, where the writing participant needs to provide it)
+- ***:** Mesh connectivity supported (for, e.g., nearest-projection mapping)
+
+Regarding mesh connectivity, note that, for consistent data (e.g., displacement), it only makes sense that the writing participant provides mesh connectivity. For conservative data (e.g., forces), it only makes sense that the reading participant provides mesh connectivity.
 
 ### Module: Conjugate heat transfer
 
