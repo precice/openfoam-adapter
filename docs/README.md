@@ -42,8 +42,8 @@ All fields are supported for both flow (compressible/incompressible) and basic (
 | --- | --- | --- | --- |
 | Displacement: absolute | N*, [F*](https://github.com/precice/openfoam-adapter/issues/153) | N*, F* | `Displacement` |
 | Displacement: relative | N*, F* | N*, F* | `DisplacementDelta` |
-| Force | F* (flow) | F* | `Force` |
-| Stress | F* (flow) | F* | `Stress` |
+| Force | F* (flow solvers) | F* | `Force` |
+| Stress | F* (flow solvers) | - | `Stress` |
 
 Displacement reading and writing are supported for both flow (compressible or incompressible) and structure solvers.
 Force and stress writing is only supported for flow solvers; reading is supported for both.
