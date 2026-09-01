@@ -42,8 +42,8 @@ All fields are supported for both flow (compressible/incompressible) and basic (
 | --- | --- | --- | --- |
 | Displacement: absolute | N*, [F*](https://github.com/precice/openfoam-adapter/issues/153) | N, F | `Displacement` |
 | Displacement: relative | - | N, F | `DisplacementDelta` |
-| Force | F* (flow solvers) | F | `Force` |
-| Stress | F* (flow solvers) | - | `Stress` |
+| Force | F (flow solvers) | F | `Force` |
+| Stress | F (flow solvers) | - | `Stress` |
 
 Displacement reading and writing are supported for both flow (compressible or incompressible) and structure solvers.
 For mesh nodes, the `pointDisplacement` field is used; for face centers, the `cellDisplacement` field is used.
