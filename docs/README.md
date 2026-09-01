@@ -38,6 +38,9 @@ Regarding mesh connectivity, note that, for consistent data (e.g., displacement)
 
 All fields are supported for both flow (compressible/incompressible) and basic (e.g., laplacianFoam) solvers.
 
+OpenFOAM provides temperature on face centers and cell centers. For mesh nodes (with mesh connectivity enabled), the adapter interpolates from the faces to the nodes.
+Similarly, heat flux, heat transfer coefficient, and sink temperature are computed on the face centers and interpolated to the mesh nodes when mesh connectivity is enabled.
+
 ### Module: Fluid-structure interaction
 
 | Field | Write | Read | Config prefix |
