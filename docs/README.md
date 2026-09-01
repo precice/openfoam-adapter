@@ -66,7 +66,7 @@ Only flow solvers can write forces or stresses. Solid solvers can only read forc
 | Volume fraction | F, C | F, C | `Alpha` |
 | Phase fraction gradient | F | F | `AlphaGradient` |
 | Pressure | F, C | F, C | `Pressure` |
-| Pressure: full gradient | F, C* | F | `PressureGradientFull` (TODO: read-only) |
+| Pressure: full gradient | F, C | F | `PressureGradientFull` (TODO: read-only) |
 | Pressure: surface-normal gradient | F | F | `PressureGradient` |
 | Temperature | F | F | `FlowTemperature` |
 | Temperature surface-normal gradient | F | F | `FlowTemperatureGradient` |
