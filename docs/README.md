@@ -73,7 +73,7 @@ Only flow solvers can write forces or stresses. Solid solvers can read forces, b
 | Velocity | F, C | F, C | `Velocity` |
 | Velocity surface-normal gradient | F | F | `VelocityGradient` |
 
-All fields assume a flow solver, and some of these fields are mainly meant for a CFD-DEM coupling (`DragForce`, `ExplicitMomentum`, `ImplicitMomentum`, `PressureGradientFull`).
+All fields assume a flow solver, and some of these fields are mainly meant for a CFD-DEM coupling (`DragForce`, `ExplicitMomentum`, `ImplicitMomentum`).
 
 ## Try
 
