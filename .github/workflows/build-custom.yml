@@ -21,6 +21,7 @@ on:
         required: true
         type: choice
         options:
+          - 2606
           - 2512
           - 2506
           - 2412
@@ -81,7 +82,7 @@ jobs:
         echo "Run tutorial partitioned-pipe: ${{ github.event.inputs.runTutorialPartitionedPipe }}"
         echo "Tutorials branch: ${{ github.event.inputs.branchTutorials }}"
     - name: Check out repository
-      uses: actions/checkout@v6
+      uses: actions/checkout@v7
       with:
         ref: ${{ github.event.inputs.refAdapter }}
     - name: Install preCICE (no cache)

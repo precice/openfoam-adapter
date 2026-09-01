@@ -93,14 +93,7 @@ public:
 
     //- Construct as copy
     coupledPressureFvPatchField(
-        const coupledPressureFvPatchField&);
-
-    //- Construct and return a clone
-    virtual tmp<fvPatchScalarField> clone() const
-    {
-        return tmp<fvPatchScalarField>(
-            new coupledPressureFvPatchField(*this));
-    }
+        const coupledPressureFvPatchField&) = delete;
 
     //- Construct as copy setting internal field reference
     coupledPressureFvPatchField(

@@ -1,6 +1,8 @@
 ---
 title: Extend the OpenFOAM adapter
 permalink: adapter-openfoam-extend.html
+aliases:
+  - /adapter-openfoam-extend.html
 keywords: adapter, openfoam, development, modules
 summary: "An overview of the OpenFOAM adapter's architecture and which parts to modify if you want to add functionality."
 ---

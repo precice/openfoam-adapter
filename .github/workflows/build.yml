@@ -1,4 +1,4 @@
-name: Build with OpenFOAM v2512
+name: Build with OpenFOAM v2606
 on:
   push:
     branches-ignore:
@@ -24,10 +24,10 @@ jobs:
     container: precice/precice:nightly
     steps:
     - name: Check out repository
-      uses: actions/checkout@v6
+      uses: actions/checkout@v7
     - name: Set up OpenFOAM
       uses: gerlero/setup-openfoam@v1
       with:
-        openfoam-version: 2512
+        openfoam-version: 2606
     - name: Build OpenFOAM-preCICE adapter
       run: ./Allwmake
