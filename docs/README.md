@@ -29,10 +29,10 @@ Legend on locations to read/write:
 
 | Field | Write | Read | Config prefix |
 | --- | --- | --- | --- |
-| Heat flux | N*, F | N, F | `Heat-Flux` |
-| Heat transfer coefficient | N*, F | N, F | `Heat-Transfer-Coefficient` |
-| Sink temperature | N*, F | N, F | `Sink-Temperature` |
-| Temperature | N*, F, C | N, F, C | `Temperature` |
+| Heat flux | N*, F | F | `Heat-Flux` |
+| Heat transfer coefficient | N*, F | F | `Heat-Transfer-Coefficient` |
+| Sink temperature | N*, F | F | `Sink-Temperature` |
+| Temperature | N*, F, C | F, C | `Temperature` |
 
 All fields are supported for both flow (compressible/incompressible) and basic (e.g., laplacianFoam) solvers.
 
