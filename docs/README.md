@@ -59,7 +59,7 @@ Only flow solvers can write forces or stresses. Solid solvers can only read forc
 | Momentum: implicit | F, C | F, C | `ImplicitMomentum` |
 | Phase flux | F* | F | `Phi` |
 | Volume fraction | F, C | F, C | `Alpha` |
-| Phase fraction gradient | F* | F | `AlphaGradient` |
+| Phase fraction gradient | F | F | `AlphaGradient` |
 | Pressure | F, C | F, C | `Pressure` |
 | Pressure: full gradient | F, C* | F | `PressureGradientFull` (TODO: read-only) |
 | Pressure: surface-normal gradient | F | F | `PressureGradient` |
