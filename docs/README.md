@@ -53,7 +53,7 @@ Similarly, heat flux, heat transfer coefficient, and sink temperature are comput
 Displacement reading and writing are supported for both flow (compressible or incompressible) and structure solvers.
 For mesh nodes, the `pointDisplacement` field is used; for face centers, the `cellDisplacement` field is used.
 
-Only flow solvers can write forces or stresses. Solid solvers can only read forces.
+Only flow solvers can write forces or stresses. Solid solvers can read forces, but not stresses.
 
 ### Module: Fluid-fluid coupling
 
