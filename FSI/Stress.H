@@ -17,14 +17,18 @@ class Stress : public ForceBase
 {
 
 private:
-    //- Stress field
+    //- Stress field (non-owning pointer, it may already be constructed by the solver)
     Foam::volVectorField* Stress_;
+
+    //- Stress field (owning pointer, we bind to Stress_)
+    std::unique_ptr<Foam::volVectorField> StressOwning_;
 
 public:
     //- Constructor
     Stress(
         const Foam::fvMesh& mesh,
-        const std::string solverType);
+        const std::string solverType,
+        const std::string nameStress);
 
     //- Write the stress values into the buffer
     std::size_t write(double* buffer, bool meshConnectivity, const unsigned int dim) final;
@@ -39,9 +43,6 @@ public:
 
     //- Returns the face normal vectors (no multiplication by area)
     Foam::tmp<Foam::vectorField> getFaceVectors(const unsigned int patchID) const final;
-
-    //- Destructor
-    ~Stress();
 };
 }
 }

@@ -650,6 +650,8 @@ FSI
     nameCellDisplacement D;
     // Force field
     nameForce Force; // For solids4Foam: solidForce
+    // Stress (traction) field
+    nameStress Stress; // For solids4Foam: the field given as tractionField in the solidTraction boundary condition
 }
 ```
 

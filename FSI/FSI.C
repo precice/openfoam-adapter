@@ -86,6 +86,10 @@ bool preciceAdapter::FSI::FluidStructureInteraction::readConfig(const IOdictiona
     nameForce_ = FSIdict.lookupOrDefault<word>("nameForce", "Force");
     DEBUG(adapterInfo("    force field name : " + nameForce_));
 
+    // Read the name of the stress field (if different)
+    nameStress_ = FSIdict.lookupOrDefault<word>("nameStress", "Stress");
+    DEBUG(adapterInfo("    stress field name : " + nameStress_));
+
     return true;
 }
 
@@ -162,7 +166,7 @@ bool preciceAdapter::FSI::FluidStructureInteraction::addWriters(const preciceAda
     {
         interface->addCouplingDataWriter(
             fieldConfig,
-            new Stress(mesh_, solverType_) /* TODO: Add any other arguments here */
+            new Stress(mesh_, solverType_, nameStress_) /* TODO: Add any other arguments here */
         );
         DEBUG(adapterInfo("Added writer: Stress."));
     }
@@ -212,7 +216,7 @@ bool preciceAdapter::FSI::FluidStructureInteraction::addReaders(const preciceAda
     {
         interface->addCouplingDataReader(
             fieldConfig,
-            new Stress(mesh_, solverType_) /* TODO: Add any other arguments here */
+            new Stress(mesh_, solverType_, nameStress_) /* TODO: Add any other arguments here */
         );
         DEBUG(adapterInfo("Added reader: Stress."));
     }
