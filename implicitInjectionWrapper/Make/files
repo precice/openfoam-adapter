@@ -1,0 +1,7 @@
+makeImplicitInjectorsKinematic.C
+makeImplicitInjectorsKinematicColliding.C
+makeImplicitInjectorsThermo.C
+makeImplicitInjectorsReacting.C
+makeImplicitInjectorsReactingMultiphase.C
+
+LIB = $(FOAM_USER_LIBBIN)/libimplicitInjectors
