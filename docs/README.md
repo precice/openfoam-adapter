@@ -46,7 +46,9 @@ All fields are supported for both flow (compressible/incompressible) and basic (
 | Stress | F* (flow solvers) | - | `Stress` |
 
 Displacement reading and writing are supported for both flow (compressible or incompressible) and structure solvers.
-Force and stress writing is only supported for flow solvers; reading is supported for both.
+For mesh nodes, the `pointDisplacement` field is used; for face centers, the `cellDisplacement` field is used.
+
+Only flow solvers can write forces or stresses. Solid solvers can only read forces.
 
 ### Module: Fluid-fluid coupling
 
