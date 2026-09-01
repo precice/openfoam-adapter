@@ -25,7 +25,7 @@ Legend on locations to read/write:
 - **C:** Cell centers (volume coupling)
 - ***:** Mesh connectivity supported (for, e.g., nearest-projection mapping)
 
-Regarding mesh connectivity, note that, for consistent data (e.g., displacement), it only makes sense that the writing participant provides mesh connectivity. For conservative data (e.g., forces), it only makes sense that the reading participant provides mesh connectivity.
+Regarding nearest-projection mapping, note that, for consistent data (e.g., displacement), it only makes sense that the writing participant provides mesh connectivity. For conservative data (e.g., forces), it only makes sense that the reading participant provides mesh connectivity.
 
 ### Module: Conjugate heat transfer
 
