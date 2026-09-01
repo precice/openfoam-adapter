@@ -23,16 +23,16 @@ Legend on locations to read/write:
 - **N:** Mesh nodes (surface coupling)
 - **F:** Face centers (surface coupling)
 - **C:** Cell centers (volume coupling)
-- ***:** Mesh connectivity supported (for, e.g., nearest-projection mapping)
+- ***:** Mesh connectivity supported (for, e.g., nearest-projection mapping, where the writing participant needs to provide it)
 
 ### Module: Conjugate heat transfer
 
 | Field | Write | Read | Config prefix |
 | --- | --- | --- | --- |
-| Heat flux | N*, F | N, F* | `Heat-Flux` |
-| Heat transfer coefficient | N*, F | N, F* | `Heat-Transfer-Coefficient` |
-| Sink temperature | N*, F | N, F* | `Sink-Temperature` |
-| Temperature | N*, F, C | N, F*, C | `Temperature` |
+| Heat flux | N*, F | N, F | `Heat-Flux` |
+| Heat transfer coefficient | N*, F | N, F | `Heat-Transfer-Coefficient` |
+| Sink temperature | N*, F | N, F | `Sink-Temperature` |
+| Temperature | N*, F, C | N, F, C | `Temperature` |
 
 All fields are supported for both flow (compressible/incompressible) and basic (e.g., laplacianFoam) solvers.
 
@@ -40,9 +40,9 @@ All fields are supported for both flow (compressible/incompressible) and basic (
 
 | Field | Write | Read | Config prefix |
 | --- | --- | --- | --- |
-| Displacement: absolute | N*, [F*](https://github.com/precice/openfoam-adapter/issues/153) | N*, F* | `Displacement` |
-| Displacement: relative | - | N*, F* | `DisplacementDelta` |
-| Force | F* (flow solvers) | F* | `Force` |
+| Displacement: absolute | N*, [F*](https://github.com/precice/openfoam-adapter/issues/153) | N, F | `Displacement` |
+| Displacement: relative | - | N, F | `DisplacementDelta` |
+| Force | F* (flow solvers) | F | `Force` |
 | Stress | F* (flow solvers) | - | `Stress` |
 
 Displacement reading and writing are supported for both flow (compressible or incompressible) and structure solvers.
@@ -52,19 +52,19 @@ Force and stress writing is only supported for flow solvers; reading is supporte
 
 | Field | Write | Read | Config prefix |
 | --- | --- | --- | --- |
-| Drag force | F*, C | F*, C | `DragForce` |
-| Momentum: explicit | F*, C | F*, C | `ExplicitMomentum` |
-| Momentum: implicit | F*, C | F*, C | `ImplicitMomentum` |
-| Phase flux | F* | F* | `Phi` |
-| Volume fraction | F*, C | F*, C | `Alpha` |
-| Phase fraction gradient | F* | F* | `AlphaGradient` |
-| Pressure | F*, C | F*, C | `Pressure` |
-| Pressure: full gradient | F*, C* | F* | `PressureGradientFull` (TODO: read-only) |
-| Pressure: surface-normal gradient | F* | F* | `PressureGradient` |
-| Temperature | F* | F* | `FlowTemperature` |
-| Temperature surface-normal gradient | F* | F* | `FlowTemperatureGradient` |
-| Velocity | F*, C | F*, C | `Velocity` |
-| Velocity surface-normal gradient | F* | F* | `VelocityGradient` |
+| Drag force | F*, C | F, C | `DragForce` |
+| Momentum: explicit | F*, C | F, C | `ExplicitMomentum` |
+| Momentum: implicit | F*, C | F, C | `ImplicitMomentum` |
+| Phase flux | F* | F | `Phi` |
+| Volume fraction | F*, C | F, C | `Alpha` |
+| Phase fraction gradient | F* | F | `AlphaGradient` |
+| Pressure | F*, C | F, C | `Pressure` |
+| Pressure: full gradient | F*, C* | F | `PressureGradientFull` (TODO: read-only) |
+| Pressure: surface-normal gradient | F* | F | `PressureGradient` |
+| Temperature | F* | F | `FlowTemperature` |
+| Temperature surface-normal gradient | F* | F | `FlowTemperatureGradient` |
+| Velocity | F*, C | F, C | `Velocity` |
+| Velocity surface-normal gradient | F* | F | `VelocityGradient` |
 
 All fields assume a flow solver.
 
