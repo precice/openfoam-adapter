@@ -54,19 +54,19 @@ Only flow solvers can write forces or stresses. Solid solvers can only read forc
 
 | Field | Write | Read | Config prefix |
 | --- | --- | --- | --- |
-| Drag force | F*, C | F, C | `DragForce` |
-| Momentum: explicit | F*, C | F, C | `ExplicitMomentum` |
-| Momentum: implicit | F*, C | F, C | `ImplicitMomentum` |
+| Drag force | F, C | F, C | `DragForce` |
+| Momentum: explicit | F, C | F, C | `ExplicitMomentum` |
+| Momentum: implicit | F, C | F, C | `ImplicitMomentum` |
 | Phase flux | F* | F | `Phi` |
-| Volume fraction | F*, C | F, C | `Alpha` |
+| Volume fraction | F, C | F, C | `Alpha` |
 | Phase fraction gradient | F* | F | `AlphaGradient` |
-| Pressure | F*, C | F, C | `Pressure` |
-| Pressure: full gradient | F*, C* | F | `PressureGradientFull` (TODO: read-only) |
-| Pressure: surface-normal gradient | F* | F | `PressureGradient` |
-| Temperature | F* | F | `FlowTemperature` |
-| Temperature surface-normal gradient | F* | F | `FlowTemperatureGradient` |
-| Velocity | F*, C | F, C | `Velocity` |
-| Velocity surface-normal gradient | F* | F | `VelocityGradient` |
+| Pressure | F, C | F, C | `Pressure` |
+| Pressure: full gradient | F, C* | F | `PressureGradientFull` (TODO: read-only) |
+| Pressure: surface-normal gradient | F | F | `PressureGradient` |
+| Temperature | F | F | `FlowTemperature` |
+| Temperature surface-normal gradient | F | F | `FlowTemperatureGradient` |
+| Velocity | F, C | F, C | `Velocity` |
+| Velocity surface-normal gradient | F | F | `VelocityGradient` |
 
 All fields assume a flow solver.
 
