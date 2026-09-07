@@ -55,6 +55,8 @@ For mesh nodes, the `pointDisplacement` field is used; for face centers, the `ce
 
 Only flow solvers can write forces or stresses. Solid solvers can read forces, but not stresses.
 
+Originally, only flow OpenFOAM solvers have been considered. Reading more fields and providing connectivity by solid solvers can still be implemented.
+
 ### Module: Fluid-fluid coupling
 
 | Field | Write | Read | Config prefix |
