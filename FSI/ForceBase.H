@@ -43,7 +43,9 @@ public:
                               Foam::volVectorField& forceField,
                               const unsigned int dim) const;
 
-    void readFromBuffer(double* buffer) const;
+    std::size_t readFromBuffer(double* buffer,
+                               Foam::volVectorField& field,
+                               const unsigned int dim) const;
 
     virtual Foam::tmp<Foam::vectorField> getFaceVectors(const unsigned int patchID) const = 0;
 };
