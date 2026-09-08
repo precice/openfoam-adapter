@@ -64,7 +64,14 @@ void preciceAdapter::FF::AlphaGradient::read(double* buffer, const unsigned int 
 
 bool preciceAdapter::FF::AlphaGradient::isLocationTypeSupported(const bool meshConnectivity) const
 {
-    return (this->locationType_ == LocationType::faceCenters);
+    if (meshConnectivity)
+    {
+        return false;
+    }
+    else
+    {
+        return (this->locationType_ == LocationType::faceCenters);
+    }
 }
 
 std::string preciceAdapter::FF::AlphaGradient::getDataName() const
