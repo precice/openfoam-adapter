@@ -68,7 +68,7 @@ Originally, only flow OpenFOAM solvers have been considered. Reading more fields
 | Volume fraction | F, C | F, C | `Alpha` |
 | Phase fraction gradient | F | F | `AlphaGradient` |
 | Pressure | F, C | F, C | `Pressure` |
-| Pressure: full gradient | F, C | F | `PressureGradientFull` (TODO: read-only) |
+| Pressure: full gradient | F, C | F | `PressureGradientFull` |
 | Pressure: surface-normal gradient | F | F | `PressureGradient` |
 | Temperature | F | F | `FlowTemperature` |
 | Temperature surface-normal gradient | F | F | `FlowTemperatureGradient` |
