@@ -130,7 +130,7 @@ For fluid-structure interaction, coupled quantities can be:
 
 - `writeData`:
   - fluid participants: `Force`, `Stress` (force over area, consistent)
-  - solid participants: `Displacement`
+  - solid participants: `Displacement`, `DisplacementDelta` (difference to the displacement at the last coupling time window)
 - `readData`:
   - fluid participants: `Displacement`, `DisplacementDelta` (difference to the displacement at the last coupling time window)
   - solid participants: `Force`, `Stress`
