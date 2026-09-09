@@ -19,7 +19,13 @@ wget -q -O - https://dl.openfoam.com/add-debian-repo.sh | sudo bash
 sudo apt-get install openfoam2606-dev
 ```
 
-As these steps change your `.profile`, you need to log out and in again to make OpenFOAM fully discoverable.
+Follow the instructions at the end to [make OpenFOAM discoverable](https://gitlab.com/openfoam/core/openfoam/-/wikis/running).
+A common approach is to add the following to your `~/.bashrc`:
+
+```bash
+ echo "source /usr/lib/openfoam/openfoam2606/etc/bashrc" >> ~/.bashrc
+ source ~/.bashrc
+```
 
 ## Supported OpenFOAM solvers
 
