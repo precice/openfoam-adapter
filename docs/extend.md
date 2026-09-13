@@ -40,56 +40,52 @@ See this diagram for an overview:
 
 {% mermaid %}
 flowchart TD
-    subgraph loop ["Implicit Iteration Loop for Window t"]
+    subgraph loop["Implicit Iteration Loop for Window t"]
         direction TB
+
         B{"OpenFOAM Solve"}
         C["Adapter::execute()"]
-        D["Adapter:writeCouplingData()"]
+        D["Adapter::writeCouplingData()"]
         E["preCICE::advance()"]
-        F{"preCICE - Rollback Needed?"}
+        F{"preCICE: Rollback Needed?"}
         G["Adapter::readCheckpoint() (Rollback)"]
-        I["Adapter - Read NEW Coupled Solver Data"]
-
-        J{"preCICE - Save State Needed?"}
+        I["Adapter: Read NEW Coupled Solver Data"]
+        J{"preCICE: Save State Needed?"}
         K["Adapter::writeCheckpoint()"]
-        L["Adapter - Read FINAL/Next Window Data"]
-
+        L["Adapter: Read FINAL/Next Window Data"]
     end
 
-    B --> C;
-    C --> D;
-    D --> E;
-    E --> F;
+    B --> C
+    C --> D
+    D --> E
+    E --> F
 
-    F -- Yes --> G;
-    G --> I;
-    I --> B;
+    F -- Yes --> G
+    G --> I
+    I --> B
 
-    F -- No --> J; %% Converged or explicit
-    K --> L;
-    J -- Yes --> K;
-    J -- No --> L;
+    F -- No --> J
+    J -- Yes --> K
+    J -- No --> L
+    K --> L
 
-    L --> M["OpenFOAM - Advance to Next Window t+dt"];
+    L --> M["OpenFOAM: Advance to Next Window t+dt"]
 
-    %% Styles
-    style B fill:#f9f,stroke:#333  %% Solver Solve
-    style M fill:#f9f,stroke:#333  %% Solver Advance Window
+    classDef solver fill:#f9f,stroke:#333
+    classDef adapter fill:#eef,stroke:#333
+    classDef writeOp fill:#ffdacc,stroke:#333
+    classDef precice fill:#eee,stroke:#333
+    classDef decision fill:#eee,stroke:#333,stroke-dasharray:5 5
+    classDef readOp fill:#cfc,stroke:#333
 
-    style C fill:#eef,stroke:#333  %% Adapter::execute() entry
+    class B,M solver
+    class C adapter
+    class D,K writeOp
+    class E precice
+    class F,J decision
+    class G,I,L readOp
 
-    style D fill:#ffdacc,stroke:#333  %% Write Coupling Data
-    style K fill:#ffdacc,stroke:#333  %% Write Checkpoint
-
-    style E fill:#eee,stroke:#333  %% preCICE advance
-    style F fill:#eee,stroke:#333,stroke-dasharray: 5 5 %% preCICE Rollback Check
-    style J fill:#eee,stroke:#333,stroke-dasharray: 5 5 %% preCICE Save Check
-
-    style G fill:#cfc,stroke:#333  %% Read Checkpoint
-    style I fill:#cfc,stroke:#333  %% Read NEW Data
-    style L fill:#cfc,stroke:#333  %% Read FINAL/Next Data
-
-    style loop stroke:#aaa,stroke-width:1px,stroke-dasharray: 3
+    style loop fill:none,stroke:#aaa,stroke-width:1px,stroke-dasharray:3 3
 {% endmermaid %}
 
 (this graph is also available as an [image file](https://github.com/precice/openfoam-adapter/blob/develop/docs/images/docs-adapter-openfoam-implicit-loop.png))
