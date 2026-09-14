@@ -8,6 +8,43 @@ Read more details in the issue [#52: Releases and versioning](https://github.com
 
 <!-- markdownlint-configure-file {"MD024": { "siblings_only": true } } -->
 
+## [v1.4.0] 2026-09-14
+
+### Added
+
+- Added an experimental `Generic` module for volume or surface coupling of arbitrary scalar and vector field types [#346](https://github.com/precice/openfoam-adapter/pull/346).
+  The module supports `value`, `gradient`, `surface-normal-gradient` ([#398](https://github.com/precice/openfoam-adapter/pull/398)), and `mixed` ([#400](https://github.com/precice/openfoam-adapter/pull/400)) operations and performs these without any knowledge on the physical meaning of the field.
+- Added the drag force, implicit momentum coefficient, explicit momentum, and the full pressure gradient in the FF module, as coupling variables for CFD-DEM simulations [#380](https://github.com/precice/openfoam-adapter/pull/380).
+- Added support for adapter configuration files that don't specify a `readData` or `writeData` entry at an interface, enabling uni-directional coupling [#348](https://github.com/precice/openfoam-adapter/pull/348).
+- Added support for case-insensitive field names (e.g., both `DISPLACEMENTS` and `Displacements` are now accepted), enabling coupling to solvers that require all-uppercase names [#390](https://github.com/precice/openfoam-adapter/pull/390).
+- Added exception handling for preCICE API calls [#366](https://github.com/precice/openfoam-adapter/pull/366).
+- Added documentation on:
+  - subcycling limitations [#388](https://github.com/precice/openfoam-adapter/pull/388).
+  - relevant differences between OpenFOAM versions, to make porting between versions easier [#351](https://github.com/precice/openfoam-adapter/pull/351).
+  - running the CI locally, including hints on which OpenFOAM versions are available on which platforms [#350](https://github.com/precice/openfoam-adapter/pull/350).
+  - the adapter being available on the OpenFOAM Package Index (OPI) [#375](https://github.com/precice/openfoam-adapter/pull/375).
+
+### Fixed
+
+- Fixed a checkpointing issue leading to a `different dimensions` error by pruning checkpointed fields that do not (anymore) appear in the registry of objects at that timestep before reading the checkpoint [#344](https://github.com/precice/openfoam-adapter/pull/344).
+- Fixed a compatibility issue with OpenFOAM v2606 affecting the `coupledVelocity` and `coupledPressure` boundary conditions [#410](https://github.com/precice/openfoam-adapter/pull/410), [#411](https://github.com/precice/openfoam-adapter/pull/411).
+- Fixed an issue preventing compiling the adapter with the Intel OneAPI compiler [#358](https://github.com/precice/openfoam-adapter/pull/358).
+- Fixed the wording in the error message thrown when reading stresses (was previously referring to forces) [#379](https://github.com/precice/openfoam-adapter/pull/379).
+
+### Changed
+
+- Simplified the error handling process in configuration. Configure simulations with the `errors strict` option for the adapter function object to force OpenFOAM to exit a simulation if the adapter cannot be loaded [#364](https://github.com/precice/openfoam-adapter/pull/364).
+- Improved the mesh checkpointing by explicitly checkpointing mesh cell volumes (`V`, `V0`, `V00`), now supporting higher-order time derivative schemes [#369](https://github.com/precice/openfoam-adapter/pull/369), [#387](https://github.com/precice/openfoam-adapter/pull/387).
+- Renamed `ADAPTER_PREP_FLAGS` to `ADAPTER_CFLAGS` in `Allwmake`, now setting it from `PRECICE_OPENFOAM_CFLAGS`, if defined in the environment. Similarly, now setting `ADAPTER_TARGET_DIR` from `PRECICE_OPENFOAM_TARGET_DIR`, if defined [#352](https://github.com/precice/openfoam-adapter/pull/352).
+- Updated `preciceDict` parsing for upcoming schema changes [#354](https://github.com/precice/openfoam-adapter/pull/354).
+  The entries `readData` and `writeData` are now mixed lists of words and/or dictionaries.
+  These dictionaries allow specifying additional options, such as `solver_name`, `operation`, and `flip-normal` for each field.
+  Backwards compatibility with the previous `wordList` parsing is maintained.
+- Updated `isLocationTypeSupported` across all modules to remove unreachable conditions and to better reflect the implementation. FSI now allows mesh connectivity when writing Displacement [#393](https://github.com/precice/openfoam-adapter/pull/393).
+- Upgraded the default OpenFOAM version to v2606 [#411](https://github.com/precice/openfoam-adapter/pull/411).
+- Migrate CI workflows to use the [setup-openfoam](https://github.com/marketplace/actions/setup-openfoam) action to install OpenFOAM [#338](https://github.com/precice/openfoam-adapter/pull/338).
+- Improved the documentation regarding the supported fields, including their locations and support for mesh connectivity [#392](https://github.com/precice/openfoam-adapter/pull/392).
+
 ## [v1.3.1] 2024-07-27
 
 ### Fixed
