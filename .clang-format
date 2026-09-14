@@ -3,11 +3,12 @@ Language:        Cpp
 # BasedOnStyle:  LLVM
 #
 # Proposed clang-format-11 style for OpenFOAM, trying to follow the OpenFOAM style guide:
-#   https://develop.openfoam.com/Development/openfoam/-/wikis/coding/style/style
+#   https://gitlab.com/openfoam/core/openfoam/-/wikis/coding/style/style
 # Configuration developed for the OpenFOAM-preCICE adapter code:
 #   https://github.com/precice/openfoam-adapter
 # Contribute to the discussion at the respective OpenFOAM issue:
-#   https://develop.openfoam.com/Development/openfoam/-/issues/1634
+#   https://develop.openfoam.com/Development/openfoam/-/issues/1634 (archived)
+#   https://gitlab.com/openfoam/core/openfoam/-/issues/1634
 #
 # Keep `public:` at the first indentation level
 AccessModifierOffset: -4

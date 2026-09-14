@@ -41,9 +41,7 @@ std::size_t preciceAdapter::FSI::DisplacementDelta::write(double* buffer, bool m
      * the outer for the locations and the inner for the dimensions.
      * See the preCICE writeBlockVectorData() implementation.
      */
-    FatalErrorInFunction
-        << "Writing displacementDeltas is not supported."
-        << exit(FatalError);
+    adapterInfo("Writing displacementDelta is not supported.", "error");
     return 0;
 }
 
@@ -98,7 +96,15 @@ void preciceAdapter::FSI::DisplacementDelta::read(double* buffer, const unsigned
 
 bool preciceAdapter::FSI::DisplacementDelta::isLocationTypeSupported(const bool meshConnectivity) const
 {
-    return (this->locationType_ == LocationType::faceCenters || this->locationType_ == LocationType::faceNodes);
+    // Solid solver *could* allow connectivity for writing displacement
+    if (meshConnectivity)
+    {
+        return (this->locationType_ == LocationType::faceNodes);
+    }
+    else
+    {
+        return (this->locationType_ == LocationType::faceCenters || this->locationType_ == LocationType::faceNodes);
+    }
 }
 
 std::string preciceAdapter::FSI::DisplacementDelta::getDataName() const

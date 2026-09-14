@@ -118,44 +118,46 @@ std::string preciceAdapter::CHT::ConjugateHeatTransfer::determineSolverType()
     return solverType;
 }
 
-bool preciceAdapter::CHT::ConjugateHeatTransfer::addWriters(std::string dataName, Interface* interface)
+bool preciceAdapter::CHT::ConjugateHeatTransfer::addWriters(const preciceAdapter::FieldConfig& fieldConfig, Interface* interface)
 {
+    std::string dataName = fieldConfig.name;
+
     bool found = true; // Set to false later, if needed.
 
-    if (dataName.find("Sink-Temperature") == 0)
+    if (matchingStrings(dataName, "Sink-Temperature"))
     {
         interface->addCouplingDataWriter(
-            dataName,
+            fieldConfig,
             new SinkTemperature(mesh_, nameT_));
         DEBUG(adapterInfo("Added writer: Sink Temperature."));
     }
-    else if (dataName.find("Temperature") == 0)
+    else if (matchingStrings(dataName, "Temperature"))
     {
         interface->addCouplingDataWriter(
-            dataName,
+            fieldConfig,
             new Temperature(mesh_, nameT_));
         DEBUG(adapterInfo("Added writer: Temperature."));
     }
-    else if (dataName.find("Heat-Flux") == 0)
+    else if (matchingStrings(dataName, "Heat-Flux"))
     {
         if (solverType_.compare("compressible") == 0)
         {
             interface->addCouplingDataWriter(
-                dataName,
+                fieldConfig,
                 new HeatFlux_Compressible(mesh_, nameT_));
             DEBUG(adapterInfo("Added writer: Heat Flux for compressible solvers."));
         }
         else if (solverType_.compare("incompressible") == 0)
         {
             interface->addCouplingDataWriter(
-                dataName,
+                fieldConfig,
                 new HeatFlux_Incompressible(mesh_, nameT_, nameRho_, nameCp_, namePr_, nameAlphat_));
             DEBUG(adapterInfo("Added writer: Heat Flux for incompressible solvers. "));
         }
         else if (solverType_.compare("basic") == 0)
         {
             interface->addCouplingDataWriter(
-                dataName,
+                fieldConfig,
                 new HeatFlux_Basic(mesh_, nameT_, nameKappa_));
             DEBUG(adapterInfo("Added writer: Heat Flux for basic solvers. "));
         }
@@ -165,26 +167,26 @@ bool preciceAdapter::CHT::ConjugateHeatTransfer::addWriters(std::string dataName
                         "error");
         }
     }
-    else if (dataName.find("Heat-Transfer-Coefficient") == 0)
+    else if (matchingStrings(dataName, "Heat-Transfer-Coefficient"))
     {
         if (solverType_.compare("compressible") == 0)
         {
             interface->addCouplingDataWriter(
-                dataName,
+                fieldConfig,
                 new HeatTransferCoefficient_Compressible(mesh_, nameT_));
             DEBUG(adapterInfo("Added writer: Heat Transfer Coefficient for compressible solvers."));
         }
         else if (solverType_.compare("incompressible") == 0)
         {
             interface->addCouplingDataWriter(
-                dataName,
+                fieldConfig,
                 new HeatTransferCoefficient_Incompressible(mesh_, nameT_, nameRho_, nameCp_, namePr_, nameAlphat_));
             DEBUG(adapterInfo("Added writer: Heat Transfer Coefficient for incompressible solvers. "));
         }
         else if (solverType_.compare("basic") == 0)
         {
             interface->addCouplingDataWriter(
-                dataName,
+                fieldConfig,
                 new HeatTransferCoefficient_Basic(mesh_, nameT_, nameKappa_));
             DEBUG(adapterInfo("Added writer: Heat Transfer Coefficient for basic solvers. "));
         }
@@ -208,44 +210,46 @@ bool preciceAdapter::CHT::ConjugateHeatTransfer::addWriters(std::string dataName
     return found;
 }
 
-bool preciceAdapter::CHT::ConjugateHeatTransfer::addReaders(std::string dataName, Interface* interface)
+bool preciceAdapter::CHT::ConjugateHeatTransfer::addReaders(const preciceAdapter::FieldConfig& fieldConfig, Interface* interface)
 {
+    std::string dataName = fieldConfig.name;
+
     bool found = true; // Set to false later, if needed.
 
-    if (dataName.find("Sink-Temperature") == 0)
+    if (matchingStrings(dataName, "Sink-Temperature"))
     {
         interface->addCouplingDataReader(
-            dataName,
+            fieldConfig,
             new SinkTemperature(mesh_, nameT_));
         DEBUG(adapterInfo("Added reader: Sink Temperature."));
     }
-    else if (dataName.find("Temperature") == 0)
+    else if (matchingStrings(dataName, "Temperature"))
     {
         interface->addCouplingDataReader(
-            dataName,
+            fieldConfig,
             new Temperature(mesh_, nameT_));
         DEBUG(adapterInfo("Added reader: Temperature."));
     }
-    else if (dataName.find("Heat-Flux") == 0)
+    else if (matchingStrings(dataName, "Heat-Flux"))
     {
         if (solverType_.compare("compressible") == 0)
         {
             interface->addCouplingDataReader(
-                dataName,
+                fieldConfig,
                 new HeatFlux_Compressible(mesh_, nameT_));
             DEBUG(adapterInfo("Added reader: Heat Flux for compressible solvers."));
         }
         else if (solverType_.compare("incompressible") == 0)
         {
             interface->addCouplingDataReader(
-                dataName,
+                fieldConfig,
                 new HeatFlux_Incompressible(mesh_, nameT_, nameRho_, nameCp_, namePr_, nameAlphat_));
             DEBUG(adapterInfo("Added reader: Heat Flux for incompressible solvers. "));
         }
         else if (solverType_.compare("basic") == 0)
         {
             interface->addCouplingDataReader(
-                dataName,
+                fieldConfig,
                 new HeatFlux_Basic(mesh_, nameT_, nameKappa_));
             DEBUG(adapterInfo("Added reader: Heat Flux for basic solvers. "));
         }
@@ -255,26 +259,26 @@ bool preciceAdapter::CHT::ConjugateHeatTransfer::addReaders(std::string dataName
                         "error");
         }
     }
-    else if (dataName.find("Heat-Transfer-Coefficient") == 0)
+    else if (matchingStrings(dataName, "Heat-Transfer-Coefficient"))
     {
         if (solverType_.compare("compressible") == 0)
         {
             interface->addCouplingDataReader(
-                dataName,
+                fieldConfig,
                 new HeatTransferCoefficient_Compressible(mesh_, nameT_));
             DEBUG(adapterInfo("Added reader: Heat Transfer Coefficient for compressible solvers."));
         }
         else if (solverType_.compare("incompressible") == 0)
         {
             interface->addCouplingDataReader(
-                dataName,
+                fieldConfig,
                 new HeatTransferCoefficient_Incompressible(mesh_, nameT_, nameRho_, nameCp_, namePr_, nameAlphat_));
             DEBUG(adapterInfo("Added reader: Heat Transfer Coefficient for incompressible solvers. "));
         }
         else if (solverType_.compare("basic") == 0)
         {
             interface->addCouplingDataReader(
-                dataName,
+                fieldConfig,
                 new HeatTransferCoefficient_Basic(mesh_, nameT_, nameKappa_));
             DEBUG(adapterInfo("Added reader: Heat Transfer Coefficient for basic solvers. "));
         }

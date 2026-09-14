@@ -14,7 +14,7 @@ EXE_INC = \
     -I$(LIB_SRC)/triSurface/lnInclude \
     $(ADAPTER_PKG_CONFIG_CFLAGS) \
     -I../ \
-    $(ADAPTER_PREP_FLAGS)
+    $(ADAPTER_CFLAGS)
 
 LIB_LIBS = \
     -lfiniteVolume \

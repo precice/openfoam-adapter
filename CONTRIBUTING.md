@@ -28,6 +28,26 @@ There are also a few additional workflows that can be triggered manually:
 
 Members of the repository can trigger these workflows in the "Actions" tab.
 
+### Running the CI locally
+
+You can also run GitHub Actions locally with [act](https://github.com/nektos/act).
+
+List the workflows with `act --list`. To simulate a push event, run `act push`. Some workflows might work on GitHub Actions but not on act, in which case you could try running specific workflows with, for example, `act -j 'build'`.
+
+To trigger the custom build workflow:
+
+1. Switch to the directory `.github/workflows/`
+2. Edit the inputs in the `build-custom.input` file.
+3. [Generate a GitHub access token](https://github.com/settings/personal-access-tokens) and add it to a `.secrets` file with content `GITHUB_TOKEN=<your-token>`.
+   This, as well as setting an `--artifact-server-path` to a local directory are needed for the `upload-artifact` action, even though build artifacts are only stored locally (see updates in a [related issue](https://github.com/nektos/act/issues/329)).
+4. Start the build using:
+
+   ```shell
+   act -W build-custom.yml --input-file build-custom.input --secret-file .secrets --artifact-server-path $PWD/.artifacts
+   ```
+
+Find valid combinations of Ubuntu and OpenFOAM versions in the [OpenFOAM support page](https://precice.org/adapter-openfoam-support.html).
+
 ## System tests
 
 For non-trivial pull requests, we also need to execute [system regression tests](https://precice.org/dev-docs-system-tests.html),

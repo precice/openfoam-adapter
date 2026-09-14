@@ -12,6 +12,15 @@
 namespace preciceAdapter
 {
 
+//- field options
+struct FieldConfig
+{
+    std::string name;
+    std::string solver_name;
+    std::string operation;
+    bool flip_normal;
+};
+
 class Interface
 {
 protected:
@@ -82,13 +91,13 @@ public:
 
     //- Add a CouplingDataUser to read data from the interface
     void addCouplingDataReader(
-        std::string dataName,
+        const FieldConfig& fieldConfig,
         CouplingDataUser* couplingDataReader);
 
 
     //- Add a CouplingDataUser to write data on the interface
     void addCouplingDataWriter(
-        std::string dataName,
+        const FieldConfig& fieldConfig,
         CouplingDataUser* couplingDataWriter);
 
     //- Allocate an appropriate buffer for scalar or vector data.

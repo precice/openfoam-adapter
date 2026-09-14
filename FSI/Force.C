@@ -79,7 +79,14 @@ void preciceAdapter::FSI::Force::read(double* buffer, const unsigned int dim)
 
 bool preciceAdapter::FSI::Force::isLocationTypeSupported(const bool meshConnectivity) const
 {
-    return (this->locationType_ == LocationType::faceCenters);
+    if (meshConnectivity)
+    {
+        return false;
+    }
+    else
+    {
+        return (this->locationType_ == LocationType::faceCenters);
+    }
 }
 
 std::string preciceAdapter::FSI::Force::getDataName() const

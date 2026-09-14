@@ -126,12 +126,7 @@ void preciceAdapter::CHT::KappaEff_Incompressible::extract(uint patchID, bool me
     }
     else
     {
-        WarningInFunction
-            << "The object alphat does not exist. "
-            << "An incompressible solver should create it explicitly "
-            << "(e.g. in the createFields.H)."
-            << "Assuming only the laminar part of the thermal diffusivity."
-            << nl;
+        adapterInfo("The object alphat does not exist. An incompressible solver should create it explicitly (e.g. in the createFields.H). Assuming only the laminar part of the thermal diffusivity.", "warning");
 
         alphaEff = nu / Pr_.value();
     }
