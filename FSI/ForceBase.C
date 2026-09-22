@@ -181,14 +181,34 @@ std::size_t preciceAdapter::FSI::ForceBase::writeToBuffer(double* buffer,
     return bufferIndex;
 }
 
-void preciceAdapter::FSI::ForceBase::readFromBuffer(double* buffer) const
+std::size_t preciceAdapter::FSI::ForceBase::readFromBuffer(double* buffer,
+                                                           volVectorField& field,
+                                                           const unsigned int dim) const
 {
-    /* TODO: Implement (issue https://github.com/precice/openfoam-adapter/issues/240)
-     * We need two nested for-loops for each patch,
-     * the outer for the locations and the inner for the dimensions.
-     * Since the Force class already implements a read method,
-     * this only corresponds to stresses.
-     * In general, consider refactoring the ForceBase, Force, and Stress classes.
-     */
-    adapterInfo("Reading stresses is not supported.", "error");
+    // Copy the force/stress field from the buffer to OpenFOAM
+
+    int bufferIndex = 0;
+    // For every boundary patch of the interface
+    for (const label patchID : patchIDs_)
+    {
+        if (this->locationType_ == LocationType::faceCenters)
+        {
+            vectorField& patchField = field.boundaryFieldRef()[patchID];
+
+            // Copy the values from the buffer into the patch field
+            forAll(patchField, i)
+            {
+                for (unsigned int d = 0; d < dim; ++d)
+                    patchField[i][d] = buffer[bufferIndex++];
+            }
+        }
+        else if (this->locationType_ == LocationType::faceNodes)
+        {
+            // Here we could easily interpolate the point values to face values
+            // and assign them to some field, but I guess there is no need
+            // unless it will be used
+            notImplemented("Reading forces/stresses is not implemented for faceNodes!");
+        }
+    }
+    return bufferIndex;
 }

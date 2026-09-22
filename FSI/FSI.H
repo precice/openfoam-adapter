@@ -40,6 +40,9 @@ protected:
     //- Name of the force field
     std::string nameForce_ = "Force";
 
+    //- Name of the stress field
+    std::string nameStress_ = "Stress";
+
     /* TODO: Declare here any parameters that should be read from
     /  the configuration file. See CHT/CHT.H for reference.
     /  We want to support in-house solvers with different field names,
